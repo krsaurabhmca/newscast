@@ -34,6 +34,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
             <li>
+                <a href="profile.php" class="<?php echo $current_page == 'profile.php' ? 'active' : ''; ?>">
+                    <i data-feather="user" style="width: 18px;"></i>
+                    Account Profile
+                </a>
+            </li>
+            <li>
                 <?php $unread_count = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status = 'new'")->fetchColumn(); ?>
                 <a href="feedback.php" class="<?php echo $current_page == 'feedback.php' ? 'active' : ''; ?>" style="position: relative;">
                     <i data-feather="inbox" style="width: 18px;"></i>
@@ -82,6 +88,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="change_password.php" class="<?php echo $current_page == 'change_password.php' ? 'active' : ''; ?>">
                     <i data-feather="lock" style="width: 18px;"></i>
                     Security
+                </a>
+            </li>
+            <li>
+                <a href="help.php" class="<?php echo $current_page == 'help.php' ? 'active' : ''; ?>">
+                    <i data-feather="help-circle" style="width: 18px;"></i>
+                    Help & Guide
                 </a>
             </li>
             <?php endif; ?>
