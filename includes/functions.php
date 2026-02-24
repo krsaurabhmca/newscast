@@ -84,6 +84,18 @@ function get_post_thumbnail($image) {
     // Default placeholder if everything fails
     return BASE_URL . 'assets/images/default-post.jpg';
 }
+
+/**
+ * Get profile image URL with fallback to default avatar
+ */
+function get_profile_image($filename, $base = '../') {
+    $default = BASE_URL . 'assets/images/default-avatar.svg';
+    if (empty($filename)) return $default;
+    // Check file exists on disk
+    $disk_path = dirname(__DIR__) . '/assets/images/' . $filename;
+    if (!file_exists($disk_path)) return $default;
+    return BASE_URL . 'assets/images/' . $filename;
+}
 /**
  * Robustly extract YouTube Video ID from any URL
  */

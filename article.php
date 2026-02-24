@@ -119,8 +119,11 @@ $related = $stmt->fetchAll();
 
             <?php echo display_ad('content_bottom', $pdo); ?>
             
-            <div style="margin-top: 60px; padding-top: 40px; border-top: 2px solid #333;">
-                <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 25px; color: #ff3c00;">RELATED STORIES</h3>
+            <div style="margin-top: 60px; padding-top: 40px; border-top: 2px solid #e2e8f0;">
+                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 20px; color: var(--primary); text-transform: uppercase; letter-spacing: .06em; display:flex; align-items:center; gap:8px;">
+                    <span style="display:inline-block;width:3px;height:18px;background:var(--primary);border-radius:2px;"></span>
+                    Related Stories
+                </h3>
                 <div class="news-grid">
                     <?php foreach ($related as $r): ?>
                     <article class="news-card">

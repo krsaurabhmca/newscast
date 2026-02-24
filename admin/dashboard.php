@@ -51,6 +51,233 @@ $max_cnt = max(array_column($cat_stats, 'cnt') ?: [1]);
 // ── Recent Feedback ───────────────────────────────────────────
 $recent_feedback = $pdo->query("SELECT * FROM feedback ORDER BY created_at DESC LIMIT 4")->fetchAll();
 
+// ── Live Stream Status ───────────────────────────────────────
+$live_enabled    = get_setting('live_youtube_enabled') === '1';
+$live_url        = get_setting('live_youtube_url');
+$live_title      = get_setting('live_stream_title', 'Watch Live');
+
+// Quick toggle from dashboard
+if (isset($_GET['live_toggle'])) {
+    $new_val = $_GET['live_toggle'] === 'on' ? '1' : '0';
+    $pdo->prepare("INSERT INTO settings (setting_key,setting_value) VALUES ('live_youtube_enabled',?) ON DUPLICATE KEY UPDATE setting_value=?")->execute([$new_val,$new_val]);
+    redirect('admin/dashboard.php', 'Live stream ' . ($new_val === '1' ? 'enabled' : 'disabled') . '!');
+}
+
+// Helper
+function dash_yt_id($url) {
+    if (!$url) return null;
+    if (preg_match('/(?:v=|youtu\.be\/|embed\/|live\/)([a-zA-Z0-9_-]{11})/', $url, $m)) return $m[1];
+    return null;
+}
+$live_vid_id = dash_yt_id($live_url);
+?>
+
+<?php
+// re-open php for PHP output already closed by include header
+?>
+
+<!-- ══════════════════ LIVE STREAM BANNER ══════════════════ -->
+<?php if ($live_url): ?>
+<div class="dash-live-banner <?php echo $live_enabled ? 'live-on' : 'live-off'; ?>">
+
+    <!-- Left: status + info -->
+    <div class="dlb-info">
+        <div class="dlb-badge-row">
+            <?php if ($live_enabled): ?>
+                <span class="dlb-pulse-ring"></span>
+                <span class="dlb-dot"></span>
+                <span class="dlb-live-text">LIVE NOW</span>
+            <?php else: ?>
+                <span class="dlb-off-dot"></span>
+                <span class="dlb-off-text">STREAM OFF</span>
+            <?php endif; ?>
+        </div>
+        <h2 class="dlb-title"><?php echo htmlspecialchars($live_title); ?></h2>
+        <p class="dlb-url"><?php echo htmlspecialchars(substr($live_url, 0, 60)) . (strlen($live_url) > 60 ? '…' : ''); ?></p>
+
+        <div class="dlb-actions">
+            <?php if ($live_enabled): ?>
+                <a href="?live_toggle=off" class="dlb-btn dlb-btn-off">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                    Stop Live
+                </a>
+            <?php else: ?>
+                <a href="?live_toggle=on" class="dlb-btn dlb-btn-on">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
+                    Go Live
+                </a>
+            <?php endif; ?>
+            <a href="settings.php?tab=livestream" class="dlb-btn dlb-btn-settings">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </a>
+            <?php if ($live_enabled): ?>
+                <a href="<?php echo BASE_URL; ?>" target="_blank" class="dlb-btn dlb-btn-view">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    View on Site
+                </a>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Right: mini preview -->
+    <?php if ($live_vid_id): ?>
+    <div class="dlb-preview">
+        <iframe
+            src="https://www.youtube.com/embed/<?php echo htmlspecialchars($live_vid_id); ?>?autoplay=0&mute=1&rel=0&modestbranding=1&controls=0&disablekb=1"
+            style="width:100%;height:100%;border:none;"
+            title="Live Preview"
+        ></iframe>
+        <!-- Transparent click-blocker -->
+        <div style="position:absolute;inset:0;width:100%;height:100%;background:transparent;z-index:2;cursor:default;"></div>
+        <?php if ($live_enabled): ?>
+        <div class="dlb-corner-live" style="z-index:3;"><span class="dlb-dot-sm"></span>LIVE</div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+</div>
+<?php else: ?>
+<div class="dash-live-banner live-empty">
+    <div class="dlb-info">
+        <div class="dlb-badge-row"><span class="dlb-off-dot"></span><span class="dlb-off-text">NO STREAM CONFIGURED</span></div>
+        <h2 class="dlb-title">YouTube Live Stream</h2>
+        <p style="color:#94a3b8;font-size:13px;margin:6px 0 14px;">Set up a live stream URL to broadcast directly on your homepage with an animated Live badge.</p>
+        <a href="settings.php" onclick="setTimeout(()=>showTab&&showTab('livestream'),500)" class="dlb-btn dlb-btn-on">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Configure Live Stream
+        </a>
+    </div>
+    <div class="dlb-preview" style="background:#f8fafc;display:flex;align-items:center;justify-content:center;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+    </div>
+</div>
+<?php endif; ?>
+
+<style>
+.dash-live-banner {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    min-height: 160px;
+}
+.live-on  { background: linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0f172a 100%); border: 1.5px solid rgba(220,38,38,.35); }
+.live-off { background: linear-gradient(135deg,#1e293b 0%,#0f172a 100%); border: 1.5px solid #334155; }
+.live-empty { background: white; border: 1.5px dashed #e2e8f0; }
+.live-empty .dlb-info { color: #334155; }
+
+.dlb-info {
+    padding: 22px 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+.dlb-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 6px;
+    position: relative;
+}
+/* Pulsing ring */
+.dlb-pulse-ring {
+    position: absolute;
+    left: -3px; top: -3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid #dc2626;
+    animation: dlbPulse 1.4s ease-out infinite;
+}
+@keyframes dlbPulse {
+    0%   { transform:scale(1);   opacity:.9; }
+    70%  { transform:scale(2);   opacity:0; }
+    100% { transform:scale(2);   opacity:0; }
+}
+.dlb-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #dc2626;
+    animation: dlbBlink 1s ease-in-out infinite;
+    flex-shrink: 0;
+}
+@keyframes dlbBlink {
+    0%,100% { opacity:1; }
+    50%     { opacity:.2; }
+}
+.dlb-live-text {
+    font-size: 11px; font-weight: 900;
+    color: #dc2626;
+    letter-spacing: .12em;
+}
+.dlb-off-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #475569;
+    flex-shrink: 0;
+}
+.dlb-off-text {
+    font-size: 11px; font-weight: 700;
+    color: #64748b;
+    letter-spacing: .08em;
+}
+.dlb-title {
+    font-size: 18px; font-weight: 800;
+    color: #f1f5f9;
+    margin: 0 0 4px;
+    line-height: 1.3;
+}
+.live-empty .dlb-title { color: #0f172a; }
+.dlb-url { font-size: 11px; color: #64748b; margin: 0 0 14px; word-break: break-all; }
+.dlb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.dlb-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 700;
+    text-decoration: none;
+    transition: .18s;
+    white-space: nowrap;
+}
+.dlb-btn-on  { background:#dc2626; color:#fff; }
+.dlb-btn-on:hover { background:#b91c1c; }
+.dlb-btn-off { background:rgba(255,255,255,.1); color:#f1f5f9; border:1px solid rgba(255,255,255,.15); }
+.dlb-btn-off:hover { background:rgba(255,255,255,.18); }
+.dlb-btn-settings { background:rgba(255,255,255,.08); color:#94a3b8; border:1px solid rgba(255,255,255,.1); }
+.dlb-btn-settings:hover { background:rgba(255,255,255,.15); color:#f1f5f9; }
+.dlb-btn-view { background:#16a34a; color:#fff; }
+.dlb-btn-view:hover { background:#15803d; }
+/* Video preview panel */
+.dlb-preview {
+    position: relative;
+    background: #000;
+    min-height: 160px;
+}
+.dlb-preview iframe { display:block; }
+.dlb-corner-live {
+    position: absolute; top:10px; left:10px;
+    background: rgba(220,38,38,.9);
+    color: #fff;
+    font-size: 10px; font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 5px;
+    display: flex; align-items: center; gap: 4px;
+    pointer-events: none;
+    letter-spacing:.06em;
+}
+.dlb-dot-sm {
+    width:6px; height:6px; border-radius:50%;
+    background:#fff;
+    animation: dlbBlink 1s infinite;
+}
+@media (max-width:900px) {
+    .dash-live-banner { grid-template-columns:1fr; }
+    .dlb-preview { min-height: 200px; }
+}
+</style>
+
+<?php
+// Stats start below
 ?>
 
 <!-- ═══════════════════════════ STATS ROW ═══════════════════════════ -->

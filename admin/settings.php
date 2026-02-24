@@ -7,6 +7,16 @@ if (!is_admin()) {
     redirect('admin/dashboard.php', 'Access denied.', 'danger');
 }
 
+// Helper: extract YouTube video ID from any YT URL format
+function getYoutubeId($url) {
+    $id = '';
+    $url = trim($url);
+    if (preg_match('/(?:v=|youtu\.be\/|embed\/|live\/)([a-zA-Z0-9_-]{11})/', $url, $m)) {
+        $id = $m[1];
+    }
+    return $id;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
     $to_save = [
         'site_name'              => clean($_POST['site_name']),
@@ -37,6 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'schema_type'            => clean($_POST['schema_type']),
         'posts_per_page'         => (int)$_POST['posts_per_page'],
         'copyright_text'         => clean($_POST['copyright_text']),
+        // Live Stream
+        'live_youtube_url'       => clean($_POST['live_youtube_url'] ?? ''),
+        'live_youtube_enabled'   => isset($_POST['live_youtube_enabled']) ? '1' : '0',
+        'live_stream_title'      => clean($_POST['live_stream_title'] ?? 'Live Stream'),
     ];
 
     try {
@@ -215,6 +229,9 @@ include 'includes/header.php';
     </button>
     <button type="button" onclick="showTab('seo')" id="tab-seo">
         <i data-feather="search" style="width:15px;"></i> SEO &amp; Analytics
+    </button>
+    <button type="button" onclick="showTab('livestream')" id="tab-livestream">
+        <i data-feather="youtube" style="width:15px;"></i> Live Stream
     </button>
 </div>
 
@@ -630,6 +647,86 @@ include 'includes/header.php';
         </div>
     </div>
 
+    <!-- ══════════ LIVE STREAM ══════════ -->
+    <div class="settings-panel" id="panel-livestream">
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div class="icon" style="background:#fef2f2; color:#dc2626;">
+                    <i data-feather="youtube" style="width:18px;"></i>
+                </div>
+                <div>
+                    <h3>YouTube Live Stream</h3>
+                    <p>Embed a live YouTube stream on the homepage with an animated LIVE badge</p>
+                </div>
+            </div>
+            <div class="settings-card-body">
+                <div class="settings-grid">
+                    <!-- Enable Toggle -->
+                    <div style="grid-column:1/-1;">
+                        <label class="field-label">Show Live Stream on Homepage</label>
+                        <div class="toggle-group">
+                            <div class="toggle-opt">
+                                <input type="radio" name="live_youtube_enabled" id="live_on" value="1" <?php echo get_setting('live_youtube_enabled') === '1' ? 'checked' : ''; ?>>
+                                <label for="live_on" style="color:#16a34a; border-color:#bbf7d0;">
+                                    <i data-feather="radio" style="width:14px;"></i> Enabled — Show on Homepage
+                                </label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="live_youtube_enabled" id="live_off" value="0" <?php echo get_setting('live_youtube_enabled') !== '1' ? 'checked' : ''; ?>>
+                                <label for="live_off">
+                                    <i data-feather="eye-off" style="width:14px;"></i> Disabled — Hidden
+                                </label>
+                            </div>
+                        </div>
+                        <span class="field-hint">When enabled, the live player appears prominently on the homepage.</span>
+                    </div>
+
+                    <!-- YouTube URL -->
+                    <div>
+                        <label class="field-label">YouTube Live Video URL</label>
+                        <div class="social-input-group">
+                            <i data-feather="youtube" class="social-icon" style="width:16px; color:#dc2626;"></i>
+                            <input type="url" name="live_youtube_url" id="live_youtube_url_input" class="form-control"
+                                placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX or Live URL"
+                                value="<?php echo htmlspecialchars(get_setting('live_youtube_url')); ?>"
+                                oninput="updateLivePreview(this.value)">
+                        </div>
+                        <span class="field-hint">Paste the YouTube video or live stream URL. Works with both regular videos and live streams.</span>
+                    </div>
+
+                    <!-- Stream Title -->
+                    <div>
+                        <label class="field-label">Stream Section Title</label>
+                        <input type="text" name="live_stream_title" class="form-control"
+                            placeholder="e.g. Watch Live | News Live" value="<?php echo htmlspecialchars(get_setting('live_stream_title', 'Watch Live')); ?>">
+                        <span class="field-hint">Appears as the heading above the embedded player.</span>
+                    </div>
+
+                    <!-- Live Preview -->
+                    <div style="grid-column:1/-1;" id="live_preview_wrap" <?php echo get_setting('live_youtube_url') ? '' : 'style="display:none;"'; ?>>
+                        <label class="field-label">Preview</label>
+                        <div style="position:relative; background:#000; border-radius:12px; overflow:hidden; aspect-ratio:16/9; max-width:560px;">
+                            <iframe id="live_preview_iframe"
+                                src="<?php echo get_setting('live_youtube_url') ? 'https://www.youtube.com/embed/' . getYoutubeId(get_setting('live_youtube_url')) . '?autoplay=0&mute=1' : ''; ?>"
+                                style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
+                        </div>
+                        <span class="field-hint">Save &amp; refresh the homepage to see autoplay in action.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips callout -->
+        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:16px; display:flex; gap:12px; align-items:start; margin-bottom:20px;">
+            <i data-feather="info" style="width:16px; color:#dc2626; flex-shrink:0; margin-top:2px;"></i>
+            <div style="font-size:13px; color:#7f1d1d; line-height:1.7;">
+                <strong>Tips:</strong> For a YouTube <em>Live stream</em>, use the share URL from "Go Live" or studio. For a regular video, paste the normal watch URL.
+                The homepage will show an animated <span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:700;">● LIVE</span> badge and the player will autoplay muted.
+                Autoplay requires the browser to have autoplay enabled (usually works on most modern browsers when muted).
+            </div>
+        </div>
+    </div>
+
     <div class="save-bar">
         <span style="font-size: 13px; color: #64748b;">All changes apply across the entire site instantly.</span>
         <button type="submit" name="save_settings" class="btn btn-primary" style="padding: 12px 35px; font-size: 15px; gap: 10px;">
@@ -667,6 +764,24 @@ if (metaField && metaCount) {
     };
     metaField.addEventListener('input', update);
     update();
+}
+
+// Live preview for YouTube URL
+function getYouTubeEmbedId(url) {
+    const m = url.match(/(?:v=|youtu\.be\/|embed\/|live\/)([a-zA-Z0-9_-]{11})/);
+    return m ? m[1] : null;
+}
+function updateLivePreview(url) {
+    const wrap  = document.getElementById('live_preview_wrap');
+    const iframe = document.getElementById('live_preview_iframe');
+    const id = getYouTubeEmbedId(url);
+    if (id) {
+        iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=0&mute=1';
+        wrap.style.display = '';
+    } else {
+        wrap.style.display = 'none';
+        iframe.src = '';
+    }
 }
 </script>
 

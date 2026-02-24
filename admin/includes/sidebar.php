@@ -56,8 +56,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </li>
             <li>
                 <a href="epapers.php" class="<?php echo $current_page == 'epapers.php' ? 'active' : ''; ?>">
-                    <i data-feather="book-open" style="width: 18px;"></i>
+                    <i data-feather="file-text" style="width: 18px;"></i>
                     Digital Papers
+                </a>
+            </li>
+            <li>
+                <a href="magazines.php" class="<?php echo $current_page == 'magazines.php' ? 'active' : ''; ?>">
+                    <i data-feather="book-open" style="width: 18px;"></i>
+                    Magazine
                 </a>
             </li>
             <li>

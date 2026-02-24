@@ -49,7 +49,10 @@ if (!is_logged_in()) {
                             <div style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;">Administrator</div>
                         </div>
                         <div class="profile-trigger" style="position: relative; cursor: pointer;">
-                            <img src="../assets/images/<?php echo $_SESSION['profile_image']; ?>" alt="Profile" style="width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 2px solid #f1f5f9;">
+                            <img src="<?php echo get_profile_image($_SESSION['profile_image'] ?? ''); ?>"
+                                 alt="Profile"
+                                 onerror="this.onerror=null;this.src='<?php echo BASE_URL; ?>assets/images/default-avatar.svg';"
+                                 style="width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 2px solid #f1f5f9;">
                         </div>
                     </div>
                 </div>

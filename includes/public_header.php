@@ -148,9 +148,10 @@ $bing_verify    = get_setting('bing_site_verify', '');
                         <div style="background: var(--primary); color: #fff; padding: 5px 10px; border-radius: 4px; font-weight: 900; letter-spacing: -1px;">DB</div>
                     <?php endif; ?>
                     
-                    <div style="display: flex; flex-direction: column; line-height: 1;">
+                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
                         <span style="font-size: 18px; letter-spacing: 1px; color: #1a1a1b; font-weight: 800;"><?php echo strtoupper(SITE_NAME_DYNAMIC); ?></span>
-                        <span style="font-size: 12px; font-weight: 500; color: #666;">DIGITAL NEWS</span>
+                        <?php $tagline = get_setting('site_tagline', 'DIGITAL NEWS'); ?>
+                        <span style="font-size: 11px; font-weight: 600; color: #888; letter-spacing: .5px; text-transform: uppercase;"><?php echo htmlspecialchars($tagline); ?></span>
                     </div>
                 </a>
 
@@ -172,6 +173,12 @@ $bing_verify    = get_setting('bing_site_verify', '');
                             <a href="<?php echo BASE_URL; ?>digital-paper">
                                 <i data-feather="file-text" style="width: 20px; height: 20px;"></i>
                                 E-Paper
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?php echo BASE_URL; ?>magazine">
+                                <i data-feather="book-open" style="width: 20px; height: 20px;"></i>
+                                Magazine
                             </a>
                         </li>
                     </ul>
