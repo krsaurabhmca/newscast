@@ -78,6 +78,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     Site Settings
                 </a>
             </li>
+            <li>
+                <a href="change_password.php" class="<?php echo $current_page == 'change_password.php' ? 'active' : ''; ?>">
+                    <i data-feather="lock" style="width: 18px;"></i>
+                    Security
+                </a>
+            </li>
             <?php endif; ?>
         </ul>
 

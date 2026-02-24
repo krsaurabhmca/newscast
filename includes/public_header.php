@@ -80,6 +80,11 @@ $bing_verify    = get_setting('bing_site_verify', '');
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         <?php endif; ?>
+        @media (max-width: 768px) {
+            .logo-has-image .logo-text-group {
+                display: none !important;
+            }
+        }
     </style>
 
     <!-- Feather Icons -->
@@ -141,14 +146,14 @@ $bing_verify    = get_setting('bing_site_verify', '');
                     </div>
                 <?php endif; ?>
 
-                <a href="<?php echo BASE_URL; ?>" class="logo-bhaskar">
+                <a href="<?php echo BASE_URL; ?>" class="logo-bhaskar <?php echo get_setting('site_logo') ? 'logo-has-image' : ''; ?>">
                     <?php if (get_setting('site_logo')): ?>
                         <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 45px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
                     <?php else: ?>
                         <div style="background: var(--primary); color: #fff; padding: 5px 10px; border-radius: 4px; font-weight: 900; letter-spacing: -1px;">DB</div>
                     <?php endif; ?>
                     
-                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                    <div class="logo-text-group" style="display: flex; flex-direction: column; line-height: 1.2;">
                         <span style="font-size: 18px; letter-spacing: 1px; color: #1a1a1b; font-weight: 800;"><?php echo strtoupper(SITE_NAME_DYNAMIC); ?></span>
                         <?php $tagline = get_setting('site_tagline', 'DIGITAL NEWS'); ?>
                         <span style="font-size: 11px; font-weight: 600; color: #888; letter-spacing: .5px; text-transform: uppercase;"><?php echo htmlspecialchars($tagline); ?></span>
