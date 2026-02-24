@@ -139,7 +139,7 @@ $categories_list = $stmt->fetchAll();
                 <a href="<?php echo $post_url; ?>" style="text-decoration: none; color: inherit;">
                     <div style="position: relative; margin-bottom: 10px;">
                         <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" alt="" style="width: 100%; aspect-ratio: 3/2; object-fit: cover; border-radius: 6px;">
-                        <div style="position: absolute; top: -10px; left: -10px; background: var(--primary); color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; border: 2px solid #fff;">
+                        <div style="position: absolute; top: 0; left: 0; background: var(--primary); color: #fff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; border-bottom-right-radius: 8px; border-top-left-radius: 6px; box-shadow: 2px 2px 8px rgba(0,0,0,0.2);">
                             <?php echo $index + 1; ?>
                         </div>
                     </div>
@@ -208,7 +208,8 @@ $categories_list = $stmt->fetchAll();
                     </div>
                     <div>
                         <h5 style="font-size: 13px; margin: 0 0 5px 0; line-height: 1.4; font-weight: 700;"><?php echo $tp['title']; ?></h5>
-                        <div style="font-size: 11px; color: #888;">
+                        <p style="font-size: 11px; color: #666; margin-bottom: 5px; line-height: 1.4;"><?php echo get_excerpt($tp['excerpt'], 10); ?></p>
+                        <div style="font-size: 10px; color: #888;">
                             <i data-feather="eye" style="width: 10px; height: 10px; vertical-align: middle;"></i> <?php echo number_format($tp['views']); ?> views
                         </div>
                     </div>

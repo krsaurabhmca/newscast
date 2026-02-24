@@ -83,12 +83,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         <ul class="nav-links" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
             <li>
-                <a href="<?php echo BASE_URL; ?>" target="_blank" style="color: #94a3b8;">
-                    <i data-feather="external-link" style="width: 18px;"></i>
-                    Visit Website
-                </a>
-            </li>
-            <li>
                 <a href="<?php echo BASE_URL; ?>logout.php" style="color: #f87171; background: rgba(248, 113, 113, 0.05); border: 1px solid rgba(248, 113, 113, 0.1);">
                     <i data-feather="log-out" style="width: 18px;"></i>
                     Logout Session

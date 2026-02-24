@@ -37,6 +37,10 @@ if (!is_logged_in()) {
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 20px;">
+                    <a href="<?php echo BASE_URL; ?>" target="_blank" class="desktop-only" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: #475569; font-size: 13px; font-weight: 700; background: #f1f5f9; padding: 10px 15px; border-radius: 8px; transition: .2s;">
+                        <i data-feather="external-link" style="width: 16px;"></i> View Website
+                    </a>
+
                     <a href="post_add.php" class="btn btn-primary desktop-only" style="background: var(--primary); font-size: 13px; font-weight: 600; border-radius: 8px; padding: 10px 18px;">
                         <i data-feather="plus" style="width: 16px;"></i> Create Post
                     </a>
