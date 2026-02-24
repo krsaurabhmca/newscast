@@ -68,21 +68,34 @@ function get_post_categories($pdo, $post_id) {
     return $stmt->fetchAll();
 }
 /**
- * Get Post Thumbnail or Fallback Logo
+ * Get Post Thumbnail or Dynamic Placeholder
  */
 function get_post_thumbnail($image) {
     if ($image && file_exists(dirname(__DIR__) . '/assets/images/posts/' . $image)) {
         return BASE_URL . 'assets/images/posts/' . $image;
     }
     
-    // Fallback to Site Logo
-    $site_logo = get_setting('site_logo');
-    if ($site_logo && file_exists(dirname(__DIR__) . '/assets/images/' . $site_logo)) {
-        return BASE_URL . 'assets/images/' . $site_logo;
-    }
+    // Dynamic Placeholder Implementation
+    $portal_name = defined('SITE_NAME_DYNAMIC') ? SITE_NAME_DYNAMIC : (defined('SITE_NAME') ? SITE_NAME : 'News Cast');
     
-    // Default placeholder if everything fails
-    return BASE_URL . 'assets/images/default-post.jpg';
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+        <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#f1f5f9;stop-opacity:1" />
+            </linearGradient>
+            <filter id="shadow" x="0" y="0" width="200%" height="200%">
+                <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.05"/>
+            </filter>
+        </defs>
+        <rect width="800" height="450" fill="url(#grad)"/>
+        <rect width="760" height="410" x="20" y="20" fill="#ffffff" rx="12" filter="url(#shadow)"/>
+        <text x="50%" y="50%" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="900" fill="#cbd5e1" text-anchor="middle" dominant-baseline="middle" letter-spacing="2px">
+            ' . strtoupper($portal_name) . '
+        </text>
+    </svg>';
+    
+    return 'data:image/svg+xml;base64,' . base64_encode($svg);
 }
 
 /**
