@@ -12,6 +12,11 @@ $total_users      = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $unread_msgs      = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status = 'new'")->fetchColumn();
 $today_posts      = $pdo->query("SELECT COUNT(*) FROM posts WHERE DATE(created_at) = CURDATE()")->fetchColumn();
 
+// ── Advertisement stats ───────────────────────────────────────
+$total_ad_views   = $pdo->query("SELECT COALESCE(SUM(impressions),0) FROM ads")->fetchColumn();
+$total_ad_clicks  = $pdo->query("SELECT COALESCE(SUM(clicks),0) FROM ads")->fetchColumn();
+$top_ads          = $pdo->query("SELECT * FROM ads ORDER BY impressions DESC LIMIT 5")->fetchAll();
+
 // ── Top viewed posts ──────────────────────────────────────────
 $top_posts = $pdo->query("
     SELECT p.id, p.title, p.views, p.status, p.published_at, p.slug,
@@ -351,6 +356,22 @@ $live_vid_id = dash_yt_id($live_url);
     <div class="stat-card">
         <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
+                <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px;">Ad Reach</p>
+                <div style="font-size: 30px; font-weight: 900; color: #0f172a;"><?php echo number_format($total_ad_views); ?></div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;"><?php echo $total_ad_clicks; ?> total clicks</p>
+            </div>
+            <div style="background: rgba(99,102,241,.1); color: var(--primary); width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                <i data-feather="image" style="width: 24px;"></i>
+            </div>
+        </div>
+        <a href="ads.php" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--primary); text-decoration: none;">
+            Analyze Ads <i data-feather="arrow-right" style="width: 12px;"></i>
+        </a>
+    </div>
+
+    <div class="stat-card">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
                 <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px;">Contributors</p>
                 <div style="font-size: 30px; font-weight: 900; color: #0f172a;"><?php echo number_format($total_users); ?></div>
                 <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Journalists & Editors</p>
@@ -453,6 +474,57 @@ $live_vid_id = dash_yt_id($live_url);
             </div>
             <?php endforeach; ?>
             </div>
+        </div>
+
+        <!-- Ad Performance Details -->
+        <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
+            <div style="padding: 20px 25px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 700; margin: 0;">📈 Active Ad Performance</h3>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 3px 0 0;">Top performing campaigns</p>
+                </div>
+                <a href="ads.php" class="btn" style="font-size: 12px; padding: 7px 15px; background: #fff1f2; color: #e11d48; font-weight: 700;">All Ads</a>
+            </div>
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>Campaign</th>
+                        <th>Location</th>
+                        <th>CTR</th>
+                        <th>Stats</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($top_ads)): ?>
+                        <tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 40px;">No advertisements found.</td></tr>
+                    <?php else: ?>
+                    <?php foreach ($top_ads as $ad): 
+                        $ctr = $ad['impressions'] > 0 ? round(($ad['clicks']/$ad['impressions'])*100, 1) : 0;
+                    ?>
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600; color: #0f172a; font-size: 13px;"><?php echo htmlspecialchars($ad['name']); ?></div>
+                            <span style="font-size: 10px; color: #64748b; text-transform: uppercase;"><?php echo $ad['type']; ?></span>
+                        </td>
+                        <td>
+                            <span style="background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;">
+                                <?php echo str_replace('_', ' ', $ad['location']); ?>
+                            </span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: <?php echo $ctr > 2 ? '#059669' : '#0f172a'; ?>; font-size: 13px;"><?php echo $ctr; ?>%</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 11px; color: #64748b;">
+                                <span style="font-weight: 700; color: #0f172a;"><?php echo number_format($ad['impressions']); ?></span> views<br>
+                                <span style="font-weight: 700; color: #0f172a;"><?php echo number_format($ad['clicks']); ?></span> clicks
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 
