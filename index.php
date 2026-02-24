@@ -87,24 +87,55 @@ $live_vid_id  = $live_url ? yt_id($live_url) : null;
     <!-- Bhaskar Home Hero (Lead Story Section) -->
     <section class="bhaskar-hero">
         <div class="main-feature">
-            <div style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px;">
-                <h3 style="font-size: 18px; font-weight: 800; color: var(--primary); margin:0;">LEAD STORY</h3>
-            </div>
-            <?php if ($featured): 
-                $post_url = ($featured['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $featured['id'] : BASE_URL . "article/" . $featured['slug'];
-            ?>
-            <a href="<?php echo $post_url; ?>" <?php echo ($featured['external_type'] != 'none') ? 'target="_blank"' : ''; ?>>
-                <div style="position: relative;">
-                    <img src="<?php echo get_post_thumbnail($featured['featured_image']); ?>" alt="" style="aspect-ratio: 16/9; object-fit: cover;">
-                    <?php if ($featured['video_url']): ?>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 60, 0, 0.85); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                            <i data-feather="play" style="width: 30px; height: 30px; fill: white;"></i>
-                        </div>
-                    <?php endif; ?>
+            <?php if ($live_enabled && $live_vid_id): ?>
+                <div style="border-bottom: 2px solid #ff0000; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                    <h3 style="font-size: 18px; font-weight: 800; color: #ff0000; margin:0; display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 10px; height: 10px; background: #ff0000; border-radius: 50%; animation: pulse 1s infinite;"></span>
+                        LIVE BROADCAST
+                    </h3>
+                    <span style="font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase;">Real-time Coverage</span>
                 </div>
-                <h2 style="margin-top:15px;"><?php echo $featured['title']; ?></h2>
-            </a>
-            <p style="color: #666; font-size: 16px;"><?php echo get_excerpt($featured['excerpt'], 30); ?></p>
+                <div style="background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <div style="position: relative; padding-top: 56.25%;">
+                        <iframe 
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                            src="https://www.youtube.com/embed/<?php echo $live_vid_id; ?>?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0&disablekb=1" 
+                            title="Live Stream" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                        <!-- Transparent Overlay to block controls -->
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: default; background: transparent;"></div>
+                    </div>
+                </div>
+                <h2 style="font-size: 24px; font-weight: 800; line-height: 1.3; color: #1a1a1b; margin-top: 15px;"><?php echo htmlspecialchars($live_title); ?></h2>
+                <p style="color: #666; font-size: 15px; line-height: 1.6; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Stay updated with our direct live broadcast. Witness the news as it unfolds on the ground.</p>
+                <div style="margin-top: 20px; display: flex; align-items: center; gap: 15px;">
+                    <span style="font-size: 13px; font-weight: 700; color: #ff0000; display: flex; align-items: center; gap: 5px;">
+                        <i data-feather="eye" style="width: 14px;"></i> 1.2k Watching Now
+                    </span>
+                    <a href="<?php echo $live_url; ?>" target="_blank" style="font-size: 13px; font-weight: 700; color: var(--primary); text-decoration: none; border-bottom: 2px solid var(--primary);">Open on YouTube</a>
+                </div>
+            <?php else: ?>
+                <div style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px;">
+                    <h3 style="font-size: 18px; font-weight: 800; color: var(--primary); margin:0;">LEAD STORY</h3>
+                </div>
+                <?php if ($featured): 
+                    $post_url = ($featured['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $featured['id'] : BASE_URL . "article/" . $featured['slug'];
+                ?>
+                <a href="<?php echo $post_url; ?>" <?php echo ($featured['external_type'] != 'none') ? 'target="_blank"' : ''; ?>>
+                    <div style="position: relative;">
+                        <img src="<?php echo get_post_thumbnail($featured['featured_image']); ?>" alt="" style="aspect-ratio: 16/9; object-fit: cover; border-radius: 8px;">
+                        <?php if ($featured['video_url']): ?>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 60, 0, 0.85); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i data-feather="play" style="width: 30px; height: 30px; fill: white;"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <h2 style="margin-top:15px; font-size: 28px; line-height: 1.2; font-weight: 800;"><?php echo $featured['title']; ?></h2>
+                </a>
+                <p style="color: #666; font-size: 16px; margin-top: 10px; line-height: 1.6;"><?php echo get_excerpt($featured['excerpt'], 30); ?></p>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
 
@@ -131,47 +162,13 @@ $live_vid_id  = $live_url ? yt_id($live_url) : null;
         </div>
     </section>
 
-    <!-- YouTube Live Stream Section -->
-    <?php if ($live_enabled && $live_vid_id): ?>
-    <section style="margin-bottom: 50px; background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 0;">
-            <!-- Player -->
-            <div style="position: relative; padding-top: 56.25%;">
-                <iframe 
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
-                    src="https://www.youtube.com/embed/<?php echo $live_vid_id; ?>?autoplay=0&rel=0&modestbranding=1" 
-                    title="Live Stream" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-            <!-- Live Info -->
-            <div style="background: linear-gradient(135deg, #1a1a1b 0%, #000 100%); padding: 30px; display: flex; flex-direction: column; justify-content: center;">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="background: #ff0000; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 900; letter-spacing: 1px; animation: pulse 1.5s infinite;">LIVE NOW</span>
-                    <span style="color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 700; text-transform: uppercase;">Direct Broadcast</span>
-                </div>
-                <h2 style="color: #fff; font-size: 24px; font-weight: 800; line-height: 1.3; margin: 0 0 15px 0;"><?php echo htmlspecialchars($live_title); ?></h2>
-                <p style="color: rgba(255,255,255,0.7); font-size: 14px; line-height: 1.6; margin-bottom: 25px;">Stay connected with our real-time coverage. Watch the latest updates and breaking news as it happens.</p>
-                <div style="display: flex; gap: 15px;">
-                    <button style="background: var(--primary); border: none; color: #fff; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <i data-feather="rss" style="width: 16px;"></i> Subscribe Now
-                    </button>
-                    <div style="display: flex; align-items: center; gap: 5px; color: #fff; font-size: 13px; font-weight: 600;">
-                        <i data-feather="users" style="width: 14px; color: #ff0000;"></i> 1.2k Watching
-                    </div>
-                </div>
-            </div>
-        </div>
-        <style>
-            @keyframes pulse {
-                0% { opacity: 1; transform: scale(1); }
-                50% { opacity: 0.7; transform: scale(0.95); }
-                100% { opacity: 1; transform: scale(1); }
-            }
-        </style>
-    </section>
-    <?php endif; ?>
+    <style>
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
 
     <!-- Top 10 Section -->
     <section style="margin-bottom: 50px; background: #f8f9fa; padding: 30px; border-radius: 12px;">
