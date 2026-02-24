@@ -1,0 +1,15 @@
+RewriteEngine On
+
+# Article Rewrites
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^article/([^/]+)$ article.php?slug=$1 [L,QSA]
+
+# Category Rewrites
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^category/([^/]+)$ category.php?slug=$1 [L,QSA]
+
+# E-Paper Rewrites
+RewriteRule ^digital-paper$ epaper.php [L,QSA]
+RewriteRule ^digital-paper/view/([0-9]+)$ epaper_view.php?id=$1 [L,QSA]
