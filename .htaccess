@@ -1,4 +1,5 @@
 RewriteEngine On
+# RewriteBase / # Commented out to work in subdirectories like /news/
 
 # Article Rewrites
 RewriteCond %{REQUEST_FILENAME} !-f

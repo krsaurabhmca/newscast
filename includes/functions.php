@@ -143,4 +143,17 @@ function display_ad($location, $pdo) {
 
     return $html;
 }
+
+/**
+ * Shorten text to a specific word count
+ */
+function get_excerpt($text, $word_count = 25) {
+    if (!$text) return '';
+    $text = strip_tags($text);
+    $words = explode(' ', $text);
+    if (count($words) > $word_count) {
+        return implode(' ', array_slice($words, 0, $word_count)) . '...';
+    }
+    return $text;
+}
 ?>

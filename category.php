@@ -44,7 +44,7 @@ $posts = $stmt->fetchAll();
         <?php if (empty($posts)): ?>
             <div style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
                 <h3 style="color: #94a3b8;">No stories found in this category yet.</h3>
-                <a href="index.php" style="color: var(--primary); margin-top: 10px; display: inline-block; font-weight: 700;">Back to Home</a>
+                <a href="<?php echo BASE_URL; ?>" style="color: var(--primary); margin-top: 10px; display: inline-block; font-weight: 700;">Back to Home</a>
             </div>
         <?php else: ?>
             <?php foreach ($posts as $post): 
