@@ -33,10 +33,10 @@ $posts = $stmt->fetchAll();
 ?>
 
 <main class="content-container">
-    <header style="margin-bottom: 40px; border-bottom: 2px solid #333; padding-bottom: 20px;">
-        <h1 style="font-size: 32px; font-weight: 800; color: #ff3c00;"><?php echo strtoupper($category['name']); ?></h1>
+    <header style="margin-bottom: 40px; border-bottom: 3px solid <?php echo $category['color']; ?>; padding-bottom: 20px;">
+        <h1 style="font-size: 36px; font-weight: 900; color: <?php echo $category['color']; ?>;"><?php echo strtoupper($category['name']); ?></h1>
         <?php if ($category['description']): ?>
-            <p style="margin-top: 10px; color: #666; font-size: 16px;"><?php echo $category['description']; ?></p>
+            <p style="margin-top: 10px; color: #64748b; font-size: 16px; font-weight: 500;"><?php echo $category['description']; ?></p>
         <?php endif; ?>
     </header>
 

@@ -1,4 +1,4 @@
-    <footer class="bhaskar-footer">
+    <footer class="bhaskar-footer <?php echo (get_setting('footer_theme') == 'dark') ? 'theme-dark' : 'theme-light'; ?>">
         <div class="content-container">
             <div class="footer-grid">
                 <div class="footer-col">
@@ -38,10 +38,11 @@
                 <div class="footer-col">
                     <h5>Support</h5>
                     <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Use</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>about.php">About Us</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>privacy-policy.php">Privacy Policy</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>terms.php">Terms of Use</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>disclaimer.php">Disclaimer</a></li>
                     </ul>
                 </div>
 
@@ -120,5 +121,6 @@
             }
         };
     </script>
+    <?php include 'includes/feedback_drawer.php'; ?>
 </body>
 </html>

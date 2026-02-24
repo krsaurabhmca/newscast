@@ -2,8 +2,8 @@
 $page_title = "Advertisement Management";
 include 'includes/header.php';
 
-// Handle Ad Submission
-if (isset($_POST['add_ad'])) {
+// Handle Ad Submission (Add or Edit)
+if (isset($_POST['save_ad'])) {
     $name = clean($_POST['name']);
     $location = $_POST['location'];
     $type = $_POST['type'];
@@ -13,8 +13,9 @@ if (isset($_POST['add_ad'])) {
     $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
     $ad_code = $_POST['ad_code'];
     $status = isset($_POST['status']) ? 1 : 0;
+    $ad_id = isset($_POST['ad_id']) ? (int)$_POST['ad_id'] : null;
 
-    $image_path = '';
+    $image_path = isset($_POST['existing_image']) ? $_POST['existing_image'] : '';
     if ($type == 'image' && isset($_FILES['ad_image']) && $_FILES['ad_image']['error'] === 0) {
         $img_name = $_FILES['ad_image']['name'];
         $tmp_name = $_FILES['ad_image']['tmp_name'];
@@ -27,15 +28,26 @@ if (isset($_POST['add_ad'])) {
         }
         
         if (move_uploaded_file($tmp_name, $upload_path)) {
+            // Delete old image if it exists and we're updating
+            if ($image_path && file_exists("../assets/images/ads/" . $image_path)) {
+                unlink("../assets/images/ads/" . $image_path);
+            }
             $image_path = $new_img_name;
         }
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO ads (name, location, type, image_path, link_url, link_type, ad_code, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $location, $type, $image_path, $link_url, $link_type, $ad_code, $start_date, $end_date, $status]);
-        $_SESSION['flash_msg'] = "Advertisement added successfully!";
+        if ($ad_id) {
+            $stmt = $pdo->prepare("UPDATE ads SET name = ?, location = ?, type = ?, image_path = ?, link_url = ?, link_type = ?, ad_code = ?, start_date = ?, end_date = ?, status = ? WHERE id = ?");
+            $stmt->execute([$name, $location, $type, $image_path, $link_url, $link_type, $ad_code, $start_date, $end_date, $status, $ad_id]);
+            $_SESSION['flash_msg'] = "Advertisement updated successfully!";
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO ads (name, location, type, image_path, link_url, link_type, ad_code, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$name, $location, $type, $image_path, $link_url, $link_type, $ad_code, $start_date, $end_date, $status]);
+            $_SESSION['flash_msg'] = "Advertisement added successfully!";
+        }
         $_SESSION['flash_type'] = "success";
+        redirect('admin/ads.php');
     } catch (PDOException $e) {
         $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
         $_SESSION['flash_type'] = "danger";
@@ -64,76 +76,95 @@ if (isset($_GET['delete'])) {
     redirect('admin/ads.php', 'Ad deleted successfully!');
 }
 
+// Fetch existing ad for editing
+$edit_ad = null;
+if (isset($_GET['edit'])) {
+    $stmt = $pdo->prepare("SELECT * FROM ads WHERE id = ?");
+    $stmt->execute([$_GET['edit']]);
+    $edit_ad = $stmt->fetch();
+}
+
 $ads = $pdo->query("SELECT * FROM ads ORDER BY created_at DESC")->fetchAll();
 ?>
 
 <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 30px;">
-    <h3 style="margin-bottom: 20px;">New Advertisement</h3>
+    <h3 style="margin-bottom: 20px;"><?php echo $edit_ad ? 'Edit Advertisement' : 'New Advertisement'; ?></h3>
     <form action="" method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+        <?php if($edit_ad): ?>
+            <input type="hidden" name="ad_id" value="<?php echo $edit_ad['id']; ?>">
+            <input type="hidden" name="existing_image" value="<?php echo $edit_ad['image_path']; ?>">
+        <?php endif; ?>
+        
         <div class="form-group">
             <label>Ad Name</label>
-            <input type="text" name="name" class="form-control" placeholder="e.g., Summer Sale Banner" required>
+            <input type="text" name="name" class="form-control" placeholder="e.g., Summer Sale Banner" required value="<?php echo $edit_ad ? $edit_ad['name'] : ''; ?>">
         </div>
         <div class="form-group">
             <label>Location Slot</label>
             <select name="location" class="form-control" required>
-                <option value="header">Header (Top)</option>
-                <option value="sidebar">Sidebar</option>
-                <option value="content_top">Above Post Content</option>
-                <option value="content_bottom">Below Post Content</option>
+                <option value="header" <?php echo ($edit_ad && $edit_ad['location'] == 'header') ? 'selected' : ''; ?>>Header (Top)</option>
+                <option value="sidebar" <?php echo ($edit_ad && $edit_ad['location'] == 'sidebar') ? 'selected' : ''; ?>>Sidebar</option>
+                <option value="content_top" <?php echo ($edit_ad && $edit_ad['location'] == 'content_top') ? 'selected' : ''; ?>>Above Post Content</option>
+                <option value="content_bottom" <?php echo ($edit_ad && $edit_ad['location'] == 'content_bottom') ? 'selected' : ''; ?>>Below Post Content</option>
             </select>
         </div>
         <div class="form-group" style="grid-column: span 2;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
                     <label>Start Date (Optional)</label>
-                    <input type="date" name="start_date" class="form-control">
+                    <input type="date" name="start_date" class="form-control" value="<?php echo $edit_ad ? $edit_ad['start_date'] : ''; ?>">
                 </div>
                 <div>
                     <label>End Date (Optional)</label>
-                    <input type="date" name="end_date" class="form-control">
+                    <input type="date" name="end_date" class="form-control" value="<?php echo $edit_ad ? $edit_ad['end_date'] : ''; ?>">
                 </div>
             </div>
         </div>
         <div class="form-group">
             <label>Ad Type</label>
             <select name="type" class="form-control" id="adType">
-                <option value="image">Image / Banner</option>
-                <option value="code">HTML / Script (e.g., AdSense)</option>
+                <option value="image" <?php echo ($edit_ad && $edit_ad['type'] == 'image') ? 'selected' : ''; ?>>Image / Banner</option>
+                <option value="code" <?php echo ($edit_ad && $edit_ad['type'] == 'code') ? 'selected' : ''; ?>>HTML / Script (e.g., AdSense)</option>
             </select>
         </div>
         
-        <div id="imageFields" style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <div id="imageFields" style="grid-column: 1 / -1; display: <?php echo ($edit_ad && $edit_ad['type'] == 'code') ? 'none' : 'grid'; ?>; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
             <div class="form-group">
-                <label>Upload Image</label>
+                <label>Upload Image <?php echo $edit_ad ? '(Leave blank to keep current)' : ''; ?></label>
                 <input type="file" name="ad_image" class="form-control" accept="image/*">
+                <?php if($edit_ad && $edit_ad['image_path']): ?>
+                    <small>Current: <code><?php echo $edit_ad['image_path']; ?></code></small>
+                <?php endif; ?>
             </div>
             <div class="form-group">
                 <label>Destination Type</label>
                 <select name="link_type" class="form-control" id="linkType">
-                    <option value="url">Website URL</option>
-                    <option value="whatsapp">WhatsApp Message</option>
-                    <option value="call">Phone Call</option>
+                    <option value="url" <?php echo ($edit_ad && $edit_ad['link_type'] == 'url') ? 'selected' : ''; ?>>Website URL</option>
+                    <option value="whatsapp" <?php echo ($edit_ad && $edit_ad['link_type'] == 'whatsapp') ? 'selected' : ''; ?>>WhatsApp Message</option>
+                    <option value="call" <?php echo ($edit_ad && $edit_ad['link_type'] == 'call') ? 'selected' : ''; ?>>Phone Call</option>
                 </select>
             </div>
             <div class="form-group">
                 <label id="destLabel">Destination URL</label>
-                <input type="text" name="link_url" class="form-control" placeholder="https://...">
+                <input type="text" name="link_url" class="form-control" placeholder="https://..." value="<?php echo $edit_ad ? $edit_ad['link_url'] : ''; ?>">
             </div>
         </div>
 
-        <div class="form-group" id="codeInput" style="display: none; grid-column: 1 / -1;">
+        <div class="form-group" id="codeInput" style="display: <?php echo ($edit_ad && $edit_ad['type'] == 'code') ? 'block' : 'none'; ?>; grid-column: 1 / -1;">
             <label>Ad Script / HTML Code</label>
-            <textarea name="ad_code" class="form-control" rows="4"></textarea>
+            <textarea name="ad_code" class="form-control" rows="4"><?php echo $edit_ad ? $edit_ad['ad_code'] : ''; ?></textarea>
         </div>
         <div class="form-group" style="display: flex; align-items: flex-end;">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 12px;">
-                <input type="checkbox" name="status" checked style="width: 18px; height: 18px;">
+                <input type="checkbox" name="status" <?php echo (!$edit_ad || $edit_ad['status']) ? 'checked' : ''; ?> style="width: 18px; height: 18px;">
                 <span>Active</span>
             </label>
         </div>
-        <div class="form-group" style="display: flex; align-items: flex-end;">
-            <button type="submit" name="add_ad" class="btn btn-primary" style="width: 100%; justify-content: center;">Create Advertisement</button>
+        <div class="form-group" style="display: flex; align-items: flex-center; gap: 10px;">
+            <button type="submit" name="save_ad" class="btn btn-primary" style="flex: 1; justify-content: center;"><?php echo $edit_ad ? 'Update Advertisement' : 'Create Advertisement'; ?></button>
+            <?php if($edit_ad): ?>
+                <a href="admin/ads.php" class="btn" style="background: #f1f5f9; color: #444; text-decoration: none; padding: 10px 15px; border-radius: 8px;">Cancel</a>
+            <?php endif; ?>
         </div>
     </form>
 </div>
@@ -228,6 +259,9 @@ $ads = $pdo->query("SELECT * FROM ads ORDER BY created_at DESC")->fetchAll();
                     </td>
                     <td style="padding: 15px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; border-radius: 0 8px 8px 0; text-align: right;">
                         <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                            <a href="?edit=<?php echo $ad['id']; ?>" class="action-btn edit" style="background: #fff; border: 1px solid #e2e8f0; color: #6366f1; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                <i data-feather="edit-2" style="width: 16px;"></i>
+                            </a>
                             <a href="?delete=<?php echo $ad['id']; ?>" class="action-btn delete" onclick="return confirm('Delete this advertisement completely?')" style="background: #fff; border: 1px solid #fecaca; color: #ef4444; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
                                 <i data-feather="trash-2" style="width: 16px;"></i>
                             </a>

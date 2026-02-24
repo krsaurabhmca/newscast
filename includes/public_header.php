@@ -7,11 +7,18 @@ require_once 'functions.php';
 $stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC");
 $nav_categories = $stmt->fetchAll();
 
-// Default SEO
-$site_title = SITE_NAME;
-$meta_desc = "Your ultimate destination for the latest news and insights.";
-$site_logo = get_setting('site_logo');
-$og_image = ($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL . "assets/images/default-post.jpg";
+// Default SEO — fallback to settings, then hardcoded
+$site_title     = SITE_NAME;
+$meta_desc      = get_setting('meta_description', 'Your ultimate destination for the latest news and insights.');
+$meta_keywords  = get_setting('meta_keywords', '');
+$meta_robots    = get_setting('meta_robots', 'index, follow');
+$site_logo      = get_setting('site_logo');
+$og_image_fb    = get_setting('og_image_url'); // custom OG image from settings
+$og_image       = $og_image_fb ?: (($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL . "assets/images/default-post.jpg");
+$twitter_handle = get_setting('twitter_handle', '');
+$ga_id          = get_setting('google_analytics_id', '');
+$gsc_verify     = get_setting('google_site_verify', '');
+$bing_verify    = get_setting('bing_site_verify', '');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,20 +28,35 @@ $og_image = ($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL .
     
     <!-- SEO Meta Tags -->
     <title><?php echo isset($page_title) ? $page_title . " | " . SITE_NAME : SITE_NAME; ?></title>
-    <meta name="description" content="<?php echo isset($meta_description) ? $meta_description : $meta_desc; ?>">
+    <meta name="description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
+    <?php if ($meta_keywords): ?>
+    <meta name="keywords" content="<?php echo htmlspecialchars($meta_keywords); ?>">
+    <?php endif; ?>
+    <meta name="robots" content="<?php echo $meta_robots; ?>">
     <link rel="canonical" href="<?php echo (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>">
-    
+    <?php if ($gsc_verify): ?>
+    <meta name="google-site-verification" content="<?php echo htmlspecialchars($gsc_verify); ?>">
+    <?php endif; ?>
+    <?php if ($bing_verify): ?>
+    <meta name="msvalidate.01" content="<?php echo htmlspecialchars($bing_verify); ?>">
+    <?php endif; ?>
+
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="article">
     <meta property="og:url" content="<?php echo BASE_URL; ?>">
-    <meta property="og:title" content="<?php echo isset($page_title) ? $page_title : SITE_NAME; ?>">
-    <meta property="og:description" content="<?php echo isset($meta_description) ? $meta_description : $meta_desc; ?>">
+    <meta property="og:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME; ?>">
+    <meta property="og:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
     <meta property="og:image" content="<?php echo isset($page_image) ? $page_image : $og_image; ?>">
+    <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="<?php echo isset($page_title) ? $page_title : SITE_NAME; ?>">
-    <meta property="twitter:description" content="<?php echo isset($meta_description) ? $meta_description : $meta_desc; ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME; ?>">
+    <meta name="twitter:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
+    <meta name="twitter:image" content="<?php echo isset($page_image) ? $page_image : $og_image; ?>">
+    <?php if ($twitter_handle): ?>
+    <meta name="twitter:site" content="<?php echo htmlspecialchars($twitter_handle); ?>">
+    <?php endif; ?>
 
     <!-- Favicon -->
     <?php if (get_setting('site_favicon')): ?>
@@ -45,8 +67,34 @@ $og_image = ($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL .
 
     <!-- Styles -->
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
+    
+    <style>
+        :root {
+            --primary: <?php echo get_setting('theme_color', '#ff3c00'); ?>;
+        }
+        <?php if (get_setting('header_style') == 'sticky'): ?>
+        .top-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        <?php endif; ?>
+    </style>
+
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
+
+    <?php if ($ga_id): ?>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo htmlspecialchars($ga_id); ?>"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '<?php echo htmlspecialchars($ga_id); ?>');
+    </script>
+    <?php endif; ?>
 </head>
 <body>
     <div class="app-container">
@@ -78,6 +126,21 @@ $og_image = ($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL .
         <div class="main-wrapper">
             <!-- Top Header -->
             <header class="top-header">
+                <?php if (get_setting('show_date_time', 'yes') == 'yes'): ?>
+                    <div class="header-date-time desktop-only" style="font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase;">
+                        <span id="live-date"><?php echo date('D, M d, Y'); ?></span>
+                        <span style="margin: 0 10px;">|</span>
+                        <span id="live-time"><?php echo date('h:i:s A'); ?></span>
+                        <script>
+                            setInterval(() => {
+                                const now = new Date();
+                                const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                                document.getElementById('live-time').innerText = timeStr;
+                            }, 1000);
+                        </script>
+                    </div>
+                <?php endif; ?>
+
                 <a href="<?php echo BASE_URL; ?>" class="logo-bhaskar">
                     <?php if (get_setting('site_logo')): ?>
                         <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 45px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
@@ -100,7 +163,7 @@ $og_image = ($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL .
                             </a>
                         </li>
                         <li>
-                            <a href="<?php echo BASE_URL; ?>category/videos">
+                            <a href="<?php echo BASE_URL; ?>category/video">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
                                 Video
                             </a>
@@ -134,6 +197,42 @@ $og_image = ($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL .
                     </button>
                 </div>
             </header>
+
+            <?php if (get_setting('breaking_news_enabled') == 'yes'): 
+                $breaking_stmt = $pdo->query("SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 5");
+                $breaking_news = $breaking_stmt->fetchAll();
+                if ($breaking_news):
+            ?>
+            <div class="breaking-news-box" style="background: #000; color: #fff; height: 35px; display: flex; align-items: center; overflow: hidden; font-size: 13px;">
+                <div style="background: var(--primary); padding: 0 15px; height: 100%; display: flex; align-items: center; font-weight: 900; skew: -10deg; margin-left: -5px; position: relative; z-index: 2;">
+                    BREAKING
+                </div>
+                <div class="ticker-wrapper" style="flex: 1; overflow: hidden; position: relative;">
+                    <div class="ticker-content" style="display: inline-block; white-space: nowrap; animation: ticker 30s linear infinite;">
+                        <?php foreach($breaking_news as $news): ?>
+                            <a href="<?php echo BASE_URL; ?>article/<?php echo $news['slug']; ?>" style="color: #fff; text-decoration: none; margin-right: 50px; font-weight: 600;">
+                                <span style="color: var(--primary); font-weight: 900;">•</span> <?php echo $news['title']; ?>
+                            </a>
+                        <?php endforeach; ?>
+                        <!-- Duplicate content for seamless loop -->
+                        <?php foreach($breaking_news as $news): ?>
+                            <a href="<?php echo BASE_URL; ?>article/<?php echo $news['slug']; ?>" style="color: #fff; text-decoration: none; margin-right: 50px; font-weight: 600;">
+                                <span style="color: var(--primary); font-weight: 900;">•</span> <?php echo $news['title']; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <style>
+                    @keyframes ticker {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(-50%); }
+                    }
+                    .ticker-wrapper:hover .ticker-content {
+                        animation-play-state: paused;
+                    }
+                </style>
+            </div>
+            <?php endif; endif; ?>
 
             <!-- Mobile Sidebar Overlay -->
             <div id="mobileMenu" class="mobile-menu-overlay" onclick="toggleMobileMenu()">

@@ -23,6 +23,8 @@ body {
     color: var(--text);
     background-color: #fff;
     line-height: 1.5;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
 }
 
 a {
@@ -33,7 +35,6 @@ a {
 
 /* Main Layout Wrapper */
 .app-container {
-    display: flex;
     min-height: 100vh;
 }
 
@@ -45,7 +46,7 @@ a {
     height: 100vh;
     padding: 20px 0;
     background: transparent;
-    z-index: 100;
+    z-index: 1000;
     overflow-y: auto;
     /* Enable scrolling */
     scrollbar-width: none;
@@ -66,7 +67,7 @@ a {
     align-items: center;
     gap: 15px;
     padding: 12px 25px;
-    font-weight: 500;
+    font-weight: 600;
     color: #555;
     font-size: 16px;
 }
@@ -86,11 +87,12 @@ a {
 
 /* Main Content Area */
 .main-wrapper {
-    flex: 1;
     margin-left: var(--sidebar-width);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    width: auto;
+    overflow-x: hidden;
 }
 
 /* Top Header */
@@ -101,19 +103,18 @@ a {
     align-items: center;
     justify-content: space-between;
     padding: 0 40px;
-    position: sticky;
-    top: 0;
     background: #fff;
     z-index: 99;
+    overflow: hidden;
+    /* Prevent logo/content overflow */
 }
 
 .logo-bhaskar {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--dark);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 15px;
+    max-width: 40%;
+    flex-shrink: 0;
 }
 
 .logo-bhaskar span {
@@ -160,9 +161,10 @@ a {
 }
 
 .trending-label {
-    color: #ff3c00;
-    font-weight: 700;
+    color: var(--primary);
+    font-weight: 800;
     white-space: nowrap;
+    letter-spacing: 0.5px;
 }
 
 .tag-item {
@@ -291,9 +293,24 @@ a {
 .bhaskar-footer {
     background: #fff;
     border-top: 1px solid var(--border);
-    padding: 60px 0 40px;
+    padding: 70px 0 40px;
     margin-top: 60px;
     width: 100%;
+    position: relative;
+    overflow: hidden;
+    background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+    background-size: 25px 25px;
+}
+
+.bhaskar-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, transparent 100%);
+    pointer-events: none;
 }
 
 .footer-grid {
@@ -334,14 +351,47 @@ a {
     padding-left: 5px;
 }
 
-/* Responsive */
+/* Footer Dark Theme */
+.bhaskar-footer.theme-dark {
+    background: #0f172a;
+    /* Slate 900 - 80% Black feel */
+    color: #fff;
+    border-top: none;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1.5px, transparent 1.5px);
+    background-size: 30px 30px;
+}
+
+.bhaskar-footer.theme-dark h5 {
+    color: #fff;
+}
+
+.bhaskar-footer.theme-dark .footer-col li,
+.bhaskar-footer.theme-dark .footer-col a {
+    color: #aaa;
+}
+
+.bhaskar-footer.theme-dark .footer-col a:hover {
+    color: var(--primary);
+}
+
+.bhaskar-footer.theme-dark .social-icons a {
+    background: #222 !important;
+}
+
+.bhaskar-footer.theme-dark div[style*="border-top"] {
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
 @media (max-width: 1024px) {
-    .side-nav {
-        display: none;
+
+    .side-nav,
+    .desktop-only,
+    .header-date-time {
+        display: none !important;
     }
 
     .main-wrapper {
-        margin-left: 0;
+        margin-left: 0 !important;
     }
 
     /* Stack article sidebar */
@@ -363,7 +413,20 @@ a {
     }
 
     .top-header {
-        padding: 0 20px;
+        padding: 0 15px;
+        height: 60px;
+    }
+
+    .logo-bhaskar {
+        max-width: 70%;
+    }
+
+    .logo-bhaskar img {
+        height: 35px !important;
+    }
+
+    .logo-bhaskar span {
+        font-size: 16px !important;
     }
 
     .bhaskar-hero {
