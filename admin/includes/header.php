@@ -47,10 +47,10 @@ if (!is_logged_in()) {
                     
                     <div style="width: 1px; height: 25px; background: #e2e8f0;" class="desktop-only"></div>
 
-                    <div class="user-meta" style="display: flex; align-items: center; gap: 12px;">
+                    <a href="profile.php" class="user-meta" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; transition: .2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                         <div style="text-align: right;" class="desktop-only">
                             <div style="font-size: 14px; font-weight: 700; color: #0f172a;"><?php echo $_SESSION['username']; ?></div>
-                            <div style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;">Administrator</div>
+                            <div style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;"><?php echo $_SESSION['role'] === 'admin' ? 'Administrator' : 'Editor / Team'; ?></div>
                         </div>
                         <div class="profile-trigger" style="position: relative; cursor: pointer;">
                             <img src="<?php echo get_profile_image($_SESSION['profile_image'] ?? ''); ?>"
@@ -58,7 +58,7 @@ if (!is_logged_in()) {
                                  onerror="this.onerror=null;this.src='<?php echo BASE_URL; ?>assets/images/default-avatar.svg';"
                                  style="width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 2px solid #f1f5f9;">
                         </div>
-                    </div>
+                    </a>
                 </div>
             </header>
 
