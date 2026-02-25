@@ -197,28 +197,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $pdo->exec($sql);
 
-            // 2. Create Admin Account
+            // 2. Create Admin Account (using IGNORE to avoid duplicate error)
             $hashed_pass = password_hash($admin_pass, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'admin')");
+            $stmt = $pdo->prepare("INSERT IGNORE INTO users (username, email, password, role) VALUES (?, ?, ?, 'admin')");
             $stmt->execute([$admin_user, $admin_email, $hashed_pass]);
-            $admin_id = $pdo->lastInsertId();
+            
+            // Get admin_id (either newly created or existing)
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->execute([$admin_email]);
+            $admin_id = $stmt->fetchColumn();
 
             // 3. Create Default Category
-            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, color) VALUES (?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT IGNORE INTO categories (name, slug, description, color) VALUES (?, ?, ?, ?)");
             $stmt->execute(['General', 'general', 'General News and Updates', '#6366f1']);
-            $cat_id = $pdo->lastInsertId();
+            
+            // Get cat_id
+            $stmt = $pdo->prepare("SELECT id FROM categories WHERE slug = ?");
+            $stmt->execute(['general']);
+            $cat_id = $stmt->fetchColumn();
 
             // 4. Create Welcome Post
             $welcome_title = "Welcome to " . $site_name;
             $welcome_slug = "welcome-to-newscast";
             $welcome_content = "<h2>Greetings!</h2><p>This is your first news article. You can edit or delete this post from the Articles management section in your admin dashboard. Start publishing your stories to reach your audience!</p>";
             
-            $stmt = $pdo->prepare("INSERT INTO posts (user_id, title, slug, content, excerpt, status, is_featured) VALUES (?, ?, ?, ?, ?, 'published', 1)");
-            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Your journey with NewsCast CMS starts here!', 'published', 1]);
-            $post_id = $pdo->lastInsertId();
+            $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, status, is_featured) VALUES (?, ?, ?, ?, ?, 'published', 1)");
+            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Your journey with NewsCast CMS starts here!']);
+            
+            // Get post_id
+            $stmt = $pdo->prepare("SELECT id FROM posts WHERE slug = ?");
+            $stmt->execute([$welcome_slug]);
+            $post_id = $stmt->fetchColumn();
 
-            // Link post to category
-            $pdo->exec("INSERT INTO post_categories (post_id, category_id) VALUES ($post_id, $cat_id)");
+            // Link post to category (Link only if not already linked)
+            if ($post_id && $cat_id) {
+                $pdo->exec("INSERT IGNORE INTO post_categories (post_id, category_id) VALUES ($post_id, $cat_id)");
+            }
 
             // 5. Insert Initial Settings
             $settings = [
