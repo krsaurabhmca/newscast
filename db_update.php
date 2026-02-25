@@ -23,6 +23,16 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
     echo "✔ Activity history table checked/created.\n";
+    
+    // 3. Create Timeline Table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS timeline (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        event_time VARCHAR(20) NOT NULL,
+        description TEXT NOT NULL,
+        status_color VARCHAR(20) DEFAULT '#6366f1',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    echo "✔ Timeline table checked/created.\n";
 
     // 3. Initialize Settings
     $default_settings = [
