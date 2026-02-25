@@ -134,6 +134,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 status ENUM('new', 'read', 'archived') DEFAULT 'new',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS ads (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                location VARCHAR(50) NOT NULL,
+                type ENUM('image', 'code') NOT NULL,
+                image_path VARCHAR(255),
+                link_url TEXT,
+                link_type ENUM('url', 'whatsapp', 'call') DEFAULT 'url',
+                ad_code TEXT,
+                start_date DATE,
+                end_date DATE,
+                status BOOLEAN DEFAULT TRUE,
+                impressions INT DEFAULT 0,
+                clicks INT DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS epapers (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                paper_date DATE NOT NULL,
+                file_path VARCHAR(255) NOT NULL,
+                thumbnail VARCHAR(255),
+                dimensions VARCHAR(50),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS magazines (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                issue_month DATE NOT NULL,
+                file_path VARCHAR(255) NOT NULL,
+                cover_image VARCHAR(255),
+                pages SMALLINT DEFAULT 0,
+                status ENUM('published','draft') DEFAULT 'published',
+                downloads INT DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS tags (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL UNIQUE,
+                slug VARCHAR(100) NOT NULL UNIQUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS post_categories (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                post_id INT NOT NULL,
+                category_id INT NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS post_tags (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                post_id INT NOT NULL,
+                tag_id INT NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
             ";
             
             $pdo->exec($sql);
@@ -142,8 +201,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hashed_pass = password_hash($admin_pass, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, 'admin')");
             $stmt->execute([$admin_user, $admin_email, $hashed_pass]);
+            $admin_id = $pdo->lastInsertId();
 
-            // 3. Insert Initial Settings
+            // 3. Create Default Category
+            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, color) VALUES (?, ?, ?, ?)");
+            $stmt->execute(['General', 'general', 'General News and Updates', '#6366f1']);
+            $cat_id = $pdo->lastInsertId();
+
+            // 4. Create Welcome Post
+            $welcome_title = "Welcome to " . $site_name;
+            $welcome_slug = "welcome-to-newscast";
+            $welcome_content = "<h2>Greetings!</h2><p>This is your first news article. You can edit or delete this post from the Articles management section in your admin dashboard. Start publishing your stories to reach your audience!</p>";
+            
+            $stmt = $pdo->prepare("INSERT INTO posts (user_id, title, slug, content, excerpt, status, is_featured) VALUES (?, ?, ?, ?, ?, 'published', 1)");
+            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Your journey with NewsCast CMS starts here!', 'published', 1]);
+            $post_id = $pdo->lastInsertId();
+
+            // Link post to category
+            $pdo->exec("INSERT INTO post_categories (post_id, category_id) VALUES ($post_id, $cat_id)");
+
+            // 5. Insert Initial Settings
             $settings = [
                 'site_name' => $site_name,
                 'site_tagline' => 'Digital News Portal',
