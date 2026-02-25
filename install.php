@@ -249,6 +249,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 4. Create Welcome Post (Comprehensive Guide)
             $welcome_title = "Welcome to " . $site_name . " - Quick Start Guide";
             $welcome_slug = "welcome-guide";
+            
+            // Generate a Professional Vector SVG for the Welcome Post
+            $welcome_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect width="800" height="450" fill="url(#grad1)"/>
+                <circle cx="400" cy="225" r="150" fill="white" fill-opacity="0.1"/>
+                <path d="M400 150 L450 250 L350 250 Z" fill="white" fill-opacity="0.3"/>
+                <text x="50%" y="45%" font-family="Outfit, sans-serif" font-size="42" font-weight="800" fill="white" text-anchor="middle">LAUNCH SUCCESSFUL</text>
+                <text x="50%" y="55%" font-family="Outfit, sans-serif" font-size="18" font-weight="500" fill="white" fill-opacity="0.8" text-anchor="middle">WELCOME TO YOUR NEW PORTAL</text>
+            </svg>';
+            $welcome_image_data = 'data:image/svg+xml;base64,' . base64_encode($welcome_svg);
+
             $welcome_content = "
             <div class='guide-intro'>
                 <p>Congratulations! You have successfully installed <strong>" . $site_name . "</strong>. This portal is built for high-performance digital journalism.</p>
@@ -272,8 +289,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>";
             
-            $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, status, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Everything you need to know about your new news portal.', 'published', 1]);
+            $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, featured_image, status, is_featured) VALUES (?, ?, ?, ?, ?, ?, 'published', 1)");
+            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Everything you need to know about your new news portal.', $welcome_image_data]);
             
             // Get post_id
             $stmt = $pdo->prepare("SELECT id FROM posts WHERE slug = ?");
@@ -588,7 +605,12 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
 <div class="setup-wrapper">
     <div class="setup-main">
         <div class="header">
-            <div class="logo-box">NC</div>
+            <div class="logo-box">
+                <?php 
+                    $site_name_display = isset($_POST['site_name']) ? $_POST['site_name'] : 'NC';
+                    echo strtoupper(substr($site_name_display, 0, 2)); 
+                ?>
+            </div>
             <h1>NewsCast Setup</h1>
             <p class="subtitle">Join thousands of professional digital publishers.</p>
         </div>

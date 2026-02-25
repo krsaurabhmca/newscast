@@ -71,6 +71,9 @@ function get_post_categories($pdo, $post_id) {
  * Get Post Thumbnail or Dynamic Placeholder
  */
 function get_post_thumbnail($image) {
+    if (strpos($image, 'data:image') === 0) {
+        return $image;
+    }
     if ($image && file_exists(dirname(__DIR__) . '/assets/images/posts/' . $image)) {
         return BASE_URL . 'assets/images/posts/' . $image;
     }
