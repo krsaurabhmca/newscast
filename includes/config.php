@@ -39,11 +39,18 @@ try {
         ]
     );
 } catch (PDOException $e) {
-    // Show friendly error instead of exposing credentials
+    // If DB connection fails, redirect to installer
+    if (file_exists('install.php') || file_exists('../install.php')) {
+        $path = file_exists('install.php') ? 'install.php' : '../install.php';
+        header("Location: $path");
+        exit;
+    }
+    
+    // Fallback if installer is deleted
     die("<div style='font-family:sans-serif;padding:40px;text-align:center;'>
             <h2 style='color:#dc2626;'>Database Connection Error</h2>
             <p style='color:#64748b;'>Could not connect to the database. Please check your configuration.</p>
-            <small style='color:#94a3b8;'>(" . ($is_live ? 'Live' : 'Local') . " environment)</small>
+            <a href='index.php' style='display:inline-block; margin-top:20px; color:#6366f1; font-weight:700; text-decoration:none;'>Retry Connection</a>
          </div>");
 }
 

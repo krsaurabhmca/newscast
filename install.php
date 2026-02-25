@@ -9,10 +9,10 @@ session_start();
 
 $config_file = 'includes/config.php';
 
-// If config already exists, installation is prohibited for security
-if (file_exists($config_file)) {
-    // You might want to check if it's actually configured or just an empty file
-    // For now, if it exists, we redirect to home
+// Basic guard: If config exists, we only redirect if we aren't currently on the install page to fix it
+// The index.php/login.php will handle redirecting TO here if config is missing or broken.
+if (file_exists($config_file) && $step == 3) {
+    // Only block access if installation is clearly finished
     header("Location: index.php");
     exit;
 }
