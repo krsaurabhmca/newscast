@@ -207,11 +207,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$admin_email]);
             $admin_id = $stmt->fetchColumn();
 
-            // 3. Create Default Category
-            $stmt = $pdo->prepare("INSERT IGNORE INTO categories (name, slug, description, color) VALUES (?, ?, ?, ?)");
-            $stmt->execute(['General', 'general', 'General News and Updates', '#6366f1']);
+            // 3. Create Popular Categories
+            $popular_categories = [
+                ['name' => 'General', 'slug' => 'general', 'icon' => 'grid', 'color' => '#64748b'],
+                ['name' => 'Politics', 'slug' => 'politics', 'icon' => 'users', 'color' => '#ef4444'],
+                ['name' => 'Business', 'slug' => 'business', 'icon' => 'briefcase', 'color' => '#3b82f6'],
+                ['name' => 'Technology', 'slug' => 'technology', 'icon' => 'cpu', 'color' => '#8b5cf6'],
+                ['name' => 'Entertainment', 'slug' => 'entertainment', 'icon' => 'film', 'color' => '#ec4899'],
+                ['name' => 'Sports', 'slug' => 'sports', 'icon' => 'award', 'color' => '#f59e0b'],
+                ['name' => 'Education', 'slug' => 'education', 'icon' => 'book-open', 'color' => '#10b981'],
+                ['name' => 'Lifestyle', 'slug' => 'lifestyle', 'icon' => 'sun', 'color' => '#f43f5e']
+            ];
+
+            $stmt_cat = $pdo->prepare("INSERT IGNORE INTO categories (name, slug, description, icon, color) VALUES (?, ?, ?, ?, ?)");
+            foreach ($popular_categories as $cat) {
+                $description = $cat['name'] . " news and latest updates.";
+                $stmt_cat->execute([$cat['name'], $cat['slug'], $description, $cat['icon'], $cat['color']]);
+            }
             
-            // Get cat_id
+            // Get cat_id (Default to General for welcome post)
             $stmt = $pdo->prepare("SELECT id FROM categories WHERE slug = ?");
             $stmt->execute(['general']);
             $cat_id = $stmt->fetchColumn();
