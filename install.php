@@ -246,25 +246,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['general']);
             $cat_id = $stmt->fetchColumn();
 
-            // 4. Create Welcome Post
-            $welcome_title = "Welcome to " . $site_name;
-            $welcome_slug = "welcome-to-newscast";
-            $welcome_content = "<h2>Greetings!</h2><p>This is your first news article. You can edit or delete this post from the Articles management section in your admin dashboard. Start publishing your stories to reach your audience!</p>";
+            // 4. Create Welcome Post (Comprehensive Guide)
+            $welcome_title = "Welcome to " . $site_name . " - Quick Start Guide";
+            $welcome_slug = "welcome-guide";
+            $welcome_content = "
+            <div class='guide-intro'>
+                <p>Congratulations! You have successfully installed <strong>" . SITE_NAME_DYNAMIC . "</strong>. This portal is built for high-performance digital journalism.</p>
+                
+                <h3>🚀 Your First Steps</h3>
+                <ul>
+                    <li><strong>Dashboard:</strong> Visit the <a href='admin/dashboard.php'>Admin Dashboard</a> to see real-time analytics.</li>
+                    <li><strong>Categories:</strong> We have pre-created popular categories like Politics, Tech, and Business with custom icons.</li>
+                    <li><strong>Featured Stories:</strong> Toggle the 'Featured' switch when writing an article to show it prominently on the homepage.</li>
+                </ul>
+
+                <h3>📺 Multimedia Features</h3>
+                <p>You can embed any <strong>YouTube Video</strong> by simply pasting the link. Our player is optimized with a transparent security layer to keep users focused on your content.</p>
+
+                <h3>📈 Monetization</h3>
+                <p>Manage your advertisements from the 'Revenue' section. You can track impressions and clicks for both image and code-based ads.</p>
+
+                <div style='background: #f1f5f9; padding: 20px; border-radius: 12px; margin-top: 20px;'>
+                    <h4 style='margin-bottom: 5px;'>🔐 Security Tip</h4>
+                    <p style='font-size: 13px; color: #64748b;'>Don't forget to delete the <code>install.php</code> file from your server root now that you are finished!</p>
+                </div>
+            </div>";
             
             $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, status, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Your journey with NewsCast CMS starts here!', 'published', 1]);
+            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Everything you need to know about your new news portal.', 'published', 1]);
             
             // Get post_id
             $stmt = $pdo->prepare("SELECT id FROM posts WHERE slug = ?");
             $stmt->execute([$welcome_slug]);
             $post_id = $stmt->fetchColumn();
 
-            // Link post to category (Link only if not already linked)
-            if ($post_id && $cat_id) {
-                try {
-                    $stmt = $pdo->prepare("INSERT IGNORE INTO post_categories (post_id, category_id) VALUES (?, ?)");
-                    $stmt->execute([$post_id, $cat_id]);
-                } catch (Exception $e) {}
+            // Link post to multiple categories (General and Technology)
+            if ($post_id) {
+                $target_slugs = ['general', 'technology'];
+                foreach ($target_slugs as $tslug) {
+                    $s_cat = $pdo->prepare("SELECT id FROM categories WHERE slug = ?");
+                    $s_cat->execute([$tslug]);
+                    $t_id = $s_cat->fetchColumn();
+                    if ($t_id) {
+                        try {
+                            $stmt = $pdo->prepare("INSERT IGNORE INTO post_categories (post_id, category_id) VALUES (?, ?)");
+                            $stmt->execute([$post_id, $t_id]);
+                        } catch (Exception $e) {}
+                    }
+                }
             }
 
             // 5. Insert Initial Settings
@@ -274,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'live_youtube_enabled' => '0',
                 'live_stream_sound' => '0',
                 'breaking_news_enabled' => 'yes',
-                'theme_color' => '#ff3c00'
+                'theme_color' => '#6366f1'
             ];
             foreach ($settings_data as $k => $v) {
                 $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
@@ -355,7 +384,7 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
-            --bg: #f8fafc;
+            --bg: #0f172a;
             --card: #ffffff;
             --text: #1e293b;
             --text-light: #64748b;
@@ -373,74 +402,113 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-            background-attachment: fixed;
+            background: radial-gradient(circle at top right, #6366f122, transparent),
+                        radial-gradient(circle at bottom left, #ec489922, transparent),
+                        #0f172a;
+            overflow-x: hidden;
         }
 
-        .setup-container {
+        /* Animated Background Elements */
+        .bg-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            filter: blur(120px);
+            opacity: 0.15;
+            z-index: -1;
+            border-radius: 50%;
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(110%, 110%); }
+        }
+
+        .setup-wrapper {
             width: 100%;
-            max-width: 550px;
-            background: rgba(255, 255, 255, 0.9);
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            padding: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .setup-main {
+            padding: 50px;
+        }
+
+        .setup-sidebar {
+            background: #f8fafc;
+            padding: 50px 30px;
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .logo-box {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(135deg, var(--primary) 0%, #818cf8 100%);
             color: white;
-            border-radius: 16px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 900;
-            margin: 0 auto 15px;
+            margin-bottom: 20px;
             box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
         }
 
-        h1 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
-        p.subtitle { color: var(--text-light); font-size: 14px; }
+        h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; color: #0f172a; }
+        p.subtitle { color: var(--text-light); font-size: 15px; }
 
-        .steps {
+        .steps-nav {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 40px;
         }
-        .step-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--border);
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-light);
         }
-        .step-dot.active {
-            background: var(--primary);
+        .step-item.active { color: var(--primary); }
+        .step-num {
             width: 24px;
-            border-radius: 4px;
+            height: 24px;
+            border-radius: 6px;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
         }
+        .step-item.active .step-num { background: var(--primary); color: white; }
 
-        form { display: flex; flex-direction: column; gap: 20px; }
+        form { display: flex; flex-direction: column; gap: 24px; }
 
         .form-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-size: 13px; font-weight: 700; color: var(--text); padding-left: 2px; }
+        label { font-size: 13px; font-weight: 700; color: #475569; padding-left: 2px; }
         
         input {
-            padding: 14px 18px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
             font-family: inherit;
             font-size: 15px;
             transition: 0.2s;
@@ -452,9 +520,9 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
         .btn {
             background: var(--primary);
             color: white;
-            padding: 15px;
+            padding: 16px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
@@ -462,148 +530,178 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
         }
-        .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); }
+
+        .help-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .help-card h4 { font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: var(--primary); }
+        .help-card p { font-size: 13px; color: var(--text-light); line-height: 1.5; }
 
         .alert {
-            padding: 15px;
-            border-radius: 12px;
-            background: #fef2f2;
-            color: #dc2626;
+            padding: 16px;
+            border-radius: 14px;
+            background: #fff1f2;
+            color: #e11d48;
             font-size: 14px;
-            font-weight: 500;
-            border: 1px solid #fee2e2;
-            margin-bottom: 20px;
+            font-weight: 600;
+            border: 1px solid #ffe4e6;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .success-box {
+        .success-hero {
             text-align: center;
             padding: 20px 0;
         }
-        .success-icon {
+        .icon-circle {
             width: 80px;
             height: 80px;
-            background: #ecfdf5;
-            color: #10b981;
+            background: #f0fdf4;
+            color: #22c55e;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 25px;
         }
 
-        /* Loading Animation */
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
+        @media (max-width: 850px) {
+            .setup-wrapper { grid-template-columns: 1fr; border-radius: 20px; }
+            .setup-sidebar { display: none; }
+            .setup-main { padding: 40px 25px; }
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="setup-container">
-    <div class="header">
-        <div class="logo-box">NC</div>
-        <h1>NewsCast CMS Setup</h1>
-        <p class="subtitle">Complete the steps to launch your portal.</p>
-    </div>
+<div class="bg-glow"></div>
 
-    <div class="steps">
-        <div class="step-dot <?php echo $step == 1 ? 'active' : ''; ?>"></div>
-        <div class="step-dot <?php echo $step == 2 ? 'active' : ''; ?>"></div>
-        <div class="step-dot <?php echo $step == 3 ? 'active' : ''; ?>"></div>
-    </div>
+<div class="setup-wrapper">
+    <div class="setup-main">
+        <div class="header">
+            <div class="logo-box">NC</div>
+            <h1>NewsCast Setup</h1>
+            <p class="subtitle">Join thousands of professional digital publishers.</p>
+        </div>
 
-    <?php if ($error): ?>
-        <div class="alert"><?php echo $error; ?></div>
-    <?php endif; ?>
+        <div class="steps-nav">
+            <div class="step-item <?php echo $step == 1 ? 'active' : ''; ?>">
+                <div class="step-num">1</div> Database
+            </div>
+            <div class="step-item <?php echo $step == 2 ? 'active' : ''; ?>">
+                <div class="step-num">2</div> Configuration
+            </div>
+            <div class="step-item <?php echo $step == 3 ? 'active' : ''; ?>">
+                <div class="step-num">3</div> Finish
+            </div>
+        </div>
 
-    <?php if ($step == 1): ?>
-        <!-- STEP 1: DATABASE SETUP -->
-        <form method="POST">
-            <h2 style="font-size: 18px; margin-bottom: 10px;">Database Connection</h2>
-            <div class="form-group">
-                <label>Database Host</label>
-                <input type="text" name="db_host" value="localhost" placeholder="localhost" required>
+        <?php if ($error): ?>
+            <div class="alert">
+                <i data-feather="alert-circle"></i> <?php echo $error; ?>
             </div>
-            <div class="form-group">
-                <label>Database User</label>
-                <input type="text" name="db_user" value="root" placeholder="Username" required>
-            </div>
-            <div class="form-group">
-                <label>Database Password</label>
-                <input type="password" name="db_pass" placeholder="Leave blank if none">
-            </div>
-            <div class="form-group">
-                <label>Database Name</label>
-                <input type="text" name="db_name" value="newscast_db" placeholder="Database Name" required>
-            </div>
-            <button type="submit" name="save_db" class="btn">
-                Test Connection & Continue <i data-feather="arrow-right" style="width: 18px;"></i>
-            </button>
-        </form>
+        <?php endif; ?>
 
-    <?php elseif ($step == 2): ?>
-        <!-- STEP 2: SITE & ADMIN -->
-        <form method="POST">
-            <h2 style="font-size: 18px; margin-bottom: 10px;">Portal Configuration</h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+        <?php if ($step == 1): ?>
+            <form method="POST">
                 <div class="form-group">
-                    <label>Site Name</label>
+                    <label>Database Host</label>
+                    <input type="text" name="db_host" value="localhost" required>
+                </div>
+                <div class="form-group">
+                    <label>Database User</label>
+                    <input type="text" name="db_user" value="root" required>
+                </div>
+                <div class="form-group">
+                    <label>Database Password</label>
+                    <input type="password" name="db_pass" placeholder="Password (root by default)">
+                </div>
+                <div class="form-group">
+                    <label>Database Name</label>
+                    <input type="text" name="db_name" value="newscast_db" required>
+                </div>
+                <button type="submit" name="save_db" class="btn">
+                    Connect Database <i data-feather="arrow-right"></i>
+                </button>
+            </form>
+
+        <?php elseif ($step == 2): ?>
+            <form method="POST">
+                <div class="form-group">
+                    <label>Project / Site Name</label>
                     <input type="text" name="site_name" value="Panchayat Voice" required>
                 </div>
-            </div>
 
-            <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
-            <h2 style="font-size: 18px; margin-bottom: 5px;">Admin Account</h2>
-            <p style="font-size: 12px; color: var(--text-light); margin-bottom: 10px;">Use these credentials to login later.</p>
-            
-            <div class="form-group">
-                <label>Admin Username</label>
-                <input type="text" name="admin_user" placeholder="admin" required>
-            </div>
-            <div class="form-group">
-                <label>Admin Email</label>
-                <input type="email" name="admin_email" placeholder="admin@example.com" required>
-            </div>
-            <div class="form-group">
-                <label>Admin Password</label>
-                <input type="password" name="admin_pass" placeholder="Create strong password" required>
-            </div>
+                <div style="margin: 10px 0; border-top: 2px solid #f1f5f9;"></div>
+                
+                <div class="form-group">
+                    <label>Admin Username</label>
+                    <input type="text" name="admin_user" placeholder="e.g. admin" required>
+                </div>
+                <div class="form-group">
+                    <label>Admin Email</label>
+                    <input type="email" name="admin_email" placeholder="admin@domain.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Admin Password</label>
+                    <input type="password" name="admin_pass" placeholder="Secure Password" required>
+                </div>
 
-            <button type="submit" name="install_now" class="btn" style="background: #1e293b;">
-                Finish Installation <i data-feather="check-circle" style="width: 18px;"></i>
-            </button>
-        </form>
+                <button type="submit" name="install_now" class="btn">
+                    Launch My Portal <i data-feather="zap"></i>
+                </button>
+            </form>
 
-    <?php elseif ($step == 3): ?>
-        <!-- STEP 3: SUCCESS -->
-        <div class="success-box">
-            <div class="success-icon">
-                <i data-feather="check" style="width: 48px; height: 48px;"></i>
+        <?php elseif ($step == 3): ?>
+            <div class="success-hero">
+                <div class="icon-circle">
+                    <i data-feather="check" style="width: 40px; height: 40px;"></i>
+                </div>
+                <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Infrastructure Ready!</h2>
+                <p style="color: var(--text-light); margin-bottom: 40px; line-height: 1.6;">Your professional news portal is now online. We've added a Welcome Guide to your homepage to help you get started.</p>
+                
+                <a href="login.php" class="btn">
+                    Go to Admin Panel <i data-feather="log-in"></i>
+                </a>
+                
+                <div style="margin-top: 30px; padding: 20px; border-radius: 16px; background: #fff7ed; border: 1px solid #ffedd5; text-align: left;">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #9a3412; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                        <i data-feather="shield" style="width: 16px;"></i> Security Requirement
+                    </h4>
+                    <p style="font-size: 12px; color: #c2410c;">For your protection, please delete the <strong>install.php</strong> file from your server folder immediately.</p>
+                </div>
             </div>
-            <h2 style="font-weight: 800; margin-bottom: 10px;">Installation Successful!</h2>
-            <p style="color: var(--text-light); margin-bottom: 30px;">Your news portal has been successfully configured and is ready for use.</p>
-            
-            <a href="login.php" class="btn">
-                Login to Dashboard <i data-feather="log-in" style="width: 18px;"></i>
-            </a>
-            
-            <p style="font-size: 12px; color: #ef4444; font-weight: 700; margin-top: 25px;">
-                <i data-feather="alert-triangle" style="width: 12px;"></i> For security, please delete install.php from your server.
-            </p>
+        <?php endif; ?>
+    </div>
+
+    <div class="setup-sidebar">
+        <div class="help-card">
+            <h4><i data-feather="help-circle"></i> Need Help?</h4>
+            <p>If you are on XAMPP, usually <strong>Host</strong> is 'localhost' and <strong>User</strong> is 'root' with an empty password.</p>
         </div>
-    <?php endif; ?>
 
-    <div style="text-align: center; margin-top: 30px; border-top: 1px solid var(--border); padding-top: 15px;">
-        <p style="font-size: 12px; color: var(--text-light); font-weight: 600;">Powered by NewsCast CMS v1.0</p>
+        <div class="help-card">
+            <h4><i data-feather="database"></i> Auto-Create</h4>
+            <p>Don't have a database? Just enter a name and our wizard will try to create it for you automatically.</p>
+        </div>
+
+        <div class="help-card">
+            <h4><i data-feather="award"></i> Pro Features</h4>
+            <p>Once setup is done, your portal will have E-Paper support, Live Broadcasting, and Advanced Ad Management active.</p>
+        </div>
+
+        <div style="margin-top: auto; text-align: center;">
+            <p style="font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 1px;">NEWSCAST CMS v1.0</p>
+        </div>
     </div>
 </div>
 
