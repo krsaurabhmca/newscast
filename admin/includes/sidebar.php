@@ -13,18 +13,28 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
 
     <div style="padding: 0 15px;">
-        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 20px 0 10px 10px;">Main Menu</p>
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 20px 0 10px 10px;">DASHBOARD</p>
         <ul class="nav-links">
             <li>
                 <a href="dashboard.php" class="<?php echo $current_page == 'dashboard.php' ? 'active' : ''; ?>">
                     <i data-feather="grid" style="width: 18px;"></i>
-                    Dashboard
+                    Overview
                 </a>
             </li>
+        </ul>
+
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">NEWS DESK</p>
+        <ul class="nav-links">
             <li class="has-submenu">
                 <a href="posts.php" class="<?php echo ($current_page == 'posts.php' || $current_page == 'post_add.php' || $current_page == 'post_edit.php') ? 'active' : ''; ?>">
-                    <i data-feather="file-text" style="width: 18px;"></i>
-                    Articles Management
+                    <i data-feather="edit-3" style="width: 18px;"></i>
+                    Articles
+                </a>
+            </li>
+            <li>
+                <a href="timeline.php" class="<?php echo $current_page == 'timeline.php' ? 'active' : ''; ?>">
+                    <i data-feather="clock" style="width: 18px;"></i>
+                    Timeline
                 </a>
             </li>
             <li>
@@ -36,36 +46,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <li>
                 <a href="tags.php" class="<?php echo $current_page == 'tags.php' ? 'active' : ''; ?>">
                     <i data-feather="tag" style="width: 18px;"></i>
-                    Tags Management
-                </a>
-            </li>
-            <li>
-                <a href="profile.php" class="<?php echo $current_page == 'profile.php' ? 'active' : ''; ?>">
-                    <i data-feather="user" style="width: 18px;"></i>
-                    Account Profile
-                </a>
-            </li>
-            <li>
-                <?php $unread_count = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status = 'new'")->fetchColumn(); ?>
-                <a href="feedback.php" class="<?php echo $current_page == 'feedback.php' ? 'active' : ''; ?>" style="position: relative;">
-                    <i data-feather="inbox" style="width: 18px;"></i>
-                    Messages
-                    <?php if ($unread_count > 0): ?>
-                        <span style="background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 20px; margin-left: auto;"><?php echo $unread_count; ?></span>
-                    <?php endif; ?>
+                    Keyword Tags
                 </a>
             </li>
         </ul>
 
-        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">Platform</p>
+        <?php if (is_admin()): ?>
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">DIGITAL MEDIA</p>
         <ul class="nav-links">
-            <?php if (is_admin()): ?>
-            <li>
-                <a href="users.php" class="<?php echo $current_page == 'users.php' ? 'active' : ''; ?>">
-                    <i data-feather="users" style="width: 18px;"></i>
-                    Manage Users
-                </a>
-            </li>
             <li>
                 <a href="epapers.php" class="<?php echo $current_page == 'epapers.php' ? 'active' : ''; ?>">
                     <i data-feather="file-text" style="width: 18px;"></i>
@@ -75,13 +63,43 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <li>
                 <a href="magazines.php" class="<?php echo $current_page == 'magazines.php' ? 'active' : ''; ?>">
                     <i data-feather="book-open" style="width: 18px;"></i>
-                    Magazine
+                    Magazines
                 </a>
             </li>
+        </ul>
+
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">REVENUE & GROWTH</p>
+        <ul class="nav-links">
             <li>
                 <a href="ads.php" class="<?php echo $current_page == 'ads.php' ? 'active' : ''; ?>">
-                    <i data-feather="pie-chart" style="width: 18px;"></i>
+                    <i data-feather="target" style="width: 18px;"></i>
                     Ad Campaigns
+                </a>
+            </li>
+        </ul>
+        <?php endif; ?>
+
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">COMMUNICATION</p>
+        <ul class="nav-links">
+            <li>
+                <?php $unread_count = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status = 'new'")->fetchColumn(); ?>
+                <a href="feedback.php" class="<?php echo $current_page == 'feedback.php' ? 'active' : ''; ?>" style="position: relative;">
+                    <i data-feather="mail" style="width: 18px;"></i>
+                    Inbox / Feedback
+                    <?php if ($unread_count > 0): ?>
+                        <span style="background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 20px; margin-left: auto;"><?php echo $unread_count; ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
+        </ul>
+
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">USER & SYSTEM</p>
+        <ul class="nav-links">
+            <?php if (is_admin()): ?>
+            <li>
+                <a href="users.php" class="<?php echo $current_page == 'users.php' ? 'active' : ''; ?>">
+                    <i data-feather="users" style="width: 18px;"></i>
+                    Manage Users
                 </a>
             </li>
             <li>
@@ -92,17 +110,27 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </li>
             <li>
                 <a href="change_password.php" class="<?php echo $current_page == 'change_password.php' ? 'active' : ''; ?>">
-                    <i data-feather="lock" style="width: 18px;"></i>
+                    <i data-feather="shield" style="width: 18px;"></i>
                     Security
                 </a>
             </li>
+            <?php endif; ?>
+            <li>
+                <a href="profile.php" class="<?php echo $current_page == 'profile.php' ? 'active' : ''; ?>">
+                    <i data-feather="user" style="width: 18px;"></i>
+                    My Profile
+                </a>
+            </li>
+        </ul>
+
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">SUPPORT</p>
+        <ul class="nav-links">
             <li>
                 <a href="help.php" class="<?php echo $current_page == 'help.php' ? 'active' : ''; ?>">
                     <i data-feather="help-circle" style="width: 18px;"></i>
-                    Help & Guide
+                    Help & Tutorials
                 </a>
             </li>
-            <?php endif; ?>
         </ul>
 
         <ul class="nav-links" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">

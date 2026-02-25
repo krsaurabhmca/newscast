@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'live_youtube_url'       => clean($_POST['live_youtube_url'] ?? ''),
         'live_youtube_enabled'   => isset($_POST['live_youtube_enabled']) ? '1' : '0',
         'live_stream_title'      => clean($_POST['live_stream_title'] ?? 'Live Stream'),
+        'live_stream_sound'      => clean($_POST['live_stream_sound'] ?? '0'),
         'translation_enabled'    => clean($_POST['translation_enabled'] ?? 'no'),
         'tts_enabled'            => clean($_POST['tts_enabled'] ?? 'no'),
     ];
@@ -734,6 +735,26 @@ include 'includes/header.php';
                         <span class="field-hint">Appears as the heading above the embedded player.</span>
                     </div>
 
+                    <!-- Stream Sound Toggle -->
+                    <div>
+                        <label class="field-label">Stream Sound (Autoplay)</label>
+                        <div class="toggle-group">
+                            <div class="toggle-opt">
+                                <input type="radio" name="live_stream_sound" id="sound_on" value="1" <?php echo get_setting('live_stream_sound', '0') === '1' ? 'checked' : ''; ?>>
+                                <label for="sound_on">
+                                    <i data-feather="volume-2" style="width:14px;"></i> Sound On
+                                </label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="live_stream_sound" id="sound_off" value="0" <?php echo get_setting('live_stream_sound', '0') !== '1' ? 'checked' : ''; ?>>
+                                <label for="sound_off">
+                                    <i data-feather="volume-x" style="width:14px;"></i> Muted
+                                </label>
+                            </div>
+                        </div>
+                        <span class="field-hint">Note: Unmuted autoplay may be blocked by some browsers.</span>
+                    </div>
+
                     <!-- Live Preview -->
                     <div style="grid-column:1/-1;" id="live_preview_wrap" <?php echo get_setting('live_youtube_url') ? '' : 'style="display:none;"'; ?>>
                         <label class="field-label">Preview</label>
@@ -815,6 +836,14 @@ function updateLivePreview(url) {
         iframe.src = '';
     }
 }
+// URL Tab activation
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab && document.getElementById('panel-' + tab)) {
+        showTab(tab);
+    }
+});
 </script>
 
 <?php include 'includes/footer.php'; ?>

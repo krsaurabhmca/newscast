@@ -130,6 +130,13 @@ try {
             post_id INT NOT NULL,
             action_type ENUM('view', 'bookmark', 'share') DEFAULT 'view',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )",
+        'timeline' => "CREATE TABLE IF NOT EXISTS timeline (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            event_time VARCHAR(20) NOT NULL,
+            description TEXT NOT NULL,
+            status_color VARCHAR(20) DEFAULT '#6366f1',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )"
     ];
 
@@ -166,6 +173,7 @@ try {
         'tts_enabled' => 'yes',
         'breaking_news_enabled' => 'yes',
         'live_youtube_enabled' => '0',
+        'live_stream_sound' => '0',
         'theme_color' => '#ff3c00'
     ];
 

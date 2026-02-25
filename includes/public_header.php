@@ -217,7 +217,7 @@ $bing_verify    = get_setting('bing_site_verify', '');
             </header>
 
             <?php if (get_setting('breaking_news_enabled') == 'yes'): 
-                $breaking_stmt = $pdo->query("SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 5");
+                $breaking_stmt = $pdo->query("SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 4");
                 $breaking_news = $breaking_stmt->fetchAll();
                 if ($breaking_news):
             ?>

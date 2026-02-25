@@ -23,8 +23,6 @@ body {
     color: var(--text);
     background-color: #fff;
     line-height: 1.5;
-    overflow-x: hidden;
-    /* Prevent horizontal scroll */
 }
 
 a {
@@ -92,7 +90,6 @@ a {
     display: flex;
     flex-direction: column;
     width: auto;
-    overflow-x: hidden;
 }
 
 /* Top Header */

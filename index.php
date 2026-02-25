@@ -39,13 +39,13 @@ $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONC
 $stmt->execute([$featured_id]);
 $top_10 = $stmt->fetchAll();
 
-// 3. Fetch Breaking News (latest 6)
+// 3. Fetch Breaking News (latest 4)
 $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
                         FROM posts p 
                         JOIN post_categories pc ON p.id = pc.post_id 
                         JOIN categories c ON pc.category_id = c.id 
                         WHERE p.status = 'published' AND p.id != ? AND p.published_at <= NOW()
-                        GROUP BY p.id ORDER BY p.published_at DESC LIMIT 6");
+                        GROUP BY p.id ORDER BY p.published_at DESC LIMIT 4");
 $stmt->execute([$featured_id]);
 $breaking_news_latest = $stmt->fetchAll();
 
@@ -93,11 +93,14 @@ $live_vid_id  = $live_url ? yt_id($live_url) : null;
                     </h3>
                     <span style="font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase;">Real-time Coverage</span>
                 </div>
+                <?php 
+                    $stream_sound = get_setting('live_stream_sound', '0') === '1' ? '0' : '1'; 
+                ?>
                 <div style="background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px;">
                     <div style="position: relative; padding-top: 56.25%;">
                         <iframe 
                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
-                            src="https://www.youtube.com/embed/<?php echo $live_vid_id; ?>?autoplay=1&mute=1&rel=0&modestbranding=1&controls=0&disablekb=1" 
+                            src="https://www.youtube.com/embed/<?php echo $live_vid_id; ?>?autoplay=1&mute=<?php echo $stream_sound; ?>&rel=0&modestbranding=1&controls=0&disablekb=1" 
                             title="Live Stream" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowfullscreen>
@@ -108,12 +111,6 @@ $live_vid_id  = $live_url ? yt_id($live_url) : null;
                 </div>
                 <h2 style="font-size: 24px; font-weight: 800; line-height: 1.3; color: #1a1a1b; margin-top: 15px;"><?php echo htmlspecialchars($live_title); ?></h2>
                 <p style="color: #666; font-size: 15px; line-height: 1.6; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Stay updated with our direct live broadcast. Witness the news as it unfolds on the ground.</p>
-                <div style="margin-top: 20px; display: flex; align-items: center; gap: 15px;">
-                    <span style="font-size: 13px; font-weight: 700; color: #ff0000; display: flex; align-items: center; gap: 5px;">
-                        <i data-feather="eye" style="width: 14px;"></i> 1.2k Watching Now
-                    </span>
-                    <a href="<?php echo $live_url; ?>" target="_blank" style="font-size: 13px; font-weight: 700; color: var(--primary); text-decoration: none; border-bottom: 2px solid var(--primary);">Open on YouTube</a>
-                </div>
             <?php else: ?>
                 <div style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px;">
                     <h3 style="font-size: 18px; font-weight: 800; color: var(--primary); margin:0;">LEAD STORY</h3>
@@ -231,8 +228,51 @@ $live_vid_id  = $live_url ? yt_id($live_url) : null;
             </div>
         </section>
 
-        <!-- Right: Sidebar -->
+                <!-- Right: Sidebar -->
         <aside>
+            <!-- Today's Activity & Events Section -->
+            <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 30px;">
+                <h4 style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #1a1a1b; display: flex; align-items: center; gap: 8px;">
+                    <i data-feather="calendar" style="width: 16px; color: var(--primary);"></i> 
+                    TODAY'S TIMELINE
+                </h4>
+                
+                <div style="position: relative; padding-left: 20px;">
+                    <!-- Vertical Line -->
+                    <div style="position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: #f1f5f9;"></div>
+
+                    <?php 
+                    $timeline_stmt = $pdo->query("SELECT * FROM timeline ORDER BY event_time ASC");
+                    $timeline_items = $timeline_stmt->fetchAll();
+                    $now = date('H:i');
+                    
+                    if ($timeline_items):
+                        foreach($timeline_items as $item):
+                            // Automatic Status Logic
+                            $color = '#f59e0b'; // Upcoming
+                            if ($item['event_time'] < $now) {
+                                $color = '#10b981'; // Completed
+                            } elseif ($item['event_time'] == $now) {
+                                $color = '#ef4444'; // Ongoing / Live
+                            }
+                    ?>
+                    <!-- Timeline Item -->
+                    <div style="position: relative; margin-bottom: 20px;">
+                        <span style="position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; background: <?php echo $color; ?>; border: 2px solid white; box-shadow: 0 0 0 4px <?php echo $color; ?>22; z-index: 1; <?php echo ($item['event_time'] == $now) ? 'animation: pulse 1s infinite;' : ''; ?>"></span>
+                        <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;"><?php echo date("h:i A", strtotime($item['event_time'])); ?></div>
+                        <div style="font-size: 13px; font-weight: 700; color: #1e293b; line-height: 1.4;"><?php echo $item['description']; ?></div>
+                    </div>
+                    <?php endforeach; else: ?>
+                    <div style="text-align: center; padding: 20px 0;">
+                        <i data-feather="clock" style="width: 24px; color: #cbd5e1; margin-bottom: 10px;"></i>
+                        <p style="font-size: 12px; color: #94a3b8;">No updates for today yet.</p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+
+                <a href="#" style="display: block; text-align: center; font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 10px; text-decoration: none;">View Full Calendar <i data-feather="chevron-right" style="width: 12px;"></i></a>
+            </div>
+
             <!-- Ad in sidebar -->
             <div style="margin-bottom: 40px; text-align: center;">
                 <?php echo display_ad('sidebar', $pdo); ?>
