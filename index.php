@@ -1,4 +1,8 @@
 <?php
+if (!file_exists('includes/config.php')) {
+    header("Location: install.php");
+    exit;
+}
 include 'includes/public_header.php';
 
 // YouTube ID extractor
