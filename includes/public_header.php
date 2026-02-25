@@ -1,7 +1,7 @@
 <?php
 ob_start();
-require_once 'config.php';
-require_once 'functions.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/functions.php';
 
 // Fetch categories for menu
 $stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC");
