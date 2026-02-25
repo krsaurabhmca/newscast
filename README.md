@@ -36,19 +36,17 @@ A modern, high-performance, and mobile-responsive News Portal CMS built with PHP
 
 ## ⚙️ Installation & Setup
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/krsaurabhmca/newscast.git
-   ```
+1. **Upload Files**: Transfer the project files to your web server (e.g., XAMPP htdocs or live public_html).
+2. **Launch Setup Wizard**: Visit your website URL in any browser.
+3. **Automatic Configuration**:
+   - The **Setup Wizard** will launch automatically.
+   - Enter your Database credentials (Host, User, Pass). The wizard will create the database for you if it doesn't exist.
+   - Create your Admin account and enter your Site Name.
+   - Click "Finish" and you are ready to go!
 
-2. **Database Configuration**
-   - Create a new MySQL database.
-   - Import the `database.sql` file (if available) or create tables based on schema.
-   - Update `includes/config.php` with your database credentials.
-
-3. **Apache Settings**
-   - Ensure `mod_rewrite` is enabled.
-   - The `.htaccess` file handles clean routing for articles and categories.
+4. **Post-Setup**:
+   - For security, delete the `install.php` file from your server.
+   - Ensure `assets/images/posts/` and `assets/images/ads/` folders have write permissions.
 
 4. **Directory Permissions**
    - Ensure `assets/images/posts/`, `assets/images/ads/`, and site root are writable for uploads.
