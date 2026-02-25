@@ -199,8 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // 2. Create Admin Account (using IGNORE to avoid duplicate error)
             $hashed_pass = password_hash($admin_pass, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT IGNORE INTO users (username, email, password, role) VALUES (?, ?, ?, 'admin')");
-            $stmt->execute([$admin_user, $admin_email, $hashed_pass]);
+            $stmt = $pdo->prepare("INSERT IGNORE INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$admin_user, $admin_email, $hashed_pass, 'admin']);
             
             // Get admin_id (either newly created or existing)
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
@@ -221,8 +221,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $welcome_slug = "welcome-to-newscast";
             $welcome_content = "<h2>Greetings!</h2><p>This is your first news article. You can edit or delete this post from the Articles management section in your admin dashboard. Start publishing your stories to reach your audience!</p>";
             
-            $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, status, is_featured) VALUES (?, ?, ?, ?, ?, 'published', 1)");
-            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Your journey with NewsCast CMS starts here!']);
+            $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, status, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Your journey with NewsCast CMS starts here!', 'published', 1]);
             
             // Get post_id
             $stmt = $pdo->prepare("SELECT id FROM posts WHERE slug = ?");
@@ -231,11 +231,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Link post to category (Link only if not already linked)
             if ($post_id && $cat_id) {
-                $pdo->exec("INSERT IGNORE INTO post_categories (post_id, category_id) VALUES ($post_id, $cat_id)");
+                try {
+                    $stmt = $pdo->prepare("INSERT IGNORE INTO post_categories (post_id, category_id) VALUES (?, ?)");
+                    $stmt->execute([$post_id, $cat_id]);
+                } catch (Exception $e) {}
             }
 
             // 5. Insert Initial Settings
-            $settings = [
+            $settings_data = [
                 'site_name' => $site_name,
                 'site_tagline' => 'Digital News Portal',
                 'live_youtube_enabled' => '0',
@@ -243,9 +246,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'breaking_news_enabled' => 'yes',
                 'theme_color' => '#ff3c00'
             ];
-            foreach ($settings as $k => $v) {
-                $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)");
-                $stmt->execute([$k, $v]);
+            foreach ($settings_data as $k => $v) {
+                $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+                $stmt->execute([$k, $v, $v]);
             }
 
             // 4. Create config.php
