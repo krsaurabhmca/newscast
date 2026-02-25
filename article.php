@@ -289,17 +289,25 @@ $related = $stmt->fetchAll();
     let isSpeaking = false;
 
     function toggleVoice() {
-        if (!utterance) {
+        if (!isSpeaking) {
             const bodyText = document.querySelector('.article-body').innerText;
             utterance = new SpeechSynthesisUtterance(bodyText);
-            utterance.rate = 1.1;
+            
+            // Priority: Search for Hindi (India) voice
+            let voices = synth.getVoices();
+            let hindiVoice = voices.find(v => v.lang === 'hi-IN' || v.name.includes('Hindi'));
+            
+            if (hindiVoice) {
+                utterance.voice = hindiVoice;
+            }
+            utterance.lang = 'hi-IN'; // Essential for proper pronunciation
+            utterance.rate = 1.0;
+            
             utterance.onend = () => {
                 isSpeaking = false;
                 updateTTSUI();
             };
-        }
 
-        if (!isSpeaking) {
             synth.speak(utterance);
             isSpeaking = true;
         } else {
