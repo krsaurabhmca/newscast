@@ -9,6 +9,10 @@ session_start();
 
 $config_file = 'includes/config.php';
 
+$step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
+$error = '';
+$success = '';
+
 // Basic guard: If config exists, we only redirect if we aren't currently on the install page to fix it
 // The index.php/login.php will handle redirecting TO here if config is missing or broken.
 if (file_exists($config_file) && $step == 3) {
@@ -16,10 +20,6 @@ if (file_exists($config_file) && $step == 3) {
     header("Location: index.php");
     exit;
 }
-
-$step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
-$error = '';
-$success = '';
 
 // Handle Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -251,7 +251,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $welcome_slug = "welcome-guide";
             $welcome_content = "
             <div class='guide-intro'>
-                <p>Congratulations! You have successfully installed <strong>" . SITE_NAME_DYNAMIC . "</strong>. This portal is built for high-performance digital journalism.</p>
+                <p>Congratulations! You have successfully installed <strong>" . $site_name . "</strong>. This portal is built for high-performance digital journalism.</p>
                 
                 <h3>🚀 Your First Steps</h3>
                 <ul>
@@ -638,7 +638,7 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
             <form method="POST">
                 <div class="form-group">
                     <label>Project / Site Name</label>
-                    <input type="text" name="site_name" value="Panchayat Voice" required>
+                    <input type="text" name="site_name" value="NewsCast" required>
                 </div>
 
                 <div style="margin: 10px 0; border-top: 2px solid #f1f5f9;"></div>
