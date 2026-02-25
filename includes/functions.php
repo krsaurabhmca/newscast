@@ -153,6 +153,51 @@ function display_ad($location, $pdo) {
 }
 
 /**
+ * Get all tags for a post
+ */
+function get_post_tags($pdo, $post_id) {
+    $stmt = $pdo->prepare("SELECT t.* FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = ?");
+    $stmt->execute([$post_id]);
+    return $stmt->fetchAll();
+}
+
+/**
+ * Get all active/popular tags (Prioritize recent activity)
+ */
+function get_all_tags($pdo, $limit = 20) {
+    $stmt = $pdo->prepare("SELECT t.*, COUNT(pt.post_id) as post_count 
+                           FROM tags t 
+                           LEFT JOIN post_tags pt ON t.id = pt.tag_id 
+                           LEFT JOIN posts p ON pt.post_id = p.id
+                           WHERE p.published_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) OR p.id IS NULL
+                           GROUP BY t.id 
+                           ORDER BY post_count DESC, t.name ASC 
+                           LIMIT ?");
+    $stmt->execute([$limit]);
+    return $stmt->fetchAll();
+}
+
+/**
+ * Calculate estimated reading time in minutes
+ */
+function calculate_reading_time($content) {
+    $word_count = str_word_count(strip_tags($content));
+    $words_per_minute = 200;
+    return ceil($word_count / $words_per_minute);
+}
+
+/**
+ * Log user activity
+ */
+function log_activity($pdo, $user_id, $post_id, $type = 'view') {
+    if (!$user_id) return;
+    try {
+        $stmt = $pdo->prepare("INSERT INTO user_activity (user_id, post_id, action_type) VALUES (?, ?, ?)");
+        $stmt->execute([$user_id, $post_id, $type]);
+    } catch (PDOException $e) {}
+}
+
+/**
  * Shorten text to a specific word count
  */
 function get_excerpt($text, $word_count = 25) {

@@ -51,6 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'live_youtube_url'       => clean($_POST['live_youtube_url'] ?? ''),
         'live_youtube_enabled'   => isset($_POST['live_youtube_enabled']) ? '1' : '0',
         'live_stream_title'      => clean($_POST['live_stream_title'] ?? 'Live Stream'),
+        'translation_enabled'    => clean($_POST['translation_enabled'] ?? 'no'),
+        'tts_enabled'            => clean($_POST['tts_enabled'] ?? 'no'),
     ];
 
     try {
@@ -485,6 +487,36 @@ include 'includes/header.php';
                                 <label for="bn_no"><i data-feather="zap-off" style="width:14px;"></i> Disable</label>
                             </div>
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="field-label">Google Translate</label>
+                        <div class="toggle-group">
+                            <div class="toggle-opt">
+                                <input type="radio" name="translation_enabled" id="tr_yes" value="yes" <?php echo get_setting('translation_enabled') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="tr_yes"><i data-feather="globe" style="width:14px;"></i> Enable</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="translation_enabled" id="tr_no" value="no" <?php echo get_setting('translation_enabled', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="tr_no"><i data-feather="x-circle" style="width:14px;"></i> Disable</label>
+                            </div>
+                        </div>
+                        <span class="field-hint">English ↔ Hindi translation toggle on articles.</span>
+                    </div>
+
+                    <div>
+                        <label class="field-label">Text-to-Speech (Listen)</label>
+                        <div class="toggle-group">
+                            <div class="toggle-opt">
+                                <input type="radio" name="tts_enabled" id="tts_yes" value="yes" <?php echo get_setting('tts_enabled', 'yes') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="tts_yes"><i data-feather="volume-2" style="width:14px;"></i> Enable</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="tts_enabled" id="tts_no" value="no" <?php echo get_setting('tts_enabled') == 'no' ? 'checked' : ''; ?>>
+                                <label for="tts_no"><i data-feather="volume-x" style="width:14px;"></i> Disable</label>
+                            </div>
+                        </div>
+                        <span class="field-hint">Allow users to listen to the news article.</span>
                     </div>
                 </div>
             </div>

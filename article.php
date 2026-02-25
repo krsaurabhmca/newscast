@@ -27,13 +27,55 @@ $primary_cat = !empty($post_categories) ? $post_categories[0] : null;
 $update = $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?");
 $update->execute([$post['id']]);
 
-// SEO Meta Data
+// Log activity (view)
+$user_id = $_SESSION['user_id'] ?? null;
+log_activity($pdo, $user_id, $post['id'], 'view');
+
+// Check if bookmarked
+$is_bookmarked = false;
+if ($user_id) {
+    $stmt_book = $pdo->prepare("SELECT id FROM bookmarks WHERE user_id = ? AND post_id = ?");
+    $stmt_book->execute([$user_id, $post['id']]);
+    $is_bookmarked = $stmt_book->fetch() ? true : false;
+}
+
+// Calculate Read Time
+$read_time = calculate_reading_time($post['content']);
 $page_title = $post['title'];
 $meta_description = $post['meta_description'] ?: $post['excerpt'];
 $page_image = $post['featured_image'] ? BASE_URL . "assets/images/posts/" . $post['featured_image'] : "";
 
-include 'includes/public_header.php';
+// Generate Schema JSON-LD
+$schema = [
+    "@context" => "https://schema.org",
+    "@type" => "NewsArticle",
+    "headline" => $post['title'],
+    "image" => [$page_image],
+    "datePublished" => date('c', strtotime($post['published_at'])),
+    "dateModified" => date('c', strtotime($post['created_at'])),
+    "author" => [
+        "@type" => "Person",
+        "name" => $post['username'],
+        "url" => BASE_URL
+    ],
+    "publisher" => [
+        "@type" => "Organization",
+        "name" => SITE_NAME,
+        "logo" => [
+            "@type" => "ImageObject",
+            "url" => BASE_URL . "assets/images/logo.png"
+        ]
+    ],
+    "description" => $meta_description
+];
 
+include 'includes/public_header.php';
+?>
+<script type="application/ld+json">
+<?php echo json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT); ?>
+</script>
+
+<?php
 // Fetch Related Posts (sharing any category with current post)
 $cat_ids = array_column($post_categories, 'id');
 $placeholders = count($cat_ids) > 0 ? str_repeat('?,', count($cat_ids) - 1) . '?' : '0';
@@ -44,6 +86,48 @@ $stmt = $pdo->prepare("SELECT DISTINCT p.* FROM posts p
 $stmt->execute(array_merge($cat_ids, [$post['id']]));
 $related = $stmt->fetchAll();
 ?>
+
+<?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
+<style>
+    /* Hide Google Translate Toolbar */
+    .goog-te-banner-frame.skiptranslate, .goog-te-gadget-icon { display: none !important; }
+    body { top: 0px !important; }
+    .goog-te-gadget-simple {
+        background-color: #fff !important;
+        border: 1px solid #e2e8f0 !important;
+        padding: 6px 12px !important;
+        border-radius: 8px !important;
+        font-family: inherit !important;
+        font-size: 13px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    }
+    .goog-te-gadget-simple:hover {
+        border-color: var(--primary) !important;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important;
+    }
+    .goog-te-menu-value {
+        color: #1e293b !important;
+        font-weight: 700 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+    }
+    .goog-te-menu-value span { color: #1e293b !important; }
+    .goog-te-menu-value img { display: none !important; }
+    .goog-te-menu-value:after {
+        content: "\e92e"; /* Feather chevron-down */
+        font-family: 'feather' !important;
+        font-size: 12px;
+        color: #64748b;
+    }
+    .skiptranslate.goog-te-gadget > div { display: inline-block; }
+</style>
+<?php endif; ?>
 
 <main class="content-container">
     <div style="display: grid; grid-template-columns: 1fr 300px; gap: 40px;">
@@ -62,9 +146,16 @@ $related = $stmt->fetchAll();
                 <h1 style="margin-top: 10px; font-size: 38px; line-height: 1.2; font-weight: 800;"><?php echo $post['title']; ?></h1>
                 
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 20px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0;">
-                    <div style="font-size: 14px; color: #555;">
-                        By <strong style="color: #000;"><?php echo $post['username']; ?></strong> | 
+                    <div style="font-size: 14px; color: #555; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="display: flex; align-items: center; gap: 5px;">
+                            By <strong style="color: #000;"><?php echo $post['username']; ?></strong>
+                        </span>
+                        <span style="color: #cbd5e1;">|</span>
                         <span><?php echo format_date($post['created_at']); ?></span>
+                        <span style="color: #cbd5e1;">|</span>
+                        <span style="display: flex; align-items: center; gap: 4px; color: #64748b; font-weight: 600;">
+                            <i data-feather="clock" style="width: 14px;"></i> <?php echo $read_time; ?> min read
+                        </span>
                     </div>
                     
                     <div style="display: flex; gap: 12px; align-items: center;">
@@ -90,8 +181,33 @@ $related = $stmt->fetchAll();
                         <a href="javascript:void(0)" onclick="navigator.share({title: '<?php echo addslashes($post['title']); ?>', url: window.location.href})" style="color: #6366f1;" title="More Share Options">
                             <i data-feather="share-2" style="width: 20px;"></i>
                         </a>
+
+                        <a href="javascript:void(0)" id="bookmark-btn" onclick="toggleBookmark(<?php echo $post['id']; ?>)" style="color: <?php echo $is_bookmarked ? '#f59e0b' : '#94a3b8'; ?>;" title="<?php echo $is_bookmarked ? 'Saved' : 'Save for later'; ?>">
+                            <i data-feather="bookmark" style="width: 20px; <?php echo $is_bookmarked ? 'fill: #f59e0b;' : ''; ?>"></i>
+                        </a>
                     </div>
                 </div>
+
+                <!-- Accessibility & Utility Tools -->
+                <?php if (get_setting('tts_enabled', 'yes') == 'yes' || get_setting('translation_enabled', 'no') == 'yes'): ?>
+                <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <?php if (get_setting('tts_enabled', 'yes') == 'yes'): ?>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button id="tts-btn" onclick="toggleVoice()" class="btn" style="padding: 5px 12px; font-size: 12px; background: #fff; border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 6px; font-weight: 700; color: #1e293b;">
+                            <i data-feather="play" id="tts-icon" style="width: 14px;"></i> <span id="tts-text">Listen</span>
+                        </button>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if (get_setting('tts_enabled', 'yes') == 'yes' && get_setting('translation_enabled', 'no') == 'yes'): ?>
+                        <div style="border-left: 1px solid #cbd5e1; height: 15px;"></div>
+                    <?php endif; ?>
+
+                    <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
+                        <div id="google_translate_element"></div>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
 
             <?php if ($post['video_url']): ?>
@@ -165,3 +281,95 @@ $related = $stmt->fetchAll();
 </main>
 
 <?php include 'includes/public_footer.php'; ?>
+
+<script>
+    // 🎤 Text-to-Speech (Voice Reader)
+    let synth = window.speechSynthesis;
+    let utterance = null;
+    let isSpeaking = false;
+
+    function toggleVoice() {
+        if (!utterance) {
+            const bodyText = document.querySelector('.article-body').innerText;
+            utterance = new SpeechSynthesisUtterance(bodyText);
+            utterance.rate = 1.1;
+            utterance.onend = () => {
+                isSpeaking = false;
+                updateTTSUI();
+            };
+        }
+
+        if (!isSpeaking) {
+            synth.speak(utterance);
+            isSpeaking = true;
+        } else {
+            synth.cancel();
+            isSpeaking = false;
+        }
+        updateTTSUI();
+    }
+
+    function updateTTSUI() {
+        const icon = document.getElementById('tts-icon');
+        const text = document.getElementById('tts-text');
+        if (isSpeaking) {
+            icon.setAttribute('data-feather', 'pause');
+            text.innerText = 'Stop Reading';
+            icon.style.color = '#ef4444';
+        } else {
+            icon.setAttribute('data-feather', 'play');
+            text.innerText = 'Listen';
+            icon.style.color = 'inherit';
+        }
+        feather.replace();
+    }
+
+    // 🔖 Bookmark Logic
+    async function toggleBookmark(postId) {
+        <?php if (!$user_id): ?>
+            alert('Please login to save articles.');
+            window.location.href = '<?php echo BASE_URL; ?>login.php';
+            return;
+        <?php endif; ?>
+
+        try {
+            const response = await fetch('<?php echo BASE_URL; ?>api_bookmark.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `post_id=${postId}`
+            });
+            const res = await response.json();
+            
+            const btn = document.getElementById('bookmark-btn');
+            const icon = btn.querySelector('i');
+            
+            if (res.status === 'added') {
+                btn.style.color = '#f59e0b';
+                icon.style.fill = '#f59e0b';
+                btn.title = 'Saved';
+            } else {
+                btn.style.color = '#94a3b8';
+                icon.style.fill = 'none';
+                btn.title = 'Save for later';
+            }
+            feather.replace();
+        } catch (e) {
+            console.error('Bookmark error:', e);
+        }
+    }
+
+    // 🌐 Google Translate Integration
+    function googleTranslateElementInit() {
+        <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'hi,en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false
+        }, 'google_translate_element');
+        <?php endif; ?>
+    }
+</script>
+<?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<?php endif; ?>

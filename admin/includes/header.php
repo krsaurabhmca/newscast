@@ -20,6 +20,11 @@ if (!is_logged_in()) {
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        :root {
+            --primary: <?php echo get_setting('theme_color', '#ff3c00'); ?>;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-wrapper">

@@ -14,410 +14,836 @@ $prev->execute([$mag['issue_month']]); $prev = $prev->fetch();
 $next = $pdo->prepare("SELECT id, title, issue_month FROM magazines WHERE status='published' AND issue_month > ? ORDER BY issue_month ASC LIMIT 1");
 $next->execute([$mag['issue_month']]); $next = $next->fetch();
 
-// Track download
+// Track download (view count)
 $pdo->prepare("UPDATE magazines SET downloads = downloads + 1 WHERE id = ?")->execute([$id]);
 
 $pdf_url    = BASE_URL . "assets/magazines/" . rawurlencode($mag['file_path']);
 $page_title = htmlspecialchars($mag['title']) . " — " . date('F Y', strtotime($mag['issue_month']));
+$meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('F Y', strtotime($mag['issue_month'])) . " digital edition online.";
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title><?= $page_title ?> | <?= SITE_NAME ?></title>
-    <meta name="description" content="Read <?= htmlspecialchars($mag['title']) ?> — <?= date('F Y', strtotime($mag['issue_month'])) ?> edition online.">
+    <meta name="description" content="<?= $meta_description ?>">
     <meta name="robots" content="noindex">
     <?php if (get_setting('site_favicon')): ?>
-    <link rel="icon" href="<?= BASE_URL ?>assets/images/<?= get_setting('site_favicon') ?>">
+    <link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>assets/images/<?= get_setting('site_favicon') ?>">
     <?php endif; ?>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- Turn.js (jQuery dependency) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        :root{--ink:#0f172a;--accent:#6366f1;--bg:#0d0d1a;--surface:rgba(255,255,255,.06);--border:rgba(255,255,255,.1);}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:#fff;min-height:100vh;overflow-x:hidden;}
-
-        /* ── Top Bar ─── */
-        .vtb{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;
-            background:rgba(13,13,26,.94);backdrop-filter:blur(18px);
-            border-bottom:1px solid var(--border);
-            display:flex;align-items:center;padding:0 18px;gap:12px;}
-        .vtb-logo{font-size:13px;font-weight:800;color:#fff;text-decoration:none;
-            padding-right:14px;border-right:1px solid var(--border);white-space:nowrap;
-            display:flex;align-items:center;gap:6px;}
-        .vtb-logo .mag-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;}
-        .vtb-meta{flex:1;min-width:0;}
-        .vtb-meta h1{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .vtb-meta p{font-size:11px;color:#64748b;margin-top:1px;}
-        .vtb-actions{display:flex;align-items:center;gap:7px;}
-        .vtb-btn{background:var(--surface);border:1px solid var(--border);color:#cbd5e1;
-            padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
-            display:flex;align-items:center;gap:5px;transition:.15s;text-decoration:none;white-space:nowrap;}
-        .vtb-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
-        .vtb-btn.accent{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-color:transparent;color:#fff;}
-        .vtb-btn svg{width:13px;height:13px;flex-shrink:0;}
-
-        /* ── Loader ─── */
-        #vloader{position:fixed;inset:0;z-index:200;background:var(--bg);
-            display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
-        .mag-spinner{width:70px;height:90px;position:relative;}
-        .mag-page{position:absolute;inset:0;border-radius:2px 10px 10px 2px;
-            transform-origin:left center;animation:magFlip 1.6s ease-in-out infinite;}
-        .mag-page:nth-child(1){background:linear-gradient(135deg,#6366f1,#8b5cf6);animation-delay:0s;}
-        .mag-page:nth-child(2){background:linear-gradient(135deg,#4f46e5,#7c3aed);animation-delay:.25s;}
-        .mag-page:nth-child(3){background:linear-gradient(135deg,#3730a3,#5b21b6);animation-delay:.5s;}
-        @keyframes magFlip{0%{transform:perspective(350px)rotateY(0)}50%{transform:perspective(350px)rotateY(-100deg)}100%{transform:perspective(350px)rotateY(0)}}
-        #vloader h3{font-size:17px;font-weight:700;}
-        #vload-bar-wrap{width:240px;height:3px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden;}
-        #vload-bar{height:100%;width:0%;background:linear-gradient(90deg,#6366f1,#a78bfa);transition:width .3s;}
-        #vloader-msg{font-size:12px;color:#475569;}
-
-        /* ── Stage ─── */
-        #vstage{min-height:100vh;padding:76px 0 72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
-
-        /* ── Issue nav ─── */
-        .issue-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;}
-        .iss-btn{text-decoration:none;font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;
-            border:1px solid var(--border);background:var(--surface);color:#94a3b8;
-            display:flex;align-items:center;gap:4px;transition:.15s;}
-        .iss-btn:hover{color:#fff;border-color:rgba(255,255,255,.25);}
-        .iss-btn svg{width:12px;}
-
-        /* ── Book Wrapper ─── */
-        #vbook-wrapper{position:relative;display:flex;align-items:center;justify-content:center;
-            filter:drop-shadow(0 40px 80px rgba(0,0,0,.8));}
-        #flipbook{background:#fff;}
-        #flipbook .page{background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-        #flipbook .page canvas{display:block;max-width:100%;max-height:100%;}
-        #flipbook .cover-page{
-            background:linear-gradient(160deg,#1e1b4b 0%,#312e81 50%,#3730a3 100%);
-            display:flex;flex-direction:column;align-items:center;justify-content:center;
-            padding:32px 28px;text-align:center;color:#fff;position:relative;overflow:hidden;
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+        :root{
+            --accent: #6366f1; /* Indigo for Magazines */
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --bg: #0d0d12;
+            --surface: rgba(255, 255, 255, 0.05);
+            --surface-hover: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --topbar-h: 64px;
+            --ctrlbar-h: 70px;
         }
-        #flipbook .cover-page::before{content:'';position:absolute;top:-40px;right:-40px;
-            width:200px;height:200px;border-radius:50%;background:rgba(99,102,241,.2);pointer-events:none;}
-        #flipbook .cover-page::after{content:'';position:absolute;bottom:-40px;left:-40px;
-            width:150px;height:150px;border-radius:50%;background:rgba(139,92,246,.15);pointer-events:none;}
-        .cv-site{font-size:12px;font-weight:800;color:#a5b4fc;letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px;}
-        .cv-title{font-size:19px;font-weight:800;line-height:1.3;color:#fff;margin-bottom:10px;}
-        .cv-month{display:inline-block;background:rgba(255,255,255,.12);color:#c7d2fe;
-            font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:.05em;}
-        #flipbook .back-cover{background:linear-gradient(160deg,#0d0d1a,#1e1b4b);
-            display:flex;align-items:center;justify-content:center;color:#475569;font-size:13px;font-weight:600;}
-        .page-num-badge{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.3);
-            color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
+        
+        body{
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-        /* ── Nav Arrows ─── */
-        .nav-arrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;
-            background:rgba(255,255,255,.08);backdrop-filter:blur(8px);border:1px solid var(--border);
-            display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;color:#fff;z-index:10;}
-        .nav-arrow:hover{background:rgba(255,255,255,.18);transform:translateY(-50%) scale(1.08);}
-        .nav-arrow.prev{left:-62px;} .nav-arrow.next{right:-62px;}
-        .nav-arrow svg{width:20px;} .nav-arrow.disabled{opacity:.2;pointer-events:none;}
+        /* ── Modern Top Bar ─────────────────────────── */
+        .v-header {
+            height: var(--topbar-h);
+            background: rgba(13, 13, 18, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            position: relative;
+        }
+        .v-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+            padding-right: 20px;
+            border-right: 1px solid var(--border);
+            margin-right: 15px;
+        }
+        .v-brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .v-brand-name { font-weight: 800; font-size: 15px; letter-spacing: -0.02em; }
+        
+        .v-meta { flex: 1; min-width: 0; }
+        .v-meta-title { 
+            font-size: 14px; 
+            font-weight: 700; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+        .v-meta-date { font-size: 11px; color: var(--text-muted); font-weight: 500; }
 
-        /* ── Bottom Bar ─── */
-        #vctrl{position:fixed;bottom:0;left:0;right:0;z-index:100;height:54px;
-            background:rgba(13,13,26,.94);backdrop-filter:blur(18px);border-top:1px solid var(--border);
-            display:flex;align-items:center;justify-content:center;gap:14px;padding:0 16px;flex-wrap:wrap;}
-        .vctrl-grp{display:flex;align-items:center;gap:7px;}
-        .vctrl-lbl{font-size:10px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
-        .vc-btn{background:var(--surface);border:1px solid var(--border);color:#94a3b8;
-            width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;}
-        .vc-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
-        .vc-btn svg{width:14px;}
-        .pg-wrap{display:flex;align-items:center;gap:5px;background:var(--surface);
-            border:1px solid var(--border);border-radius:8px;padding:4px 9px;}
-        #vpg-in{width:38px;background:transparent;border:none;color:#fff;font-size:13px;font-weight:700;
-            text-align:center;outline:none;-moz-appearance:textfield;}
-        #vpg-in::-webkit-outer-spin-button,#vpg-in::-webkit-inner-spin-button{-webkit-appearance:none;}
-        .pg-sep,.pg-tot{font-size:11px;color:#475569;font-weight:600;}
-        #vzoom-lbl{font-size:12px;color:#64748b;font-weight:600;min-width:34px;text-align:center;}
+        .v-header-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+        .btn-icon:hover { background: var(--surface-hover); transform: translateY(-1px); border-color: rgba(255,255,255,0.2); }
+        .btn-icon svg { width: 18px; height: 18px; }
+        
+        .btn-text {
+            height: 38px;
+            padding: 0 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-text:hover { background: var(--surface-hover); }
+        .btn-text.primary { background: var(--accent); border-color: transparent; color: #fff; }
 
-        /* ── Thumbnail Panel ─── */
-        #vthumb{position:fixed;left:0;top:58px;bottom:0;width:0;overflow:hidden;
-            background:rgba(8,8,18,.97);backdrop-filter:blur(18px);border-right:1px solid var(--border);
-            transition:width .3s cubic-bezier(.4,0,.2,1);z-index:90;}
-        #vthumb.open{width:175px;}
-        #vthumb-inner{width:175px;height:100%;overflow-y:auto;padding:12px 8px;
-            display:flex;flex-direction:column;gap:9px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent;}
-        .vti{cursor:pointer;border-radius:7px;overflow:hidden;border:2px solid transparent;transition:.15s;flex-shrink:0;}
-        .vti canvas{display:block;width:100%;height:auto;}
-        .vti-lbl{font-size:10px;font-weight:700;color:#475569;text-align:center;padding:2px 0;}
-        .vti.active{border-color:var(--accent);}
-        .vti:hover:not(.active){border-color:rgba(255,255,255,.25);}
+        /* ── Loading Page ────────────────────────────── */
+        #v-loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+        .loader-viz {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        .loader-circle {
+            position: absolute;
+            inset: 0;
+            border: 3px solid var(--surface);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .book-anim {
+            position: absolute;
+            inset: 30px;
+            display: flex;
+            gap: 4px;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .book-bar {
+            width: 6px;
+            background: var(--accent);
+            border-radius: 3px;
+            animation: barGrow 1.2s ease-in-out infinite;
+        }
+        @keyframes barGrow {
+            0%, 100% { height: 20%; }
+            50% { height: 80%; }
+        }
+        .book-bar:nth-child(2) { animation-delay: 0.2s; }
+        .book-bar:nth-child(3) { animation-delay: 0.4s; }
 
-        @media(max-width:700px){.nav-arrow{display:none;}.vtb-actions .dk{display:none;}}
+        .loader-text { text-align: center; }
+        .loader-text h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+        .loader-text p { font-size: 14px; color: var(--text-muted); }
+        
+        .progress-box {
+            width: 280px;
+            height: 6px;
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        #v-progress-inner {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), #818cf8);
+            transition: width 0.3s ease;
+        }
+
+        /* ── Stage & Viewer ─────────────────────────── */
+        .v-main {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1a1a24 0%, #0d0d12 100%);
+        }
+
+        #book-viewport {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            touch-action: none;
+        }
+
+        #flipbook {
+            position: relative;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.8);
+            background: #fff;
+            transition: opacity 0.4s ease;
+        }
+
+        .page { background: #fff; position: relative; }
+        .page canvas { display: block; width: 100%; height: 100%; }
+
+        /* Cover & Backcover Special Styles */
+        .page.hard { 
+            background: linear-gradient(135deg, #2e2e3a 0%, #0d0d12 100%);
+            color: #fff;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+        .cover-content h3 { font-size: 24px; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
+        .cover-content span { 
+            font-size: 13px; font-weight: 600; 
+            color: #fff; background: var(--accent);
+            padding: 4px 14px; border-radius: 20px;
+        }
+
+        /* Nav Arrows */
+        .v-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 500;
+        }
+        .v-arrow:hover { background: rgba(255,255,255,0.08); transform: translateY(-50%) scale(1.1); border-color: rgba(255,255,255,0.2); }
+        .v-arrow.disabled { opacity: 0; pointer-events: none; }
+        .v-arrow.prev { left: 40px; }
+        .v-arrow.next { right: 40px; }
+        .v-arrow svg { width: 24px; height: 24px; stroke-width: 2.5; }
+
+        /* ── Control Bar ────────────────────────────── */
+        .v-controls {
+            height: var(--ctrlbar-h);
+            background: rgba(13, 13, 18, 0.85);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .pager-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface);
+            padding: 6px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .pager-input {
+            width: 40px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            text-align: center;
+            outline: none;
+        }
+        .pager-sep { color: var(--text-muted); font-weight: 500; font-size: 13px; }
+        .pager-total { color: var(--text-muted); font-weight: 600; font-size: 13px; }
+
+        .zoom-wrap { display: flex; align-items: center; gap: 4px; }
+        .zoom-val { font-size: 13px; font-weight: 700; color: var(--text-main); min-width: 48px; text-align: center; }
+
+        /* ── Thumbnail Panel ────────────────────────── */
+        #v-thumbs {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 220px;
+            background: rgba(13, 13, 18, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border);
+            z-index: 1500;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        #v-thumbs.active { transform: translateX(0); }
+        
+        .thumbs-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .thumbs-header h3 { font-size: 15px; font-weight: 700; }
+        
+        .thumbs-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            scrollbar-width: thin;
+        }
+        .thumb-item {
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .thumb-item:hover { transform: scale(1.02); }
+        .thumb-item.active { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .thumb-item canvas { display: block; width: 100%; height: auto; }
+        .thumb-label {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* ── Mobile & Desktop specific ──────────────── */
+        @media (max-width: 768px) {
+            :root { --topbar-h: 58px; --ctrlbar-h: 64px; }
+            .v-arrow { display: none; }
+            .desktop-hide { display: none; }
+            .v-brand-name { display: none; }
+            .v-brand { border-right: none; margin-right: 0; padding-right: 0; }
+            .v-meta-title { font-size: 13px; }
+            .v-controls { gap: 10px; padding: 0 10px; }
+            .pager-wrap { padding: 4px 10px; }
+            .btn-text.dt-label { width: 38px; padding: 0; text-indent: -9999px; position: relative; }
+            .btn-text.dt-label svg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-indent: 0; }
+        }
+
+        /* Fullscreen utilities */
+        :fullscreen body { background: #000; }
+        :fullscreen .v-header, :fullscreen .v-controls { background: rgba(0,0,0,0.7); }
     </style>
 </head>
 <body>
 
-<!-- Loader -->
-<div id="vloader">
-    <div class="mag-spinner">
-        <div class="mag-page"></div><div class="mag-page"></div><div class="mag-page"></div>
-    </div>
-    <h3>Opening Magazine…</h3>
-    <div id="vload-bar-wrap"><div id="vload-bar"></div></div>
-    <div id="vloader-msg">Loading pages…</div>
-</div>
-
-<!-- Top Bar -->
-<div class="vtb">
-    <a href="<?= BASE_URL ?>magazine" class="vtb-logo">
-        <span class="mag-dot"></span> <?= SITE_NAME ?>
-    </a>
-    <div class="vtb-meta">
-        <h1><?= htmlspecialchars($mag['title']) ?></h1>
-        <p><?= date('F Y', strtotime($mag['issue_month'])) ?> &nbsp;·&nbsp; Monthly Edition</p>
-    </div>
-    <div class="vtb-actions">
-        <button class="vtb-btn dk" id="vthumb-toggle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            Pages
-        </button>
-        <a href="assets/magazines/<?= rawurlencode($mag['file_path']) ?>" download class="vtb-btn dk">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download
-        </a>
-        <button class="vtb-btn dk" id="vfs-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-            Fullscreen
-        </button>
-        <a href="<?= BASE_URL ?>magazine" class="vtb-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            Back
-        </a>
-    </div>
-</div>
-
-<!-- Thumbnail sidebar -->
-<div id="vthumb"><div id="vthumb-inner"></div></div>
-
-<!-- Stage -->
-<div id="vstage">
-    <!-- Issue nav -->
-    <div class="issue-nav">
-        <?php if ($prev): ?>
-        <a href="<?= BASE_URL ?>magazine/view/<?= $prev['id'] ?>" class="iss-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            <?= htmlspecialchars(date('M Y', strtotime($prev['issue_month']))) ?>
-        </a>
-        <?php endif; ?>
-        <span style="font-size:11px;color:#334155;">📔 <?= date('F Y', strtotime($mag['issue_month'])) ?></span>
-        <?php if ($next): ?>
-        <a href="<?= BASE_URL ?>magazine/view/<?= $next['id'] ?>" class="iss-btn">
-            <?= htmlspecialchars(date('M Y', strtotime($next['issue_month']))) ?>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </a>
-        <?php endif; ?>
-    </div>
-
-    <!-- Book -->
-    <div id="vbook-wrapper">
-        <button class="nav-arrow prev disabled" id="vbtn-prev">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div id="flipbook"></div>
-        <button class="nav-arrow next" id="vbtn-next">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-    </div>
-</div>
-
-<!-- Bottom Controls -->
-<div id="vctrl">
-    <div class="vctrl-grp">
-        <span class="vctrl-lbl">Page</span>
-        <div class="pg-wrap">
-            <input type="number" id="vpg-in" value="1" min="1">
-            <span class="pg-sep">/</span>
-            <span class="pg-tot" id="vpg-tot">?</span>
+    <!-- Loading Screen -->
+    <div id="v-loader">
+        <div class="loader-viz">
+            <div class="loader-circle"></div>
+            <div class="book-anim">
+                <div class="book-bar"></div>
+                <div class="book-bar"></div>
+                <div class="book-bar"></div>
+            </div>
+        </div>
+        <div class="loader-text">
+            <h2 id="loader-title">Opening Magazine Edition</h2>
+            <p id="loader-status">Fetching PDF document...</p>
+            <div class="progress-box">
+                <div id="v-progress-inner"></div>
+            </div>
         </div>
     </div>
-    <div class="vctrl-grp">
-        <button class="vc-btn" id="vzoom-out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
-        <span id="vzoom-lbl">100%</span>
-        <button class="vc-btn" id="vzoom-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
-    </div>
-    <div class="vctrl-grp">
-        <button class="vc-btn" id="vbtn-prev2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <button class="vc-btn" id="vbtn-next2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
-    </div>
-</div>
 
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    <!-- Header -->
+    <header class="v-header">
+        <a href="<?= BASE_URL ?>magazine" class="v-brand">
+            <div class="v-brand-logo"><?= substr(SITE_NAME, 0, 1) ?></div>
+            <span class="v-brand-name"><?= SITE_NAME ?></span>
+        </a>
+        <div class="v-meta">
+            <h1 class="v-meta-title"><?= htmlspecialchars($mag['title']) ?></h1>
+            <div class="v-meta-date"><?= date('F Y', strtotime($mag['issue_month'])) ?></div>
+        </div>
+        <div class="v-header-actions">
+            <button class="btn-text desktop-hide" id="toggle-thumbs">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Pages</span>
+            </button>
+            <button class="btn-icon desktop-hide" id="toggle-fullscreen" title="Toggle Fullscreen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+            <a href="<?= BASE_URL ?>magazine" class="btn-text primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                <span>Back</span>
+            </a>
+        </div>
+    </header>
 
-const PDF_URL    = <?= json_encode($pdf_url) ?>;
-const SITE_NAME  = <?= json_encode(SITE_NAME) ?>;
-const MAG_TITLE  = <?= json_encode($mag['title']) ?>;
-const MAG_MONTH  = <?= json_encode(date('F Y', strtotime($mag['issue_month']))) ?>;
+    <!-- Main Viewer Stage -->
+    <main class="v-main">
+        <button class="v-arrow prev disabled" id="prev-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        
+        <div id="book-viewport">
+            <div id="flipbook"></div>
+        </div>
 
-let pdfDoc=null, totalPages=0, zoom=1.0, bookReady=false, thumbsBuilt=false, thumbOpen=false;
+        <button class="v-arrow next" id="next-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
 
-function bookDims() {
-    const vw=window.innerWidth, vh=window.innerHeight-58-54;
-    const maxH=Math.min(vh-30,820);
-    const pageW=Math.round(Math.min(vw*.43,510)*zoom);
-    const pageH=Math.round(pageW*1.414);
-    if(pageH>maxH){const s=maxH/pageH;return{w:Math.round(pageW*s)*2,h:Math.round(pageH*s)};}
-    return{w:pageW*2,h:pageH};
-}
+        <!-- Thumbnail Panel -->
+        <aside id="v-thumbs">
+            <div class="thumbs-header">
+                <h3>Page Overview</h3>
+                <button class="btn-icon" id="close-thumbs" style="width:30px;height:30px;border-radius:6px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="thumbs-grid" id="thumbs-container"></div>
+        </aside>
+    </main>
 
-async function renderPage(num,canvas,scale){
-    try{
-        const p=await pdfDoc.getPage(num), vp=p.getViewport({scale});
-        canvas.width=vp.width; canvas.height=vp.height;
-        await p.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
-    }catch(e){console.warn('render err p.'+num,e);}
-}
+    <!-- Control Bar -->
+    <footer class="v-controls">
+        <div class="v-ctrl-group">
+            <div class="pager-wrap">
+                <input type="number" class="pager-input" id="page-input" value="1" min="1">
+                <span class="pager-sep">/</span>
+                <span class="pager-total" id="total-pages">?</span>
+            </div>
+        </div>
 
-function showError(msg){
-    document.getElementById('vloader').innerHTML=`
-        <div style="text-align:center;max-width:400px;padding:30px;">
-            <svg style="width:52px;color:#ef4444;margin-bottom:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <h3 style="color:#fff;font-size:17px;margin-bottom:8px;">Cannot load magazine</h3>
-            <p style="color:#94a3b8;font-size:13px;margin-bottom:18px;">${msg}</p>
-            <a href="<?= BASE_URL ?>assets/magazines/<?= rawurlencode($mag['file_path']) ?>" target="_blank"
-               style="display:inline-flex;align-items:center;gap:7px;background:#6366f1;color:#fff;padding:10px 20px;border-radius:9px;text-decoration:none;font-weight:700;font-size:13px;">Download PDF</a>
-            <a href="<?= BASE_URL ?>magazine" style="display:block;margin-top:12px;color:#475569;font-size:13px;text-decoration:none;">← Back to Archive</a>
-        </div>`;
-}
+        <div class="v-ctrl-group zoom-wrap desktop-hide">
+            <button class="btn-icon" id="zoom-out" style="width:32px;height:32px;border-radius:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <span class="zoom-val" id="zoom-label">100%</span>
+            <button class="btn-icon" id="zoom-in" style="width:32px;height:32px;border-radius:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+        </div>
 
-async function buildBook(){
-    const dims=bookDims(), pageW=dims.w/2, pageH=dims.h;
-    const fp=await pdfDoc.getPage(1);
-    const scale=pageW/fp.getViewport({scale:1}).width;
-    const $b=$('#flipbook');
-    $b.empty().css({width:dims.w+'px',height:pageH+'px'});
+        <div class="v-ctrl-group" style="display:flex;gap:6px;">
+            <button class="btn-icon" id="prev-page-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="btn-icon" id="next-page-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+        </div>
+    </footer>
 
-    // Front cover
-    $b.append(`<div class="page cover-page" style="width:${pageW}px;height:${pageH}px;">
-        <div class="cv-site">${SITE_NAME}</div>
-        <div class="cv-title">${MAG_TITLE}</div>
-        <div class="cv-month">${MAG_MONTH}</div>
-    </div>`);
+    <script>
+    // Configuration & PDF.js Worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    
+    const CONFIG = {
+        pdfUrl: <?= json_encode($pdf_url) ?>,
+        siteName: <?= json_encode(SITE_NAME) ?>,
+        title: <?= json_encode($mag['title']) ?>,
+        date: <?= json_encode(date('F Y', strtotime($mag['issue_month']))) ?>,
+        isMobile: window.innerWidth <= 768
+    };
 
-    // PDF pages
-    for(let i=1;i<=totalPages;i++){
-        const $p=$(`<div class="page" style="width:${pageW}px;height:${pageH}px;overflow:hidden;"></div>`);
-        const $inner=$('<div style="position:relative;width:100%;height:100%;background:#fff;"></div>');
-        const c=document.createElement('canvas');
-        $inner.append(c);
-        $inner.append(`<div class="page-num-badge">p.${i}</div>`);
-        $p.append($inner); $b.append($p);
-        const pct=Math.round((i/totalPages)*65)+5;
-        document.getElementById('vload-bar').style.width=pct+'%';
-        document.getElementById('vloader-msg').textContent=`Building page ${i} of ${totalPages}…`;
+    let state = {
+        pdf: null,
+        totalPages: 0,
+        zoom: 1.0,
+        bookReady: false,
+        renderedPages: new Set()
+    };
+
+    // ── Book Sizing Logic ──────────────────────────────
+    function getBookSize() {
+        const w = window.innerWidth;
+        const h = window.innerHeight - 64 - 70; // Topbar + Ctrlbar
+        
+        let bookW, bookH;
+        const padding = CONFIG.isMobile ? 20 : 60;
+        const targetH = h - padding;
+        const targetW = w - padding;
+
+        if (CONFIG.isMobile) {
+            // Single page on mobile
+            bookW = Math.min(targetW, 550) * state.zoom;
+            bookH = bookW * 1.414;
+            if (bookH > targetH) {
+                const s = targetH / bookH;
+                bookH = targetH;
+                bookW = bookH / 1.414;
+            }
+        } else {
+            // Double page on desktop
+            const pageW = Math.min(targetW / 2, 550) * state.zoom;
+            const pageH = pageW * 1.414;
+            if (pageH > targetH) {
+                const s = targetH / pageH;
+                bookH = targetH;
+                bookW = (bookH / 1.414) * 2;
+            } else {
+                bookW = pageW * 2;
+                bookH = pageH;
+            }
+        }
+
+        return { width: Math.round(bookW), height: Math.round(bookH) };
     }
 
-    // Back cover
-    $b.append(`<div class="page back-cover" style="width:${pageW}px;height:${pageH}px;">© ${SITE_NAME} · All Rights Reserved</div>`);
+    // ── PDF Rendering ──────────────────────────────────
+    async function renderPageToCanvas(pageNum, canvas, scale) {
+        try {
+            const page = await state.pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale });
+            
+            // Set canvas size for high fidelity (devicePixelRatio)
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = viewport.width * dpr;
+            canvas.height = viewport.height * dpr;
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
 
-    // Ensure ≥4 pages
-    while($b.children('.page').length<4)
-        $b.append(`<div class="page" style="width:${pageW}px;height:${pageH}px;background:#0d0d1a;"></div>`);
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
 
-    await new Promise(r=>setTimeout(r,60));
-
-    try{
-        $b.turn({width:dims.w,height:pageH,autoCenter:true,gradients:true,acceleration:true,display:'double',
-            when:{
-                turning:(e,pg,view)=>{updateUI(pg);if(view&&view.length)ensureRendered(view,scale);},
-                turned: (e,pg,view)=>{updateUI(pg);if(thumbOpen)buildThumbs();}
-            }});
-        bookReady=true;
-    }catch(e){console.error('turn init:',e);}
-
-    ensureRendered([1,2],scale);
-    updateUI(1);
-    document.getElementById('vpg-tot').textContent=$b.turn('pages');
-    setTimeout(()=>{const l=document.getElementById('vloader');l.style.transition='opacity .4s';l.style.opacity='0';setTimeout(()=>l.style.display='none',400);},300);
-}
-
-const rendered={};
-async function ensureRendered(view,scaleHint){
-    if(!view||!view.length||!pdfDoc)return;
-    const dims=bookDims(), pageW=dims.w/2;
-    for(const tp of view){
-        const pp=tp-1;
-        if(pp<1||pp>totalPages||rendered[pp])continue;
-        rendered[pp]=true;
-        const $el=$('#flipbook .page').eq(tp-1);
-        const canvas=$el.find('canvas')[0];
-        if(!canvas)continue;
-        try{
-            const pg=await pdfDoc.getPage(pp), vp=pg.getViewport({scale:1});
-            await renderPage(pp,canvas,scaleHint||(pageW/vp.width));
-        }catch(e){console.warn('render err',e);}
+            await page.render({
+                canvasContext: ctx,
+                viewport: viewport
+            }).promise;
+        } catch (e) {
+            console.error(`Page ${pageNum} render error:`, e);
+        }
     }
-}
 
-function updateUI(pg){
-    const inp=document.getElementById('vpg-in'); if(inp)inp.value=pg;
-    if(!bookReady)return;
-    try{const tot=$('#flipbook').turn('pages');
-        $('#vbtn-prev,#vbtn-prev2').toggleClass('disabled',pg<=1);
-        $('#vbtn-next,#vbtn-next2').toggleClass('disabled',pg>=tot);
-    }catch(e){}
-    document.querySelectorAll('.vti').forEach((el,i)=>el.classList.toggle('active',i+1===pg));
-}
+    // ── Build Flipbook Structure ───────────────────────
+    async function initBook() {
+        const size = getBookSize();
+        const pageW = CONFIG.isMobile ? size.width : size.width / 2;
+        const pageH = size.height;
+        
+        const $book = $('#flipbook');
+        $book.empty().css({ width: size.width, height: size.height });
 
-async function buildThumbs(){
-    if(thumbsBuilt)return; thumbsBuilt=true;
-    const strip=document.getElementById('vthumb-inner'); strip.innerHTML='';
-    for(let i=1;i<=totalPages;i++){
-        const w=document.createElement('div'); w.className='vti'; w.dataset.page=i+1;
-        const c=document.createElement('canvas');
-        const p=await pdfDoc.getPage(i), vp=p.getViewport({scale:1});
-        await renderPage(i,c,140/vp.width);
-        const l=document.createElement('div'); l.className='vti-lbl'; l.textContent='p.'+i;
-        w.appendChild(c); w.appendChild(l);
-        w.addEventListener('click',()=>{if(bookReady)$('#flipbook').turn('page',parseInt(w.dataset.page));});
-        strip.appendChild(w);
-        if(i%5===0)await new Promise(r=>setTimeout(r,0));
+        // 1. Cover
+        $book.append(`
+            <div class="page hard" style="width:${pageW}px;height:${pageH}px">
+                <div class="cover-content">
+                    <div style="font-weight:900;color:var(--accent);font-size:32px;margin-bottom:20px;">${CONFIG.siteName}</div>
+                    <h3>${CONFIG.title}</h3>
+                    <span>${CONFIG.date}</span>
+                </div>
+            </div>
+        `);
+
+        // 2. Pages
+        for (let i = 1; i <= state.totalPages; i++) {
+            $book.append(`
+                <div class="page" data-pdf-page="${i}" style="width:${pageW}px;height:${pageH}px">
+                    <div class="page-loader" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;font-weight:600;">p.${i}</div>
+                    <canvas></canvas>
+                </div>
+            `);
+            const p = Math.round((i / state.totalPages) * 100);
+            updateLoading(`Processing pages...`, p);
+        }
+
+        // 3. Back cover (ensure even pages for turn.js)
+        $book.append(`<div class="page hard" style="width:${pageW}px;height:${pageH}px">© ${CONFIG.siteName}</div>`);
+        if ($book.children().length % 2 !== 0) {
+            $book.append(`<div class="page" style="width:${pageW}px;height:${pageH}px"></div>`);
+        }
+
+        // Initialize Turn.js
+        $book.turn({
+            width: size.width,
+            height: size.height,
+            display: CONFIG.isMobile ? 'single' : 'double',
+            acceleration: true,
+            gradients: true,
+            elevation: 50,
+            when: {
+                turning: (e, page, view) => {
+                    updatePager(page);
+                    lazyLoad(view);
+                },
+                turned: (e, page) => {
+                    updatePager(page);
+                    highlightThumb(page);
+                }
+            }
+        });
+
+        state.bookReady = true;
+        updatePager(1);
+        lazyLoad([1, 2]);
+        hideLoader();
     }
-}
 
-$(document).ready(async function(){
-    try{
-        const t=pdfjsLib.getDocument({url:PDF_URL,withCredentials:false});
-        t.onProgress=d=>{if(d.total){document.getElementById('vload-bar').style.width=(d.loaded/d.total*40)+'%';}};
-        pdfDoc=await t.promise; totalPages=pdfDoc.numPages;
-        document.getElementById('vloader-msg').textContent=`${totalPages} pages detected — building…`;
-        await buildBook();
-    }catch(err){console.error(err);showError(err.message||'Could not load PDF.');}
-});
+    async function lazyLoad(view) {
+        if (!state.pdf || !view) return;
+        const size = getBookSize();
+        const pageW = CONFIG.isMobile ? size.width : size.width / 2;
 
-// Navigation
-$('#vbtn-prev,#vbtn-prev2').on('click',()=>{if(!$('#vbtn-prev').hasClass('disabled')&&bookReady)$('#flipbook').turn('previous');});
-$('#vbtn-next,#vbtn-next2').on('click',()=>{if(!$('#vbtn-next').hasClass('disabled')&&bookReady)$('#flipbook').turn('next');});
-document.getElementById('vpg-in').addEventListener('keydown',function(e){if(e.key==='Enter'&&bookReady){const p=parseInt(this.value);if(p>=1)$('#flipbook').turn('page',p);}});
-document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||!bookReady)return;if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();$('#flipbook').turn('previous');}if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();$('#flipbook').turn('next');}});
+        for (const turnPage of view) {
+            const $page = $('#flipbook .page').eq(turnPage - 1);
+            const pdfPage = parseInt($page.attr('data-pdf-page'));
+            
+            if (pdfPage && !state.renderedPages.has(pdfPage)) {
+                state.renderedPages.add(pdfPage);
+                const canvas = $page.find('canvas')[0];
+                if (!canvas) continue;
+                
+                try {
+                    const page = await state.pdf.getPage(pdfPage);
+                    const vp = page.getViewport({ scale: 1 });
+                    const scale = (pageW / vp.width) * 1.5; // Render slightly higher for sharpness
+                    await renderPageToCanvas(pdfPage, canvas, scale);
+                    $page.find('.page-loader').fadeOut();
+                } catch(e) {}
+            }
+        }
+    }
 
-// Zoom
-const zooms=[.5,.65,.8,1,1.25,1.5,1.75,2]; let zi=3;
-function applyZoom(){zoom=zooms[zi];document.getElementById('vzoom-lbl').textContent=Math.round(zoom*100)+'%';const d=bookDims();$('#flipbook').turn('size',d.w,d.h);Object.keys(rendered).forEach(k=>delete rendered[k]);const cp=$('#flipbook').turn('page');ensureRendered([cp,cp+1]);}
-document.getElementById('vzoom-in').addEventListener('click',()=>{if(zi<zooms.length-1){zi++;applyZoom();}});
-document.getElementById('vzoom-out').addEventListener('click',()=>{if(zi>0){zi--;applyZoom();}});
+    // ── Thumbnails ────────────────────────────────────
+    async function buildThumbs() {
+        const container = document.getElementById('thumbs-container');
+        if (container.children.length > 0) return;
 
-// Fullscreen
-document.getElementById('vfs-btn').addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();});
+        for (let i = 1; i <= state.totalPages; i++) {
+            const item = document.createElement('div');
+            item.className = 'thumb-item';
+            item.dataset.page = i + 1; // +1 because of cover
+            
+            const canvas = document.createElement('canvas');
+            const page = await state.pdf.getPage(i);
+            const vp = page.getViewport({ scale: 0.2 });
+            await renderPageToCanvas(i, canvas, 180 / vp.width);
+            
+            item.appendChild(canvas);
+            item.innerHTML += `<div class="thumb-label">p.${i}</div>`;
+            item.onclick = () => {
+                $('#flipbook').turn('page', parseInt(item.dataset.page));
+                if (CONFIG.isMobile) toggleThumbs(false);
+            };
+            container.appendChild(item);
+        }
+    }
 
-// Thumbnails
-document.getElementById('vthumb-toggle').addEventListener('click',function(){thumbOpen=!thumbOpen;document.getElementById('vthumb').classList.toggle('open',thumbOpen);buildThumbs();});
+    // ── Interaction UI ────────────────────────────────
+    function updatePager(page) {
+        const input = document.getElementById('page-input');
+        if(input) input.value = page;
+        const total = document.getElementById('total-pages');
+        if(total) total.textContent = $('#flipbook').turn('pages');
+        
+        $('#prev-btn, #prev-page-btn').toggleClass('disabled', page === 1);
+        $('#next-btn, #next-page-btn').toggleClass('disabled', page === $('#flipbook').turn('pages'));
+    }
 
-// Touch swipe
-let tx=0;
-document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
-document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>60){if(dx<0)$('#flipbook').turn('next');else $('#flipbook').turn('previous');}},{passive:true});
+    function highlightThumb(page) {
+        $('.thumb-item').removeClass('active');
+        $(`.thumb-item[data-page="${page}"]`).addClass('active');
+    }
 
-// Resize
-let rt;
-window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{const d=bookDims();if(bookReady)$('#flipbook').turn('size',d.w,d.h);},200);});
-</script>
+    function updateLoading(msg, pct) {
+        const status = document.getElementById('loader-status');
+        if(status) status.textContent = msg;
+        const progress = document.getElementById('v-progress-inner');
+        if(progress) progress.style.width = pct + '%';
+    }
+
+    function hideLoader() {
+        $('#v-loader').fadeOut(500);
+    }
+
+    function toggleThumbs(show) {
+        if (show === undefined) show = !$('#v-thumbs').hasClass('active');
+        $('#v-thumbs').toggleClass('active', show);
+        if (show) buildThumbs();
+    }
+
+    // ── Main Controller ──────────────────────────────
+    $(document).ready(async () => {
+        try {
+            updateLoading('Fetching document...', 10);
+            const loadingTask = pdfjsLib.getDocument(CONFIG.pdfUrl);
+            
+            loadingTask.onProgress = (progress) => {
+                if(progress.total > 0) {
+                    const p = Math.round((progress.loaded / progress.total) * 50);
+                    updateLoading('Downloading PDF...', p);
+                }
+            };
+
+            state.pdf = await loadingTask.promise;
+            state.totalPages = state.pdf.numPages;
+            
+            updateLoading('Initializing reader...', 60);
+            await initBook();
+
+        } catch (e) {
+            console.error(e);
+            const title = document.getElementById('loader-title');
+            if(title) title.textContent = 'Oops! Failed to load';
+            const status = document.getElementById('loader-status');
+            if(status) status.innerHTML = `
+                Could not open this digital edition.<br>
+                <a href="${CONFIG.pdfUrl}" class="btn-text primary" style="margin-top:15px;display:inline-flex;">Download PDF Instead</a>
+            `;
+            const progress = document.getElementById('v-progress-inner');
+            if(progress) progress.style.background = '#ef4444';
+        }
+    });
+
+    // ── Events ────────────────────────────────────────
+    $('#prev-btn, #prev-page-btn').on('click', () => $('#flipbook').turn('previous'));
+    $('#next-btn, #next-page-btn').on('click', () => $('#flipbook').turn('next'));
+
+    $('#toggle-thumbs, #close-thumbs').on('click', () => toggleThumbs());
+    
+    $('#page-input').on('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const val = parseInt($(this).val());
+            if (val > 0 && val <= $('#flipbook').turn('pages')) $('#flipbook').turn('page', val);
+        }
+    });
+
+    // Zoom Logic
+    const zoomLevels = [0.8, 1.0, 1.3, 1.6, 2.0];
+    let zoomIdx = 1;
+    function applyZoom() {
+        state.zoom = zoomLevels[zoomIdx];
+        const label = document.getElementById('zoom-label');
+        if(label) label.textContent = Math.round(state.zoom * 100) + '%';
+        const size = getBookSize();
+        $('#flipbook').turn('size', size.width, size.height);
+        
+        // Clear rendered cache to refresh high-quality versions if zoomed in
+        state.renderedPages.clear();
+        const currentView = $('#flipbook').turn('view');
+        lazyLoad(currentView);
+    }
+
+    $('#zoom-in').on('click', () => { if (zoomIdx < zoomLevels.length - 1) { zoomIdx++; applyZoom(); } });
+    $('#zoom-out').on('click', () => { if (zoomIdx > 0) { zoomIdx--; applyZoom(); } });
+
+    // Keyboard & Fullscreen
+    $(window).on('keydown', e => {
+        if (e.key === 'ArrowLeft') $('#flipbook').turn('previous');
+        if (e.key === 'ArrowRight') $('#flipbook').turn('next');
+        if (e.key === 'f') $('#toggle-fullscreen').click();
+    });
+
+    $('#toggle-fullscreen').on('click', () => {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+    });
+
+    // Responsive Handlers
+    let resizeTimer;
+    $(window).on('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            const wasMobile = CONFIG.isMobile;
+            CONFIG.isMobile = window.innerWidth <= 768;
+            
+            if (state.bookReady) {
+                if (wasMobile !== CONFIG.isMobile) {
+                    location.reload(); 
+                } else {
+                    const size = getBookSize();
+                    $('#flipbook').turn('size', size.width, size.height);
+                }
+            }
+        }, 300);
+    });
+
+    // Swipe support
+    let touchX = 0;
+    $(document).on('touchstart', e => touchX = e.originalEvent.touches[0].clientX);
+    $(document).on('touchend', e => {
+        const dx = e.originalEvent.changedTouches[0].clientX - touchX;
+        if (Math.abs(dx) > 50) {
+            if (dx < 0) $('#flipbook').turn('next');
+            else $('#flipbook').turn('previous');
+        }
+    });
+    </script>
 </body>
 </html>

@@ -34,6 +34,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
             <li>
+                <a href="tags.php" class="<?php echo $current_page == 'tags.php' ? 'active' : ''; ?>">
+                    <i data-feather="tag" style="width: 18px;"></i>
+                    Tags Management
+                </a>
+            </li>
+            <li>
                 <a href="profile.php" class="<?php echo $current_page == 'profile.php' ? 'active' : ''; ?>">
                     <i data-feather="user" style="width: 18px;"></i>
                     Account Profile

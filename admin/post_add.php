@@ -60,6 +60,30 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
             foreach ($category_ids as $cat_id) {
                 $stmt_cat->execute([$post_id, $cat_id]);
             }
+
+            // Handle Tags
+            if (!empty($_POST['tags'])) {
+                $tags_input = explode(',', $_POST['tags']);
+                $stmt_tag_insert = $pdo->prepare("INSERT IGNORE INTO tags (name, slug) VALUES (?, ?)");
+                $stmt_tag_get = $pdo->prepare("SELECT id FROM tags WHERE name = ?");
+                $stmt_tag_link = $pdo->prepare("INSERT IGNORE INTO post_tags (post_id, tag_id) VALUES (?, ?)");
+
+                foreach ($tags_input as $tag_name) {
+                    $tag_name = trim($tag_name);
+                    if (empty($tag_name)) continue;
+                    
+                    $tag_slug = create_slug($tag_name);
+                    $stmt_tag_insert->execute([$tag_name, $tag_slug]);
+                    
+                    $stmt_tag_get->execute([$tag_name]);
+                    $tag_id = $stmt_tag_get->fetchColumn();
+                    
+                    if ($tag_id) {
+                        $stmt_tag_link->execute([$post_id, $tag_id]);
+                    }
+                }
+            }
+
             $pdo->commit();
             redirect('admin/posts.php', 'Post created successfully!');
         } catch (PDOException $e) {
@@ -154,6 +178,16 @@ $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAl
                 </div>
             </div>
 
+            <!-- Tags -->
+            <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #eef2f6;">
+                <h3 style="font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 12px;">Tags</h3>
+                <div style="position: relative;" id="tag-container">
+                    <input type="text" name="tags" id="tag-input" class="form-control" placeholder="Tag1, Tag2, Tag3..." style="font-size: 13px;" autocomplete="off">
+                    <div id="tag-suggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 50; display: none; max-height: 200px; overflow-y: auto; margin-top: 5px;"></div>
+                </div>
+                <p style="font-size: 11px; color: #94a3b8; margin-top: 8px;">Separate tags with commas. Suggestions will appear as you type.</p>
+            </div>
+
             <!-- Image -->
             <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #eef2f6;">
                 <h3 style="font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 12px;">Cover Photo</h3>
@@ -214,6 +248,58 @@ $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAl
                 document.getElementById('previewBox').style.borderStyle = 'solid';
             }
         };
+
+        // Tag Auto-Suggest Logic
+        const tagInput = document.getElementById('tag-input');
+        const suggestionsBox = document.getElementById('tag-suggestions');
+
+        tagInput.addEventListener('input', async function() {
+            const val = this.value;
+            const lastTag = val.split(',').pop().trim();
+
+            if (lastTag.length < 2) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`api_tags.php?q=${lastTag}`);
+                const tags = await response.json();
+
+                if (tags.length > 0) {
+                    suggestionsBox.innerHTML = tags.map(t => `
+                        <div class="suggestion-item" style="padding: 10px 15px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+                            ${t}
+                        </div>
+                    `).join('');
+                    suggestionsBox.style.display = 'block';
+
+                    // Handle suggestion click
+                    document.querySelectorAll('.suggestion-item').forEach(item => {
+                        item.onclick = function() {
+                            const currentVal = tagInput.value;
+                            const parts = currentVal.split(',');
+                            parts.pop(); // Remove the partial tag
+                            parts.push(' ' + this.innerText.trim());
+                            tagInput.value = parts.join(',').trim() + ', ';
+                            suggestionsBox.style.display = 'none';
+                            tagInput.focus();
+                        };
+                    });
+                } else {
+                    suggestionsBox.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error fetching tags:', error);
+            }
+        });
+
+        // Close suggestions on click outside
+        document.addEventListener('click', e => {
+            if (!document.getElementById('tag-container').contains(e.target)) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
 
         feather.replace();
     });

@@ -29,7 +29,7 @@ $available_dates = $stmt->fetchAll(PDO::FETCH_COLUMN);
                 <label style="font-weight: 600; color: #1e293b;">Select Date:</label>
                 <form action="" method="GET" style="display: flex; gap: 5px;">
                     <input type="date" name="date" class="form-control" value="<?php echo $filter_date ?: date('Y-m-d'); ?>" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px;">
-                    <button type="submit" class="btn btn-primary" style="background: #1e293b; border: none; padding: 10px 20px;">Filter</button>
+                    <button type="submit" class="btn btn-primary" style="background: var(--primary); border: none; padding: 10px 20px;">Filter</button>
                 </form>
             </div>
         </div>
@@ -71,8 +71,8 @@ $available_dates = $stmt->fetchAll(PDO::FETCH_COLUMN);
                 <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 25px;">Recent Archives</h3>
                 <div style="display: flex; flex-wrap: wrap; gap: 12px;">
                     <?php foreach ($available_dates as $date): ?>
-                        <a href="?date=<?php echo $date; ?>" 
-                           style="padding: 10px 20px; background: <?php echo $filter_date === $date ? '#1e293b' : '#f1f5f9'; ?>; 
+                            <a href="?date=<?php echo $date; ?>" 
+                           style="padding: 10px 20px; background: <?php echo $filter_date === $date ? 'var(--primary)' : '#f1f5f9'; ?>; 
                                   color: <?php echo $filter_date === $date ? 'white' : '#475569'; ?>; 
                                   text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; transition: 0.2s;">
                             <?php echo format_date($date); ?>

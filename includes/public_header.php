@@ -198,9 +198,15 @@ $bing_verify    = get_setting('bing_site_verify', '');
                     </div>
 
                     <div class="user-action">
-                        <a href="<?php echo BASE_URL; ?>admin/dashboard.php" class="btn" style="background: #f1f5f9; color: #444; font-size: 14px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        </a>
+                        <?php if (is_logged_in()): ?>
+                            <a href="<?php echo BASE_URL; ?><?php echo ($_SESSION['role'] ?? 'user') == 'admin' ? 'admin/dashboard.php' : 'dashboard.php'; ?>" class="btn" style="background: var(--primary); color: #fff; font-size: 14px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" title="My Dashboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </a>
+                        <?php else: ?>
+                            <a href="<?php echo BASE_URL; ?>login.php" class="btn" style="background: #f1f5f9; color: #444; font-size: 14px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" title="Login">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                            </a>
+                        <?php endif; ?>
                     </div>
                     
                     <!-- Mobile Menu Toggle -->

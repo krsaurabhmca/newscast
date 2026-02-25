@@ -61,9 +61,8 @@ $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONC
 $stmt->execute($exclude_ids ?: []);
 $latest_news = $stmt->fetchAll();
 
-// Trending Tags / Categories
-$stmt = $pdo->query("SELECT name, slug, color, icon FROM categories WHERE status = 'active' LIMIT 10");
-$categories_list = $stmt->fetchAll();
+// Trending Tags
+$categories_list = get_all_tags($pdo, 12);
 
 // 5. Live Stream Status
 $live_enabled = get_setting('live_youtube_enabled') === '1';
@@ -77,9 +76,8 @@ $live_vid_id  = $live_url ? yt_id($live_url) : null;
     <div class="trending-tags">
         <span class="trending-label">TRENDING</span>
         <?php foreach($categories_list as $tag): ?>
-            <a href="<?php echo BASE_URL; ?>category/<?php echo $tag['slug']; ?>" class="tag-item" style="border-left: 3px solid <?php echo $tag['color']; ?>; display: flex; align-items: center; gap: 5px;">
-                <i data-feather="<?php echo $tag['icon']; ?>" style="width: 12px; height: 12px; color: <?php echo $tag['color']; ?>;"></i>
-                <?php echo $tag['name']; ?>
+            <a href="<?php echo BASE_URL; ?>tag/<?php echo $tag['slug']; ?>" class="tag-item">
+                #<?php echo $tag['name']; ?>
             </a>
         <?php endforeach; ?>
     </div>
