@@ -250,21 +250,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $welcome_title = "Welcome to " . $site_name . " - Quick Start Guide";
             $welcome_slug = "welcome-guide";
             
-            // Generate a Professional Vector SVG for the Welcome Post
-            $welcome_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
-                <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <rect width="800" height="450" fill="url(#grad1)"/>
-                <circle cx="400" cy="225" r="150" fill="white" fill-opacity="0.1"/>
-                <path d="M400 150 L450 250 L350 250 Z" fill="white" fill-opacity="0.3"/>
-                <text x="50%" y="45%" font-family="Outfit, sans-serif" font-size="42" font-weight="800" fill="white" text-anchor="middle">LAUNCH SUCCESSFUL</text>
-                <text x="50%" y="55%" font-family="Outfit, sans-serif" font-size="18" font-weight="500" fill="white" fill-opacity="0.8" text-anchor="middle">WELCOME TO YOUR NEW PORTAL</text>
-            </svg>';
-            $welcome_image_data = 'data:image/svg+xml;base64,' . base64_encode($welcome_svg);
+            // Use share.png from assets/images
+            $welcome_image = 'share.png';
+            if (file_exists('assets/images/share.png')) {
+                if (!is_dir('assets/images/posts')) mkdir('assets/images/posts', 0777, true);
+                copy('assets/images/share.png', 'assets/images/posts/share.png');
+            }
 
             $welcome_content = "
             <div class='guide-intro'>
@@ -290,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>";
             
             $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, featured_image, status, is_featured) VALUES (?, ?, ?, ?, ?, ?, 'published', 1)");
-            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Everything you need to know about your new news portal.', $welcome_image_data]);
+            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Everything you need to know about your new news portal.', $welcome_image]);
             
             // Get post_id
             $stmt = $pdo->prepare("SELECT id FROM posts WHERE slug = ?");
