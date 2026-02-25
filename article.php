@@ -293,15 +293,27 @@ $related = $stmt->fetchAll();
             const bodyText = document.querySelector('.article-body').innerText;
             utterance = new SpeechSynthesisUtterance(bodyText);
             
-            // Priority: Search for Hindi (India) voice
+            // 🎙️ Priority: Search for Female Hindi (India) voices
             let voices = synth.getVoices();
-            let hindiVoice = voices.find(v => v.lang === 'hi-IN' || v.name.includes('Hindi'));
             
-            if (hindiVoice) {
-                utterance.voice = hindiVoice;
+            // Names usually associated with Female Hindi voices on Windows/Android/Chrome
+            let femaleHindiVoice = voices.find(v => 
+                (v.lang === 'hi-IN' || v.lang.startsWith('hi')) && 
+                (v.name.includes('Kalpana') || v.name.includes('Heera') || v.name.includes('Female') || v.name.includes('Google हिन्दी'))
+            );
+            
+            // Fallback to any Hindi voice
+            let anyHindiVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi'));
+            
+            let selectedVoice = femaleHindiVoice || anyHindiVoice;
+            
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
             }
-            utterance.lang = 'hi-IN'; // Essential for proper pronunciation
-            utterance.rate = 1.0;
+            
+            utterance.lang = 'hi-IN';
+            utterance.rate = 0.95; // Slightly slower for 'cold' clarity
+            utterance.pitch = 1.0; // Neutral pitch
             
             utterance.onend = () => {
                 isSpeaking = false;
