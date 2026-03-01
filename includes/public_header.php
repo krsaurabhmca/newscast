@@ -54,9 +54,14 @@ $final_og_image = isset($page_image) && $page_image ? $page_image : $og_image;
     <meta property="og:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME; ?>">
     <meta property="og:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
     <meta property="og:image" content="<?php echo $final_og_image; ?>">
+    <meta property="og:image:secure_url" content="<?php echo $final_og_image; ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
+    <?php if (get_setting('fb_app_id')): ?>
+    <meta property="fb:app_id" content="<?php echo get_setting('fb_app_id'); ?>">
+    <?php
+endif; ?>
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">

@@ -87,22 +87,7 @@ function get_post_thumbnail($image)
         return BASE_URL . 'assets/images/posts/' . $image;
     }
 
-    // Dynamic Placeholder Implementation
-    $portal_name = defined('SITE_NAME_DYNAMIC') ? SITE_NAME_DYNAMIC : (defined('SITE_NAME') ? SITE_NAME : 'News Cast');
-    $portal_url = str_replace(['http://', 'https://'], '', BASE_URL);
-    $portal_url = rtrim($portal_url, '/');
-
-    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
-        <rect width="800" height="450" fill="#cbd5e1"/>
-        <text x="50%" y="48%" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="900" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="4px">
-            ' . strtoupper($portal_name) . '
-        </text>
-        <text x="50%" y="58%" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#ffffff" fill-opacity="0.8" text-anchor="middle" dominant-baseline="middle" letter-spacing="1px">
-            ' . strtolower($portal_url) . '
-        </text>
-    </svg>';
-
-    return 'data:image/svg+xml;base64,' . base64_encode($svg);
+    return BASE_URL . 'assets/images/default-post.jpg';
 }
 
 /**
