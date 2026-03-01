@@ -2,7 +2,7 @@
 $page_title = "Reporter Joining Letter";
 include 'includes/header.php';
 if (!is_admin()) {
-    redirect('admin/dashboard.php', 'Access denied.', 'danger');
+  redirect('admin/dashboard.php', 'Access denied.', 'danger');
 }
 require_once '../includes/email_helper.php';
 
@@ -13,9 +13,9 @@ $flash = '';
 $flash_type = '';
 
 if ($uid) {
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-    $stmt->execute([$uid]);
-    $selected = $stmt->fetch();
+  $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+  $stmt->execute([$uid]);
+  $selected = $stmt->fetch();
 }
 
 $site_name = get_setting('site_name', 'NewsCast');
@@ -24,14 +24,14 @@ $auth_name = $_SESSION['username'] ?? 'Editor-in-Chief';
 
 function generate_joining_letter_html($user, $designation, $joining_date, $salary, $custom_note, $site_name, $address, $auth_name)
 {
-    $date_str = date('d F Y', strtotime($joining_date));
-    $issue_date = date('d F Y');
-    $id_ref = htmlspecialchars($site_name) . '-APP-' . str_pad($user['id'], 4, '0', STR_PAD_LEFT);
-    $salary_line = $salary ? "<li>Remuneration: <strong>Rs. " . htmlspecialchars($salary) . " per month</strong>.</li>" : '';
-    $custom_line = $custom_note ? "<p>" . nl2br(htmlspecialchars($custom_note)) . "</p>" : '';
-    $addr_html = $address ? "<p style='font-size:12px;color:#64748b;'>" . htmlspecialchars($address) . "</p>" : '';
+  $date_str = date('d F Y', strtotime($joining_date));
+  $issue_date = date('d F Y');
+  $id_ref = htmlspecialchars($site_name) . '-APP-' . str_pad($user['id'], 4, '0', STR_PAD_LEFT);
+  $salary_line = $salary ? "<li>Remuneration: <strong>Rs. " . htmlspecialchars($salary) . " per month</strong>.</li>" : '';
+  $custom_line = $custom_note ? "<p>" . nl2br(htmlspecialchars($custom_note)) . "</p>" : '';
+  $addr_html = $address ? "<p style='font-size:12px;color:#64748b;'>" . htmlspecialchars($address) . "</p>" : '';
 
-    return '<div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:30px;border:2px solid #334155;border-radius:4px;color:#0f172a;">
+  return '<div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:30px;border:2px solid #334155;border-radius:4px;color:#0f172a;">
       <div style="text-align:center;border-bottom:1px solid #e2e8f0;padding-bottom:20px;margin-bottom:24px;">
         <h2 style="margin:0 0 4px;font-size:22px;">' . htmlspecialchars($site_name) . '</h2>
         ' . $addr_html . '
@@ -71,21 +71,21 @@ $salary_val = clean($_POST['salary'] ?? '');
 $custom_note_val = clean($_POST['custom_note'] ?? '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_email_letter']) && $selected) {
-    $letter_body = generate_joining_letter_html($selected, $designation_val, $joining_date_val, $salary_val, $custom_note_val, $site_name, $site_addr, $auth_name);
-    $result = send_joining_letter_email($selected['email'], $selected['username'], $letter_body, $designation_val);
-    if ($result) {
-        $flash = "Joining letter sent to " . htmlspecialchars($selected['email']);
-        $flash_type = 'success';
-    }
-    else {
-        $flash = "Could not send email. Check SMTP settings in Settings > Email/SMTP.";
-        $flash_type = 'danger';
-    }
+  $letter_body = generate_joining_letter_html($selected, $designation_val, $joining_date_val, $salary_val, $custom_note_val, $site_name, $site_addr, $auth_name);
+  $result = send_joining_letter_email($selected['email'], $selected['username'], $letter_body, $designation_val);
+  if ($result) {
+    $flash = "Joining letter sent to " . htmlspecialchars($selected['email']);
+    $flash_type = 'success';
+  }
+  else {
+    $flash = "Could not send email. Check SMTP settings in Settings > Email/SMTP.";
+    $flash_type = 'danger';
+  }
 }
 
 $preview_html = '';
 if ($selected) {
-    $preview_html = generate_joining_letter_html($selected, $designation_val, $joining_date_val, $salary_val, $custom_note_val, $site_name, $site_addr, $auth_name);
+  $preview_html = generate_joining_letter_html($selected, $designation_val, $joining_date_val, $salary_val, $custom_note_val, $site_name, $site_addr, $auth_name);
 }
 ?>
 <style>
@@ -124,7 +124,7 @@ endif; ?>
             <div style="font-size:11px;color:#64748b;"><?php echo htmlspecialchars($r['email']); ?></div>
           </div>
           <?php if ($uid == $r['id']): ?><i data-feather="check-circle" style="width:14px;color:#9333ea;"></i><?php
-    endif; ?>
+  endif; ?>
         </a>
         <?php
 endforeach; ?>
@@ -214,100 +214,108 @@ function printLetter() {
     setTimeout(function(){ w.print(); }, 500);
 }
 
-// Reliable download helper
-function triggerDownload(url, filename) {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-        document.body.removeChild(a);
-        if(url.startsWith('blob:')) URL.revokeObjectURL(url);
-    }, 200);
-}
-
 async function downloadLetterPDF(btn) {
-    var el = document.getElementById('letter-preview');
-    if (!el || !btn) return;
+    const el = document.getElementById('letter-preview');
+    if (!el) return alert("Element not found!");
 
-    const originalHtml = btn.innerHTML;
     btn.innerHTML = '<i data-feather="loader" class="spin" style="width:14px;"></i> Wait...';
     btn.disabled = true;
-    if(window.feather) setTimeout(() => feather.replace(), 10);
+    if(window.feather) feather.replace();
 
     try {
-        var name = "<?php echo addslashes($selected['username'] ?? 'reporter'); ?>";
-        var reporterName = (name.replace(/[^a-z0-9]/gi, '_').toLowerCase()) || 'letter';
-        var filename = 'joining_letter_' + reporterName + '.pdf';
-
-        var jspdf   = window.jspdf;
-        var jsPDF   = jspdf.jsPDF;
+        if (!window.jspdf) throw new Error("jsPDF not loaded");
         
-        var canvas  = await html2canvas(el, { 
-            scale: 2, 
-            useCORS: true, 
-            backgroundColor: '#ffffff',
-            logging: false
+        const canvas = await html2canvas(el, { 
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
         });
         
-        var imgData = canvas.toDataURL('image/png', 1.0);
-        var pdf     = new jsPDF('p', 'mm', 'a4');
-        var imgProps= pdf.getImageProperties(imgData);
-        var pdfWidth = pdf.internal.pageSize.getWidth();
-        var pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
         
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        
+        const name = "<?php echo isset($selected['username']) ? str_replace(' ', '_', $selected['username']) : 'reporter'; ?>";
+        const filename = `JoiningLetter_${name.replace(/[^a-z0-9_]/gi, '')}.pdf`;
+        
         pdf.save(filename);
-    } catch (err) {
-        console.error("PDF Gen Error:", err);
-        alert("Could not generate PDF. Please try again.");
-    } finally {
+        
+        btn.innerHTML = '<i data-feather="check" style="width:14px;"></i> Done!';
+        const oldBg = btn.style.background;
+        btn.style.background = '#10b981';
+        if(window.feather) feather.replace();
+        
         setTimeout(() => {
-            btn.innerHTML = originalHtml;
+            btn.innerHTML = '<i data-feather="file-text" style="width:14px;"></i> PDF';
+            btn.style.background = oldBg;
             btn.disabled = false;
-            if(window.feather) setTimeout(() => feather.replace(), 10);
-        }, 1000);
+            if(window.feather) feather.replace();
+        }, 2000);
+
+    } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+        btn.innerHTML = '<i data-feather="x" style="width:14px;"></i> Error';
+        setTimeout(() => {
+            btn.innerHTML = '<i data-feather="file-text" style="width:14px;"></i> PDF';
+            btn.disabled = false;
+            if(window.feather) feather.replace();
+        }, 2000);
     }
 }
 
 async function downloadLetter(btn) {
-    var el = document.getElementById('letter-preview');
-    if (!el || !btn) return;
+    const el = document.getElementById('letter-preview');
+    if (!el) return alert("Element not found!");
 
-    const originalHtml = btn.innerHTML;
     btn.innerHTML = '<i data-feather="loader" class="spin" style="width:14px;"></i> Wait...';
     btn.disabled = true;
-    if(window.feather) setTimeout(() => feather.replace(), 10);
+    if(window.feather) feather.replace();
 
     try {
-        var name = "<?php echo addslashes($selected['username'] ?? 'reporter'); ?>";
-        var reporterName = (name.replace(/[^a-z0-9]/gi, '_').toLowerCase()) || 'letter';
-        var filename = 'joining_letter_' + reporterName + '.png';
-
-        var canvas = await html2canvas(el, { 
-            scale: 2, 
-            useCORS: true, 
-            backgroundColor: '#ffffff',
-            logging: false
+        const canvas = await html2canvas(el, { 
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
         });
         
-        canvas.toBlob(function(blob) {
-            if(!blob) throw new Error("Canvas to Blob failed");
-            var url = URL.createObjectURL(blob);
-            triggerDownload(url, filename);
-        }, 'image/png');
+        const dataURL = canvas.toDataURL('image/png');
+        const name = "<?php echo isset($selected['username']) ? str_replace(' ', '_', $selected['username']) : 'reporter'; ?>";
+        const filename = `JoiningLetter_${name.replace(/[^a-z0-9_]/gi, '')}.png`;
+        
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        btn.innerHTML = '<i data-feather="check" style="width:14px;"></i> Done!';
+        const oldBg = btn.style.background;
+        btn.style.background = '#10b981';
+        if(window.feather) feather.replace();
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i data-feather="image" style="width:14px;"></i> Download as Image';
+            btn.style.background = oldBg;
+            btn.disabled = false;
+            if(window.feather) feather.replace();
+        }, 2000);
 
     } catch (err) {
-        console.error("Image Gen Error:", err);
-        alert("Could not generate image. Please try again.");
-    } finally {
+        console.error(err);
+        alert("Error: " + err.message);
+        btn.innerHTML = '<i data-feather="x" style="width:14px;"></i> Error';
         setTimeout(() => {
-            btn.innerHTML = originalHtml;
+            btn.innerHTML = '<i data-feather="image" style="width:14px;"></i> Download as Image';
             btn.disabled = false;
-            if(window.feather) setTimeout(() => feather.replace(), 10);
-        }, 1000);
+            if(window.feather) feather.replace();
+        }, 2000);
     }
 }
 </script>

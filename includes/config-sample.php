@@ -1,10 +1,21 @@
 <?php
-// Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'newscast_db');
-define('BASE_URL', 'http://localhost/news/');
+// Environment-Specific Configuration
+if ($_SERVER['HTTP_HOST'] == 'localhost') {
+    // Local Development
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+    define('DB_NAME', 'newscast_db');
+    define('BASE_URL', 'http://localhost/news/');
+}
+else {
+    // Live Server Example
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'your_db_user');
+    define('DB_PASS', 'your_db_password');
+    define('DB_NAME', 'your_db_name');
+    define('BASE_URL', 'https://yourdomain.com/');
+}
 
 // Application Constants
 define('SITE_NAME', 'Panchayat Voice');
@@ -17,20 +28,21 @@ try {
         "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
         DB_USER,
         DB_PASS,
-        [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ]
-    );
-} catch (PDOException $e) {
+    [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ]
+        );
+}
+catch (PDOException $e) {
     // If DB connection fails, redirect to installer
     if (file_exists('install.php') || file_exists('../install.php')) {
         $path = file_exists('install.php') ? 'install.php' : '../install.php';
         header("Location: $path");
         exit;
     }
-    
+
     // Fallback if installer is deleted
     die("<div style='font-family:sans-serif;padding:40px;text-align:center;'>
             <h2 style='color:#dc2626;'>Database Connection Error</h2>
@@ -55,12 +67,14 @@ try {
     while ($row = $stmt->fetch()) {
         $settings[$row['setting_key']] = $row['setting_value'];
     }
-} catch (PDOException $e) {
-    // Settings table may not exist yet on first run — safe to ignore
+}
+catch (PDOException $e) {
+// Settings table may not exist yet on first run — safe to ignore
 }
 
 // Helper to get a setting value
-function get_setting($key, $default = '') {
+function get_setting($key, $default = '')
+{
     global $settings;
     return isset($settings[$key]) ? $settings[$key] : $default;
 }
