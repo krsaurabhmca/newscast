@@ -19,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($email) || empty($password)) {
         $error = "Please fill in all fields.";
-    } else {
+    }
+    else {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
@@ -29,9 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['profile_image'] = $user['profile_image'];
-            
+
             redirect('admin/dashboard.php', 'Welcome back, ' . $user['username'] . '!');
-        } else {
+        }
+        else {
             $error = "Invalid email or password.";
         }
     }
@@ -196,7 +198,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if ($error): ?>
             <div class="alert"><?php echo $error; ?></div>
-        <?php endif; ?>
+        <?php
+endif; ?>
 
         <form method="POST">
             <div class="input-group">
@@ -213,6 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="footer-links">
+            <a href="<?php echo BASE_URL; ?>forgot_password.php" style="display:block;margin-bottom:10px;">🔐 Forgot your password?</a>
             <a href="<?php echo BASE_URL; ?>">← Back to Website</a>
         </div>
     </div>

@@ -8,7 +8,8 @@ if (!is_admin()) {
 }
 
 // Helper: extract YouTube video ID from any YT URL format
-function getYoutubeId($url) {
+function getYoutubeId($url)
+{
     $id = '';
     $url = trim($url);
     if (preg_match('/(?:v=|youtu\.be\/|embed\/|live\/)([a-zA-Z0-9_-]{11})/', $url, $m)) {
@@ -19,41 +20,47 @@ function getYoutubeId($url) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
     $to_save = [
-        'site_name'              => clean($_POST['site_name']),
-        'site_tagline'           => clean($_POST['site_tagline']),
-        'contact_email'          => clean($_POST['contact_email']),
-        'contact_phone'          => clean($_POST['contact_phone']),
-        'whatsapp_number'        => clean($_POST['whatsapp_number']),
-        'address'                => clean($_POST['address']),
-        'facebook_url'           => clean($_POST['facebook_url']),
-        'twitter_url'            => clean($_POST['twitter_url']),
-        'instagram_url'          => clean($_POST['instagram_url']),
-        'youtube_url'            => clean($_POST['youtube_url']),
-        'google_map'             => $_POST['google_map'],
-        'theme_color'            => clean($_POST['theme_color']),
-        'footer_theme'           => clean($_POST['footer_theme']),
-        'header_style'           => clean($_POST['header_style']),
-        'show_date_time'         => clean($_POST['show_date_time']),
-        'breaking_news_enabled'  => clean($_POST['breaking_news_enabled']),
+        'site_name' => clean($_POST['site_name']),
+        'site_tagline' => clean($_POST['site_tagline']),
+        'contact_email' => clean($_POST['contact_email']),
+        'contact_phone' => clean($_POST['contact_phone']),
+        'whatsapp_number' => clean($_POST['whatsapp_number']),
+        'address' => clean($_POST['address']),
+        'facebook_url' => clean($_POST['facebook_url']),
+        'twitter_url' => clean($_POST['twitter_url']),
+        'instagram_url' => clean($_POST['instagram_url']),
+        'youtube_url' => clean($_POST['youtube_url']),
+        'google_map' => $_POST['google_map'],
+        'theme_color' => clean($_POST['theme_color']),
+        'footer_theme' => clean($_POST['footer_theme']),
+        'header_style' => clean($_POST['header_style']),
+        'show_date_time' => clean($_POST['show_date_time']),
+        'breaking_news_enabled' => clean($_POST['breaking_news_enabled']),
         // SEO & Analytics
-        'meta_description'       => clean($_POST['meta_description']),
-        'meta_keywords'          => clean($_POST['meta_keywords']),
-        'meta_robots'            => clean($_POST['meta_robots']),
-        'og_image_url'           => clean($_POST['og_image_url']),
-        'twitter_handle'         => clean($_POST['twitter_handle']),
-        'google_analytics_id'    => clean($_POST['google_analytics_id']),
-        'google_site_verify'     => clean($_POST['google_site_verify']),
-        'bing_site_verify'       => clean($_POST['bing_site_verify']),
-        'schema_type'            => clean($_POST['schema_type']),
-        'posts_per_page'         => (int)$_POST['posts_per_page'],
-        'copyright_text'         => clean($_POST['copyright_text']),
+        'meta_description' => clean($_POST['meta_description']),
+        'meta_keywords' => clean($_POST['meta_keywords']),
+        'meta_robots' => clean($_POST['meta_robots']),
+        'og_image_url' => clean($_POST['og_image_url']),
+        'twitter_handle' => clean($_POST['twitter_handle']),
+        'google_analytics_id' => clean($_POST['google_analytics_id']),
+        'google_site_verify' => clean($_POST['google_site_verify']),
+        'bing_site_verify' => clean($_POST['bing_site_verify']),
+        'schema_type' => clean($_POST['schema_type']),
+        'posts_per_page' => (int)$_POST['posts_per_page'],
+        'copyright_text' => clean($_POST['copyright_text']),
         // Live Stream
-        'live_youtube_url'       => clean($_POST['live_youtube_url'] ?? ''),
-        'live_youtube_enabled'   => isset($_POST['live_youtube_enabled']) ? '1' : '0',
-        'live_stream_title'      => clean($_POST['live_stream_title'] ?? 'Live Stream'),
-        'live_stream_sound'      => clean($_POST['live_stream_sound'] ?? '0'),
-        'translation_enabled'    => clean($_POST['translation_enabled'] ?? 'no'),
-        'tts_enabled'            => clean($_POST['tts_enabled'] ?? 'no'),
+        'live_youtube_url' => clean($_POST['live_youtube_url'] ?? ''),
+        'live_youtube_enabled' => isset($_POST['live_youtube_enabled']) ? '1' : '0',
+        'live_stream_title' => clean($_POST['live_stream_title'] ?? 'Live Stream'),
+        'live_stream_sound' => clean($_POST['live_stream_sound'] ?? '0'),
+        'translation_enabled' => clean($_POST['translation_enabled'] ?? 'no'),
+        'tts_enabled' => clean($_POST['tts_enabled'] ?? 'no'),
+        'smtp_host' => clean($_POST['smtp_host'] ?? ''),
+        'smtp_user' => clean($_POST['smtp_user'] ?? ''),
+        'smtp_pass' => $_POST['smtp_pass'] ?? '',
+        'smtp_port' => clean($_POST['smtp_port'] ?? '587'),
+        'smtp_sender' => clean($_POST['smtp_sender'] ?? ''),
+        'email_on_user_create' => clean($_POST['email_on_user_create'] ?? 'no'),
     ];
 
     try {
@@ -74,7 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         }
         $pdo->commit();
         redirect('admin/settings.php', 'Settings updated successfully!');
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
         $pdo->rollBack();
         $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
         $_SESSION['flash_type'] = "danger";
@@ -236,6 +244,9 @@ include 'includes/header.php';
     <button type="button" onclick="showTab('livestream')" id="tab-livestream">
         <i data-feather="youtube" style="width:15px;"></i> Live Stream
     </button>
+    <button type="button" onclick="showTab('email')" id="tab-email">
+        <i data-feather="mail" style="width:15px;"></i> Email / SMTP
+    </button>
 </div>
 
 <form action="" method="POST" enctype="multipart/form-data">
@@ -324,12 +335,14 @@ include 'includes/header.php';
                                 <div style="font-size: 11px; color: #94a3b8;">Upload below to replace</div>
                             </div>
                         </div>
-                        <?php else: ?>
+                        <?php
+else: ?>
                         <div class="logo-preview" style="justify-content:center; flex-direction: column;">
                             <i data-feather="image" style="width: 30px; color: #cbd5e1;"></i>
                             <span style="font-size: 12px; color: #94a3b8; margin-top: 5px;">No logo uploaded</span>
                         </div>
-                        <?php endif; ?>
+                        <?php
+endif; ?>
                         <input type="file" name="site_logo" class="form-control" accept="image/*">
                         <span class="field-hint">Recommended: PNG with transparent background, min. 200px height.</span>
                     </div>
@@ -343,12 +356,14 @@ include 'includes/header.php';
                                 <div style="font-size: 11px; color: #94a3b8;">Upload below to replace</div>
                             </div>
                         </div>
-                        <?php else: ?>
+                        <?php
+else: ?>
                         <div class="logo-preview" style="justify-content:center; flex-direction: column;">
                             <i data-feather="bookmark" style="width: 30px; color: #cbd5e1;"></i>
                             <span style="font-size: 12px; color: #94a3b8; margin-top: 5px;">No favicon uploaded</span>
                         </div>
-                        <?php endif; ?>
+                        <?php
+endif; ?>
                         <input type="file" name="site_favicon" class="form-control" accept="image/*">
                         <span class="field-hint">Recommended: Square PNG or ICO, 32×32 or 64×64 px.</span>
                     </div>
@@ -372,13 +387,13 @@ include 'includes/header.php';
             <div class="settings-card-body">
                 <div class="settings-grid">
                     <?php
-                    $socials = [
-                        ['name'=>'facebook_url',  'label'=>'Facebook',  'icon'=>'facebook',  'color'=>'#1877f2', 'placeholder'=>'https://facebook.com/yourpage'],
-                        ['name'=>'twitter_url',   'label'=>'X / Twitter','icon'=>'twitter',   'color'=>'#000',    'placeholder'=>'https://twitter.com/yourhandle'],
-                        ['name'=>'instagram_url', 'label'=>'Instagram', 'icon'=>'instagram', 'color'=>'#e1306c', 'placeholder'=>'https://instagram.com/yourprofile'],
-                        ['name'=>'youtube_url',   'label'=>'YouTube',   'icon'=>'youtube',   'color'=>'#ff0000', 'placeholder'=>'https://youtube.com/yourchannel'],
-                    ];
-                    foreach ($socials as $s): ?>
+$socials = [
+    ['name' => 'facebook_url', 'label' => 'Facebook', 'icon' => 'facebook', 'color' => '#1877f2', 'placeholder' => 'https://facebook.com/yourpage'],
+    ['name' => 'twitter_url', 'label' => 'X / Twitter', 'icon' => 'twitter', 'color' => '#000', 'placeholder' => 'https://twitter.com/yourhandle'],
+    ['name' => 'instagram_url', 'label' => 'Instagram', 'icon' => 'instagram', 'color' => '#e1306c', 'placeholder' => 'https://instagram.com/yourprofile'],
+    ['name' => 'youtube_url', 'label' => 'YouTube', 'icon' => 'youtube', 'color' => '#ff0000', 'placeholder' => 'https://youtube.com/yourchannel'],
+];
+foreach ($socials as $s): ?>
                     <div>
                         <label class="field-label" style="display:flex; align-items: center; gap: 8px;">
                             <i data-feather="<?php echo $s['icon']; ?>" style="width:15px; color: <?php echo $s['color']; ?>;"></i>
@@ -386,7 +401,8 @@ include 'includes/header.php';
                         </label>
                         <input type="url" name="<?php echo $s['name']; ?>" class="form-control" placeholder="<?php echo $s['placeholder']; ?>" value="<?php echo get_setting($s['name']); ?>">
                     </div>
-                    <?php endforeach; ?>
+                    <?php
+endforeach; ?>
                 </div>
             </div>
         </div>
@@ -415,9 +431,10 @@ include 'includes/header.php';
                 </div>
                 <label class="field-label">Quick Presets</label>
                 <div class="color-swatches">
-                    <?php foreach (['#ff3c00','#6366f1','#0ea5e9','#10b981','#f59e0b','#ec4899','#8b5cf6','#14b8a6','#dc2626','#1d4ed8','#0f172a','#7c3aed'] as $c): ?>
-                        <button type="button" class="swatch-btn" style="background:<?php echo $c;?>;" onclick="setColor('<?php echo $c;?>')"></button>
-                    <?php endforeach; ?>
+                    <?php foreach (['#ff3c00', '#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#dc2626', '#1d4ed8', '#0f172a', '#7c3aed'] as $c): ?>
+                        <button type="button" class="swatch-btn" style="background:<?php echo $c; ?>;" onclick="setColor('<?php echo $c; ?>')"></button>
+                    <?php
+endforeach; ?>
                 </div>
             </div>
         </div>
@@ -438,7 +455,7 @@ include 'includes/header.php';
                         <label class="field-label">Footer Theme</label>
                         <div class="toggle-group">
                             <div class="toggle-opt">
-                                <input type="radio" name="footer_theme" id="ft_light" value="light" <?php echo get_setting('footer_theme','light') == 'light' ? 'checked' : ''; ?>>
+                                <input type="radio" name="footer_theme" id="ft_light" value="light" <?php echo get_setting('footer_theme', 'light') == 'light' ? 'checked' : ''; ?>>
                                 <label for="ft_light"><i data-feather="sun" style="width:14px;"></i> Light</label>
                             </div>
                             <div class="toggle-opt">
@@ -452,7 +469,7 @@ include 'includes/header.php';
                         <label class="field-label">Header Style</label>
                         <div class="toggle-group">
                             <div class="toggle-opt">
-                                <input type="radio" name="header_style" id="hs_default" value="default" <?php echo get_setting('header_style','default') == 'default' ? 'checked' : ''; ?>>
+                                <input type="radio" name="header_style" id="hs_default" value="default" <?php echo get_setting('header_style', 'default') == 'default' ? 'checked' : ''; ?>>
                                 <label for="hs_default"><i data-feather="minus" style="width:14px;"></i> Standard</label>
                             </div>
                             <div class="toggle-opt">
@@ -466,7 +483,7 @@ include 'includes/header.php';
                         <label class="field-label">Live Date & Time Bar</label>
                         <div class="toggle-group">
                             <div class="toggle-opt">
-                                <input type="radio" name="show_date_time" id="dt_yes" value="yes" <?php echo get_setting('show_date_time','yes') == 'yes' ? 'checked' : ''; ?>>
+                                <input type="radio" name="show_date_time" id="dt_yes" value="yes" <?php echo get_setting('show_date_time', 'yes') == 'yes' ? 'checked' : ''; ?>>
                                 <label for="dt_yes"><i data-feather="clock" style="width:14px;"></i> Show</label>
                             </div>
                             <div class="toggle-opt">
@@ -484,7 +501,7 @@ include 'includes/header.php';
                                 <label for="bn_yes"><i data-feather="zap" style="width:14px;"></i> Enable</label>
                             </div>
                             <div class="toggle-opt">
-                                <input type="radio" name="breaking_news_enabled" id="bn_no" value="no" <?php echo get_setting('breaking_news_enabled','no') == 'no' ? 'checked' : ''; ?>>
+                                <input type="radio" name="breaking_news_enabled" id="bn_no" value="no" <?php echo get_setting('breaking_news_enabled', 'no') == 'no' ? 'checked' : ''; ?>>
                                 <label for="bn_no"><i data-feather="zap-off" style="width:14px;"></i> Disable</label>
                             </div>
                         </div>
@@ -776,6 +793,64 @@ include 'includes/header.php';
                 <strong>Tips:</strong> For a YouTube <em>Live stream</em>, use the share URL from "Go Live" or studio. For a regular video, paste the normal watch URL.
                 The homepage will show an animated <span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:700;">● LIVE</span> badge and the player will autoplay muted.
                 Autoplay requires the browser to have autoplay enabled (usually works on most modern browsers when muted).
+            </div>
+        </div>
+    </div>
+    
+    <!-- ══════════ EMAIL / SMTP ══════════ -->
+    <div class="settings-panel" id="panel-email">
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div class="icon" style="background:#fefce8; color: #ca8a04;">
+                    <i data-feather="mail" style="width:18px;"></i>
+                </div>
+                <div>
+                    <h4>Email & SMTP Configuration</h4>
+                    <p>Setup your outgoing mail server for password resets and notifications.</p>
+                </div>
+            </div>
+            <div class="settings-card-body">
+                <div class="settings-grid">
+                    <div>
+                        <label class="field-label">SMTP Host</label>
+                        <input type="text" name="smtp_host" class="form-control" value="<?php echo htmlspecialchars(get_setting('smtp_host')); ?>" placeholder="e.g. smtp.gmail.com">
+                    </div>
+                    <div>
+                        <label class="field-label">SMTP Port</label>
+                        <input type="text" name="smtp_port" class="form-control" value="<?php echo htmlspecialchars(get_setting('smtp_port', '587')); ?>" placeholder="587">
+                    </div>
+                    <div>
+                        <label class="field-label">SMTP Username</label>
+                        <input type="text" name="smtp_user" class="form-control" value="<?php echo htmlspecialchars(get_setting('smtp_user')); ?>" placeholder="e.g. info@yourdomain.com">
+                    </div>
+                    <div>
+                        <label class="field-label">SMTP Password</label>
+                        <input type="password" name="smtp_pass" class="form-control" value="<?php echo htmlspecialchars(get_setting('smtp_pass')); ?>" placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label class="field-label">Sender Name</label>
+                        <input type="text" name="smtp_sender" class="form-control" value="<?php echo htmlspecialchars(get_setting('smtp_sender')); ?>" placeholder="e.g. NewsCast Team">
+                    </div>
+                    <div>
+                        <label class="field-label">System Emails</label>
+                        <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+                            <label class="sw-check">
+                                <input type="checkbox" name="email_on_user_create" value="yes" <?php echo get_setting('email_on_user_create', 'no') === 'yes' ? 'checked' : ''; ?>>
+                                <span class="sw-slider"></span>
+                            </label>
+                            <span style="font-size:13px; color:#475569;">Send welcome email to new users/reporters</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top:24px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+                    <h5 style="margin:0 0 8px; font-size:14px; font-weight:700;">Connection Details</h5>
+                    <ul style="margin:0; padding-left:20px; font-size:13px; color:#64748b; line-height:1.6;">
+                        <li>Use Port <code>465</code> for SSL or <code>587</code> for TLS (Recommended).</li>
+                        <li>For Gmail, you must use an <strong>App Password</strong> if 2FA is enabled.</li>
+                        <li>If SMTP is not configured, the system will attempt to use PHP <code>mail()</code> which may go to spam.</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

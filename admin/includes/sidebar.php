@@ -26,7 +26,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">NEWS DESK</p>
         <ul class="nav-links">
             <li class="has-submenu">
-                <a href="posts.php" class="<?php echo ($current_page == 'posts.php' || $current_page == 'post_add.php' || $current_page == 'post_edit.php') ? 'active' : ''; ?>">
+                <a href="posts.php" class="<?php echo($current_page == 'posts.php' || $current_page == 'post_add.php' || $current_page == 'post_edit.php') ? 'active' : ''; ?>">
                     <i data-feather="edit-3" style="width: 18px;"></i>
                     Articles
                 </a>
@@ -52,6 +52,38 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </ul>
 
         <?php if (is_admin()): ?>
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">REPORTER MANAGEMENT</p>
+        <ul class="nav-links">
+            <li>
+                <a href="reporter_idcard.php" class="<?php echo $current_page == 'reporter_idcard.php' ? 'active' : ''; ?>">
+                    <i data-feather="credit-card" style="width: 18px;"></i>
+                    ID Cards
+                </a>
+            </li>
+            <li>
+                <a href="reporter_letter.php" class="<?php echo $current_page == 'reporter_letter.php' ? 'active' : ''; ?>">
+                    <i data-feather="file-text" style="width: 18px;"></i>
+                    Joining Letter
+                </a>
+            </li>
+            <li>
+                <a href="reporter_payments.php" class="<?php echo $current_page == 'reporter_payments.php' ? 'active' : ''; ?>">
+                    <i data-feather="dollar-sign" style="width: 18px;"></i>
+                    Payments &amp; Earnings
+                </a>
+            </li>
+        </ul>
+
+        <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">SOCIAL MEDIA</p>
+        <ul class="nav-links">
+            <li>
+                <a href="social_share.php" class="<?php echo $current_page == 'social_share.php' ? 'active' : ''; ?>">
+                    <i data-feather="share-2" style="width: 18px;"></i>
+                    Auto Share
+                </a>
+            </li>
+        </ul>
+
         <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">DIGITAL MEDIA</p>
         <ul class="nav-links">
             <li>
@@ -77,7 +109,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
         </ul>
-        <?php endif; ?>
+        <?php
+endif; ?>
 
         <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">COMMUNICATION</p>
         <ul class="nav-links">
@@ -88,7 +121,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     Inbox / Feedback
                     <?php if ($unread_count > 0): ?>
                         <span style="background: #ef4444; color: white; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 20px; margin-left: auto;"><?php echo $unread_count; ?></span>
-                    <?php endif; ?>
+                    <?php
+endif; ?>
                 </a>
             </li>
         </ul>
@@ -114,7 +148,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     Security
                 </a>
             </li>
-            <?php endif; ?>
+            <?php
+endif; ?>
             <li>
                 <a href="profile.php" class="<?php echo $current_page == 'profile.php' ? 'active' : ''; ?>">
                     <i data-feather="user" style="width: 18px;"></i>
