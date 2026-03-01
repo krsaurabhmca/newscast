@@ -227,8 +227,9 @@ echo "$r, $g, $b";
     <!-- Comparative Study / Plans -->
     <section class="pricing-section">
         <div class="badge">तुलना करें और चुनें</div>
-        <h2 style="font-size: 42px; font-weight: 900; margin-bottom: 50px;">बेहतरीन प्लान्स आपके लिए</h2>
-        
+        <h2 style="font-size: 42px; font-weight: 900; margin-bottom: 30px;">बेहतरीन प्लान्स आपके लिए</h2>
+        <p style="color: var(--text-muted); margin-bottom: 50px;">🎁 ऑफर: पहले 50 यूज़र्स के लिए सेटअप फीस बिल्कुल माफ़!</p>
+
         <div class="pricing-grid">
             <!-- Starter -->
             <div class="price-card">
@@ -284,9 +285,9 @@ echo "$r, $g, $b";
 
     <!-- Why Us Section -->
     <section style="padding: 80px 0; text-align: center;">
-        <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 30px;">NewsCast क्यों है सबसे अलग?</h2>
+        <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 30px;">NewsCast ही क्यों चुनें?</h2>
         <div style="max-width: 800px; margin: 0 auto; color: var(--text-muted); font-size: 18px; line-height: 1.8;">
-            हम सिर्फ वेबसाइट नहीं बनाते, हम तकनीक को आसान बनाते हैं। आज के ज़माने में जब आपके पास न्यूज़ पढ़ने का समय कम है, हमारी वेबसाइट <strong>बोलकर न्यूज़ सुनाती है</strong>। जब आपके रिपोर्टर्स फील्ड पर जाते हैं, तो उनके पास <strong>असली आईडी कार्ड</strong> होते हैं। 
+            हम सिर्फ वेबसाइट नहीं बनाते, हम तकनीक को आसान बनाते हैं। आज के ज़माने में जब आपके पास न्यूज़ पढ़ने का समय कम है, हमारी वेबसाइट <strong>बोलकर न्यूज़ सुनाती है</strong>। जब आपके रिपोर्टर्स फील्ड पर जाते हैं, तो उनके पास <strong>असली आईडी कार्ड</strong> होते हैं।
             <br><br>
             यह सब कुछ सिर्फ ₹6,666 में! बाज़ार में इसके लिए आपको लाखों खर्च करने पड़ सकते हैं। हमारा मिशन है - हर छोटा न्यूज़ रिपोर्टर बने एक बड़ा न्यूज़ चैनल!
         </div>
@@ -303,6 +304,11 @@ echo "$r, $g, $b";
         </div>
     </footer>
 </div>
+
+<!-- Floating WhatsApp Button -->
+<a href="https://wa.me/919431426600" style="position: fixed; bottom: 30px; right: 30px; background: #25d366; color: #fff; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4); z-index: 999; text-decoration: none;">
+    <i data-feather="message-circle" style="width: 35px; height: 35px;"></i>
+</a>
 
 <script>
     feather.replace();
