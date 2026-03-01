@@ -33,13 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             // Try connection without DB name first (incase it doesn't exist)
             $test_pdo = new PDO("mysql:host=$db_host", $db_user, $db_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-            
+
             // Try to create DB
             $test_pdo->exec("CREATE DATABASE IF NOT EXISTS `$db_name` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-            
+
             // Now try connecting to the DB
             $test_pdo->exec("USE `$db_name`");
-            
+
             $_SESSION['db_setup'] = [
                 'host' => $db_host,
                 'user' => $db_user,
@@ -48,7 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
             header("Location: install.php?step=2");
             exit;
-        } catch (PDOException $e) {
+        }
+        catch (PDOException $e) {
             $error = "Database Connection Failed: " . $e->getMessage();
         }
     }
@@ -59,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $admin_user = $_POST['admin_user'];
         $admin_email = $_POST['admin_email'];
         $admin_pass = $_POST['admin_pass'];
-        
+
         $db = $_SESSION['db_setup'];
 
         try {
@@ -209,15 +210,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 post_id INT NOT NULL,
                 tag_id INT NOT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS password_resets (
+              `id`         INT AUTO_INCREMENT PRIMARY KEY,
+              `email`      VARCHAR(255) NOT NULL,
+              `token`      VARCHAR(128) NOT NULL UNIQUE,
+              `expires_at` DATETIME NOT NULL,
+              `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              INDEX `idx_token` (`token`),
+              INDEX `idx_email` (`email`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS reporter_payments (
+              `id`          INT AUTO_INCREMENT PRIMARY KEY,
+              `reporter_id` INT NOT NULL,
+              `amount`      DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+              `pay_type`    ENUM('salary','bonus','article_fee','expense','advance','other') DEFAULT 'salary',
+              `pay_date`    DATE NOT NULL,
+              `note`        TEXT,
+              `status`      ENUM('paid','pending','cancelled') DEFAULT 'paid',
+              `created_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              FOREIGN KEY (`reporter_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+              INDEX `idx_reporter` (`reporter_id`),
+              INDEX `idx_date` (`pay_date`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS social_shares (
+              `id`         INT AUTO_INCREMENT PRIMARY KEY,
+              `post_id`    INT NOT NULL,
+              `platform`   ENUM('facebook','instagram','twitter') NOT NULL,
+              `status`     ENUM('success','failed') DEFAULT 'success',
+              `response`   TEXT,
+              `shared_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              INDEX `idx_post` (`post_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
             ";
-            
+
             $pdo->exec($sql);
 
             // 2. Create Admin Account (using IGNORE to avoid duplicate error)
             $hashed_pass = password_hash($admin_pass, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT IGNORE INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
             $stmt->execute([$admin_user, $admin_email, $hashed_pass, 'admin']);
-            
+
             // Get admin_id (either newly created or existing)
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$admin_email]);
@@ -240,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $description = $cat['name'] . " news and latest updates.";
                 $stmt_cat->execute([$cat['name'], $cat['slug'], $description, $cat['icon'], $cat['color']]);
             }
-            
+
             // Get cat_id (Default to General for welcome post)
             $stmt = $pdo->prepare("SELECT id FROM categories WHERE slug = ?");
             $stmt->execute(['general']);
@@ -249,11 +284,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 4. Create Welcome Post (Comprehensive Guide)
             $welcome_title = "Welcome to " . $site_name . " - Quick Start Guide";
             $welcome_slug = "welcome-guide";
-            
+
             // Use share.png from assets/images
             $welcome_image = 'share.png';
             if (file_exists('assets/images/share.png')) {
-                if (!is_dir('assets/images/posts')) mkdir('assets/images/posts', 0777, true);
+                if (!is_dir('assets/images/posts'))
+                    mkdir('assets/images/posts', 0777, true);
                 copy('assets/images/share.png', 'assets/images/posts/share.png');
             }
 
@@ -279,10 +315,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p style='font-size: 13px; color: #64748b;'>Don't forget to delete the <code>install.php</code> file from your server root now that you are finished!</p>
                 </div>
             </div>";
-            
+
             $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, featured_image, status, is_featured) VALUES (?, ?, ?, ?, ?, ?, 'published', 1)");
             $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Everything you need to know about your new news portal.', $welcome_image]);
-            
+
             // Get post_id
             $stmt = $pdo->prepare("SELECT id FROM posts WHERE slug = ?");
             $stmt->execute([$welcome_slug]);
@@ -299,7 +335,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         try {
                             $stmt = $pdo->prepare("INSERT IGNORE INTO post_categories (post_id, category_id) VALUES (?, ?)");
                             $stmt->execute([$post_id, $t_id]);
-                        } catch (Exception $e) {}
+                        }
+                        catch (Exception $e) {
+                        }
                     }
                 }
             }
@@ -366,14 +404,15 @@ function get_setting(\$key, \$default = '') {
 
 define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
 ?>";
-            
+
             file_put_contents($config_file, $config_content);
-            
+
             $_SESSION['install_done'] = true;
             header("Location: install.php?step=3");
             exit;
 
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $error = "Critical Error: " . $e->getMessage();
         }
     }
@@ -597,10 +636,10 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
     <div class="setup-main">
         <div class="header">
             <div class="logo-box">
-                <?php 
-                    $site_name_display = isset($_POST['site_name']) ? $_POST['site_name'] : 'NC';
-                    echo strtoupper(substr($site_name_display, 0, 2)); 
-                ?>
+                <?php
+$site_name_display = isset($_POST['site_name']) ? $_POST['site_name'] : 'NC';
+echo strtoupper(substr($site_name_display, 0, 2));
+?>
             </div>
             <h1>NewsCast Setup</h1>
             <p class="subtitle">Join thousands of professional digital publishers.</p>
@@ -622,7 +661,8 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
             <div class="alert">
                 <i data-feather="alert-circle"></i> <?php echo $error; ?>
             </div>
-        <?php endif; ?>
+        <?php
+endif; ?>
 
         <?php if ($step == 1): ?>
             <form method="POST">
@@ -647,7 +687,8 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
                 </button>
             </form>
 
-        <?php elseif ($step == 2): ?>
+        <?php
+elseif ($step == 2): ?>
             <form method="POST">
                 <div class="form-group">
                     <label>Project / Site Name</label>
@@ -674,7 +715,8 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
                 </button>
             </form>
 
-        <?php elseif ($step == 3): ?>
+        <?php
+elseif ($step == 3): ?>
             <div class="success-hero">
                 <div class="icon-circle">
                     <i data-feather="check" style="width: 40px; height: 40px;"></i>
@@ -693,7 +735,8 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
                     <p style="font-size: 12px; color: #c2410c;">For your protection, please delete the <strong>install.php</strong> file from your server folder immediately.</p>
                 </div>
             </div>
-        <?php endif; ?>
+        <?php
+endif; ?>
     </div>
 
     <div class="setup-sidebar">
