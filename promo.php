@@ -113,7 +113,7 @@ echo "$r, $g, $b";
         </a>
         <div style="display: flex; gap: 15px;">
             <a href="https://wa.me/919431426600" class="btn-demo" style="background: #25d366;"><i data-feather="message-circle"></i> व्हाट्सएप</a>
-            <a href="admin/login.php" class="btn-demo" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border);">एडमिन</a>
+            <a href="https://newscast.offerplant.com/login.php" class="btn-demo" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border);">एडमिन</a>
         </div>
     </header>
 
@@ -216,7 +216,7 @@ echo "$r, $g, $b";
                     </div>
                     <h3 style="font-size: 22px; margin-bottom: 15px;">कंट्रोल पैनल (एडमिन)</h3>
                     <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 30px;">यहाँ से आप न्यूज़ डाल पाएंगे, आईडी कार्ड बनाएंगे और पूरे चैनल की सेटिंग संभालेंगे।</p>
-                    <a href="admin/login.php" target="_blank" class="btn-demo" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); border: 1px solid var(--border);">
+                    <a href="https://newscast.offerplant.com/login.php" target="_blank" class="btn-demo" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); border: 1px solid var(--border);">
                         एडमिन पैनल डेमो <i data-feather="lock"></i>
                     </a>
                 </div>
