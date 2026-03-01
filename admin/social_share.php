@@ -97,62 +97,102 @@ function share_to_instagram($url, $title, $image_url = '')
 $recent_posts = $pdo->query("SELECT id,title,featured_image,published_at FROM posts WHERE status='published' ORDER BY published_at DESC LIMIT 20")->fetchAll();
 ?>
 <style>
-.guide-step{background:#fff;border-radius:14px;padding:22px 26px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.guide-step{background:#fff;border-radius:14px;padding:22px 26px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);border:1px solid #f1f5f9;}
 .guide-step h4{margin:0 0 10px;font-size:15px;font-weight:800;color:#0f172a;display:flex;align-items:center;gap:10px;}
-.step-num{width:28px;height:28px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;}
+.step-num{width:28px;height:28px;border-radius:10px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;}
 .guide-step ol{margin:0;padding-left:20px;color:#475569;font-size:13px;line-height:2.2;}
 .guide-step code{background:#f1f5f9;padding:2px 7px;border-radius:5px;font-family:monospace;font-size:12px;color:#6366f1;}
-.s-tabs{display:flex;gap:5px;margin-bottom:20px;flex-wrap:wrap;}
-.s-tab{padding:9px 18px;border-radius:9px;border:1px solid #e2e8f0;background:#fff;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;transition:.15s;}
-.s-tab.active{background:var(--primary);color:#fff;border-color:var(--primary);}
-.s-panel{display:none;} .s-panel.active{display:block;}
-.shr-result{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-top:8px;}
-.shr-result.ok{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;}
+.s-tabs{display:flex;gap:8px;margin-bottom:25px;flex-wrap:wrap;background:#f1f5f9;padding:6px;border-radius:12px;}
+.s-tab{padding:10px 20px;border-radius:8px;border:none;background:transparent;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px;}
+.s-tab.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.s-tab:hover:not(.active){color:#0f172a;}
+.s-panel{display:none; animation: fadeIn .3s ease;} .s-panel.active{display:block;}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.shr-result{padding:12px 16px;border-radius:12px;font-size:13px;font-weight:700;margin-top:10px;display:flex;align-items:center;gap:10px;}
+.shr-result.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;}
 .shr-result.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
-.info-callout{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 18px;font-size:13px;color:#1e40af;margin-bottom:16px;display:flex;gap:10px;}
-.warn-callout{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 18px;font-size:13px;color:#92400e;margin-bottom:16px;display:flex;gap:10px;}
-.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;}
-.field-label{font-size:12px;font-weight:700;color:#334155;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.3px;}
-.field-hint{font-size:11px;color:#94a3b8;margin-top:4px;}
-.guide-btn-group{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap;}
-.guide-btn-group a, .guide-btn-group btn{padding:8px 15px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+.info-callout{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px 20px;font-size:13px;color:#1e40af;margin-bottom:20px;display:flex;gap:12px;line-height:1.6;}
+.warn-callout{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px 20px;font-size:13px;color:#92400e;margin-bottom:20px;display:flex;gap:12px;line-height:1.6;}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.field-label{font-size:12px;font-weight:800;color:#334155;margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.5px;}
+.field-hint{font-size:11px;color:#94a3b8;margin-top:5px;line-height:1.4;}
+.quick-link-card{background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:12px;padding:15px;transition:.2s;text-decoration:none;display:block;height:100%;}
+.quick-link-card:hover{border-color:var(--primary);background:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.05);}
 </style>
 
 <div class="s-tabs">
-  <button class="s-tab active" onclick="showSTab(this,'config')">Configuration</button>
-  <button class="s-tab" onclick="showSTab(this,'guide-fb')">Facebook Guide</button>
-  <button class="s-tab" onclick="showSTab(this,'guide-ig')">Instagram Guide</button>
-  <button class="s-tab" onclick="showSTab(this,'manual')">Manual Share</button>
+  <button class="s-tab active" onclick="showSTab(this,'config')"><i data-feather="settings" style="width:15px;"></i> Configuration</button>
+  <button class="s-tab" onclick="showSTab(this,'guide-fb')"><i data-feather="facebook" style="width:15px;"></i> Facebook Guide</button>
+  <button class="s-tab" onclick="showSTab(this,'guide-ig')"><i data-feather="instagram" style="width:15px;"></i> Instagram Guide</button>
+  <button class="s-tab" onclick="showSTab(this,'manual')"><i data-feather="share-2" style="width:15px;"></i> Manual Share</button>
 </div>
 
 <!-- CONFIG -->
 <div class="s-panel active" id="spanel-config">
-<form method="POST">
-  <div class="info-callout"><span style="font-size:18px;flex-shrink:0;">i</span><div>Enter your Facebook App &amp; Page credentials and Instagram Business Account details below. Once configured, articles can be auto-shared on publish or manually from the "Manual Share" tab.</div></div>
-  <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:16px;">
-    <h3 style="margin:0 0 18px;font-size:15px;font-weight:800;">Facebook Page Settings</h3>
-    <div class="settings-grid">
-      <div><label class="field-label">App ID</label><input type="text" name="fb_app_id" class="form-control" placeholder="e.g. 123456789012345" value="<?php echo htmlspecialchars(get_setting('fb_app_id')); ?>"><span class="field-hint">From developers.facebook.com &rarr; Your App &rarr; App ID</span></div>
-      <div><label class="field-label">App Secret</label><input type="password" name="fb_app_secret" class="form-control" placeholder="App Secret" value="<?php echo htmlspecialchars(get_setting('fb_app_secret')); ?>"></div>
-      <div><label class="field-label">Page ID</label><input type="text" name="fb_page_id" class="form-control" placeholder="Your Facebook Page ID" value="<?php echo htmlspecialchars(get_setting('fb_page_id')); ?>"><span class="field-hint">Found in your Page's About section</span></div>
-      <div><label class="field-label">Page Access Token</label><input type="password" name="fb_page_access_token" class="form-control" placeholder="Long-lived Page Access Token" value="<?php echo htmlspecialchars(get_setting('fb_page_access_token')); ?>"><span class="field-hint">Use Graph API Explorer to get a permanent page token</span></div>
-    </div>
-
-    <h3 style="margin:24px 0 18px;font-size:15px;font-weight:800;">Instagram Business Settings</h3>
-    <div class="settings-grid">
-      <div><label class="field-label">Instagram Business Account ID</label><input type="text" name="ig_business_account_id" class="form-control" placeholder="IG Business Account ID" value="<?php echo htmlspecialchars(get_setting('ig_business_account_id')); ?>"><span class="field-hint">Get from Graph API: me/accounts &rarr; instagram_business_account id</span></div>
-      <div><label class="field-label">Instagram Access Token</label><input type="password" name="ig_access_token" class="form-control" placeholder="Same long-lived token as Facebook" value="<?php echo htmlspecialchars(get_setting('ig_access_token')); ?>"></div>
-    </div>
-
-    <h3 style="margin:24px 0 18px;font-size:15px;font-weight:800;">Auto-Share Options</h3>
-    <div class="settings-grid">
-      <div><label class="field-label">Auto-Share on Facebook</label><select name="auto_share_facebook" class="form-control"><option value="no" <?php echo get_setting('auto_share_facebook', 'no') === 'no' ? 'selected' : ''; ?>>Disabled</option><option value="yes" <?php echo get_setting('auto_share_facebook') === 'yes' ? 'selected' : ''; ?>>Enabled</option></select></div>
-      <div><label class="field-label">Auto-Share on Instagram</label><select name="auto_share_instagram" class="form-control"><option value="no" <?php echo get_setting('auto_share_instagram', 'no') === 'no' ? 'selected' : ''; ?>>Disabled</option><option value="yes" <?php echo get_setting('auto_share_instagram') === 'yes' ? 'selected' : ''; ?>>Enabled (requires image)</option></select></div>
-      <div><label class="field-label">Trigger</label><select name="auto_share_on_publish" class="form-control"><option value="yes" <?php echo get_setting('auto_share_on_publish', 'yes') === 'yes' ? 'selected' : ''; ?>>On Article Publish</option><option value="no" <?php echo get_setting('auto_share_on_publish') === 'no' ? 'selected' : ''; ?>>Manual Only</option></select></div>
-    </div>
+  
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin-bottom:25px;">
+    <a href="https://developers.facebook.com/apps/" target="_blank" class="quick-link-card">
+        <div style="font-weight:800;font-size:13px;color:#1877f2;display:flex;align-items:center;gap:8px;margin-bottom:8px;"><i data-feather="external-link" style="width:14px;"></i> 1. Meta App Portal</div>
+        <div style="font-size:11px;color:#64748b;">Create or find your App ID and App Secret here.</div>
+    </a>
+    <a href="https://developers.facebook.com/tools/explorer/" target="_blank" class="quick-link-card">
+        <div style="font-weight:800;font-size:13px;color:#0ea5e9;display:flex;align-items:center;gap:8px;margin-bottom:8px;"><i data-feather="terminal" style="width:14px;"></i> 2. Token Explorer</div>
+        <div style="font-size:11px;color:#64748b;">Get your Page ID and generate Access Tokens.</div>
+    </a>
+    <a href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" class="quick-link-card">
+        <div style="font-weight:800;font-size:13px;color:#8b5cf6;display:flex;align-items:center;gap:8px;margin-bottom:8px;"><i data-feather="shield" style="width:14px;"></i> 3. Token Debugger</div>
+        <div style="font-size:11px;color:#64748b;">Extend tokens to be permanent/long-lived.</div>
+    </a>
   </div>
-  <div style="text-align:right;"><button type="submit" name="save_social_share" class="btn btn-primary" style="padding:12px 30px;font-size:15px;"><i data-feather="save" style="width:15px;"></i> Save Settings</button></div>
-</form>
+
+  <form method="POST">
+    <div style="background:#fff;border-radius:18px;padding:30px;box-shadow:0 1px 4px rgba(0,0,0,.04);border:1px solid #f1f5f9;margin-bottom:20px;">
+      
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #f1f5f9;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#eef2ff;color:#1877f2;display:flex;align-items:center;justify-content:center;"><i data-feather="facebook"></i></div>
+        <div>
+            <h3 style="margin:0;font-size:16px;font-weight:800;">Facebook Integration</h3>
+            <p style="margin:0;font-size:12px;color:#94a3b8;">Mandatory for auto-posting to your Page</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div><label class="field-label">App ID</label><input type="text" name="fb_app_id" class="form-control" placeholder="1234567890..." value="<?php echo htmlspecialchars(get_setting('fb_app_id')); ?>"><span class="field-hint">Find in Meta App Settings &rarr; Basic</span></div>
+        <div><label class="field-label">App Secret</label><input type="password" name="fb_app_secret" class="form-control" placeholder="••••••••" value="<?php echo htmlspecialchars(get_setting('fb_app_secret')); ?>"></div>
+        <div><label class="field-label">Page ID</label><input type="text" name="fb_page_id" class="form-control" placeholder="Your Page ID" value="<?php echo htmlspecialchars(get_setting('fb_page_id')); ?>"><span class="field-hint">Page &rarr; About &rarr; Page ID</span></div>
+        <div><label class="field-label">Page Access Token</label><input type="password" name="fb_page_access_token" class="form-control" placeholder="EAA..." value="<?php echo htmlspecialchars(get_setting('fb_page_access_token')); ?>"><span class="field-hint">Needs <code>pages_manage_posts</code> permission</span></div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin:35px 0 20px;padding-bottom:15px;border-bottom:1px solid #f1f5f9;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#fff1f6;color:#e1306c;display:flex;align-items:center;justify-content:center;"><i data-feather="instagram"></i></div>
+        <div>
+            <h3 style="margin:0;font-size:16px;font-weight:800;">Instagram Settings</h3>
+            <p style="margin:0;font-size:12px;color:#94a3b8;">Required for Instagram Business auto-posting</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div><label class="field-label">Instagram Business ID</label><input type="text" name="ig_business_account_id" class="form-control" placeholder="178xxx..." value="<?php echo htmlspecialchars(get_setting('ig_business_account_id')); ?>"><span class="field-hint">Linked to your Facebook Page</span></div>
+        <div><label class="field-label">Instagram Token</label><input type="password" name="ig_access_token" class="form-control" placeholder="Same as Page Token" value="<?php echo htmlspecialchars(get_setting('ig_access_token')); ?>"><span class="field-hint">Usually identical to the Facebook Page token</span></div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin:35px 0 20px;padding-bottom:15px;border-bottom:1px solid #f1f5f9;">
+        <div style="width:40px;height:40px;border-radius:10px;background:#f0fdf4;color:#10b981;display:flex;align-items:center;justify-content:center;"><i data-feather="zap"></i></div>
+        <div>
+            <h3 style="margin:0;font-size:16px;font-weight:800;">Automation & Logic</h3>
+            <p style="margin:0;font-size:12px;color:#94a3b8;">Choose when and where to post automatically</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div><label class="field-label">FB Auto-Post</label><select name="auto_share_facebook" class="form-control"><option value="no" <?php echo get_setting('auto_share_facebook', 'no') === 'no' ? 'selected' : ''; ?>>Disabled</option><option value="yes" <?php echo get_setting('auto_share_facebook') === 'yes' ? 'selected' : ''; ?>>Enabled</option></select></div>
+        <div><label class="field-label">IG Auto-Post</label><select name="auto_share_instagram" class="form-control"><option value="no" <?php echo get_setting('auto_share_instagram', 'no') === 'no' ? 'selected' : ''; ?>>Disabled</option><option value="yes" <?php echo get_setting('auto_share_instagram') === 'yes' ? 'selected' : ''; ?>>Enabled (Image Required)</option></select></div>
+        <div><label class="field-label">Trigger Event</label><select name="auto_share_on_publish" class="form-control"><option value="yes" <?php echo get_setting('auto_share_on_publish', 'yes') === 'yes' ? 'selected' : ''; ?>>When Article is Published</option><option value="no" <?php echo get_setting('auto_share_on_publish') === 'no' ? 'selected' : ''; ?>>Manual Sharing Only</option></select></div>
+      </div>
+
+    </div>
+    <div style="text-align:right;"><button type="submit" name="save_social_share" class="btn btn-primary" style="padding:14px 40px;font-size:15px;border-radius:12px;box-shadow:0 4px 12px rgba(99,102,241,.3);"><i data-feather="save" style="width:16px;"></i> Save All Configurations</button></div>
+  </form>
 </div>
 
 <!-- FACEBOOK GUIDE -->
@@ -196,6 +236,15 @@ $recent_posts = $pdo->query("SELECT id,title,featured_image,published_at FROM po
     <h4><div class="step-num" style="background:#1877f2;">5</div> Enter Credentials &amp; Test</h4>
     <ol><li>Go to the <strong>Configuration</strong> tab and enter all details. Save.</li><li>Go to <strong>Manual Share</strong> tab and test with a recent article.</li></ol>
   </div>
+
+  <div class="warn-callout" style="border-color:#ef4444;background:#fef2f2;color:#991b1b;">
+    <i data-feather="alert-triangle" style="width:18px;"></i>
+    <div>
+        <strong>Common Error (#200):</strong> If you see "Requires pages_manage_posts", it means your Access Token was generated without the posting permission, or your App is still in "Development Mode". 
+        <br><br>
+        <strong>Fix:</strong> Ensure your app is "Live" and you have selected <code>pages_manage_posts</code> in the Graph Explorer before generating the token.
+    </div>
+  </div>
 </div>
 
 <!-- INSTAGRAM GUIDE -->
@@ -225,8 +274,11 @@ $recent_posts = $pdo->query("SELECT id,title,featured_image,published_at FROM po
 
 <!-- MANUAL SHARE -->
 <div class="s-panel" id="spanel-manual">
-  <?php if ($share_result):
-  echo '<div style="margin-bottom:16px;">' . $share_result . '</div>';
+  <?php if ($share_result): ?>
+    <div style="margin-bottom:20px;display:flex;flex-direction:column;gap:10px;">
+        <?php echo $share_result; ?>
+    </div>
+  <?php
 endif; ?>
   <div class="info-callout"><span style="font-size:18px;flex-shrink:0;">i</span><div>Select a recent article and choose which platforms to share on. Make sure credentials are configured in the <strong>Configuration</strong> tab first.</div></div>
   <form method="POST" style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.05);">
