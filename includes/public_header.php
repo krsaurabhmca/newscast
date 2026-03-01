@@ -61,7 +61,6 @@ $og_type = (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'website' : 'articl
     <meta property="og:image:secure_url" content="<?php echo $final_og_image; ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/jpeg">
     <meta property="og:locale" content="hi_IN">
     
     <?php if (get_setting('fb_app_id')): ?>
