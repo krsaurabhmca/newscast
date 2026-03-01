@@ -13,54 +13,52 @@ $meta_desc = get_setting('meta_description', 'Your ultimate destination for the 
 $meta_keywords = get_setting('meta_keywords', '');
 $meta_robots = get_setting('meta_robots', 'index, follow');
 $site_logo = get_setting('site_logo');
-$og_image_fb = get_setting('og_image_url'); // custom OG image from settings
-$og_image = $og_image_fb ?: (($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL . "assets/images/default-post.jpg");
+$og_image_setting = get_setting('og_image_url');
+if ($og_image_setting) {
+    $og_image = (strpos($og_image_setting, 'http') === 0) ? $og_image_setting : BASE_URL . ltrim($og_image_setting, '/');
+}
+else {
+    $og_image = ($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL . "assets/images/default-post.jpg";
+}
 $twitter_handle = get_setting('twitter_handle', '');
 $ga_id = get_setting('google_analytics_id', '');
 $gsc_verify = get_setting('google_site_verify', '');
 $bing_verify = get_setting('bing_site_verify', '');
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- SEO Meta Tags -->
-    <title><?php echo isset($page_title) ? $page_title . " | " . SITE_NAME : SITE_NAME; ?></title>
-    <meta name="description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
-    <?php if ($meta_keywords): ?>
-    <meta name="keywords" content="<?php echo htmlspecialchars($meta_keywords); ?>">
-    <?php
-endif; ?>
-    <meta name="robots" content="<?php echo $meta_robots; ?>">
-    <link rel="canonical" href="<?php echo(isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>">
-    <?php if ($gsc_verify): ?>
-    <meta name="google-site-verification" content="<?php echo htmlspecialchars($gsc_verify); ?>">
-    <?php
-endif; ?>
-    <?php if ($bing_verify): ?>
-    <meta name="msvalidate.01" content="<?php echo htmlspecialchars($bing_verify); ?>">
-    <?php
-endif; ?>
+    <!-- Primary Meta Tags -->
+    <title><?php echo htmlspecialchars($page_title ?? $site_title); ?> | <?php echo SITE_NAME; ?></title>
+    <meta name="description" content="<?php echo htmlspecialchars(isset($meta_description) ? $meta_description : $meta_desc); ?>">
 
-    <!-- Open Graph / Facebook / WhatsApp -->
+    <!-- SEO -->
+    <meta name="robots" content="<?php echo $meta_robots; ?>">
+    <meta name="keywords" content="<?php echo htmlspecialchars($meta_keywords); ?>">
+    <link rel="canonical" href="<?php echo $current_url; ?>">
+
+    <!-- Open Graph (WhatsApp/Facebook) -->
     <?php
-$current_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+$current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 $final_og_image = isset($page_image) && $page_image ? $page_image : $og_image;
+if (strpos($final_og_image, 'share.png') !== false) {
+    $final_og_image = str_replace('share.png', 'share.jpg', $final_og_image);
+}
 $og_type = (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'website' : 'article';
 ?>
-    <meta property="og:type" content="<?php echo $og_type; ?>">
-    <meta property="og:url" content="<?php echo $current_url; ?>">
-    <meta property="og:site_name" content="<?php echo SITE_NAME_DYNAMIC; ?>">
     <meta property="og:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME_DYNAMIC; ?>">
     <meta property="og:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
-    
-    <!-- Image tags must come early for WhatsApp -->
     <meta property="og:image" content="<?php echo $final_og_image; ?>">
     <meta property="og:image:secure_url" content="<?php echo $final_og_image; ?>">
+    <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:url" content="<?php echo $current_url; ?>">
+    <meta property="og:type" content="<?php echo $og_type; ?>">
+    <meta property="og:site_name" content="<?php echo SITE_NAME_DYNAMIC; ?>">
     <meta property="og:locale" content="hi_IN">
     
     <?php if (get_setting('fb_app_id')): ?>
@@ -75,7 +73,6 @@ endif; ?>
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="<?php echo $current_url; ?>">
     <meta name="twitter:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME_DYNAMIC; ?>">
     <meta name="twitter:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
     <meta name="twitter:image" content="<?php echo $final_og_image; ?>">
@@ -94,21 +91,25 @@ else: ?>
 endif; ?>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
-    
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css?v=2.5">
+
+    <!-- Dynamic Theme Color -->
     <style>
         :root {
             --primary: <?php echo get_setting('theme_color', '#ff3c00'); ?>;
         }
-        <?php if (get_setting('header_style') == 'sticky'): ?>
-        .top-header {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        <?php
+    </style>
+
+    <!-- Verification Codes -->
+    <?php if ($gsc = get_setting('google_site_verify')): ?>
+    <meta name="google-site-verification" content="<?php echo htmlspecialchars($gsc); ?>">
+    <?php
 endif; ?>
+    <?php if ($bing = get_setting('bing_site_verify')): ?>
+    <meta name="msvalidate.01" content="<?php echo htmlspecialchars($bing); ?>">
+    <?php
+endif; ?>
+    <style>
         @media (max-width: 768px) {
             .logo-has-image .logo-text-group {
                 display: none !important;
