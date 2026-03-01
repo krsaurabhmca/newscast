@@ -44,29 +44,40 @@ endif; ?>
     <?php
 endif; ?>
 
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph / Facebook / WhatsApp -->
     <?php
 $current_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 $final_og_image = isset($page_image) && $page_image ? $page_image : $og_image;
+$og_type = (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'website' : 'article';
 ?>
-    <meta property="og:type" content="article">
+    <meta property="og:type" content="<?php echo $og_type; ?>">
     <meta property="og:url" content="<?php echo $current_url; ?>">
-    <meta property="og:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME; ?>">
+    <meta property="og:site_name" content="<?php echo SITE_NAME_DYNAMIC; ?>">
+    <meta property="og:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME_DYNAMIC; ?>">
     <meta property="og:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
+    
+    <!-- Image tags must come early for WhatsApp -->
     <meta property="og:image" content="<?php echo $final_og_image; ?>">
     <meta property="og:image:secure_url" content="<?php echo $final_og_image; ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:locale" content="hi_IN">
+    
     <?php if (get_setting('fb_app_id')): ?>
     <meta property="fb:app_id" content="<?php echo get_setting('fb_app_id'); ?>">
     <?php
 endif; ?>
 
-    <!-- Twitter -->
+    <!-- Schema.org for Legacy / Telegram / Viber -->
+    <meta itemprop="name" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME_DYNAMIC; ?>">
+    <meta itemprop="description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
+    <meta itemprop="image" content="<?php echo $final_og_image; ?>">
+
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="<?php echo $current_url; ?>">
-    <meta name="twitter:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME; ?>">
+    <meta name="twitter:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME_DYNAMIC; ?>">
     <meta name="twitter:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
     <meta name="twitter:image" content="<?php echo $final_og_image; ?>">
     <?php if ($twitter_handle): ?>
