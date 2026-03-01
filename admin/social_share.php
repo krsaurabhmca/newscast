@@ -101,113 +101,157 @@ $recent_posts = $pdo->query("SELECT id,title,featured_image,published_at FROM po
 :root {
     --primary: #6366f1;
     --primary-light: #818cf8;
-    --primary-glow: rgba(99, 102, 241, 0.15);
+    --primary-glow: rgba(99, 102, 241, 0.25);
     --fb-brand: #1877f2;
     --ig-brand: #e1306c;
     --success: #10b981;
     --danger: #ef4444;
-    --bg-aura: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%), 
-               radial-gradient(at 100% 0%, rgba(225, 48, 108, 0.03) 0px, transparent 50%);
+    --bg-aura: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%), 
+               radial-gradient(at 100% 0%, rgba(225, 48, 108, 0.04) 0px, transparent 50%);
     --surface: #ffffff;
     --text-main: #0f172a;
     --text-muted: #64748b;
+    --radius-lg: 28px;
+    --radius-md: 20px;
 }
 
-body { background: #fdfdfe content-box; background-attachment: fixed; }
+body { background: #fdfdfe var(--bg-aura); background-attachment: fixed; }
 
 /* Global Container Polish */
 .social-app { 
     font-family: 'Outfit', 'Inter', sans-serif; 
     color: var(--text-main); 
-    max-width: 1280px; margin: 0 auto; padding: 20px;
+    max-width: 1280px; margin: 0 auto; padding: 30px;
+    animation: fadeIn 0.8s ease-out;
 }
 
-.page-header { margin-bottom: 40px; }
-.page-header h1 { font-size: 32px; font-weight: 900; letter-spacing: -1px; background: linear-gradient(to right, #1e1b4b, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.page-header { margin-bottom: 50px; display: flex; justify-content: space-between; align-items: center; }
+.page-header h1 { 
+    font-size: 36px; font-weight: 900; letter-spacing: -1.5px; 
+    background: linear-gradient(135deg, #1e1b4b, #6366f1); 
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+    margin-bottom: 5px;
+}
 
 /* Polished Tab Navigation */
 .tab-nav { 
-    background: #f1f5f9; padding: 5px; border-radius: 20px; 
-    display: inline-flex; gap: 4px; border: 1px solid #e2e8f0; margin-bottom: 40px;
+    background: rgba(241, 245, 249, 0.8); backdrop-filter: blur(8px); padding: 6px; border-radius: 22px; 
+    display: inline-flex; gap: 4px; border: 1px solid rgba(226, 232, 240, 0.8);
 }
 .tab-btn { 
-    padding: 12px 28px; border-radius: 16px; border: none; background: transparent; 
+    padding: 14px 30px; border-radius: 18px; border: none; background: transparent; 
     font-size: 14px; font-weight: 700; color: var(--text-muted); cursor: pointer; 
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 10px;
+    transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1); display: flex; align-items: center; gap: 10px;
+    position: relative;
 }
 .tab-btn.active { 
     background: #fff; color: var(--primary); 
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -4px rgba(0,0,0,0.04);
+    box-shadow: 0 12px 20px -8px rgba(99, 102, 241, 0.15);
+    transform: translateY(-2px);
 }
-.tab-btn:hover:not(.active) { color: var(--text-main); background: rgba(255,255,255,0.6); }
+.tab-btn::after {
+    content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%) scaleX(0);
+    width: 20px; height: 3px; background: var(--primary); border-radius: 10px; transition: 0.3s;
+}
+.tab-btn.active::after { transform: translateX(-50%) scaleX(1); }
+.tab-btn:hover:not(.active) { color: var(--text-main); background: rgba(255,255,255,0.7); transform: translateY(-1px); }
 
 /* Utility Compliance Console */
 .utility-console { 
-    background: #fff; border: 1.5px solid #f1f5f9; border-radius: 28px; padding: 25px 35px; 
-    display: flex; gap: 50px; margin-bottom: 40px; align-items: center;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    background: #fff; border: 1px solid #f1f5f9; border-radius: var(--radius-lg); padding: 30px 40px; 
+    display: flex; gap: 60px; margin-bottom: 40px; align-items: center;
+    box-shadow: 0 4px 20px -5px rgba(0,0,0,0.03);
+    position: relative;
 }
-.u-item { display: flex; flex-direction: column; gap: 4px; }
-.u-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; }
-.u-value-box { display: flex; align-items: center; gap: 12px; }
-.u-value { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-main); font-weight: 600; }
+.utility-console::after {
+    content: ''; position: absolute; left: 0; top: 0; right: 0; height: 1px; 
+    background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+}
+.u-item { display: flex; flex-direction: column; gap: 6px; }
+.u-label { font-size: 11px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+.u-value-box { display: flex; align-items: center; gap: 15px; }
+.u-value { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--text-main); font-weight: 600; padding: 2px 0; }
 
 .btn-copy { 
-    border: none; background: #f8fafc; color: #64748b; padding: 6px 14px; border-radius: 10px;
-    font-size: 11px; font-weight: 800; cursor: pointer; border: 1px solid #e2e8f0;
-    transition: 0.2s; display: flex; align-items: center; gap: 6px;
+    border: none; background: #f8fafc; color: #64748b; padding: 7px 16px; border-radius: 12px;
+    font-size: 11px; font-weight: 800; cursor: pointer; border: 1.5px solid #e2e8f0;
+    transition: 0.3s; display: flex; align-items: center; gap: 8px;
 }
-.btn-copy:hover { color: var(--primary); border-color: var(--primary-light); background: #fff; }
+.btn-copy:hover { color: var(--primary); border-color: var(--primary); background: #fff; transform: scale(1.05); }
 .btn-copy.copied { background: var(--success); color: white; border-color: var(--success); }
 
 /* Step-by-Step Wizard Polish */
-.wizard-grid { display: grid; gap: 30px; position: relative; }
-.step-row { display: flex; gap: 25px; align-items: start; }
+.wizard-grid { display: grid; gap: 35px; }
+.step-row { display: flex; gap: 30px; align-items: start; }
 .step-num { 
-    width: 48px; height: 48px; border-radius: 16px; background: #fff; border: 2.5px solid #f1f5f9;
-    display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #cbd5e1;
-    flex-shrink: 0; transition: 0.4s; position: relative;
+    width: 52px; height: 52px; border-radius: 18px; background: #fff; border: 2.5px solid #f1f5f9;
+    display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; color: #cbd5e1;
+    flex-shrink: 0; transition: 0.5s; position: relative;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
 }
 .step-num::after { 
-    content: ''; position: absolute; width: 2px; height: 60px; background: #f1f5f9; top: 48px; left: 50%; transform: translateX(-50%);
+    content: ''; position: absolute; width: 3px; height: 80px; background: #f1f5f9; top: 52px; left: 50%; transform: translateX(-50%);
 }
 .step-row:last-child .step-num::after { display: none; }
-.step-row:hover .step-num { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+.step-row:hover .step-num { border-color: var(--primary); color: var(--primary); box-shadow: 0 15px 30px var(--primary-glow); transform: scale(1.1); }
 
 .step-content-card { 
-    background: #fff; border-radius: 24px; padding: 35px; flex: 1; border: 1px solid #f1f5f9;
-    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.03); transition: 0.3s;
+    background: #fff; border-radius: var(--radius-md); padding: 40px; flex: 1; border: 1px solid #f1f5f9;
+    box-shadow: 0 10px 50px -15px rgba(0,0,0,0.04); transition: 0.4s;
+    position: relative; overflow: hidden;
 }
-.step-content-card h4 { margin: 0 0 12px; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
-.step-content-card p { line-height: 1.7; color: var(--text-muted); font-size: 15px; margin-bottom: 20px; }
+.step-content-card:hover { transform: translateX(10px); box-shadow: 0 20px 60px -20px rgba(0,0,0,0.06); }
+.step-content-card::before {
+    content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%; background: var(--primary); opacity: 0; transition: 0.3s;
+}
+.step-row:hover .step-content-card::before { opacity: 1; }
 
 /* Control Center Polish */
 .broadcast-center {
-    background: radial-gradient(circle at top right, #312e81, #1e1b4b); border-radius: 40px; 
-    padding: 50px; color: #fff; margin-top: 20px; position: relative; overflow: hidden;
-    box-shadow: 0 25px 50px -12px rgba(30, 27, 75, 0.4);
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border-radius: 40px; 
+    padding: 60px; color: #fff; margin-top: 20px; position: relative; overflow: hidden;
+    box-shadow: 0 30px 60px -15px rgba(30, 27, 75, 0.5);
 }
 .broadcast-center::before {
-    content: ''; position: absolute; top: -100px; right: -100px; width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); border-radius: 50%;
+    content: ''; position: absolute; width: 600px; height: 600px; top: -300px; right: -200px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%); border-radius: 50%;
+    z-index: 1; pointer-events: none;
 }
+
+.launch-btn {
+    background: #fff; color: #1e1b4b; padding: 24px 45px; border-radius: 22px; border: none;
+    font-size: 18px; font-weight: 900; cursor: pointer; transition: 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.launch-btn:hover { background: #f8fafc; transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+.launch-btn:active { transform: translateY(0) scale(0.98); }
 
 .platform-toggle {
-    display: flex; align-items: center; gap: 15px; padding: 20px 25px; border-radius: 20px;
-    background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.05);
-    cursor: pointer; transition: 0.3s; flex: 1; min-width: 200px;
+    display: flex; align-items: center; gap: 15px; padding: 22px 30px; border-radius: 24px;
+    background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.08);
+    cursor: pointer; transition: 0.4s; flex: 1; min-width: 220px;
 }
-.platform-toggle:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.1); }
-.platform-toggle input:checked + span { color: #fff; }
-.platform-toggle.active-fb { background: rgba(24, 119, 242, 0.15); border-color: var(--fb-brand); }
-.platform-toggle.active-ig { background: rgba(225, 48, 108, 0.15); border-color: var(--ig-brand); }
+.platform-toggle:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+.platform-toggle.active-fb { background: rgba(24, 119, 242, 0.2); border-color: var(--fb-brand); box-shadow: 0 0 25px rgba(24, 119, 242, 0.3); }
+.platform-toggle.active-ig { background: rgba(225, 48, 108, 0.2); border-color: var(--ig-brand); box-shadow: 0 0 25px rgba(225, 48, 108, 0.3); }
+
+/* Badge Refinement */
+.badge { 
+    padding: 8px 16px; border-radius: 12px; font-size: 11px; font-weight: 800; 
+    display: inline-flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
+}
 
 /* Animation Overlays */
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-.s-panel { display: none; animation: fadeInUp 0.5s cubic-bezier(0.2, 1, 0.3, 1) forwards; }
+@keyframes slideInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+.s-panel { display: none; animation: slideInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 .s-panel.active { display: block; }
-</style>
-.s-panel.active { display: block; }
+
+.action-loader { display: none; }
+.launching .action-text { display: none; }
+.launching .action-loader { display: inline-block; animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>
 
 <div class="social-app">
@@ -316,6 +360,23 @@ body { background: #fdfdfe content-box; background-attachment: fixed; }
                 </div>
             </div>
 
+            <!-- Diagnostic Console -->
+            <div style="margin-top:30px; background:#0f172a; border-radius:24px; padding:30px; border:1px solid #1e293b; box-shadow:0 20px 50px rgba(0,0,0,0.15);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:10px; height:10px; background:#10b981; border-radius:50%; box-shadow:0 0 10px #10b981;"></div>
+                        <span style="color:#94a3b8; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">System Health Diagnostics</span>
+                    </div>
+                    <span style="color:#475569; font-size:11px; font-family:monospace;">v2.4.0-STABLE</span>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#e2e8f0; line-height:1.8;">
+                    <div style="color:#6366f1;">> Initializing platform handshake...</div>
+                    <div style="color:<?php echo $fb_ok ? '#10b981' : '#f59e0b'; ?>">[FB] Node Connection: <?php echo $fb_ok ? 'ACTIVE' : 'IDLE'; ?></div>
+                    <div style="color:<?php echo $ig_ok ? '#10b981' : '#f59e0b'; ?>">[IG] Edge Bridge: <?php echo $ig_ok ? 'ACTIVE' : 'IDLE'; ?></div>
+                    <div style="color:#475569;">> Listening for publishing triggers on port 443...</div>
+                </div>
+            </div>
+
             <div style="text-align:right; margin-top:30px;">
                 <button type="submit" name="save_social_share" class="btn btn-primary" style="padding:16px 60px; border-radius:18px; font-weight:900; box-shadow:0 10px 40px rgba(99,102,241,0.3);">
                     Save Environment Variables
@@ -396,45 +457,58 @@ endif; ?>
 
         <div class="broadcast-center">
             <div style="position:relative; z-index:2;">
-                <h2 style="margin:0 0 8px; font-weight:900; font-size:28px;">Instant Broadcast</h2>
-                <p style="opacity:0.6; font-size:15px; margin-bottom:40px;">Select an article to force-push content to your linked channels.</p>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:40px;">
+                    <div>
+                        <h2 style="margin:0 0 8px; font-weight:900; font-size:32px; letter-spacing:-1px;">Execute Broadcast</h2>
+                        <p style="opacity:0.75; font-size:16px; font-weight:500;">Deploy content intelligence to your ecosystem.</p>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.1); padding:12px 20px; border-radius:18px; border:1px solid rgba(255,255,255,0.15);">
+                        <i data-feather="cpu" style="width:16px; margin-right:8px; opacity:0.8;"></i>
+                        <span style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px;">Server Node Alpha</span>
+                    </div>
+                </div>
                 
-                <form method="POST">
+                <form method="POST" id="broadcastForm">
                     <div class="input-field">
-                        <label style="color:rgba(255,255,255,0.7); font-size:10px;">Target Intelligence</label>
-                        <select name="share_post_id" class="input-control post-selector" required style="background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1); color:#fff; font-weight:600;">
-                            <option value="" style="color:#000;">-- Choose Content --</option>
+                        <label style="color:rgba(255,255,255,0.7); font-size:11px; font-weight:900; letter-spacing:1px;">Target Payload (Article)</label>
+                        <select name="share_post_id" class="input-control post-selector" required style="background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.1); color:#fff; font-weight:600; backdrop-filter:blur(10px);">
+                            <option value="" style="color:#000;">Select content architecture...</option>
                             <?php foreach ($recent_posts as $ap):
     $stmt_slug = $pdo->prepare("SELECT slug FROM posts WHERE id = ?");
     $stmt_slug->execute([$ap['id']]);
     $slug = $stmt_slug->fetchColumn();
 ?>
                                 <option value="<?php echo $ap['id']; ?>" data-slug="<?php echo htmlspecialchars($slug); ?>" style="color:#000;">
-                                    <?php echo htmlspecialchars(substr($ap['title'], 0, 90)); ?>
+                                    <?php echo htmlspecialchars(substr($ap['title'], 0, 100)); ?>
                                 </option>
                             <?php
 endforeach; ?>
                         </select>
                     </div>
 
-                    <div style="display:flex; gap:20px; margin:40px 0;">
+                    <div style="display:flex; gap:25px; margin:40px 0;">
                         <label class="platform-toggle" id="fb-toggle">
                             <input type="checkbox" name="platforms[]" value="facebook" checked style="display:none;" onchange="this.parentElement.classList.toggle('active-fb', this.checked)">
-                            <i data-feather="facebook"></i>
-                            <span style="font-weight:800; font-size:16px;">Facebook</span>
+                            <div style="width:40px; height:40px; background:rgba(255,255,255,0.1); border-radius:12px; display:flex; align-items:center; justify-content:center; margin-right:15px;">
+                                <i data-feather="facebook" style="width:20px;"></i>
+                            </div>
+                            <span style="font-weight:900; font-size:18px;">Facebook</span>
                         </label>
                         <label class="platform-toggle" id="ig-toggle">
                             <input type="checkbox" name="platforms[]" value="instagram" style="display:none;" onchange="this.parentElement.classList.toggle('active-ig', this.checked)">
-                            <i data-feather="instagram"></i>
-                            <span style="font-weight:800; font-size:16px;">Instagram</span>
+                            <div style="width:40px; height:40px; background:rgba(255,255,255,0.1); border-radius:12px; display:flex; align-items:center; justify-content:center; margin-right:15px;">
+                                <i data-feather="instagram" style="width:20px;"></i>
+                            </div>
+                            <span style="font-weight:900; font-size:18px;">Instagram</span>
                         </label>
                     </div>
 
-                    <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:20px;">
-                        <button type="submit" name="manual_share" class="btn btn-light" style="padding:22px; border-radius:20px; font-weight:900; color:#1e1b4b; font-size:16px; box-shadow:0 15px 30px rgba(0,0,0,0.2);">
-                            Launch Server Broadcast
+                    <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:25px;">
+                        <button type="submit" name="manual_share" class="launch-btn" onclick="startLoading(this)">
+                            <i data-feather="loader" class="action-loader"></i>
+                            <span class="action-text">Launch Broadcast</span>
                         </button>
-                        <button type="button" onclick="shareViaDialog()" class="btn btn-outline-light" style="padding:22px; border-radius:20px; font-weight:900; font-size:16px; border-color:rgba(255,255,255,0.2);">
+                        <button type="button" onclick="shareViaDialog()" class="btn btn-outline-light" style="padding:22px; border-radius:24px; font-weight:900; font-size:16px; border-color:rgba(255,255,255,0.2); transition:0.3s; hover:background:rgba(255,255,255,0.05);">
                             External Overlay
                         </button>
                     </div>
@@ -445,10 +519,23 @@ endforeach; ?>
 </div>
 
 <script>
-// Toggle Initial States for Broadcaster
+// Polished Actions
+function startLoading(btn) {
+    if(!document.querySelector('select[name="share_post_id"]').value) return;
+    btn.classList.add('launching');
+    btn.disabled = true;
+    document.getElementById('broadcastForm').submit();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    if(document.querySelector('input[value="facebook"]').checked) document.getElementById('fb-toggle').classList.add('active-fb');
-    if(document.querySelector('input[value="instagram"]').checked) document.getElementById('ig-toggle').classList.add('active-ig');
+    // Platform Toggle Initialization
+    const fbCheck = document.querySelector('input[value="facebook"]');
+    const igCheck = document.querySelector('input[value="instagram"]');
+    if(fbCheck && fbCheck.checked) document.getElementById('fb-toggle').classList.add('active-fb');
+    if(igCheck && igCheck.checked) document.getElementById('ig-toggle').classList.add('active-ig');
+    
+    // Smooth Feather Replacement
+    if(window.feather) feather.replace();
 });
 function showSTab(btn, tab) {
     document.querySelectorAll('.s-panel').forEach(function(p){ p.classList.remove('active'); });
