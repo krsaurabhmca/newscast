@@ -190,6 +190,38 @@ echo "$r, $g, $b";
             <p>देखें कि आपकी खबर को कितने लोगों ने पढ़ा। रियल-टाइम में पता चलेगा कि कौन सी न्यूज़ हिट हो रही है।</p>
         </div>
     </section>
+    <!-- Demo Section -->
+    <section id="demo" style="padding: 80px 0; background: rgba(var(--primary-rgb), 0.05); border-radius: 40px; margin-bottom: 50px;">
+        <div class="container" style="text-align: center;">
+            <div class="badge">लाइव अनुभव करें</div>
+            <h2 style="font-size: 38px; font-weight: 900; margin-bottom: 50px;">NewsCast को <span>अभी चलाकर देखें</span></h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 900px; margin: 0 auto;">
+                <!-- Front End Demo -->
+                <div style="background: var(--card-bg); padding: 40px; border-radius: 24px; border: 1px solid var(--border); transition: .3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <div style="width: 60px; height: 60px; background: rgba(var(--primary-rgb), 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
+                        <i data-feather="layout" style="color: var(--primary); width: 30px; height: 30px;"></i>
+                    </div>
+                    <h3 style="font-size: 22px; margin-bottom: 15px;">पब्लिक वेबसाइट</h3>
+                    <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 30px;">देखें कि आपके पाठकों को आपकी न्यूज़ वेबसाइट कैसी दिखेगी। डेस्कटॉप और मोबाइल दोनों के लिए बेहतरीन।</p>
+                    <a href="index.php" target="_blank" class="btn-demo" style="width: 100%; justify-content: center;">
+                        वेबसाइट देखें <i data-feather="external-link"></i>
+                    </a>
+                </div>
+
+                <!-- Backend Demo -->
+                <div style="background: var(--card-bg); padding: 40px; border-radius: 24px; border: 1px solid var(--border); transition: .3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <div style="width: 60px; height: 60px; background: rgba(var(--primary-rgb), 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
+                        <i data-feather="settings" style="color: var(--primary); width: 30px; height: 30px;"></i>
+                    </div>
+                    <h3 style="font-size: 22px; margin-bottom: 15px;">कंट्रोल पैनल (एडमिन)</h3>
+                    <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 30px;">यहाँ से आप न्यूज़ डाल पाएंगे, आईडी कार्ड बनाएंगे और पूरे चैनल की सेटिंग संभालेंगे।</p>
+                    <a href="admin/login.php" target="_blank" class="btn-demo" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); border: 1px solid var(--border);">
+                        एडमिन पैनल डेमो <i data-feather="lock"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Comparative Study / Plans -->
