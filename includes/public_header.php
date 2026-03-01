@@ -8,17 +8,17 @@ $stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY n
 $nav_categories = $stmt->fetchAll();
 
 // Default SEO — fallback to settings, then hardcoded
-$site_title     = SITE_NAME;
-$meta_desc      = get_setting('meta_description', 'Your ultimate destination for the latest news and insights.');
-$meta_keywords  = get_setting('meta_keywords', '');
-$meta_robots    = get_setting('meta_robots', 'index, follow');
-$site_logo      = get_setting('site_logo');
-$og_image_fb    = get_setting('og_image_url'); // custom OG image from settings
-$og_image       = $og_image_fb ?: (($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL . "assets/images/default-post.jpg");
+$site_title = SITE_NAME;
+$meta_desc = get_setting('meta_description', 'Your ultimate destination for the latest news and insights.');
+$meta_keywords = get_setting('meta_keywords', '');
+$meta_robots = get_setting('meta_robots', 'index, follow');
+$site_logo = get_setting('site_logo');
+$og_image_fb = get_setting('og_image_url'); // custom OG image from settings
+$og_image = $og_image_fb ?: (($site_logo) ? BASE_URL . "assets/images/" . $site_logo : BASE_URL . "assets/images/default-post.jpg");
 $twitter_handle = get_setting('twitter_handle', '');
-$ga_id          = get_setting('google_analytics_id', '');
-$gsc_verify     = get_setting('google_site_verify', '');
-$bing_verify    = get_setting('bing_site_verify', '');
+$ga_id = get_setting('google_analytics_id', '');
+$gsc_verify = get_setting('google_site_verify', '');
+$bing_verify = get_setting('bing_site_verify', '');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -31,39 +31,52 @@ $bing_verify    = get_setting('bing_site_verify', '');
     <meta name="description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
     <?php if ($meta_keywords): ?>
     <meta name="keywords" content="<?php echo htmlspecialchars($meta_keywords); ?>">
-    <?php endif; ?>
+    <?php
+endif; ?>
     <meta name="robots" content="<?php echo $meta_robots; ?>">
-    <link rel="canonical" href="<?php echo (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>">
+    <link rel="canonical" href="<?php echo(isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"; ?>">
     <?php if ($gsc_verify): ?>
     <meta name="google-site-verification" content="<?php echo htmlspecialchars($gsc_verify); ?>">
-    <?php endif; ?>
+    <?php
+endif; ?>
     <?php if ($bing_verify): ?>
     <meta name="msvalidate.01" content="<?php echo htmlspecialchars($bing_verify); ?>">
-    <?php endif; ?>
+    <?php
+endif; ?>
 
     <!-- Open Graph / Facebook -->
+    <?php
+$current_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+$final_og_image = isset($page_image) && $page_image ? $page_image : $og_image;
+?>
     <meta property="og:type" content="article">
-    <meta property="og:url" content="<?php echo BASE_URL; ?>">
+    <meta property="og:url" content="<?php echo $current_url; ?>">
     <meta property="og:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME; ?>">
     <meta property="og:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
-    <meta property="og:image" content="<?php echo isset($page_image) ? $page_image : $og_image; ?>">
+    <meta property="og:image" content="<?php echo $final_og_image; ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="<?php echo SITE_NAME; ?>">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<?php echo $current_url; ?>">
     <meta name="twitter:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME; ?>">
     <meta name="twitter:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
-    <meta name="twitter:image" content="<?php echo isset($page_image) ? $page_image : $og_image; ?>">
+    <meta name="twitter:image" content="<?php echo $final_og_image; ?>">
     <?php if ($twitter_handle): ?>
     <meta name="twitter:site" content="<?php echo htmlspecialchars($twitter_handle); ?>">
-    <?php endif; ?>
+    <?php
+endif; ?>
 
     <!-- Favicon -->
     <?php if (get_setting('site_favicon')): ?>
         <link rel="icon" href="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('site_favicon'); ?>">
-    <?php else: ?>
+    <?php
+else: ?>
         <link rel="icon" href="<?php echo BASE_URL; ?>assets/images/favicon.png">
-    <?php endif; ?>
+    <?php
+endif; ?>
 
     <!-- Styles -->
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css">
@@ -79,7 +92,8 @@ $bing_verify    = get_setting('bing_site_verify', '');
             z-index: 1000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        <?php endif; ?>
+        <?php
+endif; ?>
         @media (max-width: 768px) {
             .logo-has-image .logo-text-group {
                 display: none !important;
@@ -99,7 +113,8 @@ $bing_verify    = get_setting('bing_site_verify', '');
         gtag('js', new Date());
         gtag('config', '<?php echo htmlspecialchars($ga_id); ?>');
     </script>
-    <?php endif; ?>
+    <?php
+endif; ?>
 </head>
 <body>
     <div class="app-container">
@@ -114,7 +129,7 @@ $bing_verify    = get_setting('bing_site_verify', '');
                         Top News
                     </a>
                 </li>
-                <?php foreach($nav_categories as $cat): ?>
+                <?php foreach ($nav_categories as $cat): ?>
                 <li>
                     <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>">
                         <div class="icon" style="color: <?php echo $cat['color']; ?>;">
@@ -123,7 +138,8 @@ $bing_verify    = get_setting('bing_site_verify', '');
                         <?php echo $cat['name']; ?>
                     </a>
                 </li>
-                <?php endforeach; ?>
+                <?php
+endforeach; ?>
             </ul>
         </aside>
 
@@ -144,14 +160,17 @@ $bing_verify    = get_setting('bing_site_verify', '');
                             }, 1000);
                         </script>
                     </div>
-                <?php endif; ?>
+                <?php
+endif; ?>
 
                 <a href="<?php echo BASE_URL; ?>" class="logo-bhaskar <?php echo get_setting('site_logo') ? 'logo-has-image' : ''; ?>">
                     <?php if (get_setting('site_logo')): ?>
                         <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 45px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
-                    <?php else: ?>
+                    <?php
+else: ?>
                         <div style="background: var(--primary); color: #fff; padding: 5px 10px; border-radius: 4px; font-weight: 900; letter-spacing: -1px;">DB</div>
-                    <?php endif; ?>
+                    <?php
+endif; ?>
                     
                     <div class="logo-text-group" style="display: flex; flex-direction: column; line-height: 1.2;">
                         <span style="font-size: 18px; letter-spacing: 1px; color: #1a1a1b; font-weight: 800;"><?php echo strtoupper(SITE_NAME_DYNAMIC); ?></span>
@@ -199,14 +218,16 @@ $bing_verify    = get_setting('bing_site_verify', '');
 
                     <div class="user-action">
                         <?php if (is_logged_in()): ?>
-                            <a href="<?php echo BASE_URL; ?><?php echo ($_SESSION['role'] ?? 'user') == 'admin' ? 'admin/dashboard.php' : 'dashboard.php'; ?>" class="btn" style="background: var(--primary); color: #fff; font-size: 14px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" title="My Dashboard">
+                            <a href="<?php echo BASE_URL; ?><?php echo($_SESSION['role'] ?? 'user') == 'admin' ? 'admin/dashboard.php' : 'dashboard.php'; ?>" class="btn" style="background: var(--primary); color: #fff; font-size: 14px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" title="My Dashboard">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </a>
-                        <?php else: ?>
+                        <?php
+else: ?>
                             <a href="<?php echo BASE_URL; ?>login.php" class="btn" style="background: #f1f5f9; color: #444; font-size: 14px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" title="Login">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
                             </a>
-                        <?php endif; ?>
+                        <?php
+endif; ?>
                     </div>
                     
                     <!-- Mobile Menu Toggle -->
@@ -216,28 +237,30 @@ $bing_verify    = get_setting('bing_site_verify', '');
                 </div>
             </header>
 
-            <?php if (get_setting('breaking_news_enabled') == 'yes'): 
-                $breaking_stmt = $pdo->query("SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 4");
-                $breaking_news = $breaking_stmt->fetchAll();
-                if ($breaking_news):
-            ?>
+            <?php if (get_setting('breaking_news_enabled') == 'yes'):
+    $breaking_stmt = $pdo->query("SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 4");
+    $breaking_news = $breaking_stmt->fetchAll();
+    if ($breaking_news):
+?>
             <div class="breaking-news-box" style="background: #000; color: #fff; height: 35px; display: flex; align-items: center; overflow: hidden; font-size: 13px;">
                 <div style="background: var(--primary); padding: 0 15px; height: 100%; display: flex; align-items: center; font-weight: 900; skew: -10deg; margin-left: -5px; position: relative; z-index: 2;">
                     BREAKING
                 </div>
                 <div class="ticker-wrapper" style="flex: 1; overflow: hidden; position: relative;">
                     <div class="ticker-content" style="display: inline-block; white-space: nowrap; animation: ticker 30s linear infinite;">
-                        <?php foreach($breaking_news as $news): ?>
+                        <?php foreach ($breaking_news as $news): ?>
                             <a href="<?php echo BASE_URL; ?>article/<?php echo $news['slug']; ?>" style="color: #fff; text-decoration: none; margin-right: 50px; font-weight: 600;">
                                 <span style="color: var(--primary); font-weight: 900;">•</span> <?php echo $news['title']; ?>
                             </a>
-                        <?php endforeach; ?>
+                        <?php
+        endforeach; ?>
                         <!-- Duplicate content for seamless loop -->
-                        <?php foreach($breaking_news as $news): ?>
+                        <?php foreach ($breaking_news as $news): ?>
                             <a href="<?php echo BASE_URL; ?>article/<?php echo $news['slug']; ?>" style="color: #fff; text-decoration: none; margin-right: 50px; font-weight: 600;">
                                 <span style="color: var(--primary); font-weight: 900;">•</span> <?php echo $news['title']; ?>
                             </a>
-                        <?php endforeach; ?>
+                        <?php
+        endforeach; ?>
                     </div>
                 </div>
                 <style>
@@ -250,7 +273,9 @@ $bing_verify    = get_setting('bing_site_verify', '');
                     }
                 </style>
             </div>
-            <?php endif; endif; ?>
+            <?php
+    endif;
+endif; ?>
 
             <!-- Mobile Sidebar Overlay -->
             <div id="mobileMenu" class="mobile-menu-overlay" onclick="toggleMobileMenu()">
@@ -275,14 +300,15 @@ $bing_verify    = get_setting('bing_site_verify', '');
                             <li><a href="<?php echo BASE_URL; ?>category/videos"><i data-feather="video"></i> Videos</a></li>
                             <li><a href="<?php echo BASE_URL; ?>digital-paper"><i data-feather="file-text"></i> Digital Paper</a></li>
                             <li class="divider">Sections</li>
-                            <?php foreach($nav_categories as $cat): ?>
+                            <?php foreach ($nav_categories as $cat): ?>
                             <li>
                                 <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>">
                                     <span class="dot" style="background: <?php echo $cat['color']; ?>;"></span>
                                     <?php echo $cat['name']; ?>
                                 </a>
                             </li>
-                            <?php endforeach; ?>
+                            <?php
+endforeach; ?>
                         </ul>
                     </nav>
                 </div>

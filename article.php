@@ -41,9 +41,11 @@ if ($user_id) {
 
 // Calculate Read Time
 $read_time = calculate_reading_time($post['content']);
+
+// Main Page SEO
 $page_title = $post['title'];
 $meta_description = $post['meta_description'] ?: $post['excerpt'];
-$page_image = $post['featured_image'] ? BASE_URL . "assets/images/posts/" . $post['featured_image'] : "";
+$page_image = get_post_thumbnail($post['featured_image']);
 
 // Generate Schema JSON-LD
 $schema = [
@@ -127,20 +129,23 @@ $related = $stmt->fetchAll();
     }
     .skiptranslate.goog-te-gadget > div { display: inline-block; }
 </style>
-<?php endif; ?>
+<?php
+endif; ?>
 
 <main class="content-container">
     <div style="display: grid; grid-template-columns: 1fr 300px; gap: 40px;">
         <article class="article-page">
             <div style="margin-bottom: 25px;">
-                <?php if($post['external_label'] != 'none'): ?>
+                <?php if ($post['external_label'] != 'none'): ?>
                     <span style="background: #000; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; display: inline-block;"><?php echo $post['external_label']; ?></span>
-                <?php endif; ?>
+                <?php
+endif; ?>
                 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                     <?php foreach ($post_categories as $cat): ?>
                         <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>" style="color: <?php echo $cat['color']; ?>; font-weight: 700; font-size: 14px; text-transform: uppercase; background: <?php echo $cat['color']; ?>15; padding: 2px 8px; border-radius: 4px;"><?php echo $cat['name']; ?></a>
-                    <?php endforeach; ?>
+                    <?php
+endforeach; ?>
                 </div>
                 
                 <h1 style="margin-top: 10px; font-size: 38px; line-height: 1.2; font-weight: 800;"><?php echo $post['title']; ?></h1>
@@ -161,10 +166,10 @@ $related = $stmt->fetchAll();
                     <div style="display: flex; gap: 12px; align-items: center;">
                         <span style="font-size: 13px; color: #888; margin-right: 15px;"><?php echo $post['views']; ?> views</span>
                         
-                        <?php 
-                            $current_url = urlencode((isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
-                            $share_title = urlencode($post['title']);
-                        ?>
+                        <?php
+$current_url = urlencode((isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
+$share_title = urlencode($post['title']);
+?>
                         
                         <!-- Share Buttons -->
                         <a href="https://api.whatsapp.com/send?text=<?php echo $share_title; ?>%20<?php echo $current_url; ?>" target="_blank" style="color: #25d366;" title="Share on WhatsApp">
@@ -197,35 +202,43 @@ $related = $stmt->fetchAll();
                             <i data-feather="play" id="tts-icon" style="width: 14px;"></i> <span id="tts-text">Listen</span>
                         </button>
                     </div>
-                    <?php endif; ?>
+                    <?php
+    endif; ?>
                     
                     <?php if (get_setting('tts_enabled', 'yes') == 'yes' && get_setting('translation_enabled', 'no') == 'yes'): ?>
                         <div style="border-left: 1px solid #cbd5e1; height: 15px;"></div>
-                    <?php endif; ?>
+                    <?php
+    endif; ?>
 
                     <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
                         <div id="google_translate_element"></div>
-                    <?php endif; ?>
+                    <?php
+    endif; ?>
                 </div>
-                <?php endif; ?>
+                <?php
+endif; ?>
             </div>
 
             <?php if ($post['video_url']): ?>
                 <div style="margin-bottom: 25px; aspect-ratio: 16/9; width: 100%; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                    <?php 
-                        $video_id = extract_youtube_id($post['video_url']);
-                        if ($video_id): 
-                    ?>
+                    <?php
+    $video_id = extract_youtube_id($post['video_url']);
+    if ($video_id):
+?>
                         <iframe width="100%" height="100%" src="https://www.youtube.com/embed/<?php echo $video_id; ?>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    <?php else: ?>
+                    <?php
+    else: ?>
                         <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: white;">
                             <p>Invalid Video URL</p>
                         </div>
-                    <?php endif; ?>
+                    <?php
+    endif; ?>
                 </div>
-            <?php elseif ($post['featured_image']): ?>
+            <?php
+elseif ($post['featured_image']): ?>
                 <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" alt="<?php echo $post['title']; ?>" class="article-main-img">
-            <?php endif; ?>
+            <?php
+endif; ?>
 
             <?php echo display_ad('content_top', $pdo); ?>
 
@@ -248,7 +261,8 @@ $related = $stmt->fetchAll();
                             <h4 style="font-size: 16px;"><?php echo $r['title']; ?></h4>
                         </a>
                     </article>
-                    <?php endforeach; ?>
+                    <?php
+endforeach; ?>
                 </div>
             </div>
         </article>
@@ -261,15 +275,16 @@ $related = $stmt->fetchAll();
                 
                 <div style="margin-top: 40px;">
                     <h4 style="border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px; font-size: 16px; font-weight: 800;">TRENDING</h4>
-                    <?php 
-                        $trending = $pdo->query("SELECT * FROM posts WHERE status = 'published' ORDER BY views DESC LIMIT 5")->fetchAll();
-                        foreach($trending as $tp):
-                    ?>
+                    <?php
+$trending = $pdo->query("SELECT * FROM posts WHERE status = 'published' ORDER BY views DESC LIMIT 5")->fetchAll();
+foreach ($trending as $tp):
+?>
                     <a href="<?php echo BASE_URL; ?>article/<?php echo $tp['slug']; ?>" style="display: flex; gap: 10px; text-decoration: none; color: inherit; margin-bottom: 15px;">
                         <img src="<?php echo get_post_thumbnail($tp['featured_image']); ?>" style="width: 80px; height: 50px; border-radius: 4px; object-fit: cover;">
                         <h5 style="font-size: 13px; margin: 0; line-height: 1.3;"><?php echo $tp['title']; ?></h5>
                     </a>
-                    <?php endforeach; ?>
+                    <?php
+endforeach; ?>
                 </div>
 
                 <div style="margin-top: 40px;">
@@ -350,7 +365,8 @@ $related = $stmt->fetchAll();
             alert('Please login to save articles.');
             window.location.href = '<?php echo BASE_URL; ?>login.php';
             return;
-        <?php endif; ?>
+        <?php
+endif; ?>
 
         try {
             const response = await fetch('<?php echo BASE_URL; ?>api_bookmark.php', {
@@ -387,9 +403,11 @@ $related = $stmt->fetchAll();
             layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false
         }, 'google_translate_element');
-        <?php endif; ?>
+        <?php
+endif; ?>
     }
 </script>
 <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-<?php endif; ?>
+<?php
+endif; ?>
