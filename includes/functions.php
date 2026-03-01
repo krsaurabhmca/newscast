@@ -4,7 +4,8 @@
 /**
  * Generate a URL friendly slug
  */
-function create_slug($string) {
+function create_slug($string)
+{
     $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $string)));
     return $slug;
 }
@@ -12,28 +13,32 @@ function create_slug($string) {
 /**
  * Sanitize input data
  */
-function clean($data) {
+function clean($data)
+{
     return htmlspecialchars(strip_tags(trim($data)));
 }
 
 /**
  * Check if user is logged in
  */
-function is_logged_in() {
+function is_logged_in()
+{
     return isset($_SESSION['user_id']);
 }
 
 /**
  * Check if user is admin
  */
-function is_admin() {
+function is_admin()
+{
     return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 }
 
 /**
  * Redirect with message
  */
-function redirect($path, $message = '', $type = 'success') {
+function redirect($path, $message = '', $type = 'success')
+{
     if ($message) {
         $_SESSION['flash_msg'] = $message;
         $_SESSION['flash_type'] = $type;
@@ -45,14 +50,16 @@ function redirect($path, $message = '', $type = 'success') {
 /**
  * Format date
  */
-function format_date($date) {
+function format_date($date)
+{
     return date('M d, Y', strtotime($date));
 }
 
 /**
  * Get category name by ID
  */
-function get_category_name($pdo, $id) {
+function get_category_name($pdo, $id)
+{
     $stmt = $pdo->prepare("SELECT name FROM categories WHERE id = ?");
     $stmt->execute([$id]);
     $cat = $stmt->fetch();
@@ -62,7 +69,8 @@ function get_category_name($pdo, $id) {
 /**
  * Get all categories for a post
  */
-function get_post_categories($pdo, $post_id) {
+function get_post_categories($pdo, $post_id)
+{
     $stmt = $pdo->prepare("SELECT c.* FROM categories c JOIN post_categories pc ON c.id = pc.category_id WHERE pc.post_id = ?");
     $stmt->execute([$post_id]);
     return $stmt->fetchAll();
@@ -70,19 +78,20 @@ function get_post_categories($pdo, $post_id) {
 /**
  * Get Post Thumbnail or Dynamic Placeholder
  */
-function get_post_thumbnail($image) {
+function get_post_thumbnail($image)
+{
     if (strpos($image, 'data:image') === 0) {
         return $image;
     }
     if ($image && file_exists(dirname(__DIR__) . '/assets/images/posts/' . $image)) {
         return BASE_URL . 'assets/images/posts/' . $image;
     }
-    
+
     // Dynamic Placeholder Implementation
     $portal_name = defined('SITE_NAME_DYNAMIC') ? SITE_NAME_DYNAMIC : (defined('SITE_NAME') ? SITE_NAME : 'News Cast');
     $portal_url = str_replace(['http://', 'https://'], '', BASE_URL);
     $portal_url = rtrim($portal_url, '/');
-    
+
     $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
         <rect width="800" height="450" fill="#cbd5e1"/>
         <text x="50%" y="48%" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="900" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="4px">
@@ -92,25 +101,29 @@ function get_post_thumbnail($image) {
             ' . strtolower($portal_url) . '
         </text>
     </svg>';
-    
+
     return 'data:image/svg+xml;base64,' . base64_encode($svg);
 }
 
 /**
  * Get profile image URL with fallback to default avatar
  */
-function get_profile_image($filename, $base = '../') {
+function get_profile_image($filename, $base = '../')
+{
     $default = BASE_URL . 'assets/images/default-avatar.svg';
-    if (empty($filename)) return $default;
+    if (empty($filename))
+        return $default;
     // Check file exists on disk
     $disk_path = dirname(__DIR__) . '/assets/images/' . $filename;
-    if (!file_exists($disk_path)) return $default;
+    if (!file_exists($disk_path))
+        return $default;
     return BASE_URL . 'assets/images/' . $filename;
 }
 /**
  * Robustly extract YouTube Video ID from any URL
  */
-function extract_youtube_id($url) {
+function extract_youtube_id($url)
+{
     preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?|shorts)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $url, $match);
     return isset($match[1]) ? $match[1] : false;
 }
@@ -118,9 +131,10 @@ function extract_youtube_id($url) {
 /**
  * Get and Render Ad for a specific location
  */
-function display_ad($location, $pdo) {
-     $today = date('Y-m-d');
-    
+function display_ad($location, $pdo)
+{
+    $today = date('Y-m-d');
+
     // Fetch an ad that is active and within its date range (if set)
     $stmt = $pdo->prepare("SELECT * FROM ads 
                            WHERE location = ? 
@@ -131,25 +145,27 @@ function display_ad($location, $pdo) {
     $stmt->execute([$location, $today, $today]);
     $ad = $stmt->fetch();
 
-    if (!$ad) return '';
+    if (!$ad)
+        return '';
 
     // Increment Impression
     $pdo->prepare("UPDATE ads SET impressions = impressions + 1 WHERE id = ?")->execute([$ad['id']]);
 
     $html = '<div class="ad-container ad-' . $location . '" style="margin: 20px 0; text-align: center;">';
-    
+
     if ($ad['type'] == 'image') {
         // Construct the click tracking URL
         $tracker_url = BASE_URL . "click_tracker.php?id=" . $ad['id'];
-        
+
         $html .= '<a href="' . $tracker_url . '" target="_blank" style="display: block;">';
         $html .= '<img src="' . BASE_URL . 'assets/images/ads/' . $ad['image_path'] . '" alt="' . $ad['name'] . '" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">';
         $html .= '</a>';
-    } else {
+    }
+    else {
         // For code-based ads (like AdSense), we can't easily track clicks via a redirect, so we just output the code
         $html .= $ad['ad_code'];
     }
-    
+
     $html .= '</div>';
 
     return $html;
@@ -158,7 +174,8 @@ function display_ad($location, $pdo) {
 /**
  * Get all tags for a post
  */
-function get_post_tags($pdo, $post_id) {
+function get_post_tags($pdo, $post_id)
+{
     $stmt = $pdo->prepare("SELECT t.* FROM tags t JOIN post_tags pt ON t.id = pt.tag_id WHERE pt.post_id = ?");
     $stmt->execute([$post_id]);
     return $stmt->fetchAll();
@@ -167,7 +184,8 @@ function get_post_tags($pdo, $post_id) {
 /**
  * Get all active/popular tags (Prioritize recent activity)
  */
-function get_all_tags($pdo, $limit = 20) {
+function get_all_tags($pdo, $limit = 20)
+{
     $stmt = $pdo->prepare("SELECT t.*, COUNT(pt.post_id) as post_count 
                            FROM tags t 
                            LEFT JOIN post_tags pt ON t.id = pt.tag_id 
@@ -183,7 +201,8 @@ function get_all_tags($pdo, $limit = 20) {
 /**
  * Calculate estimated reading time in minutes
  */
-function calculate_reading_time($content) {
+function calculate_reading_time($content)
+{
     $word_count = str_word_count(strip_tags($content));
     $words_per_minute = 200;
     return ceil($word_count / $words_per_minute);
@@ -192,24 +211,106 @@ function calculate_reading_time($content) {
 /**
  * Log user activity
  */
-function log_activity($pdo, $user_id, $post_id, $type = 'view') {
-    if (!$user_id) return;
+function log_activity($pdo, $user_id, $post_id, $type = 'view')
+{
+    if (!$user_id)
+        return;
     try {
         $stmt = $pdo->prepare("INSERT INTO user_activity (user_id, post_id, action_type) VALUES (?, ?, ?)");
         $stmt->execute([$user_id, $post_id, $type]);
-    } catch (PDOException $e) {}
+    }
+    catch (PDOException $e) {
+    }
 }
 
 /**
  * Shorten text to a specific word count
  */
-function get_excerpt($text, $word_count = 25) {
-    if (!$text) return '';
+function get_excerpt($text, $word_count = 25)
+{
+    if (!$text)
+        return '';
     $text = strip_tags($text);
     $words = explode(' ', $text);
     if (count($words) > $word_count) {
         return implode(' ', array_slice($words, 0, $word_count)) . '...';
     }
     return $text;
+}
+/**
+ * Compress and resize images on upload
+ * Reduces file size while maintaining visibility (Target: 60-70% reduction)
+ */
+function compress_image($source, $destination, $quality = 60)
+{
+    if (!extension_loaded('gd'))
+        return false;
+
+    $info = getimagesize($source);
+    if ($info === false)
+        return false;
+
+    // Create image from source based on type
+    switch ($info['mime']) {
+        case 'image/jpeg':
+            $image = imagecreatefromjpeg($source);
+            break;
+        case 'image/gif':
+            $image = imagecreatefromgif($source);
+            break;
+        case 'image/png':
+            $image = imagecreatefrompng($source);
+            break;
+        case 'image/webp':
+            $image = @imagecreatefromwebp($source);
+            break;
+        default:
+            return false;
+    }
+
+    if (!$image)
+        return false;
+
+    // Get original dimensions
+    $width = imagesx($image);
+    $height = imagesy($image);
+
+    // Optional: Resize if image is extremely large to save more space
+    $max_width = 1280;
+    if ($width > $max_width) {
+        $new_width = $max_width;
+        $new_height = floor($height * ($max_width / $width));
+        $tmp = imagecreatetruecolor($new_width, $new_height);
+
+        // Preserve transparency for PNG/GIF/WEBP
+        imagealphablending($tmp, false);
+        imagesavealpha($tmp, true);
+
+        imagecopyresampled($tmp, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+        imagedestroy($image);
+        $image = $tmp;
+    }
+
+    // Save with reduced quality
+    // Mapping: 60% quality often leads to ~70-80% byte reduction for high-res photos
+    switch ($info['mime']) {
+        case 'image/jpeg':
+            imagejpeg($image, $destination, $quality);
+            break;
+        case 'image/webp':
+            imagewebp($image, $destination, $quality);
+            break;
+        case 'image/png':
+            // PNG quality is 0-9 (0 = no compression, 9 = max compression)
+            $png_quality = 9 - floor($quality / 10); // Quality 60 maps to ~3, 70 to ~2, but we want high compression (9)
+            imagepng($image, $destination, 9);
+            break;
+        case 'image/gif':
+            imagegif($image, $destination);
+            break;
+    }
+
+    imagedestroy($image);
+    return true;
 }
 ?>

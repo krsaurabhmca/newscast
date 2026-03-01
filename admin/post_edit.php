@@ -39,7 +39,7 @@ if (isset($_POST['update_post'])) {
     $external_link = clean($_POST['external_link']);
     $status = $_POST['status'];
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
-    
+
     // Scheduled Date
     $published_at = !empty($_POST['published_at']) ? $_POST['published_at'] : $post['published_at'];
 
@@ -50,33 +50,55 @@ if (isset($_POST['update_post'])) {
         $external_label = 'Ad';
         if (filter_var($external_link, FILTER_VALIDATE_URL)) {
             $external_type = 'url';
-        } elseif (preg_match('/^[0-9+\(\)#\s-]+$/', $external_link)) {
+        }
+        elseif (preg_match('/^[0-9+\(\)#\s-]+$/', $external_link)) {
             $external_type = 'call';
-        } else {
+        }
+        else {
             $external_type = 'url';
         }
     }
 
+    // Image Upload with Auto-compression (reduce 60-70%)
     $featured_image = $post['featured_image'];
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         $img_name = $_FILES['image']['name'];
         $tmp_name = $_FILES['image']['tmp_name'];
-        $img_ext = pathinfo($img_name, PATHINFO_EXTENSION);
-        $new_img_name = uniqid("post_") . "." . $img_ext;
-        $upload_path = "../assets/images/posts/" . $new_img_name;
-        
-        if (move_uploaded_file($tmp_name, $upload_path)) {
-            if ($featured_image && file_exists("../assets/images/posts/" . $featured_image)) {
-                unlink("../assets/images/posts/" . $featured_image);
+        $img_ext = strtolower(pathinfo($img_name, PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        if (in_array($img_ext, $allowed)) {
+            $new_img_name = uniqid("post_") . "." . $img_ext;
+            $upload_path = "../assets/images/posts/" . $new_img_name;
+
+            if (!is_dir("../assets/images/posts/")) {
+                mkdir("../assets/images/posts/", 0777, true);
             }
-            $featured_image = $new_img_name;
+
+            // Auto compress and resize (60% quality = ~70% reduction)
+            if (compress_image($tmp_name, $upload_path, 60)) {
+                if ($featured_image && file_exists("../assets/images/posts/" . $featured_image)) {
+                    unlink("../assets/images/posts/" . $featured_image);
+                }
+                $featured_image = $new_img_name;
+            }
+            else {
+                // Fallback if compression fails
+                if (move_uploaded_file($tmp_name, $upload_path)) {
+                    if ($featured_image && file_exists("../assets/images/posts/" . $featured_image)) {
+                        unlink("../assets/images/posts/" . $featured_image);
+                    }
+                    $featured_image = $new_img_name;
+                }
+            }
         }
     }
 
     if (empty($title) || empty($content) || empty($category_ids)) {
         $_SESSION['flash_msg'] = "Required fields cannot be empty.";
         $_SESSION['flash_type'] = "danger";
-    } else {
+    }
+    else {
         try {
             $pdo->beginTransaction();
 
@@ -100,14 +122,15 @@ if (isset($_POST['update_post'])) {
 
                 foreach ($tags_input as $tag_name) {
                     $tag_name = trim($tag_name);
-                    if (empty($tag_name)) continue;
-                    
+                    if (empty($tag_name))
+                        continue;
+
                     $tag_slug = create_slug($tag_name);
                     $stmt_tag_insert->execute([$tag_name, $tag_slug]);
-                    
+
                     $stmt_tag_get->execute([$tag_name]);
                     $tag_id = $stmt_tag_get->fetchColumn();
-                    
+
                     if ($tag_id) {
                         $stmt_tag_link->execute([$id, $tag_id]);
                     }
@@ -116,7 +139,8 @@ if (isset($_POST['update_post'])) {
 
             $pdo->commit();
             redirect('admin/posts.php', 'Post updated successfully!');
-        } catch (PDOException $e) {
+        }
+        catch (PDOException $e) {
             $pdo->rollBack();
             $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
             $_SESSION['flash_type'] = "danger";
@@ -209,7 +233,8 @@ $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAl
                             <input type="checkbox" name="category_ids[]" value="<?php echo $cat['id']; ?>" <?php echo in_array($cat['id'], $post_category_ids) ? 'checked' : ''; ?>>
                             <span><?php echo $cat['name']; ?></span>
                         </label>
-                    <?php endforeach; ?>
+                    <?php
+endforeach; ?>
                 </div>
             </div>
 
