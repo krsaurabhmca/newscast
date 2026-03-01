@@ -2,16 +2,16 @@
 $page_title = "Reporter ID Card";
 include 'includes/header.php';
 if (!is_admin()) {
-    redirect('admin/dashboard.php', 'Access denied.', 'danger');
+  redirect('admin/dashboard.php', 'Access denied.', 'danger');
 }
 
 $reporters = $pdo->query("SELECT * FROM users ORDER BY username ASC")->fetchAll();
 $selected_user = null;
 $uid = (int)($_GET['uid'] ?? 0);
 if ($uid) {
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-    $stmt->execute([$uid]);
-    $selected_user = $stmt->fetch();
+  $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+  $stmt->execute([$uid]);
+  $selected_user = $stmt->fetch();
 }
 
 $site_name = get_setting('site_name', 'NewsCast');
@@ -20,35 +20,49 @@ $theme_color = get_setting('theme_color', '#6366f1');
 $contact_phone = get_setting('contact_phone', '');
 $contact_email = get_setting('contact_email', '');
 $address = get_setting('address', '');
+$site_tagline = get_setting('site_tagline', 'Truth • Speed • Trust');
+
 ?>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-.idcard-layout{display:grid;grid-template-columns:280px 1fr;gap:22px;align-items:start;}
-.panel{background:#fff;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;}
-.panel-hd{padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:10px;}
-.panel-hd .ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;}
-.panel-bd{padding:20px;}
-.id-card-wrap{display:flex;justify-content:center;flex-direction:column;align-items:center;gap:18px;}
-.id-card{width:340px;min-height:530px;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18);position:relative;font-family:'Segoe UI',Arial,sans-serif;background:#fff;display:flex;flex-direction:column;}
-.idc-header{padding:22px 20px 18px;text-align:center;position:relative;color:#fff;}
-.idc-header h2{margin:0;font-size:17px;font-weight:900;letter-spacing:.5px;}
-.idc-header p{margin:3px 0 0;font-size:10px;opacity:.85;font-weight:600;letter-spacing:1px;}
-.idc-logo{width:52px;height:52px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#fff;margin:0 auto 10px;overflow:hidden;}
-.idc-logo img{width:100%;height:100%;object-fit:contain;}
-.idc-photo-area{background:#f8fafc;padding:24px 20px;text-align:center;}
-.idc-photo{width:100px;height:100px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.15);margin-bottom:14px;}
-.idc-photo-ph{width:100px;height:100px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:#94a3b8;border:4px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.1);margin:0 auto 14px;}
-.idc-name{font-size:17px;font-weight:800;color:#0f172a;margin:0 0 2px;}
-.idc-role{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 12px;border-radius:20px;display:inline-block;margin-bottom:4px;}
-.idc-id{font-size:11px;color:#64748b;font-weight:600;}
-.idc-body{padding:16px 20px;flex:1;}
-.idc-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:12px;}
+.idcard-layout{display:grid;grid-template-columns:320px 1fr;gap:30px;align-items:start;}
+.panel{background:#fff;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,.04);overflow:hidden;border:1px solid #f1f5f9;}
+.panel-hd{padding:20px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:12px;}
+.panel-hd .ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.05);}
+.panel-bd{padding:24px;}
+.id-card-wrap{display:flex;justify-content:center;flex-direction:column;align-items:center;gap:25px;padding:20px;}
+
+/* Perfect ID Card Size: 54mm x 86mm (CR80) at 300DPI equivalent ratio */
+.id-card{width:340px;height:540px;border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.2);position:relative;font-family:'Outfit', 'Segoe UI', sans-serif;background:#fff;display:flex;flex-direction:column;border:1px solid rgba(0,0,0,.05);}
+
+.idc-header{padding:30px 20px 20px;text-align:center;position:relative;color:#fff;clip-path:polygon(0 0, 100% 0, 100% 85%, 0 100%);}
+.idc-header h2{margin:0;font-size:19px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;}
+.idc-header p{margin:4px 0 0;font-size:10px;opacity:0.9;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+
+.idc-logo{width:56px;height:56px;border-radius:15px;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#fff;margin:0 auto 12px;overflow:hidden;border:1.5px solid rgba(255,255,255,0.3);}
+.idc-logo img{width:100%;height:100%;object-fit:contain;padding:5px;}
+
+.idc-photo-area{background:linear-gradient(to bottom, #f8fafc, #ffffff);padding:25px 20px 15px;text-align:center;position:relative;margin-top:-20px;z-index:2;}
+.idc-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;border:6px solid #fff;box-shadow:0 10px 25px rgba(0,0,0,.15);margin-bottom:15px;}
+.idc-photo-ph{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;color:#94a3b8;border:6px solid #fff;box-shadow:0 10px 25px rgba(0,0,0,.1);margin:0 auto 15px;}
+
+.idc-name{font-size:20px;font-weight:800;color:#0f172a;margin:0 0 4px;letter-spacing:-0.3px;}
+.idc-role{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:5px 15px;border-radius:30px;display:inline-block;margin-bottom:6px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.idc-id{font-size:12px;color:#64748b;font-weight:700;font-family:monospace;}
+
+.idc-body{padding:10px 25px;flex:1;background:#fff;}
+.idc-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f8fafc;font-size:12px;}
 .idc-row:last-child{border-bottom:none;}
-.idc-row .lbl{color:#94a3b8;font-weight:700;min-width:68px;line-height:1.4;}
-.idc-row .val{color:#0f172a;font-weight:600;line-height:1.4;word-break:break-word;}
-.idc-footer{padding:12px 20px;text-align:center;font-size:9.5px;font-weight:700;letter-spacing:.5px;color:rgba(255,255,255,.9);}
-.idc-barcode{display:flex;justify-content:center;margin:8px 0;}
-.dl-btns{display:flex;gap:10px;}
-.dl-btns button{flex:1;padding:11px;border-radius:10px;font-size:13px;font-weight:700;text-align:center;border:none;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.idc-row .lbl{color:#94a3b8;font-weight:700;min-width:75px;text-transform:uppercase;font-size:9px;letter-spacing:0.5px;}
+.idc-row .val{color:#334155;font-weight:600;line-height:1.2;word-break:break-all;}
+
+.idc-qr-wrap { position: absolute; bottom: 65px; right: 20px; padding: 5px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: 1px solid #f1f5f9; }
+.idc-qr-wrap img { width: 50px; height: 50px; display: block; }
+
+.idc-footer{padding:15px 20px;text-align:center;font-size:10px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,1);position:relative;z-index:2;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.1);}
+.dl-btns{display:flex;flex-direction:column;gap:12px;}
+.dl-btns button{width:100%;padding:14px;border-radius:14px;font-size:14px;font-weight:700;text-align:center;border:none;cursor:pointer;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);display:flex;align-items:center;justify-content:center;gap:10px;box-shadow: 0 4px 12px rgba(0,0,0,0.1);}
+.dl-btns button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 @media(max-width:800px){.idcard-layout{grid-template-columns:1fr;}}
 .spin { animation: fa-spin 2s infinite linear; }
 @keyframes fa-spin { from { transform: rotate(0deg); } to { transform: rotate(359deg); } }
@@ -72,7 +86,7 @@ $address = get_setting('address', '');
             <div style="font-size:11px;color:#64748b;"><?php echo ucfirst($r['role']); ?></div>
           </div>
           <?php if ($uid == $r['id']): ?><i data-feather="check-circle" style="width:15px;color:var(--primary);flex-shrink:0;"></i><?php
-    endif; ?>
+  endif; ?>
         </a>
         <?php
 endforeach; ?>
@@ -100,10 +114,10 @@ endif; ?>
 
   <div>
     <?php if ($selected_user):
-    $issue_date = date('d M Y', strtotime($selected_user['created_at']));
-    $expiry_date = date('d M Y', strtotime('+1 year'));
-    $id_number = 'NC-' . str_pad($selected_user['id'], 5, '0', STR_PAD_LEFT);
-    $has_photo = !empty($selected_user['profile_image']) && file_exists('../assets/images/' . $selected_user['profile_image']);
+  $issue_date = date('d M Y', strtotime($selected_user['created_at']));
+  $expiry_date = date('d M Y', strtotime('+1 year'));
+  $id_number = 'NC-' . str_pad($selected_user['id'], 5, '0', STR_PAD_LEFT);
+  $has_photo = !empty($selected_user['profile_image']) && file_exists('../assets/images/' . $selected_user['profile_image']);
 ?>
     <div class="id-card-wrap">
       <div id="id-card-element" class="id-card">
@@ -112,21 +126,21 @@ endif; ?>
             <?php if ($site_logo && file_exists('../assets/images/' . $site_logo)): ?>
               <img src="<?php echo BASE_URL; ?>assets/images/<?php echo $site_logo; ?>" alt="Logo" crossorigin="anonymous">
             <?php
-    else: ?><?php echo strtoupper(substr($site_name, 0, 2)); ?><?php
-    endif; ?>
+  else: ?><?php echo strtoupper(substr($site_name, 0, 2)); ?><?php
+  endif; ?>
           </div>
           <h2><?php echo htmlspecialchars($site_name); ?></h2>
-          <p>PRESS &middot; MEDIA &middot; OFFICIAL</p>
+          <p><?php echo strtoupper(htmlspecialchars($site_tagline)); ?></p>
         </div>
 
         <div class="idc-photo-area">
           <?php if ($has_photo): ?>
             <img class="idc-photo" src="<?php echo BASE_URL; ?>assets/images/<?php echo $selected_user['profile_image']; ?>" alt="Photo" crossorigin="anonymous">
           <?php
-    else: ?>
+  else: ?>
             <div class="idc-photo-ph"><?php echo strtoupper(substr($selected_user['username'], 0, 1)); ?></div>
           <?php
-    endif; ?>
+  endif; ?>
           <div class="idc-name"><?php echo htmlspecialchars($selected_user['username']); ?></div>
           <span class="idc-role" style="background:<?php echo $theme_color; ?>20;color:<?php echo $theme_color; ?>;">
             <?php echo $selected_user['role'] === 'admin' ? 'Administrator' : 'Reporter / Editor'; ?>
@@ -137,38 +151,21 @@ endif; ?>
         <div class="idc-body">
           <div class="idc-row"><span class="lbl">Email</span><span class="val"><?php echo htmlspecialchars($selected_user['email']); ?></span></div>
           <?php if ($contact_phone): ?>
-          <div class="idc-row"><span class="lbl">Office</span><span class="val"><?php echo htmlspecialchars($contact_phone); ?></span></div>
+          <div class="idc-row"><span class="lbl">Phone</span><span class="val"><?php echo htmlspecialchars($contact_phone); ?></span></div>
           <?php
-    endif; ?>
+  endif; ?>
           <div class="idc-row"><span class="lbl">Issued</span><span class="val"><?php echo $issue_date; ?></span></div>
-          <div class="idc-row"><span class="lbl">Valid Till</span><span class="val"><?php echo $expiry_date; ?></span></div>
-          <?php if ($address): ?>
-          <div class="idc-row"><span class="lbl">Address</span><span class="val"><?php echo htmlspecialchars(substr($address, 0, 50)); ?>...</span></div>
-          <?php
-    endif; ?>
-          <div class="idc-barcode">
-            <svg width="180" height="32" viewBox="0 0 180 32">
-              <?php
-    $bars = str_split(md5($id_number));
-    $x = 5;
-    foreach ($bars as $b) {
-        $w = (hexdec($b) % 3) + 1;
-        $hb = 14 + (hexdec($b) % 14);
-        $y = (32 - $hb) / 2;
-        echo "<rect x='{$x}' y='{$y}' width='{$w}' height='{$hb}' fill='#334155' opacity='0.8'/>";
-        $x += $w + ((hexdec($b) % 2) + 1);
-    }
-?>
-            </svg>
+          <div class="idc-row"><span class="lbl">Expires</span><span class="val"><?php echo $expiry_date; ?></span></div>
+          
+          <div class="idc-qr-wrap">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<?php echo urlencode(BASE_URL); ?>" alt="QR" crossorigin="anonymous">
           </div>
-          <div style="text-align:center;font-size:9px;color:#94a3b8;letter-spacing:1px;font-weight:600;"><?php echo $id_number; ?></div>
+
+          <div style="text-align:center;font-size:10px;color:#94a3b8;letter-spacing:3px;font-weight:800;font-family:monospace;margin-top:25px;padding-bottom:15px;"><?php echo $id_number; ?></div>
         </div>
 
         <div class="idc-footer" style="background:<?php echo $theme_color; ?>;">
-          <?php if ($contact_email):
-        echo htmlspecialchars($contact_email) . ' &nbsp;|&nbsp; ';
-    endif; ?>
-          <?php echo htmlspecialchars($site_name); ?> &mdash; Official Press ID
+          VERIFIED STAFF &bull; <?php echo strtoupper(htmlspecialchars($site_name)); ?> 
         </div>
       </div>
       <div style="font-size:12px;color:#94a3b8;text-align:center;">
@@ -201,11 +198,15 @@ async function downloadIDCardImage(btn) {
     if(window.feather) feather.replace();
 
     try {
+        // Ensure fonts are loaded before capturing
+        await document.fonts.ready;
+        
         const canvas = await html2canvas(el, { 
-            scale: 3,
+            scale: 4, // Higher scale for even better quality
             useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff'
+            allowTaint: false, // Changed to false for better CORS handling
+            backgroundColor: '#ffffff',
+            logging: false
         });
         
         // Convert to data URL
@@ -252,19 +253,22 @@ async function downloadIDCardPDF(btn) {
     try {
         if (!window.jspdf) throw new Error("jsPDF not loaded");
         
+        // Ensure fonts are loaded before capturing
+        await document.fonts.ready;
+
         const canvas = await html2canvas(el, { 
-            scale: 3,
+            scale: 4,
             useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff'
+            allowTaint: false,
+            backgroundColor: '#ffffff',
+            logging: false
         });
         
         const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
         
-        const ratio = canvas.height / canvas.width;
-        const pdfW = 85;
-        const pdfH = pdfW * ratio;
+        const pdfW = 54; // Standard CR80 Width in mm
+        const pdfH = 86; // Standard CR80 Height in mm
         
         const pdf = new jsPDF('p', 'mm', [pdfW, pdfH]);
         pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);

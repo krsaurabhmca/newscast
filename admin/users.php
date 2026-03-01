@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $page_title = "Contributors & Team";
 include 'includes/header.php';
 if (!is_admin()) { redirect('admin/dashboard.php', 'Access denied.', 'danger'); }
@@ -79,7 +79,7 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
     <div class="form-card-hd">
       <div style="width:35px;height:35px;border-radius:9px;background:#eef2ff;color:var(--primary);display:flex;align-items:center;justify-content:center;">
         <i data-feather="user-plus" style="width:16px;"></i></div>
-      <div><div style="font-size:14px;font-weight:700;">Add Contributor</div><div style="font-size:11px;color:#94a3b8;">Editors &amp; Admins</div></div>
+      <div><div style="font-size:14px;font-weight:700;">Add Contributor</div><div style="font-size:11px;color:#94a3b8;">Editors & Admins</div></div>
     </div>
     <div class="form-card-bd">
       <?php if (isset($errors['general'])): ?>
@@ -107,8 +107,8 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
         <div class="form-group">
           <label class="field-label">Role</label>
           <select name="role" class="form-control">
-            <option value="editor" <?=($form_values['role']??'editor')==='editor'?'selected':''?>>✏️ Editor / Journalist</option>
-            <option value="admin"  <?=($form_values['role']??'')==='admin'?'selected':''?>>🛡️ Administrator</option>
+            <option value="editor" <?=($form_values['role']??'editor')==='editor'?'selected':''?>>Editor / Journalist</option>
+            <option value="admin"  <?=($form_values['role']??'')==='admin'?'selected':''?>>Administrator</option>
           </select>
         </div>
         <button type="submit" name="add_user" class="btn btn-primary" style="width:100%;justify-content:center;">
@@ -121,7 +121,7 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
   <!-- TABLE -->
   <div>
     <form method="GET"><div class="table-toolbar">
-      <div class="sb"><i data-feather="search"></i><input type="text" name="s" class="form-control" placeholder="Search name or email…" value="<?=htmlspecialchars($search)?>"></div>
+      <div class="sb"><i data-feather="search"></i><input type="text" name="s" class="form-control" placeholder="Search name or email..." value="<?=htmlspecialchars($search)?>"></div>
       <select name="role" class="fsel" onchange="this.form.submit()">
         <option value="">All Roles</option>
         <option value="admin"  <?=$role_f=='admin'?'selected':''?>>Admin</option>
@@ -130,7 +130,7 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
       <select name="sort" class="fsel" onchange="this.form.submit()">
         <option value="newest" <?=$sort=='newest'?'selected':''?>>Newest</option>
         <option value="oldest" <?=$sort=='oldest'?'selected':''?>>Oldest</option>
-        <option value="name"   <?=$sort=='name'?'selected':''?>>Name A–Z</option>
+        <option value="name"   <?=$sort=='name'?'selected':''?>>Name A-Z</option>
       </select>
       <button class="btn btn-primary" style="padding:9px 14px;font-size:13px;"><i data-feather="search" style="width:14px;"></i></button>
       <?php if($search||$role_f): ?><a href="users.php" class="btn" style="padding:9px 14px;font-size:13px;background:#f1f5f9;color:#64748b;"><i data-feather="x" style="width:14px;"></i></a><?php endif; ?>
@@ -164,11 +164,16 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
               <?php if((int)$u['id']===(int)$_SESSION['user_id']): ?><span class="badge" style="background:#ecfdf5;color:#065f46;font-size:9px;">You</span><?php endif; ?>
             </div></td>
             <td style="font-size:13px;color:#475569;"><?=htmlspecialchars($u['email'])?></td>
-            <td><span class="badge" style="background:<?=$u['role']==='admin'?'#fee2e2':'#eff6ff'?>;color:<?=$u['role']==='admin'?'#991b1b':'#1e40af'?>;"><?=$u['role']==='admin'?'🛡️ Admin':'✏️ Editor'?></span></td>
+            <td><span class="badge" style="background:<?=$u['role']==='admin'?'#fee2e2':'#eff6ff'?>;color:<?=$u['role']==='admin'?'#991b1b':'#1e40af'?>;"><?=$u['role']==='admin'?'Admin':'Editor'?></span></td>
             <td style="font-size:13px;color:#64748b;white-space:nowrap;"><?=format_date($u['created_at'])?></td>
             <td><?php if((int)$u['id']!==(int)$_SESSION['user_id']): ?>
-              <a href="?delete=<?=$u['id']?>&<?=http_build_query(array_filter(['s'=>$search,'role'=>$role_f,'sort'=>$sort,'page'=>$page]))?>" class="btn btn-danger" style="padding:5px 11px;font-size:12px;" onclick="return confirm('Remove this member?')"><i data-feather="trash-2" style="width:13px;"></i></a>
-            <?php else: ?><span style="font-size:12px;color:#cbd5e1;">—</span><?php endif; ?></td>
+              <div style="display:flex;gap:5px;">
+                <a href="user_edit.php?id=<?=$u['id']?>" class="btn" style="padding:5px 11px;font-size:12px;background:#f1f5f9;color:#475569;"><i data-feather="edit" style="width:13px;"></i></a>
+                <a href="?delete=<?=$u['id']?>&<?=http_build_query(array_filter(['s'=>$search,'role'=>$role_f,'sort'=>$sort,'page'=>$page]))?>" class="btn btn-danger" style="padding:5px 11px;font-size:12px;" onclick="return confirm('Remove this member?')"><i data-feather="trash-2" style="width:13px;"></i></a>
+              </div>
+            <?php else: ?>
+              <a href="profile.php" class="btn" style="padding:5px 11px;font-size:12px;background:#f1f5f9;color:#475569;"><i data-feather="edit" style="width:13px;"></i> Profile</a>
+            <?php endif; ?></td>
           </tr>
         <?php endforeach; endif; ?>
         </tbody>
