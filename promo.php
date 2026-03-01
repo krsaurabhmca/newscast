@@ -112,13 +112,14 @@ echo "$r, $g, $b";
             NEWSCAST
         </a>
         <div style="display: flex; gap: 15px;">
-            <a href="https://wa.me/919431426600" class="btn-demo" style="background: #25d366;"><i data-feather="message-circle"></i> व्हाट्सएप संपर्क</a>
+            <a href="https://wa.me/919431426600" class="btn-demo" style="background: #25d366;"><i data-feather="message-circle"></i> व्हाट्सएप</a>
             <a href="admin/login.php" class="btn-demo" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border);">एडमिन</a>
         </div>
     </header>
 
     <section class="hero">
-        <div class="badge">🔥 खास धमाका ऑफर - सिर्फ 24 घंटे के लिए!</div>
+        <?php $expiry_date = date('d M Y', strtotime('+7 days')); ?>
+        <div class="badge">🔥 खास धमाका ऑफर - सिर्फ <?php echo $expiry_date; ?> तक!</div>
         <h1>अपना प्रोफेशनल डिजिटल न्यूज़ पोर्टल <span>आज ही शुरू करें!</span></h1>
         <p>बिना किसी कोडिंग के अपना न्यूज़ चैनल चलाएं। रिपोर्टर मैनेजमेंट, लाइव ब्रॉडकास्ट, और स्मार्ट डिज़ाइन - सब कुछ एक जगह।</p>
         
@@ -141,22 +142,54 @@ echo "$r, $g, $b";
         </div>
     </section>
 
-    <section class="features">
+    <!-- Simple Benefits Grid -->
+    <section id="features" class="features">
         <div class="feat-card">
-            <i data-feather="users"></i>
-            <h3>रिपोर्टर मैनेजमेंट</h3>
-            <p>अपने पूरे रिपोर्टर टीम को संभालें और उनके काम पर नज़र रखें। सबको अपना लॉगिन मिलेगा।</p>
+            <i data-feather="smartphone"></i>
+            <h3>चलाने में एकदम आसान</h3>
+            <p>फेसबुक यूज करने जैसा आसान! आप खुद अपनी मोबाइल से न्यूज़ डाल सकते हैं और फोटो बदल सकते हैं।</p>
         </div>
         <div class="feat-card">
             <i data-feather="credit-card"></i>
-            <h3>स्मार्ट आईडी कार्ड</h3>
-            <p>रिपोर्टर्स को असली प्रेस आईडी कार्ड दें। कार्ड पर QR कोड होगा जिससे उनकी पहचान की जा सकेगी।</p>
+            <h3>रिपोर्टर आईडी कार्ड</h3>
+            <p>अपने रिपोर्टर्स को असली प्रेस आईडी कार्ड दें। कार्ड पर QR कोड होगा जिससे उनकी तुरंत पहचान होगी।</p>
         </div>
         <div class="feat-card">
-            <i data-feather="tv"></i>
-            <h3>यूट्यूब लाइव</h3>
-            <p>अपने न्यूज़ चैनल की लाइव वीडियो सीधे वेबसाइट पर दिखाएं। दर्शकों को कहीं और जाने की ज़रूरत नहीं।</p>
+            <i data-feather="play"></i>
+            <h3>लाइव न्यूज़ वीडियो</h3>
+            <p>अपने यूट्यूब लाइव को सीधे अपनी वेबसाइट पर दिखाएं। "LIVE" बटन अपने आप आ जाएगा।</p>
         </div>
+        <div class="feat-card">
+            <i data-feather="book-open"></i>
+            <h3>डिजिटल मैगज़ीन और E-Paper</h3>
+            <p>अपने पाठकों को डिजिटल अखबार (E-Paper) और मैगज़ीन पढ़ने की सुविधा दें। लोग इसे मोबाइल पर आराम से पढ़ पाएंगे।</p>
+        </div>
+        <div class="feat-card">
+            <i data-feather="volume-2"></i>
+            <h3>खबरें सुनने की सुविधा (AI)</h3>
+            <p>आपकी वेबसाइट खुद न्यूज़ बोलकर सुनाएगी। जो लोग पढ़ना नहीं चाहते, वो न्यूज़ को रेडियो की तरह सुन पाएंगे।</p>
+        </div>
+        <div class="feat-card">
+            <i data-feather="share-2"></i>
+            <h3>स्मार्ट वॉट्सऐप शेयरिंग</h3>
+            <p>जब भी आप न्यूज़ शेयर करेंगे, सुंदर फोटो और हेडिंग के साथ जाएगी। इससे आपकी खबरें ज्यादा वायरल होंगी।</p>
+        </div>
+        <div class="feat-card">
+            <i data-feather="search"></i>
+            <h3>गूगल (SEO) में सबसे आगे</h3>
+            <p>आपकी खबरें गूगल सर्च में सबसे ऊपर आएंगी। हमने इसमें खास तकनीक लगायी है जो आपकी वेबसाइट को फेमस करेगी।</p>
+        </div>
+        <div class="feat-card">
+            <i data-feather="shield"></i>
+            <h3>फुली सुरक्षित और सुपर फ़ास्ट</h3>
+            <p>कम नेटवर्क और पुराने फोन में भी आपकी वेबसाइट बहुत तेज़ खुलेगी। आपकी न्यूज़ कभी नहीं रुकेगी।</p>
+        </div>
+        <div class="feat-card">
+            <i data-feather="bar-chart-2"></i>
+            <h3>न्यूज़ व्यू काउंट</h3>
+            <p>देखें कि आपकी खबर को कितने लोगों ने पढ़ा। रियल-टाइम में पता चलेगा कि कौन सी न्यूज़ हिट हो रही है।</p>
+        </div>
+    </section>
     </section>
 
     <!-- Comparative Study / Plans -->
