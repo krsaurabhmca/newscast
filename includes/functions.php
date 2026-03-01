@@ -209,18 +209,33 @@ function log_activity($pdo, $user_id, $post_id, $type = 'view')
 }
 
 /**
- * Shorten text to a specific word count
+ * Shorten text to a specific word count with optional fallback
  */
 function get_excerpt($text, $word_count = 25)
 {
-    if (!$text)
+    if (empty($text))
         return '';
+
+    // Remove HTML and clean up whitespace
     $text = strip_tags($text);
+    $text = trim(preg_replace('/\s+/', ' ', $text));
+
     $words = explode(' ', $text);
     if (count($words) > $word_count) {
         return implode(' ', array_slice($words, 0, $word_count)) . '...';
     }
     return $text;
+}
+
+/**
+ * Get excerpt from a post array, falling back to content if needed
+ */
+function get_post_excerpt($post, $word_count = 25)
+{
+    if (!$post)
+        return '';
+    $text = !empty($post['excerpt']) ? $post['excerpt'] : (!empty($post['content']) ? $post['content'] : '');
+    return get_excerpt($text, $word_count);
 }
 /**
  * Compress and resize images on upload

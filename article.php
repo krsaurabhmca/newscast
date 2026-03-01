@@ -44,7 +44,7 @@ $read_time = calculate_reading_time($post['content']);
 
 // Main Page SEO
 $page_title = $post['title'];
-$meta_description = $post['meta_description'] ?: $post['excerpt'];
+$meta_description = $post['meta_description'] ?: ($post['excerpt'] ?: get_excerpt($post['content'], 30));
 $page_image = get_post_thumbnail($post['featured_image']);
 
 // Generate Schema JSON-LD
