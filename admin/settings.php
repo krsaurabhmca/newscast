@@ -856,6 +856,8 @@ endforeach; ?>
                         <li>If SMTP is not configured, the system will attempt to use PHP <code>mail()</code> which may go to spam.</li>
                     </ul>
                 </div>
+            </div>
+        </div>
     </div>
 
     <!-- ══════════ WEB PUSH (ONESIGNAL) ══════════ -->
