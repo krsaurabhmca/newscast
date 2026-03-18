@@ -177,6 +177,58 @@ endforeach; ?>
         }
     </style>
 
+    <!-- Web Push Subscription Banner -->
+    <?php 
+    $onesignal_app_identifier = get_setting('onesignal_app_id', '');
+    if (!empty($onesignal_app_identifier)): 
+    ?>
+    <section id="push-subscription-banner" style="display: none; background: linear-gradient(135deg, var(--primary), #d93800); color: #fff; padding: 30px; border-radius: 12px; margin-bottom: 50px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 10.01%); background-size: 20px 20px; opacity: 0.5; pointer-events: none;"></div>
+        <div style="position: relative; z-index: 1;">
+            <i data-feather="bell" style="width: 40px; height: 40px; margin-bottom: 15px; opacity: 0.9;"></i>
+            <h3 style="font-size: 24px; font-weight: 800; margin-bottom: 10px;">Never Miss Breaking News!</h3>
+            <p style="font-size: 16px; opacity: 0.9; margin-bottom: 25px; max-width: 600px; margin-left: auto; margin-right: auto;">Subscribe to our push notifications and be the first to know about top stories, live events, and exclusive updates directly on your device.</p>
+            <button onclick="subscribeToWebPush()" style="background: #fff; color: var(--primary); border: none; padding: 12px 30px; font-size: 16px; font-weight: 800; border-radius: 30px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
+                <i data-feather="zap" style="width: 18px;"></i>
+                Subscribe Now
+            </button>
+            <button onclick="dismissWebPushBanner()" style="background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 12px 20px; font-size: 14px; margin-left:15px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: background 0.2s;">
+                Maybe Later
+            </button>
+        </div>
+    </section>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        if (!localStorage.getItem('webPushDismissed')) {
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignal) {
+                const isSupported = OneSignal.Notifications.isPushSupported();
+                if (isSupported) {
+                    const hasPermission = OneSignal.Notifications.permission === "granted";
+                    if (!hasPermission) {
+                        document.getElementById('push-subscription-banner').style.display = 'block';
+                    }
+                }
+            });
+        }
+    });
+
+    function subscribeToWebPush() {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.Slidedown.promptPush();
+            document.getElementById('push-subscription-banner').style.display = 'none';
+        });
+    }
+
+    function dismissWebPushBanner() {
+        localStorage.setItem('webPushDismissed', 'true');
+        document.getElementById('push-subscription-banner').style.display = 'none';
+    }
+    </script>
+    <?php endif; ?>
+
     <!-- Top 10 Section -->
     <section style="margin-bottom: 50px; background: #f8f9fa; padding: 30px; border-radius: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">

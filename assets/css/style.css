@@ -286,6 +286,57 @@ a {
     color: #333;
 }
 
+/* Quoted Text Format / RTF Blockquotes */
+.article-body blockquote, .rtf-content blockquote {
+    font-size: 24px;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--text);
+    text-align: center;
+    margin: 40px auto;
+    padding: 35px 40px;
+    position: relative;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    border-top: 4px solid var(--primary);
+    border-bottom: 4px solid var(--primary);
+    max-width: 90%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+    z-index: 1;
+}
+
+.article-body blockquote::before, .rtf-content blockquote::before {
+    content: "\201C"; /* Left double quote */
+    font-family: 'Outfit', sans-serif;
+    font-size: 80px;
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    color: var(--primary);
+    opacity: 0.15;
+    line-height: 1;
+    z-index: -1;
+}
+
+.article-body blockquote::after, .rtf-content blockquote::after {
+    content: "\201D"; /* Right double quote */
+    font-family: 'Outfit', sans-serif;
+    font-size: 80px;
+    position: absolute;
+    bottom: -40px;
+    right: 15px;
+    color: var(--primary);
+    opacity: 0.15;
+    line-height: 1;
+    z-index: -1;
+}
+
+.article-body blockquote p, .rtf-content blockquote p {
+    margin: 0 !important;
+    display: inline-block;
+}
+
 /* Footer Section */
 .bhaskar-footer {
     background: #fff;
@@ -550,4 +601,77 @@ a {
     /* IE and Edge */
     scrollbar-width: none;
     /* Firefox */
+}
+
+/* ── RTF CONTENT FORMATTING FIXES (Quill Editor) ────────────────────────── */
+.article-body p, .rtf-content p {
+    margin-bottom: 25px;
+}
+
+.article-body h1, .article-body h2, .article-body h3, .article-body h4, .article-body h5, .article-body h6,
+.rtf-content h1, .rtf-content h2, .rtf-content h3, .rtf-content h4, .rtf-content h5, .rtf-content h6 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    font-weight: 800;
+    line-height: 1.3;
+    color: #1a1a1b;
+}
+
+.article-body ul, .rtf-content ul {
+    list-style-type: disc;
+    margin-bottom: 25px;
+    padding-left: 40px;
+}
+
+.article-body ol, .rtf-content ol {
+    list-style-type: decimal;
+    margin-bottom: 25px;
+    padding-left: 40px;
+}
+
+.article-body li, .rtf-content li {
+    margin-bottom: 10px;
+}
+
+.article-body a, .rtf-content a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.article-body a:hover, .rtf-content a:hover {
+    text-decoration: underline;
+}
+
+.article-body img, .rtf-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 20px 0;
+    display: block;
+}
+
+/* Quill Specific Alignments */
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-justify { text-align: justify; }
+
+/* Quill Specific Indentations */
+.ql-indent-1 { padding-left: 3em; }
+.ql-indent-2 { padding-left: 6em; }
+.ql-indent-3 { padding-left: 9em; }
+.ql-indent-4 { padding-left: 12em; }
+.ql-indent-5 { padding-left: 15em; }
+.ql-indent-6 { padding-left: 18em; }
+.ql-indent-7 { padding-left: 21em; }
+.ql-indent-8 { padding-left: 24em; }
+
+/* Video Embeds */
+.ql-video {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: none;
+    border-radius: 12px;
+    margin: 25px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }

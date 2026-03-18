@@ -143,6 +143,12 @@ endif; ?>
                 </a>
             </li>
             <li>
+                <a href="page_about.php" class="<?php echo $current_page == 'page_about.php' ? 'active' : ''; ?>">
+                    <i data-feather="info" style="width: 18px;"></i>
+                    About Page
+                </a>
+            </li>
+            <li>
                 <a href="change_password.php" class="<?php echo $current_page == 'change_password.php' ? 'active' : ''; ?>">
                     <i data-feather="shield" style="width: 18px;"></i>
                     Security

@@ -91,7 +91,7 @@ else: ?>
 endif; ?>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css?v=2.5">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/style.css?v=<?php echo filemtime(__DIR__ . '/../assets/css/style.css'); ?>">
 
     <!-- Dynamic Theme Color -->
     <style>
@@ -129,8 +129,34 @@ endif; ?>
         gtag('js', new Date());
         gtag('config', '<?php echo htmlspecialchars($ga_id); ?>');
     </script>
+    <?php endif; ?>
+
     <?php
-endif; ?>
+    $onesignal_app_id = get_setting('onesignal_app_id', '');
+    $onesignal_safari_web_id = get_setting('onesignal_safari_web_id', '');
+    if (!empty($onesignal_app_id)): 
+    ?>
+    <!-- OneSignal Web Push -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "<?php echo htmlspecialchars($onesignal_app_id); ?>",
+          <?php if (!empty($onesignal_safari_web_id)): ?>
+          safari_web_id: "<?php echo htmlspecialchars($onesignal_safari_web_id); ?>",
+          <?php endif; ?>
+          notifyButton: {
+            enable: true,
+            displayPredicate: function() {
+                return OneSignal.Notifications.isPushSupported();
+            }
+          },
+          allowLocalhostAsSecureOrigin: true
+        });
+      });
+    </script>
+    <?php endif; ?>
 </head>
 <body>
     <div class="app-container">

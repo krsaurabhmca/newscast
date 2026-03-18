@@ -61,6 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'smtp_port' => clean($_POST['smtp_port'] ?? '587'),
         'smtp_sender' => clean($_POST['smtp_sender'] ?? ''),
         'email_on_user_create' => clean($_POST['email_on_user_create'] ?? 'no'),
+        'onesignal_app_id' => clean($_POST['onesignal_app_id'] ?? ''),
+        'onesignal_safari_web_id' => clean($_POST['onesignal_safari_web_id'] ?? ''),
     ];
 
     try {
@@ -246,6 +248,9 @@ include 'includes/header.php';
     </button>
     <button type="button" onclick="showTab('email')" id="tab-email">
         <i data-feather="mail" style="width:15px;"></i> Email / SMTP
+    </button>
+    <button type="button" onclick="showTab('webpush')" id="tab-webpush">
+        <i data-feather="bell" style="width:15px;"></i> Web Push
     </button>
 </div>
 
@@ -850,6 +855,47 @@ endforeach; ?>
                         <li>For Gmail, you must use an <strong>App Password</strong> if 2FA is enabled.</li>
                         <li>If SMTP is not configured, the system will attempt to use PHP <code>mail()</code> which may go to spam.</li>
                     </ul>
+                </div>
+    </div>
+
+    <!-- ══════════ WEB PUSH (ONESIGNAL) ══════════ -->
+    <div class="settings-panel" id="panel-webpush">
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div class="icon" style="background:rgba(99,102,241,0.1); color: var(--primary);">
+                    <i data-feather="bell" style="width:18px;"></i>
+                </div>
+                <div>
+                    <h3>OneSignal Web Push</h3>
+                    <p>Configure real-time browser notifications for your readers</p>
+                </div>
+            </div>
+            <div class="settings-card-body">
+                <div class="settings-grid">
+                    <div style="grid-column: 1/-1;">
+                        <label class="field-label">OneSignal App ID</label>
+                        <input type="text" name="onesignal_app_id" class="form-control" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value="<?php echo get_setting('onesignal_app_id'); ?>">
+                        <span class="field-hint">Your unique OneSignal Application ID. Found in OneSignal Dashboard / Keys & IDs.</span>
+                    </div>
+                    <div style="grid-column: 1/-1;">
+                        <label class="field-label">OneSignal Safari Web ID (Optional)</label>
+                        <input type="text" name="onesignal_safari_web_id" class="form-control" placeholder="web.onesignal.auto.xxxxxxxxxxxx" value="<?php echo get_setting('onesignal_safari_web_id'); ?>">
+                        <span class="field-hint">Required only if you want to support push notifications on Safari for macOS.</span>
+                    </div>
+                </div>
+
+                <!-- Setup Guide Callout -->
+                <div style="margin-top:25px; background:rgba(99,102,241,0.05); border:1.5px dashed rgba(99,102,241,0.2); border-radius:12px; padding:20px;">
+                    <h4 style="font-size:14px; font-weight:800; color:var(--primary); margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+                        <i data-feather="help-circle" style="width:16px;"></i> Quick Setup Guide
+                    </h4>
+                    <ol style="font-size:13px; color:#475569; line-height:1.7; padding-left:20px;">
+                        <li>Create a free account at <a href="https://onesignal.com" target="_blank" style="color:var(--primary); font-weight:700;">OneSignal.com</a></li>
+                        <li>Add a new app and choose <strong>"Web Push"</strong> as your platform.</li>
+                        <li>Configure your site URL and upload your icon.</li>
+                        <li>Copy the <strong>App ID</strong> from the "Keys & IDs" section and paste it above.</li>
+                        <li>Ensure you have uploaded the SDK files (OneSignalSDKWorker.js) to your root directory.</li>
+                    </ol>
                 </div>
             </div>
         </div>
