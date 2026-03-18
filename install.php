@@ -1,374 +1,82 @@
 <?php
 /**
- * NewsCast CMS - Professional Setup Wizard
- * Version: 1.0.0
+ * NewsCast - Web Installer Wizard
+ * Developed for professional, automated deployment.
  */
-
-ob_start();
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 $config_file = 'includes/config.php';
-
 $step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
 $error = '';
 $success = '';
 
-// Basic guard: If config exists, we only redirect if we aren't currently on the install page to fix it
-// The index.php/login.php will handle redirecting TO here if config is missing or broken.
-if (file_exists($config_file) && $step == 3) {
-    // Only block access if installation is clearly finished
-    header("Location: index.php");
-    exit;
+// If already configured, don't allow re-install unless explicitly requested (e.g. by deleting config.php)
+if (file_exists($config_file) && $step < 5) {
+    // Try connecting to existing database
+    try {
+        require_once $config_file;
+        if (isset($pdo)) {
+            // If we can reach here, system is already installed.
+            // But let's check if the 'users' table exists to be sure.
+            $check = $pdo->query("SHOW TABLES LIKE 'users'")->fetch();
+            if ($check) {
+                die("NewsCast is already installed. To reinstall, please remove <code>includes/config.php</code>.");
+            }
+        }
+    } catch (Exception $e) {
+        // config exists but connection fails, continue to installer
+    }
 }
 
-// Handle Actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['save_db'])) {
-        // Step 1: Test and Save DB Info to Session
-        $db_host = $_POST['db_host'];
-        $db_user = $_POST['db_user'];
-        $db_pass = $_POST['db_pass'];
-        $db_name = $_POST['db_name'];
+function clean_input($data) {
+    return htmlspecialchars(strip_tags(trim($data)));
+}
 
-        try {
-            // Try connection without DB name first (incase it doesn't exist)
-            $test_pdo = new PDO("mysql:host=$db_host", $db_user, $db_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+// Logic for Step 2 -> 3 (DB Setup)
+if ($step == 2 && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $db_host = clean_input($_POST['db_host']);
+    $db_name = clean_input($_POST['db_name']);
+    $db_user = clean_input($_POST['db_user']);
+    $db_pass = $_POST['db_pass'];
+    $base_url = clean_input($_POST['base_url']);
 
-            // Try to create DB
-            $test_pdo->exec("CREATE DATABASE IF NOT EXISTS `$db_name` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    // Attempt connection
+    try {
+        $dsn = "mysql:host=$db_host;charset=utf8mb4";
+        $test_pdo = new PDO($dsn, $db_user, $db_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        
+        // Create database if not exists
+        $test_pdo->exec("CREATE DATABASE IF NOT EXISTS `$db_name` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+        $test_pdo->exec("USE `$db_name`");
 
-            // Now try connecting to the DB
-            $test_pdo->exec("USE `$db_name`");
-
-            $_SESSION['db_setup'] = [
-                'host' => $db_host,
-                'user' => $db_user,
-                'pass' => $db_pass,
-                'name' => $db_name
-            ];
-            header("Location: install.php?step=2");
-            exit;
-        }
-        catch (PDOException $e) {
-            $error = "Database Connection Failed: " . $e->getMessage();
-        }
-    }
-
-    if (isset($_POST['install_now'])) {
-        // Step 2: Final Install
-        $site_name = $_POST['site_name'];
-        $admin_user = $_POST['admin_user'];
-        $admin_email = $_POST['admin_email'];
-        $admin_pass = $_POST['admin_pass'];
-
-        $db = $_SESSION['db_setup'];
-
-        try {
-            $pdo = new PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['name'], $db['user'], $db['pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-
-            // 1. Create Tables
-            $sql = "
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(50) NOT NULL UNIQUE,
-                email VARCHAR(100) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
-                role ENUM('admin', 'editor') DEFAULT 'editor',
-                profile_image VARCHAR(255) DEFAULT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS settings (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                setting_key VARCHAR(100) NOT NULL UNIQUE,
-                setting_value TEXT,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS categories (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100) NOT NULL,
-                slug VARCHAR(100) NOT NULL UNIQUE,
-                description TEXT,
-                icon VARCHAR(100) DEFAULT 'folder',
-                color VARCHAR(20) DEFAULT '#6366f1',
-                status ENUM('active', 'inactive') DEFAULT 'active',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS posts (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT,
-                title VARCHAR(255) NOT NULL,
-                slug VARCHAR(255) NOT NULL UNIQUE,
-                content LONGTEXT NOT NULL,
-                excerpt TEXT,
-                featured_image VARCHAR(255),
-                video_url VARCHAR(255),
-                external_link TEXT,
-                external_type ENUM('none', 'url', 'whatsapp', 'call') DEFAULT 'none',
-                external_label ENUM('none', 'Ad', 'Promoted', 'Sponsored') DEFAULT 'none',
-                status ENUM('draft', 'published') DEFAULT 'draft',
-                views INT DEFAULT 0,
-                is_featured BOOLEAN DEFAULT FALSE,
-                is_breaking BOOLEAN DEFAULT FALSE,
-                meta_description VARCHAR(160),
-                published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS timeline (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                event_time VARCHAR(20) NOT NULL,
-                description TEXT NOT NULL,
-                status_color VARCHAR(20) DEFAULT '#6366f1',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS feedback (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100),
-                email VARCHAR(100),
-                subject VARCHAR(255),
-                message TEXT,
-                status ENUM('new', 'read', 'archived') DEFAULT 'new',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS bookmarks (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT NOT NULL,
-                post_id INT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY user_post (user_id, post_id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS user_activity (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT NOT NULL,
-                post_id INT NOT NULL,
-                action_type ENUM('view', 'bookmark', 'share') DEFAULT 'view',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS ads (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                location VARCHAR(50) NOT NULL,
-                type ENUM('image', 'code') NOT NULL,
-                image_path VARCHAR(255),
-                link_url TEXT,
-                link_type ENUM('url', 'whatsapp', 'call') DEFAULT 'url',
-                ad_code TEXT,
-                start_date DATE,
-                end_date DATE,
-                status BOOLEAN DEFAULT TRUE,
-                impressions INT DEFAULT 0,
-                clicks INT DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS epapers (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                paper_date DATE NOT NULL,
-                file_path VARCHAR(255) NOT NULL,
-                thumbnail VARCHAR(255),
-                dimensions VARCHAR(50),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS magazines (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                description TEXT,
-                issue_month DATE NOT NULL,
-                file_path VARCHAR(255) NOT NULL,
-                cover_image VARCHAR(255),
-                pages SMALLINT DEFAULT 0,
-                status ENUM('published','draft') DEFAULT 'published',
-                downloads INT DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS tags (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100) NOT NULL UNIQUE,
-                slug VARCHAR(100) NOT NULL UNIQUE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS post_categories (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                post_id INT NOT NULL,
-                category_id INT NOT NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS post_tags (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                post_id INT NOT NULL,
-                tag_id INT NOT NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS password_resets (
-              `id`         INT AUTO_INCREMENT PRIMARY KEY,
-              `email`      VARCHAR(255) NOT NULL,
-              `token`      VARCHAR(128) NOT NULL UNIQUE,
-              `expires_at` DATETIME NOT NULL,
-              `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              INDEX `idx_token` (`token`),
-              INDEX `idx_email` (`email`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS reporter_payments (
-              `id`          INT AUTO_INCREMENT PRIMARY KEY,
-              `reporter_id` INT NOT NULL,
-              `amount`      DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-              `pay_type`    ENUM('salary','bonus','article_fee','expense','advance','other') DEFAULT 'salary',
-              `pay_date`    DATE NOT NULL,
-              `note`        TEXT,
-              `status`      ENUM('paid','pending','cancelled') DEFAULT 'paid',
-              `created_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              FOREIGN KEY (`reporter_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
-              INDEX `idx_reporter` (`reporter_id`),
-              INDEX `idx_date` (`pay_date`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-            CREATE TABLE IF NOT EXISTS social_shares (
-              `id`         INT AUTO_INCREMENT PRIMARY KEY,
-              `post_id`    INT NOT NULL,
-              `platform`   ENUM('facebook','instagram','twitter') NOT NULL,
-              `status`     ENUM('success','failed') DEFAULT 'success',
-              `response`   TEXT,
-              `shared_at`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              INDEX `idx_post` (`post_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-            ";
-
-            $pdo->exec($sql);
-
-            // 2. Create Admin Account (using IGNORE to avoid duplicate error)
-            $hashed_pass = password_hash($admin_pass, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT IGNORE INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$admin_user, $admin_email, $hashed_pass, 'admin']);
-
-            // Get admin_id (either newly created or existing)
-            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-            $stmt->execute([$admin_email]);
-            $admin_id = $stmt->fetchColumn();
-
-            // 3. Create Popular Categories
-            $popular_categories = [
-                ['name' => 'General', 'slug' => 'general', 'icon' => 'grid', 'color' => '#64748b'],
-                ['name' => 'Politics', 'slug' => 'politics', 'icon' => 'users', 'color' => '#ef4444'],
-                ['name' => 'Business', 'slug' => 'business', 'icon' => 'briefcase', 'color' => '#3b82f6'],
-                ['name' => 'Technology', 'slug' => 'technology', 'icon' => 'cpu', 'color' => '#8b5cf6'],
-                ['name' => 'Entertainment', 'slug' => 'entertainment', 'icon' => 'film', 'color' => '#ec4899'],
-                ['name' => 'Sports', 'slug' => 'sports', 'icon' => 'award', 'color' => '#f59e0b'],
-                ['name' => 'Education', 'slug' => 'education', 'icon' => 'book-open', 'color' => '#10b981'],
-                ['name' => 'Lifestyle', 'slug' => 'lifestyle', 'icon' => 'sun', 'color' => '#f43f5e']
-            ];
-
-            $stmt_cat = $pdo->prepare("INSERT IGNORE INTO categories (name, slug, description, icon, color) VALUES (?, ?, ?, ?, ?)");
-            foreach ($popular_categories as $cat) {
-                $description = $cat['name'] . " news and latest updates.";
-                $stmt_cat->execute([$cat['name'], $cat['slug'], $description, $cat['icon'], $cat['color']]);
-            }
-
-            // Get cat_id (Default to General for welcome post)
-            $stmt = $pdo->prepare("SELECT id FROM categories WHERE slug = ?");
-            $stmt->execute(['general']);
-            $cat_id = $stmt->fetchColumn();
-
-            // 4. Create Welcome Post (Comprehensive Guide)
-            $welcome_title = "Welcome to " . $site_name . " - Quick Start Guide";
-            $welcome_slug = "welcome-guide";
-
-            // Use share.png from assets/images
-            $welcome_image = 'share.png';
-            if (file_exists('assets/images/share.png')) {
-                if (!is_dir('assets/images/posts'))
-                    mkdir('assets/images/posts', 0777, true);
-                copy('assets/images/share.png', 'assets/images/posts/share.png');
-            }
-
-            $welcome_content = "
-            <div class='guide-intro'>
-                <p>Congratulations! You have successfully installed <strong>" . $site_name . "</strong>. This portal is built for high-performance digital journalism.</p>
-                
-                <h3>🚀 Your First Steps</h3>
-                <ul>
-                    <li><strong>Dashboard:</strong> Visit the <a href='admin/dashboard.php'>Admin Dashboard</a> to see real-time analytics.</li>
-                    <li><strong>Categories:</strong> We have pre-created popular categories like Politics, Tech, and Business with custom icons.</li>
-                    <li><strong>Featured Stories:</strong> Toggle the 'Featured' switch when writing an article to show it prominently on the homepage.</li>
-                </ul>
-
-                <h3>📺 Multimedia Features</h3>
-                <p>You can embed any <strong>YouTube Video</strong> by simply pasting the link. Our player is optimized with a transparent security layer to keep users focused on your content.</p>
-
-                <h3>📈 Monetization</h3>
-                <p>Manage your advertisements from the 'Revenue' section. You can track impressions and clicks for both image and code-based ads.</p>
-
-                <div style='background: #f1f5f9; padding: 20px; border-radius: 12px; margin-top: 20px;'>
-                    <h4 style='margin-bottom: 5px;'>🔐 Security Tip</h4>
-                    <p style='font-size: 13px; color: #64748b;'>Don't forget to delete the <code>install.php</code> file from your server root now that you are finished!</p>
-                </div>
-            </div>";
-
-            $stmt = $pdo->prepare("INSERT IGNORE INTO posts (user_id, title, slug, content, excerpt, featured_image, status, is_featured) VALUES (?, ?, ?, ?, ?, ?, 'published', 1)");
-            $stmt->execute([$admin_id, $welcome_title, $welcome_slug, $welcome_content, 'Everything you need to know about your new news portal.', $welcome_image]);
-
-            // Get post_id
-            $stmt = $pdo->prepare("SELECT id FROM posts WHERE slug = ?");
-            $stmt->execute([$welcome_slug]);
-            $post_id = $stmt->fetchColumn();
-
-            // Link post to multiple categories (General and Technology)
-            if ($post_id) {
-                $target_slugs = ['general', 'technology'];
-                foreach ($target_slugs as $tslug) {
-                    $s_cat = $pdo->prepare("SELECT id FROM categories WHERE slug = ?");
-                    $s_cat->execute([$tslug]);
-                    $t_id = $s_cat->fetchColumn();
-                    if ($t_id) {
-                        try {
-                            $stmt = $pdo->prepare("INSERT IGNORE INTO post_categories (post_id, category_id) VALUES (?, ?)");
-                            $stmt->execute([$post_id, $t_id]);
-                        }
-                        catch (Exception $e) {
-                        }
-                    }
+        // Import SQL File
+        $sql_file = 'newscast_db.sql';
+        if (file_exists($sql_file)) {
+            $sql = file_get_contents($sql_file);
+            // Remove comments and multi-line comments
+            $sql = preg_replace('/--.*?\n/', '', $sql);
+            $sql = preg_replace('/\/\*.*?\*\//s', '', $sql);
+            
+            $queries = explode(';', $sql);
+            foreach ($queries as $query) {
+                $query = trim($query);
+                if (!empty($query)) {
+                    $test_pdo->exec($query);
                 }
             }
+        }
 
-            // 5. Insert Initial Settings
-            $settings_data = [
-                'site_name' => $site_name,
-                'site_tagline' => 'Digital News Portal',
-                'live_youtube_enabled' => '0',
-                'live_stream_sound' => '0',
-                'breaking_news_enabled' => 'yes',
-                'theme_color' => '#6366f1'
-            ];
-            foreach ($settings_data as $k => $v) {
-                $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-                $stmt->execute([$k, $v, $v]);
-            }
+        // Generate Config File
+        $config_content = "<?php
+define('DB_HOST', '$db_host');
+define('DB_USER', '$db_user');
+define('DB_PASS', '$db_pass');
+define('DB_NAME', '$db_name');
+define('BASE_URL', '$base_url');
 
-            // 4. Create config.php
-            $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/';
-            $base_url = str_replace('\\', '/', $base_url); // fix windows paths
-            $base_url = rtrim($base_url, '/') . '/';
-
-            $config_content = "<?php
-define('DB_HOST', '" . $db['host'] . "');
-define('DB_USER', '" . $db['user'] . "');
-define('DB_PASS', '" . $db['pass'] . "');
-define('DB_NAME', '" . $db['name'] . "');
-define('BASE_URL', '" . $base_url . "');
-
-define('SITE_NAME', '" . addslashes($site_name) . "');
+define('SITE_NAME', 'NewsCast');
 
 try {
     \$pdo = new PDO(
@@ -376,9 +84,9 @@ try {
         DB_USER,
         DB_PASS,
         [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_EMULATE_PREPARES => false,
         ]
     );
 } catch (PDOException \$e) {
@@ -404,19 +112,43 @@ function get_setting(\$key, \$default = '') {
 
 define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
 ?>";
-
-            file_put_contents($config_file, $config_content);
-
-            $_SESSION['install_done'] = true;
-            header("Location: install.php?step=3");
-            exit;
-
-        }
-        catch (Exception $e) {
-            $error = "Critical Error: " . $e->getMessage();
-        }
+        file_put_contents($config_file, $config_content);
+        
+        header("Location: install.php?step=3");
+        exit;
+    } catch (PDOException $e) {
+        $error = "Database connection failed: " . $e->getMessage();
     }
 }
+
+// Logic for Step 3 -> 4 (Admin Setup)
+if ($step == 3 && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once $config_file;
+    $adm_user = clean_input($_POST['adm_user']);
+    $adm_pass = password_hash($_POST['adm_pass'], PASSWORD_BCRYPT);
+    $adm_email = clean_input($_POST['adm_email']);
+    $site_name = clean_input($_POST['site_name']);
+
+    try {
+        // Clear existing users if any to ensure fresh start
+        $pdo->exec("TRUNCATE TABLE users");
+        
+        $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, status) VALUES (?, ?, ?, 'admin', 'active')");
+        $stmt->execute([$adm_user, $adm_pass, $adm_email, 'admin']);
+
+        // Update site name in settings
+        $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('site_name', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$site_name, $site_name]);
+
+        header("Location: install.php?step=4");
+        exit;
+    } catch (Exception $e) {
+        $error = "Admin setup failed: " . $e->getMessage();
+    }
+}
+
+// Get primary base URL
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+$current_url = $protocol . "://" . $_SERVER['HTTP_HOST'] . str_replace('install.php', '', $_SERVER['REQUEST_URI']);
 
 ?>
 <!DOCTYPE html>
@@ -424,345 +156,167 @@ define('SITE_NAME_DYNAMIC', get_setting('site_name') ?: SITE_NAME);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Setup Wizard | NewsCast CMS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/feather-icons"></script>
+    <title>NewsCast Installation Wizard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --bg: #0f172a;
-            --card: #ffffff;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --border: #e2e8f0;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            background: radial-gradient(circle at top right, #6366f122, transparent),
-                        radial-gradient(circle at bottom left, #ec489922, transparent),
-                        #0f172a;
-            overflow-x: hidden;
-        }
-
-        /* Animated Background Elements */
-        .bg-glow {
-            position: fixed;
-            width: 400px;
-            height: 400px;
-            background: var(--primary);
-            filter: blur(120px);
-            opacity: 0.15;
-            z-index: -1;
-            border-radius: 50%;
-            animation: move 20s infinite alternate;
-        }
-
-        @keyframes move {
-            from { transform: translate(-10%, -10%); }
-            to { transform: translate(110%, 110%); }
-        }
-
-        .setup-wrapper {
-            width: 100%;
-            max-width: 900px;
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .setup-main {
-            padding: 50px;
-        }
-
-        .setup-sidebar {
-            background: #f8fafc;
-            padding: 50px 30px;
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .header {
-            margin-bottom: 40px;
-        }
-
-        .logo-box {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary) 0%, #818cf8 100%);
-            color: white;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 900;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; color: #0f172a; }
-        p.subtitle { color: var(--text-light); font-size: 15px; }
-
-        .steps-nav {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-        .step-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-light);
-        }
-        .step-item.active { color: var(--primary); }
-        .step-num {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            background: var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-        }
-        .step-item.active .step-num { background: var(--primary); color: white; }
-
-        form { display: flex; flex-direction: column; gap: 24px; }
-
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-size: 13px; font-weight: 700; color: #475569; padding-left: 2px; }
-        
-        input {
-            padding: 14px 20px;
-            border-radius: 14px;
-            border: 2px solid var(--border);
-            font-family: inherit;
-            font-size: 15px;
-            transition: 0.2s;
-            outline: none;
-            background: #fff;
-        }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            padding: 16px;
-            border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-        .btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); }
-
-        .help-card {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        .help-card h4 { font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: var(--primary); }
-        .help-card p { font-size: 13px; color: var(--text-light); line-height: 1.5; }
-
-        .alert {
-            padding: 16px;
-            border-radius: 14px;
-            background: #fff1f2;
-            color: #e11d48;
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid #ffe4e6;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .success-hero {
-            text-align: center;
-            padding: 20px 0;
-        }
-        .icon-circle {
-            width: 80px;
-            height: 80px;
-            background: #f0fdf4;
-            color: #22c55e;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-        }
-
-        @media (max-width: 850px) {
-            .setup-wrapper { grid-template-columns: 1fr; border-radius: 20px; }
-            .setup-sidebar { display: none; }
-            .setup-main { padding: 40px 25px; }
-        }
+        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1c1e21; }
+        .install-box { max-width: 650px; margin: 60px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .step-indicator { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
+        .step-indicator::before { content: ''; position: absolute; top: 18px; left: 0; right: 0; height: 2px; background: #e4e6eb; z-index: 1; }
+        .step-item { position: relative; z-index: 2; background: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #e4e6eb; font-weight: 700; color: #8a8d91; transition: 0.3s; }
+        .step-item.active { border-color: #0d6efd; background: #0d6efd; color: white; }
+        .step-item.completed { border-color: #198754; background: #198754; color: white; }
+        .btn-primary { padding: 10px 30px; border-radius: 10px; font-weight: 600; box-shadow: 0 4px 10px rgba(13,110,253,0.2); }
+        .form-label { font-weight: 600; color: #4b4f56; font-size: 14px; }
+        .form-control { padding: 12px; border-radius: 10px; border: 1.5px solid #dddfe2; }
+        .form-control:focus { box-shadow: none; border-color: #0d6efd; }
+        .icon-circle { width: 60px; height: 60px; background: #e7f3ff; color: #0d6efd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px; }
+        .requirement-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f2f5; font-size: 15px; }
+        .requirement-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
 
-<div class="bg-glow"></div>
-
-<div class="setup-wrapper">
-    <div class="setup-main">
-        <div class="header">
-            <div class="logo-box">
-                <?php
-$site_name_display = isset($_POST['site_name']) ? $_POST['site_name'] : 'NC';
-echo strtoupper(substr($site_name_display, 0, 2));
-?>
-            </div>
-            <h1>NewsCast Setup</h1>
-            <p class="subtitle">Join thousands of professional digital publishers.</p>
+<div class="container">
+    <div class="install-box">
+        
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <h1 class="fw-bolder h3 mb-1">NewsCast</h1>
+            <p class="text-muted small text-uppercase fw-bold letter-spacing-1">Installation Wizard</p>
         </div>
 
-        <div class="steps-nav">
-            <div class="step-item <?php echo $step == 1 ? 'active' : ''; ?>">
-                <div class="step-num">1</div> Database
-            </div>
-            <div class="step-item <?php echo $step == 2 ? 'active' : ''; ?>">
-                <div class="step-num">2</div> Configuration
-            </div>
-            <div class="step-item <?php echo $step == 3 ? 'active' : ''; ?>">
-                <div class="step-num">3</div> Finish
-            </div>
+        <!-- Progress Bar -->
+        <div class="step-indicator">
+            <div class="step-item <?php echo $step >= 1 ? ($step > 1 ? 'completed' : 'active') : ''; ?>"><?php echo $step > 1 ? '<i class="bi bi-check-lg"></i>' : '1'; ?></div>
+            <div class="step-item <?php echo $step >= 2 ? ($step > 2 ? 'completed' : 'active') : ''; ?>"><?php echo $step > 2 ? '<i class="bi bi-check-lg"></i>' : '2'; ?></div>
+            <div class="step-item <?php echo $step >= 3 ? ($step > 3 ? 'completed' : 'active') : ''; ?>"><?php echo $step > 3 ? '<i class="bi bi-check-lg"></i>' : '3'; ?></div>
+            <div class="step-item <?php echo $step >= 4 ? 'active' : ''; ?>">4</div>
         </div>
 
         <?php if ($error): ?>
-            <div class="alert">
-                <i data-feather="alert-circle"></i> <?php echo $error; ?>
+            <div class="alert alert-danger d-flex align-items-center mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <?php echo $error; ?>
             </div>
-        <?php
-endif; ?>
+        <?php endif; ?>
 
+        <!-- STEP 1: WELCOME & REQUIREMENTS -->
         <?php if ($step == 1): ?>
-            <form method="POST">
-                <div class="form-group">
-                    <label>Database Host</label>
-                    <input type="text" name="db_host" value="localhost" required>
+            <div class="icon-circle"><i class="bi bi-rocket-takeoff"></i></div>
+            <h4 class="text-center fw-bold mb-3">Welcome to NewsCast</h4>
+            <p class="text-center text-muted mb-4 px-4">Let's check if your server is ready to host the most powerful digital news portal.</p>
+            
+            <div class="mb-4">
+                <div class="requirement-item">
+                    <span>PHP Version (>= 7.4)</span>
+                    <span><?php echo version_compare(PHP_VERSION, '7.4.0', '>=') ? '<i class="bi bi-check-circle-fill text-success"></i> ' . PHP_VERSION : '<i class="bi bi-x-circle-fill text-danger"></i> ' . PHP_VERSION; ?></span>
                 </div>
-                <div class="form-group">
-                    <label>Database User</label>
-                    <input type="text" name="db_user" value="root" required>
+                <div class="requirement-item">
+                    <span>MySQL / PDO Extension</span>
+                    <span><?php echo extension_loaded('pdo_mysql') ? '<i class="bi bi-check-circle-fill text-success"></i> Loaded' : '<i class="bi bi-x-circle-fill text-danger"></i> Missing'; ?></span>
                 </div>
-                <div class="form-group">
-                    <label>Database Password</label>
-                    <input type="password" name="db_pass" placeholder="Password (root by default)">
+                <div class="requirement-item">
+                    <span>GD Library (Image Compression)</span>
+                    <span><?php echo extension_loaded('gd') ? '<i class="bi bi-check-circle-fill text-success"></i> Loaded' : '<i class="bi bi-x-warning text-warning"></i> Optional but Recommended'; ?></span>
                 </div>
-                <div class="form-group">
-                    <label>Database Name</label>
-                    <input type="text" name="db_name" value="newscast_db" required>
-                </div>
-                <button type="submit" name="save_db" class="btn">
-                    Connect Database <i data-feather="arrow-right"></i>
-                </button>
-            </form>
-
-        <?php
-elseif ($step == 2): ?>
-            <form method="POST">
-                <div class="form-group">
-                    <label>Project / Site Name</label>
-                    <input type="text" name="site_name" value="NewsCast" required>
-                </div>
-
-                <div style="margin: 10px 0; border-top: 2px solid #f1f5f9;"></div>
-                
-                <div class="form-group">
-                    <label>Admin Username</label>
-                    <input type="text" name="admin_user" placeholder="e.g. admin" required>
-                </div>
-                <div class="form-group">
-                    <label>Admin Email</label>
-                    <input type="email" name="admin_email" placeholder="admin@domain.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Admin Password</label>
-                    <input type="password" name="admin_pass" placeholder="Secure Password" required>
-                </div>
-
-                <button type="submit" name="install_now" class="btn">
-                    Launch My Portal <i data-feather="zap"></i>
-                </button>
-            </form>
-
-        <?php
-elseif ($step == 3): ?>
-            <div class="success-hero">
-                <div class="icon-circle">
-                    <i data-feather="check" style="width: 40px; height: 40px;"></i>
-                </div>
-                <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px;">Infrastructure Ready!</h2>
-                <p style="color: var(--text-light); margin-bottom: 40px; line-height: 1.6;">Your professional news portal is now online. We've added a Welcome Guide to your homepage to help you get started.</p>
-                
-                <a href="login.php" class="btn">
-                    Go to Admin Panel <i data-feather="log-in"></i>
-                </a>
-                
-                <div style="margin-top: 30px; padding: 20px; border-radius: 16px; background: #fff7ed; border: 1px solid #ffedd5; text-align: left;">
-                    <h4 style="font-size: 14px; font-weight: 800; color: #9a3412; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                        <i data-feather="shield" style="width: 16px;"></i> Security Requirement
-                    </h4>
-                    <p style="font-size: 12px; color: #c2410c;">For your protection, please delete the <strong>install.php</strong> file from your server folder immediately.</p>
+                <div class="requirement-item">
+                    <span>Config Directory Writable</span>
+                    <span><?php echo is_writable('includes') ? '<i class="bi bi-check-circle-fill text-success"></i> Yes' : '<i class="bi bi-x-circle-fill text-danger"></i> No (CHMOD 755/777)'; ?></span>
                 </div>
             </div>
-        <?php
-endif; ?>
-    </div>
 
-    <div class="setup-sidebar">
-        <div class="help-card">
-            <h4><i data-feather="help-circle"></i> Need Help?</h4>
-            <p>If you are on XAMPP, usually <strong>Host</strong> is 'localhost' and <strong>User</strong> is 'root' with an empty password.</p>
+            <div class="text-center">
+                <a href="install.php?step=2" class="btn btn-primary w-100">Let's Go <i class="bi bi-arrow-right ms-2"></i></a>
+            </div>
+
+        <!-- STEP 2: DATABASE CONFIG -->
+        <?php elseif ($step == 2): ?>
+            <h4 class="fw-bold mb-1">Database Configuration</h4>
+            <p class="text-muted small mb-4">Provide your MySQL database credentials below.</p>
+            
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Base URL (Automatic)</label>
+                        <input type="text" name="base_url" class="form-control" value="<?php echo $current_url; ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Database Host</label>
+                        <input type="text" name="db_host" class="form-control" value="localhost" placeholder="localhost" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Database Name</label>
+                        <input type="text" name="db_name" class="form-control" placeholder="newscast_db" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">DB Username</label>
+                        <input type="text" name="db_user" class="form-control" placeholder="root" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">DB Password</label>
+                        <input type="password" name="db_pass" class="form-control" placeholder="Leave empty if none">
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <button type="submit" class="btn btn-primary w-100">Setup Database & Tables <i class="bi bi-database-add ms-2"></i></button>
+                    <p class="mt-3 small text-muted"><i class="bi bi-shield-lock"></i> We will create the database automatically if it doesn't exist.</p>
+                </div>
+            </form>
+
+        <!-- STEP 3: ADMIN ACCOUNT -->
+        <?php elseif ($step == 3): ?>
+            <div class="icon-circle" style="background: #e6fffa; color: #38b2ac;"><i class="bi bi-person-badge"></i></div>
+            <h4 class="text-center fw-bold mb-1">Success! Database Linked.</h4>
+            <p class="text-center text-muted small mb-4">Now, create your first Administrator account.</p>
+            
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">News Website Name</label>
+                        <input type="text" name="site_name" class="form-control" value="NewsCast 24x7" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Admin Username</label>
+                        <input type="text" name="adm_user" class="form-control" placeholder="e.g. admin" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Admin Email</label>
+                        <input type="email" name="adm_email" class="form-control" placeholder="your@email.com" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Admin Password</label>
+                        <input type="password" name="adm_pass" class="form-control" required minlength="6">
+                        <div class="form-text">Choose a strong password for your portal security.</div>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <button type="submit" class="btn btn-primary w-100">Finish Installation <i class="bi bi-check-all ms-2"></i></button>
+                </div>
+            </form>
+
+        <!-- STEP 4: FINISHED -->
+        <?php elseif ($step == 4): ?>
+            <div class="text-center mt-4">
+                <div class="icon-circle" style="background: #f0fdf4; color: #16a34a; width: 80px; height: 80px;"><i class="bi bi-check-circle" style="font-size: 40px;"></i></div>
+                <h3 class="fw-bolder text-success">All Done!</h3>
+                <p class="text-muted mb-5">NewsCast has been successfully installed. You can now login to your dashboard and start publishing news.</p>
+                
+                <div class="alert alert-warning small text-start mb-4">
+                    <i class="bi bi-shield-exclamation"></i> <strong>Security Tip:</strong> Please delete the <code>install.php</code> and <code>newscast_db.sql</code> files from your server root now.
+                </div>
+
+                <a href="login.php" class="btn btn-primary btn-lg w-100 mb-3">Login to Admin Panel</a>
+                <a href="index.php" class="btn btn-outline-secondary w-100">View Homepage</a>
+            </div>
+        <?php endif; ?>
+
+        <div class="text-center mt-5">
+            <p class="text-muted small">&copy; <?php echo date('Y'); ?> NewsCast Digital. Handcrafted by <a href="https://offerplant.com" target="_blank" class="text-decoration-none">OfferPlant</a></p>
         </div>
 
-        <div class="help-card">
-            <h4><i data-feather="database"></i> Auto-Create</h4>
-            <p>Don't have a database? Just enter a name and our wizard will try to create it for you automatically.</p>
-        </div>
-
-        <div class="help-card">
-            <h4><i data-feather="award"></i> Pro Features</h4>
-            <p>Once setup is done, your portal will have E-Paper support, Live Broadcasting, and Advanced Ad Management active.</p>
-        </div>
-
-        <div style="margin-top: auto; text-align: center;">
-            <p style="font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 1px;">NEWSCAST CMS v1.0</p>
-        </div>
     </div>
 </div>
 
-<script>
-    feather.replace();
-</script>
 </body>
 </html>
