@@ -154,6 +154,12 @@ endif; ?>
                     Security
                 </a>
             </li>
+            <li>
+                <a href="system_update.php" class="<?php echo $current_page == 'system_update.php' ? 'active' : ''; ?>">
+                    <i data-feather="download-cloud" style="width: 18px; color: #3b82f6;"></i>
+                    <span style="color: #3b82f6; font-weight: 700;">System Update</span>
+                </a>
+            </li>
             <?php
 endif; ?>
             <li>

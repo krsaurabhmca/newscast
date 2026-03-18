@@ -1,0 +1,6 @@
+{
+    "version": "1.0.1",
+    "db_version": 1,
+    "last_updated": "2026-03-18",
+    "changelog": "Initial version for Auto Updater capability."
+}
