@@ -105,9 +105,6 @@ $meta_description = "Browse monthly digital magazine editions from " . SITE_NAME
                 <a href="<?= BASE_URL ?>magazine/view/<?= $latest['id'] ?>" class="mag-btn-read">
                     <i data-feather="book-open" style="width:15px;"></i> Read Now
                 </a>
-                <a href="assets/magazines/<?= htmlspecialchars($latest['file_path']) ?>" download class="mag-btn-dl">
-                    <i data-feather="download" style="width:15px;"></i> Download PDF
-                </a>
             </div>
         </div>
     </div>
@@ -155,11 +152,8 @@ $meta_description = "Browse monthly digital magazine editions from " . SITE_NAME
                 <div class="mag-card-meta"><?= htmlspecialchars(mb_strimwidth($mg['description'],0,55,'…')) ?></div>
                 <?php endif; ?>
                 <div class="mag-card-actions">
-                    <a href="<?= BASE_URL ?>magazine/view/<?= $mg['id'] ?>" class="ma-btn ma-btn-read">
-                        <i data-feather="book-open" style="width:12px;"></i> Read
-                    </a>
-                    <a href="assets/magazines/<?= htmlspecialchars($mg['file_path']) ?>" download class="ma-btn ma-btn-dl">
-                        <i data-feather="download" style="width:12px;"></i> PDF
+                    <a href="<?= BASE_URL ?>magazine/view/<?= $mg['id'] ?>" class="ma-btn ma-btn-read" style="flex: 1;">
+                        <i data-feather="book-open" style="width:12px;"></i> Read Full Edition
                     </a>
                 </div>
             </div>
