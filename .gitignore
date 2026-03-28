@@ -1,0 +1,5 @@
+includes/config.php
+update_temp.zip
+update_extract_temp/
+.DS_Store
+*.log
