@@ -1,6 +1,6 @@
 {
-    "version": "1.0.2",
+    "version": "1.0.3",
     "db_version": 1,
     "last_updated": "2026-03-28",
-    "changelog": "Fixed blank pages in Magazine/E-Paper, improved loading screens, and updated mobile menu."
+    "changelog": "Security: Structural cleanup and performance stability."
 }
