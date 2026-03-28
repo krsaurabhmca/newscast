@@ -343,8 +343,9 @@ endif; ?>
                     <nav class="mobile-nav-body">
                         <ul>
                             <li><a href="<?php echo BASE_URL; ?>"><i data-feather="home"></i> Home</a></li>
-                            <li><a href="<?php echo BASE_URL; ?>category/videos"><i data-feather="video"></i> Videos</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>category/video"><i data-feather="video"></i> Video</a></li>
                             <li><a href="<?php echo BASE_URL; ?>digital-paper"><i data-feather="file-text"></i> Digital Paper</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>magazine"><i data-feather="book-open"></i> Magazine</a></li>
                             <li class="divider">Sections</li>
                             <?php foreach ($nav_categories as $cat): ?>
                             <li>

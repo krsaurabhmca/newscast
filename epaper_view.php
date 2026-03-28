@@ -418,7 +418,7 @@ $meta_description = "Read " . htmlspecialchars($paper['title']) . " — " . form
             </div>
         </div>
         <div class="loader-text">
-            <h2 id="loader-title">Opening Digital Edition</h2>
+            <h2 id="loader-title"><?= htmlspecialchars($paper['title']) ?></h2>
             <p id="loader-status">Fetching PDF document...</p>
             <div class="progress-box">
                 <div id="v-progress-inner"></div>
@@ -599,7 +599,7 @@ $meta_description = "Read " . htmlspecialchars($paper['title']) . " — " . form
 
         // 1. Cover
         $book.append(`
-            <div class="page hard" style="width:${pageW}px;height:${pageH}px">
+            <div class="page hard turn-page-1" style="width:${pageW}px;height:${pageH}px">
                 <div class="cover-content">
                     <div style="font-weight:900;color:var(--accent);font-size:32px;margin-bottom:20px;">${CONFIG.siteName}</div>
                     <h3>${CONFIG.title}</h3>
@@ -610,8 +610,9 @@ $meta_description = "Read " . htmlspecialchars($paper['title']) . " — " . form
 
         // 2. Pages
         for (let i = 1; i <= state.totalPages; i++) {
+            const turnIdx = i + 1;
             $book.append(`
-                <div class="page" data-pdf-page="${i}" style="width:${pageW}px;height:${pageH}px">
+                <div class="page turn-page-${turnIdx}" data-pdf-page="${i}" style="width:${pageW}px;height:${pageH}px">
                     <div class="page-loader" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;font-weight:600;">p.${i}</div>
                     <canvas></canvas>
                 </div>
@@ -621,9 +622,10 @@ $meta_description = "Read " . htmlspecialchars($paper['title']) . " — " . form
         }
 
         // 3. Back cover (ensure even pages for turn.js)
-        $book.append(`<div class="page hard" style="width:${pageW}px;height:${pageH}px">© ${CONFIG.siteName}</div>`);
+        const finalIdx = state.totalPages + 2;
+        $book.append(`<div class="page hard turn-page-${finalIdx}" style="width:${pageW}px;height:${pageH}px">© ${CONFIG.siteName}</div>`);
         if ($book.children().length % 2 !== 0) {
-            $book.append(`<div class="page" style="width:${pageW}px;height:${pageH}px"></div>`);
+            $book.append(`<div class="page turn-page-${finalIdx + 1}" style="width:${pageW}px;height:${pageH}px"></div>`);
         }
 
         // Initialize Turn.js
@@ -639,9 +641,10 @@ $meta_description = "Read " . htmlspecialchars($paper['title']) . " — " . form
                     updatePager(page);
                     lazyLoad(view);
                 },
-                turned: (e, page) => {
+                turned: (e, page, view) => {
                     updatePager(page);
                     highlightThumb(page);
+                    lazyLoad($('#flipbook').turn('view'));
                 }
             }
         });
@@ -657,22 +660,32 @@ $meta_description = "Read " . htmlspecialchars($paper['title']) . " — " . form
         const size = getBookSize();
         const pageW = CONFIG.isMobile ? size.width : size.width / 2;
 
-        for (const turnPage of view) {
-            const $page = $('#flipbook .page').eq(turnPage - 1);
+        const pagesToLoad = [...view];
+        if (view.length > 0) {
+            const last = view[view.length - 1];
+            if (last < $('#flipbook').turn('pages')) pagesToLoad.push(last + 1);
+            if (view[0] > 1) pagesToLoad.push(view[0] - 1);
+        }
+
+        for (const turnPage of pagesToLoad) {
+            // Select exactly the page matching this turn index. Turn.js reorders children, so we use the class.
+            const $page = $('#flipbook').find('.turn-page-' + turnPage);
             const pdfPage = parseInt($page.attr('data-pdf-page'));
             
             if (pdfPage && !state.renderedPages.has(pdfPage)) {
-                state.renderedPages.add(pdfPage);
-                const canvas = $page.find('canvas')[0];
-                if (!canvas) continue;
-                
-                try {
-                    const page = await state.pdf.getPage(pdfPage);
-                    const vp = page.getViewport({ scale: 1 });
-                    const scale = (pageW / vp.width) * 1.5; // Render slightly higher for sharpness
-                    await renderPageToCanvas(pdfPage, canvas, scale);
-                    $page.find('.page-loader').fadeOut();
-                } catch(e) {}
+                 state.renderedPages.add(pdfPage);
+                 const canvas = $page.find('canvas')[0];
+                 if (!canvas) continue;
+                 
+                 try {
+                     const page = await state.pdf.getPage(pdfPage);
+                     const vp = page.getViewport({ scale: 1 });
+                     const scale = (pageW / vp.width) * 1.5; 
+                     await renderPageToCanvas(pdfPage, canvas, scale);
+                     $page.find('.page-loader').fadeOut();
+                 } catch(e) {
+                     state.renderedPages.delete(pdfPage);
+                 }
             }
         }
     }
