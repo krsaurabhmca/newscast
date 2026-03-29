@@ -267,16 +267,56 @@ endforeach; ?>
                 theme: 'snow',
                 modules: {
                     toolbar: [
-                        [{ 'header': [1, 2, 3, false] }],
+                        [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }],
                         ['bold', 'italic', 'underline', 'strike'],
                         [{ 'color': [] }, { 'background': [] }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'align': [] }],
                         ['blockquote', 'code-block'],
-                        ['link', 'image'],
+                        ['link', 'image', 'video'],
                         ['clean']
                     ]
                 }
             });
+
+            // Add titles/tooltips to toolbar buttons
+            const tooltips = {
+                'ql-font': 'Font Family',
+                'ql-size': 'Font Size',
+                'ql-bold': 'Bold',
+                'ql-italic': 'Italic',
+                'ql-underline': 'Underline',
+                'ql-strike': 'Strikethrough',
+                'ql-color': 'Text Color',
+                'ql-background': 'Background Color',
+                'ql-script[value="sub"]': 'Subscript',
+                'ql-script[value="super"]': 'Superscript',
+                'ql-header[value="1"]': 'Heading 1',
+                'ql-header[value="2"]': 'Heading 2',
+                'ql-header[value="3"]': 'Heading 3',
+                'ql-header[value="4"]': 'Heading 4',
+                'ql-header[value="5"]': 'Heading 5',
+                'ql-header[value="6"]': 'Heading 6',
+                'ql-list[value="ordered"]': 'Ordered List',
+                'ql-list[value="bullet"]': 'Bullet List',
+                'ql-indent[value="-1"]': 'Decrease Indent',
+                'ql-indent[value="+1"]': 'Increase Indent',
+                'ql-align': 'Text Alignment',
+                'ql-blockquote': 'Blockquote',
+                'ql-code-block': 'Code Block',
+                'ql-link': 'Insert Link',
+                'ql-image': 'Insert Image',
+                'ql-video': 'Insert Video (YouTube/Vimeo)',
+                'ql-clean': 'Clear Formatting'
+            };
+
+            for (const [selector, title] of Object.entries(tooltips)) {
+                const elements = document.querySelectorAll(`.ql-toolbar .${selector}`);
+                elements.forEach(el => el.setAttribute('title', title));
+            }
 
             const form = document.getElementById('postForm');
             const hiddenContent = document.querySelector('input[name="content"]');

@@ -52,7 +52,7 @@ include 'includes/public_header.php';
             <?php echo htmlspecialchars($page_title); ?>
         </h1>
         
-        <div class="rtf-content" style="display: grid; grid-template-columns: 1fr; gap: 40px; color: #334155; line-height: 1.8; font-size: 16px;">
+        <div class="rtf-content" style="color: #334155; line-height: 1.8; font-size: 16px;">
             <?php echo $page_content; ?>
         </div>
     </div>
