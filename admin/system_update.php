@@ -7,7 +7,7 @@ if (!is_admin()) {
 }
 
 $repo_url = 'https://github.com/krsaurabhmca/newscast';
-$raw_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/version.json';
+$raw_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/version.json?v=' . time();
 $zip_url = 'https://github.com/krsaurabhmca/newscast/archive/refs/heads/main.zip';
 
 $local_version_file = '../version.json';
