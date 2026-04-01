@@ -1,6 +1,6 @@
 {
-    "version": "1.0.7",
+    "version": "1.0.8",
     "db_version": 1,
     "last_updated": "2026-04-01",
-    "changelog": "Added responsive layout classes for articles and fixed SEO/Social sharing meta tags (Thumbnail previews on WhatsApp/Facebook)."
+    "changelog": "Fixed Dashboard & Editor responsiveness. Added .admin-grid responsive system and fixed Quill editor horizontal overflow."
 }

@@ -120,10 +120,10 @@ $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAl
 ?>
 
 <form action="" method="POST" enctype="multipart/form-data" id="postForm">
-    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start;">
+    <div class="admin-grid">
         
         <!-- MAIN AREA -->
-        <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="admin-main-col" style="display: flex; flex-direction: column; gap: 20px;">
             <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #eef2f6;">
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="font-weight: 700; color: #475569; font-size: 14px; margin-bottom: 8px; display: block;">Title <span style="color:red;">*</span></label>
@@ -169,7 +169,7 @@ $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAl
         </div>
 
         <!-- SIDEBAR -->
-        <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="admin-sidebar-col" style="display: flex; flex-direction: column; gap: 20px;">
             
             <!-- Actions -->
             <div style="background: #1e293b; padding: 20px; border-radius: 12px; color: white;">

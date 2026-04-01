@@ -387,10 +387,10 @@ $live_vid_id = dash_yt_id($live_url);
 </div>
 
 <!-- ═══════════════════════════ MAIN GRID ═══════════════════════════ -->
-<div style="display: grid; grid-template-columns: 1fr 320px; gap: 25px; align-items: start;">
+<div class="admin-grid">
 
     <!-- LEFT COLUMN -->
-    <div style="display: flex; flex-direction: column; gap: 25px;">
+    <div class="admin-main-col" style="display: flex; flex-direction: column; gap: 25px;">
 
         <!-- Top Performing Articles -->
         <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
@@ -529,7 +529,7 @@ $live_vid_id = dash_yt_id($live_url);
     </div>
 
     <!-- RIGHT COLUMN -->
-    <div style="display: flex; flex-direction: column; gap: 25px;">
+    <div class="admin-sidebar-col" style="display: flex; flex-direction: column; gap: 25px;">
 
         <!-- Quick Actions -->
         <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 20px;">
