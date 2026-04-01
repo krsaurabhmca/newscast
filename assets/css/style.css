@@ -262,10 +262,20 @@ a {
     color: #888;
 }
 
-/* Article Page */
+/* Article Page Layout */
+.article-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 40px;
+}
+
 .article-page {
-    max-width: 800px;
-    margin: 0 auto;
+    /* Main article content column */
+    min-width: 0; /* Prevent grid blowout */
+}
+
+.article-sidebar {
+    width: 300px;
 }
 
 .article-page h1 {
@@ -442,13 +452,16 @@ a {
         margin-left: 0 !important;
     }
 
-    /* Stack article sidebar */
-    div[style*="grid-template-columns: 1fr 300px"] {
+    /* Stack article layout */
+    .article-layout {
         grid-template-columns: 1fr !important;
+        gap: 30px;
     }
 
     .article-sidebar {
-        display: none;
+        width: 100%;
+        display: block; /* Show sidebar on tablet, just stack it */
+        margin-top: 40px;
     }
 
     .top-menu,

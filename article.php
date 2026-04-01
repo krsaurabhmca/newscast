@@ -133,7 +133,7 @@ $related = $stmt->fetchAll();
 endif; ?>
 
 <main class="content-container">
-    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 40px;">
+    <div class="article-layout">
         <article class="article-page">
             <div style="margin-bottom: 25px;">
                 <?php if ($post['external_label'] != 'none'): ?>
@@ -150,7 +150,7 @@ endforeach; ?>
                 
                 <h1 style="margin-top: 10px; font-size: 38px; line-height: 1.2; font-weight: 800;"><?php echo $post['title']; ?></h1>
                 
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 20px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0;">
+                <div class="article-meta-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 20px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 15px 0; flex-wrap: wrap;">
                     <div style="font-size: 14px; color: #555; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                         <span style="display: flex; align-items: center; gap: 5px;">
                             By <strong style="color: #000;"><?php echo $post['username']; ?></strong>
@@ -163,7 +163,7 @@ endforeach; ?>
                         </span>
                     </div>
                     
-                    <div style="display: flex; gap: 12px; align-items: center;">
+                    <div class="share-buttons-container" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                         <span style="font-size: 13px; color: #888; margin-right: 15px;"><?php echo $post['views']; ?> views</span>
                         
                         <?php

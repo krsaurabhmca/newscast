@@ -47,17 +47,31 @@ $bing_verify = get_setting('bing_site_verify', '');
     <!-- Open Graph (WhatsApp/Facebook) -->
     <?php
 $current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-$final_og_image = isset($page_image) && $page_image ? $page_image : $og_image;
-if (strpos($final_og_image, 'share.png') !== false) {
-    $final_og_image = str_replace('share.png', 'share.jpg', $final_og_image);
+
+// Ensure page image is an absolute URL
+if (isset($page_image) && $page_image) {
+    if (strpos($page_image, 'http') === 0) {
+        $final_og_image = $page_image;
+    } else {
+        $final_og_image = BASE_URL . ltrim($page_image, '/');
+    }
+} else {
+    $final_og_image = $og_image;
 }
+
+// Determine image type based on extension
+$img_type = "image/jpeg";
+if (strpos($final_og_image, '.png') !== false) $img_type = "image/png";
+elseif (strpos($final_og_image, '.webp') !== false) $img_type = "image/webp";
+elseif (strpos($final_og_image, '.gif') !== false) $img_type = "image/gif";
+
 $og_type = (basename($_SERVER['PHP_SELF']) == 'index.php') ? 'website' : 'article';
 ?>
     <meta property="og:title" content="<?php echo isset($page_title) ? htmlspecialchars($page_title) : SITE_NAME_DYNAMIC; ?>">
     <meta property="og:description" content="<?php echo isset($meta_description) ? htmlspecialchars($meta_description) : htmlspecialchars($meta_desc); ?>">
     <meta property="og:image" content="<?php echo $final_og_image; ?>">
     <meta property="og:image:secure_url" content="<?php echo $final_og_image; ?>">
-    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:type" content="<?php echo $img_type; ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:url" content="<?php echo $current_url; ?>">
