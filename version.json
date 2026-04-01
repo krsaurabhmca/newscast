@@ -1,6 +1,6 @@
 {
-    "version": "1.0.9",
+    "version": "1.1.0",
     "db_version": 1,
     "last_updated": "2026-04-01",
-    "changelog": "Fixed article text overlap issue on desktop/mobile. Switched to flex layout for articles with min-width: 0 and added overflow-wrap: break-word to article body."
+    "changelog": "Milestone: Admin UI Stabilization. Fixed Edit Post persistence and RTF editor expansion. Added min-width: 0 and word-break to Quill editor to prevent horizontal overflow."
 }
