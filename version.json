@@ -1,6 +1,6 @@
 {
-    "version": "1.0.8",
+    "version": "1.0.9",
     "db_version": 1,
     "last_updated": "2026-04-01",
-    "changelog": "Fixed Dashboard & Editor responsiveness. Added .admin-grid responsive system and fixed Quill editor horizontal overflow."
+    "changelog": "Fixed article text overlap issue on desktop/mobile. Switched to flex layout for articles with min-width: 0 and added overflow-wrap: break-word to article body."
 }

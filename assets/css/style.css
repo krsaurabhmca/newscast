@@ -264,18 +264,21 @@ a {
 
 /* Article Page Layout */
 .article-layout {
-    display: grid;
-    grid-template-columns: 1fr 300px;
+    display: flex; /* Using flex for better compatibility in some browsers */
     gap: 40px;
+    align-items: start;
+    width: 100%;
 }
 
 .article-page {
     /* Main article content column */
-    min-width: 0; /* Prevent grid blowout */
+    flex: 1;
+    min-width: 0; /* Critical for shrinking within flex/grid */
 }
 
 .article-sidebar {
     width: 300px;
+    flex-shrink: 0;
 }
 
 .article-page h1 {
@@ -294,6 +297,9 @@ a {
     font-size: 19px;
     line-height: 1.8;
     color: #333;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 /* Quoted Text Format / RTF Blockquotes */
@@ -454,7 +460,7 @@ a {
 
     /* Stack article layout */
     .article-layout {
-        grid-template-columns: 1fr !important;
+        flex-direction: column;
         gap: 30px;
     }
 
