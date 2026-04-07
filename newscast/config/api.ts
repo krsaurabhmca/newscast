@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { Platform } from 'react-native';
 
-const API_BASE_URL = 'https://app.ebihardigitalnews.com/api/v1/api.php';
+const API_BASE_URL = 'https://panchayatvoice.in/api/v1/api.php';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
