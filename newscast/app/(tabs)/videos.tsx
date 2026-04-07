@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Linking, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { getAction } from '../../config/api';
 
@@ -40,27 +40,35 @@ export default function Videos() {
     </TouchableOpacity>
   );
 
-  if (loading) return <View style={styles.center}><ActivityIndicator color="#ff3c00" size="large" /></View>;
+  if (loading) return <View style={[styles.center, {backgroundColor: '#0f172a'}]}><ActivityIndicator color="#ff3c00" size="large" /></View>;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <View style={styles.appHeader}>
+          <Text style={styles.logoText}>Video <Text style={{color: '#ff3c00'}}>Feed</Text></Text>
+      </View>
       <FlatList
         data={videos}
         renderItem={renderVideo}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 15 }}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f172a' }, // Dark theme for video section
+  container: { flex: 1, backgroundColor: '#0f172a', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  card: { backgroundColor: '#1e293b', borderRadius: 20, marginBottom: 20, overflow: 'hidden' },
+  appHeader: { 
+    paddingHorizontal: 20, paddingVertical: 15, backgroundColor: '#1e293b', borderBottomWidth: 1, borderBottomColor: '#334155' 
+  },
+  logoText: { fontSize: 22, fontWeight: '900', color: '#fff' },
+  card: { backgroundColor: '#1e293b', borderRadius: 20, marginBottom: 20, overflow: 'hidden', elevation: 5 },
   thumbWrap: { width: '100%', height: 220, position: 'relative' },
   thumb: { width: '100%', height: '100%', objectFit: 'cover' },
-  playOverlay: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
+  playOverlay: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.2)', justifyContent: 'center', alignItems: 'center' },
   playCircle: { width: 60, height: 60, borderRadius: 30, backgroundColor: 'rgba(255, 60, 0, 0.9)', justifyContent: 'center', alignItems: 'center', shadowColor: '#ff3c00', shadowOpacity: 0.5, shadowRadius: 15 },
   info: { padding: 15 },
   title: { fontSize: 16, fontWeight: '800', color: '#fff', lineHeight: 22, marginBottom: 5 },

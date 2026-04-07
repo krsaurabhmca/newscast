@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, useWindowDimensions, TouchableOpacity, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import RenderHtml from 'react-native-render-html';
 import { Feather } from '@expo/vector-icons';
@@ -27,7 +27,8 @@ export default function ArticleDetail() {
   if(!post) return <View style={styles.center}><Text>Post not found</Text></View>;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Feather name="arrow-left" size={24} color="#1e293b" />
@@ -68,13 +69,33 @@ export default function ArticleDetail() {
                 }}
             />
         </View>
+
+        {/* Related News Section */}
+        {post.related && post.related.length > 0 && (
+          <View style={styles.relatedSection}>
+            <Text style={styles.relatedHeader}>Related News</Text>
+            {post.related.map((item: any) => (
+              <TouchableOpacity 
+                key={item.id} 
+                style={styles.relatedCard} 
+                onPress={() => router.push({ pathname: '/article/[id]', params: { id: item.id } } as any)}
+              >
+                <Image source={{ uri: item.featured_image }} style={styles.relatedImage} />
+                <View style={styles.relatedInfo}>
+                  <Text style={styles.relatedTitle} numberOfLines={2}>{item.title}</Text>
+                  <Text style={styles.relatedDate}>{new Date(item.published_at).toDateString()}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#fff', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: { 
      flexDirection: 'row', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 20,
@@ -89,5 +110,12 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   metaText: { fontSize: 13, color: '#94a3b8', fontWeight: '600' },
   image: { width: '100%', height: 240, borderRadius: 16, marginBottom: 25 },
-  htmlWrap: { paddingBottom: 40 }
+  htmlWrap: { paddingBottom: 20 },
+  relatedSection: { marginTop: 30, borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingTop: 25, paddingBottom: 40 },
+  relatedHeader: { fontSize: 20, fontWeight: '900', color: '#1e293b', marginBottom: 20 },
+  relatedCard: { flexDirection: 'row', marginBottom: 15, gap: 12 },
+  relatedImage: { width: 100, height: 70, borderRadius: 10 },
+  relatedInfo: { flex: 1, justifyContent: 'center' },
+  relatedTitle: { fontSize: 14, fontWeight: '800', color: '#1e293b', lineHeight: 20 },
+  relatedDate: { fontSize: 11, color: '#94a3b8', marginTop: 4 }
 });

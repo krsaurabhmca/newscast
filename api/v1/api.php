@@ -56,7 +56,7 @@ switch($action) {
 
         // Map image URLs
         foreach($posts as &$p) {
-            $p['featured_image'] = $p['featured_image'] ? BASE_URL . "assets/images/" . $p['featured_image'] : null;
+            $p['featured_image'] = $p['featured_image'] ? BASE_URL . "assets/images/posts/" . $p['featured_image'] : null;
         }
 
         api_response(true, "Posts fetched", $posts);
@@ -71,7 +71,17 @@ switch($action) {
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if($post) {
-            $post['featured_image'] = $post['featured_image'] ? BASE_URL . "assets/images/" . $post['featured_image'] : null;
+            $post['featured_image'] = $post['featured_image'] ? BASE_URL . "assets/images/posts/" . $post['featured_image'] : null;
+            
+            // Related posts
+            $stmt_related = $pdo->prepare("SELECT id, title, featured_image, published_at FROM posts WHERE category_id = ? AND id != ? AND status = 'published' ORDER BY published_at DESC LIMIT 3");
+            $stmt_related->execute([$post['category_id'], $id]);
+            $related = $stmt_related->fetchAll(PDO::FETCH_ASSOC);
+            foreach($related as &$r) {
+                $r['featured_image'] = $r['featured_image'] ? BASE_URL . "assets/images/posts/" . $r['featured_image'] : null;
+            }
+            $post['related'] = $related;
+
             // Record view
             $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?")->execute([$id]);
             api_response(true, "Post details fetched", $post);
@@ -90,7 +100,7 @@ switch($action) {
         $stmt = $pdo->query("SELECT id, title, slug, video_url, featured_image FROM posts WHERE video_url IS NOT NULL AND status = 'published' ORDER BY published_at DESC LIMIT 10");
         $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach($videos as &$v) {
-            $v['featured_image'] = $v['featured_image'] ? BASE_URL . "assets/images/" . $v['featured_image'] : null;
+            $v['featured_image'] = $v['featured_image'] ? BASE_URL . "assets/images/posts/" . $v['featured_image'] : null;
         }
         api_response(true, "Videos fetched", $videos);
         break;
@@ -142,7 +152,7 @@ switch($action) {
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach($posts as &$p) {
-            $p['featured_image'] = $p['featured_image'] ? BASE_URL . "assets/images/" . $p['featured_image'] : null;
+            $p['featured_image'] = $p['featured_image'] ? BASE_URL . "assets/images/posts/" . $p['featured_image'] : null;
         }
         api_response(true, "Search results", $posts);
         break;

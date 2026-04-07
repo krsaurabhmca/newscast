@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { getAction } from '../../config/api';
 
@@ -46,54 +46,64 @@ export default function Digital() {
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
-      {data?.epapers?.length > 0 && (
-        <View style={{ marginBottom: 30 }}>
-          <View style={styles.header}>
-            <Text style={styles.sectionTitle}>Daily E-Papers</Text>
-            <TouchableOpacity><Text style={styles.seeAll}>See All</Text></TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.appHeader}>
+          <Text style={styles.logoText}>Digital <Text style={{color: '#ff3c00'}}>Media</Text></Text>
+      </View>
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
+        {data?.epapers?.length > 0 && (
+          <View style={{ marginBottom: 30 }}>
+            <View style={styles.header}>
+              <Text style={styles.sectionTitle}>Daily E-Papers</Text>
+              <TouchableOpacity><Text style={styles.seeAll}>See All</Text></TouchableOpacity>
+            </View>
+            <FlatList
+              data={data.epapers}
+              renderItem={renderEpaper}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id.toString()}
+            />
           </View>
-          <FlatList
-            data={data.epapers}
-            renderItem={renderEpaper}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-          />
-        </View>
-      )}
+        )}
 
-      {data?.magazines?.length > 0 && (
-        <View>
-          <View style={styles.header}>
-            <Text style={styles.sectionTitle}>Monthly Magazines</Text>
-            <TouchableOpacity><Text style={styles.seeAll}>See All</Text></TouchableOpacity>
+        {data?.magazines?.length > 0 && (
+          <View>
+            <View style={styles.header}>
+              <Text style={styles.sectionTitle}>Monthly Magazines</Text>
+              <TouchableOpacity><Text style={styles.seeAll}>See All</Text></TouchableOpacity>
+            </View>
+            <FlatList
+              data={data.magazines}
+              renderItem={renderMagazine}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id.toString()}
+            />
           </View>
-          <FlatList
-            data={data.magazines}
-            renderItem={renderMagazine}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-          />
-        </View>
-      )}
+        )}
 
-      {!data?.epapers?.length && !data?.magazines?.length && (
-         <View style={styles.empty}>
-            <Feather name="book-open" size={60} color="#cbd5e1" />
-            <Text style={styles.emptyText}>No digital media available</Text>
-         </View>
-      )}
-    </ScrollView>
+        {!data?.epapers?.length && !data?.magazines?.length && (
+          <View style={styles.empty}>
+              <Feather name="book-open" size={60} color="#cbd5e1" />
+              <Text style={styles.emptyText}>No digital media available</Text>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
+  container: { flex: 1, backgroundColor: '#f8fafc', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  appHeader: { 
+    paddingHorizontal: 20, paddingVertical: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' 
+  },
+  logoText: { fontSize: 22, fontWeight: '900', color: '#1e293b' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  sectionTitle: { fontSize: 20, fontWeight: '900', color: '#1e293b' },
+  sectionTitle: { fontSize: 18, fontWeight: '800', color: '#1e293b' },
   seeAll: { fontSize: 13, color: '#ff3c00', fontWeight: '800' },
   
   paperCard: { width: 180, marginRight: 20, backgroundColor: '#fff', borderRadius: 15, elevation: 3, shadowOpacity: 0.05, overflow: 'hidden' },

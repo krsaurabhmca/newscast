@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { getAction } from '../../config/api';
 
 export default function Categories() {
+  const router = useRouter();
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +22,10 @@ export default function Categories() {
   };
 
   const renderCategory = ({ item }: { item: any }) => (
-    <TouchableOpacity style={[styles.card, { borderLeftColor: item.color }]}>
+    <TouchableOpacity 
+        style={[styles.card, { borderLeftColor: item.color }]}
+        onPress={() => router.push(`/category/${item.id}` as any)}
+    >
       <View style={[styles.iconBox, { backgroundColor: item.color + '15' }]}>
         <Feather name={item.icon || 'folder'} size={24} color={item.color} />
       </View>
@@ -35,23 +40,32 @@ export default function Categories() {
   if (loading) return <View style={styles.center}><ActivityIndicator color="#ff3c00" size="large" /></View>;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.appHeader}>
+          <Text style={styles.logoText}>Explore <Text style={{color: '#ff3c00'}}>Categories</Text></Text>
+      </View>
       <FlatList
         data={categories}
         renderItem={renderCategory}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 15 }}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
+  container: { flex: 1, backgroundColor: '#f8fafc', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  appHeader: { 
+    paddingHorizontal: 20, paddingVertical: 15, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' 
+  },
+  logoText: { fontSize: 22, fontWeight: '900', color: '#1e293b' },
   card: { 
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', 
-    marginBottom: 12, padding: 15, borderRadius: 15, borderLeftWidth: 5 
+    marginBottom: 12, padding: 15, borderRadius: 15, borderLeftWidth: 5,
+    elevation: 2, shadowOpacity: 0.05
   },
   iconBox: { width: 50, height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   info: { flex: 1, marginLeft: 15 },
