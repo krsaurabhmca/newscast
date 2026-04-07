@@ -1,5 +1,9 @@
-<?php
 include 'includes/public_header.php';
+
+if (get_setting('ebook_magazine_enabled', 'yes') == 'no') {
+    header("Location: " . BASE_URL);
+    exit;
+}
 
 // Year filter
 $year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');

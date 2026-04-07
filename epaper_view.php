@@ -3,6 +3,11 @@ $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
 
+if (get_setting('ebook_magazine_enabled', 'yes') == 'no') {
+    header("Location: " . BASE_URL);
+    exit;
+}
+
 $stmt = $pdo->prepare("SELECT * FROM epapers WHERE id = ?");
 $stmt->execute([$id]);
 $paper = $stmt->fetch();

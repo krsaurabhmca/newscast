@@ -84,6 +84,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </li>
         </ul>
 
+        <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
         <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">DIGITAL MEDIA</p>
         <ul class="nav-links">
             <li>
@@ -99,6 +100,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
             </li>
         </ul>
+        <?php endif; ?>
 
         <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 30px 0 10px 10px;">REVENUE & GROWTH</p>
         <ul class="nav-links">

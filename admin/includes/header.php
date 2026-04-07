@@ -18,7 +18,7 @@ if (!is_logged_in()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title . " | NewsPro Admin" : "NewsPro Admin"; ?></title>
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/admin.css'); ?>">
     <!-- Rich Text Editor - Quill -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
@@ -31,13 +31,24 @@ if (!is_logged_in()) {
     </style>
 </head>
 <body>
+    <script>
+        // Use database setting as fallback if localStorage isn't set
+        const defaultCollapsed = <?php echo (get_setting('collapse_sidebar', 'no') == 'yes') ? 'true' : 'false'; ?>;
+        const lsValue = localStorage.getItem('sidebar-collapsed');
+        
+        if (lsValue === 'true' || (lsValue === null && defaultCollapsed)) {
+            if (window.innerWidth > 1024) {
+                document.body.classList.add('sidebar-collapsed');
+            }
+        }
+    </script>
     <div class="admin-wrapper">
         <?php include 'sidebar.php'; ?>
         
         <div class="main-content">
             <header style="background: white; border-bottom: 1px solid var(--border); padding: 15px 30px; margin-bottom: 30px; position: sticky; top: 0; z-index: 90; display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 12px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <button id="sidebarToggle" class="mobile-toggle" style="background: #f1f5f9; border: none; cursor: pointer; color: #1e293b; width: 40px; height: 40px; border-radius: 8px; display: none; align-items: center; justify-content: center;">
+                    <button id="sidebarToggle" style="background: #f1f5f9; border: none; cursor: pointer; color: #1e293b; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background .15s;">
                         <i data-feather="menu" style="width: 20px;"></i>
                     </button>
                     <div class="page-info">
@@ -72,20 +83,29 @@ if (!is_logged_in()) {
             </header>
 
             <script>
-                // This will be used for both desktop toggle and mobile
                 document.addEventListener('DOMContentLoaded', function() {
                     const toggle = document.getElementById('sidebarToggle');
                     const sidebar = document.querySelector('.sidebar');
+                    const body = document.body;
+
                     if (toggle) {
                         toggle.onclick = function(e) {
                             e.stopPropagation();
-                            sidebar.classList.toggle('mobile-active');
+                            if (window.innerWidth <= 1024) {
+                                // Mobile behavior: toggle overlay
+                                sidebar.classList.toggle('mobile-active');
+                            } else {
+                                // Desktop behavior: collapse sidebar
+                                body.classList.toggle('sidebar-collapsed');
+                                // Remember state
+                                localStorage.setItem('sidebar-collapsed', body.classList.contains('sidebar-collapsed'));
+                            }
                         };
                     }
 
                     // Close sidebar when clicking outside on mobile
                     document.addEventListener('click', function(e) {
-                        if (sidebar.classList.contains('mobile-active') && !sidebar.contains(e.target)) {
+                        if (sidebar.classList.contains('mobile-active') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
                             sidebar.classList.remove('mobile-active');
                         }
                     });

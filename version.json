@@ -1,6 +1,6 @@
 {
-    "version": "1.1.0",
+    "version": "1.2.0",
     "db_version": 1,
-    "last_updated": "2026-04-01",
-    "changelog": "Milestone: Admin UI Stabilization. Fixed Edit Post persistence and RTF editor expansion. Added min-width: 0 and word-break to Quill editor to prevent horizontal overflow."
+    "last_updated": "2026-04-07",
+    "changelog": "Milestone: News Mobile App & API Integration. Added complete REST API (v1) and integrated high-fidelity Expo/React Native mobile app with tabs, video hub, and digital media support."
 }

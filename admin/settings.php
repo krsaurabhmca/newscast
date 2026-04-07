@@ -63,6 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'email_on_user_create' => clean($_POST['email_on_user_create'] ?? 'no'),
         'onesignal_app_id' => clean($_POST['onesignal_app_id'] ?? ''),
         'onesignal_safari_web_id' => clean($_POST['onesignal_safari_web_id'] ?? ''),
+        'collapse_sidebar' => clean($_POST['collapse_sidebar'] ?? 'no'),
+        'ebook_magazine_enabled' => clean($_POST['ebook_magazine_enabled'] ?? 'no'),
     ];
 
     try {
@@ -540,6 +542,36 @@ endforeach; ?>
                             </div>
                         </div>
                         <span class="field-hint">Allow users to listen to the news article.</span>
+                    </div>
+
+                    <div>
+                        <label class="field-label">Admin Sidebar (Default)</label>
+                        <div class="toggle-group">
+                            <div class="toggle-opt">
+                                <input type="radio" name="collapse_sidebar" id="sb_expanded" value="no" <?php echo get_setting('collapse_sidebar', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="sb_expanded"><i data-feather="maximize-2" style="width:14px;"></i> Expanded</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="collapse_sidebar" id="sb_collapsed" value="yes" <?php echo get_setting('collapse_sidebar') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="sb_collapsed"><i data-feather="minimize-2" style="width:14px;"></i> Collapsed</label>
+                            </div>
+                        </div>
+                        <span class="field-hint">Sets the default state of the sidebar for the admin panel.</span>
+                    </div>
+
+                    <div>
+                        <label class="field-label">Digital Media (E-papers & Magazines)</label>
+                        <div class="toggle-group">
+                            <div class="toggle-opt">
+                                <input type="radio" name="ebook_magazine_enabled" id="em_yes" value="yes" <?php echo get_setting('ebook_magazine_enabled', 'yes') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="em_yes"><i data-feather="check" style="width:14px;"></i> Enable</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="ebook_magazine_enabled" id="em_no" value="no" <?php echo get_setting('ebook_magazine_enabled') == 'no' ? 'checked' : ''; ?>>
+                                <label for="em_no"><i data-feather="x" style="width:14px;"></i> Disable</label>
+                            </div>
+                        </div>
+                        <span class="field-hint">Show or hide the Digital Papers and Magazines modules.</span>
                     </div>
                 </div>
             </div>

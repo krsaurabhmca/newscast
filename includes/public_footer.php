@@ -189,8 +189,10 @@
                 <div class="footer-col">
                     <h5>Editions</h5>
                     <ul>
+                        <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
                         <li><a href="<?php echo BASE_URL; ?>digital-paper"><i data-feather="file-text" style="width:13px;vertical-align:middle;margin-right:4px;"></i>Daily E-Paper</a></li>
                         <li><a href="<?php echo BASE_URL; ?>magazine"><i data-feather="book-open" style="width:13px;vertical-align:middle;margin-right:4px;"></i>Monthly Magazine</a></li>
+                        <?php endif; ?>
                         <li><a href="<?php echo BASE_URL; ?>about.php">About Us</a></li>
                         <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
                         <li><a href="<?php echo BASE_URL; ?>privacy-policy.php">Privacy Policy</a></li>
