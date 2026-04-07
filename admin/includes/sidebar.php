@@ -195,7 +195,11 @@ endif; ?>
     <div style="padding: 12px 15px; border-top: 1px solid rgba(255,255,255,0.06);">
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 14px; text-align: center;">
             <div style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-bottom: 2px;">NewsCast &mdash; Digital News CMS</div>
-            <div style="font-size: 10px; color: #475569; margin-bottom: 10px;">v1.0 &bull; All Rights Reserved</div>
+            <?php 
+                $v_json = json_decode(file_get_contents(__DIR__ . '/../../version.json'), true);
+                $app_v = $v_json['version'] ?? '1.4.1';
+            ?>
+            <div style="font-size: 10px; color: #475569; margin-bottom: 10px;">v<?php echo $app_v; ?> &bull; All Rights Reserved</div>
             <div style="font-size: 10px; color: #64748b; margin-bottom: 6px;">Developed &amp; Powered by</div>
             <a href="https://offerplant.com" target="_blank" style="display: inline-block; font-size: 12px; font-weight: 800; color: #818cf8; text-decoration: none; letter-spacing: 0.3px; margin-bottom: 10px;">OfferPlant.com</a>
             <div style="display: flex; gap: 8px; justify-content: center;">
