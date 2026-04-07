@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, useWindowDimensions, TouchableOpacity, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, useWindowDimensions, TouchableOpacity, SafeAreaView, Platform, StatusBar, Share } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import RenderHtml from 'react-native-render-html';
 import { Feather } from '@expo/vector-icons';
+import * as Speech from 'expo-speech';
 import { getAction } from '../../config/api';
 
 export default function ArticleDetail() {
@@ -11,16 +12,48 @@ export default function ArticleDetail() {
   const { width } = useWindowDimensions();
   
   const [post, setPost] = useState<any>(null);
+  const [ads, setAds] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
     fetchDetail();
+    fetchAds();
   }, [id]);
 
   const fetchDetail = async () => {
     const res = await getAction('post_detail', { id });
     if(res.success) setPost(res.data);
     setLoading(false);
+  };
+
+  const fetchAds = async () => {
+    const res = await getAction('ads');
+    if(res.success) setAds(res.data);
+  };
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `${post.title}\n\nRead more at: https://panchayatvoice.in/post/${post.slug}`,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const toggleSpeech = () => {
+    if (isSpeaking) {
+      Speech.stop();
+      setIsSpeaking(false);
+    } else {
+      const cleanText = post.content.replace(/<[^>]*>?/gm, '');
+      Speech.speak(cleanText, {
+        onDone: () => setIsSpeaking(false),
+        onStopped: () => setIsSpeaking(false),
+      });
+      setIsSpeaking(true);
+    }
   };
 
   if(loading) return <View style={styles.center}><ActivityIndicator color="#ff3c00" size="large" /></View>;
@@ -30,11 +63,11 @@ export default function ArticleDetail() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => { Speech.stop(); router.back(); }} style={styles.backBtn}>
             <Feather name="arrow-left" size={24} color="#1e293b" />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>{post.category_name}</Text>
-        <TouchableOpacity style={styles.shareBtn}>
+        <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
             <Feather name="share-2" size={20} color="#64748b" />
         </TouchableOpacity>
       </View>
@@ -51,10 +84,22 @@ export default function ArticleDetail() {
                 <Feather name="eye" size={14} color="#94a3b8" />
                 <Text style={styles.metaText}>{post.views} views</Text>
             </View>
+            <TouchableOpacity style={[styles.metaItem, isSpeaking && styles.speakingBadge]} onPress={toggleSpeech}>
+                <Feather name={isSpeaking ? "volume-x" : "volume-2"} size={14} color={isSpeaking ? "#fff" : "#ff3c00"} />
+                <Text style={[styles.metaText, { color: isSpeaking ? "#fff" : "#ff3c00" }]}>{isSpeaking ? "Stop" : "Listen"}</Text>
+            </TouchableOpacity>
         </View>
 
         {post.featured_image && (
             <Image source={{ uri: post.featured_image }} style={styles.image} resizeMode="cover" />
+        )}
+
+        {/* In-Article Ad */}
+        {ads.length > 0 && (
+            <TouchableOpacity style={styles.adBox}>
+                <Image source={{ uri: ads[0].image_url }} style={styles.adImage} />
+                <View style={styles.adBadge}><Text style={styles.adBadgeText}>Ad</Text></View>
+            </TouchableOpacity>
         )}
 
         <View style={styles.htmlWrap}>
@@ -106,10 +151,17 @@ const styles = StyleSheet.create({
   shareBtn: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
   content: { padding: 20 },
   title: { fontSize: 26, fontWeight: '900', color: '#1e293b', lineHeight: 34, marginBottom: 15 },
-  metaRow: { flexDirection: 'row', gap: 20, marginBottom: 20 },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  metaRow: { flexDirection: 'row', gap: 15, marginBottom: 20, flexWrap: 'wrap' },
+  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#f8fafc', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 },
+  speakingBadge: { backgroundColor: '#ff3c00' },
   metaText: { fontSize: 13, color: '#94a3b8', fontWeight: '600' },
-  image: { width: '100%', height: 240, borderRadius: 16, marginBottom: 25 },
+  image: { width: '100%', height: 240, borderRadius: 16, marginBottom: 20 },
+  
+  adBox: { width: '100%', height: 100, marginBottom: 20, position: 'relative', borderRadius: 12, overflow: 'hidden', backgroundColor: '#f1f5f9' },
+  adImage: { width: '100%', height: '100%', objectFit: 'cover' },
+  adBadge: { position: 'absolute', top: 5, right: 5, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  adBadgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
+
   htmlWrap: { paddingBottom: 20 },
   relatedSection: { marginTop: 30, borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingTop: 25, paddingBottom: 40 },
   relatedHeader: { fontSize: 20, fontWeight: '900', color: '#1e293b', marginBottom: 20 },

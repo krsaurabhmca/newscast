@@ -6,7 +6,7 @@ export default function TabLayout() {
   return (
     <Tabs screenOptions={{
       tabBarActiveTintColor: '#ff3c00',
-      headerShown: true,
+      headerShown: false,
       headerStyle: { backgroundColor: '#fff' },
       headerTitleStyle: { fontWeight: '900' },
     }}>
@@ -31,7 +31,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Feather name="video" size={24} color={color} />,
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="digital"
         options={{
           title: 'E-Paper',
@@ -39,10 +39,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="more"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ color }) => <Feather name="user" size={24} color={color} />,
+          title: 'More',
+          tabBarIcon: ({ color }) => <Feather name="menu" size={24} color={color} />,
         }}
       />
     </Tabs>

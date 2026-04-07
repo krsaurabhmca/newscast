@@ -56,7 +56,7 @@ switch($action) {
 
         // Map image URLs
         foreach($posts as &$p) {
-            $p['featured_image'] = $p['featured_image'] ? BASE_URL . "assets/images/posts/" . $p['featured_image'] : null;
+            $p['featured_image'] = get_post_thumbnail($p['featured_image']);
         }
 
         api_response(true, "Posts fetched", $posts);
@@ -71,14 +71,14 @@ switch($action) {
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if($post) {
-            $post['featured_image'] = $post['featured_image'] ? BASE_URL . "assets/images/posts/" . $post['featured_image'] : null;
+            $post['featured_image'] = get_post_thumbnail($post['featured_image']);
             
             // Related posts
-            $stmt_related = $pdo->prepare("SELECT id, title, featured_image, published_at FROM posts WHERE category_id = ? AND id != ? AND status = 'published' ORDER BY published_at DESC LIMIT 3");
+            $stmt_related = $pdo->prepare("SELECT id, title, featured_image, published_at, views FROM posts WHERE category_id = ? AND id != ? AND status = 'published' ORDER BY published_at DESC LIMIT 3");
             $stmt_related->execute([$post['category_id'], $id]);
             $related = $stmt_related->fetchAll(PDO::FETCH_ASSOC);
             foreach($related as &$r) {
-                $r['featured_image'] = $r['featured_image'] ? BASE_URL . "assets/images/posts/" . $r['featured_image'] : null;
+                $r['featured_image'] = get_post_thumbnail($r['featured_image']);
             }
             $post['related'] = $related;
 
@@ -97,10 +97,10 @@ switch($action) {
         break;
 
     case 'videos':
-        $stmt = $pdo->query("SELECT id, title, slug, video_url, featured_image FROM posts WHERE video_url IS NOT NULL AND status = 'published' ORDER BY published_at DESC LIMIT 10");
+        $stmt = $pdo->query("SELECT id, title, slug, video_url, featured_image, views FROM posts WHERE video_url IS NOT NULL AND status = 'published' ORDER BY published_at DESC LIMIT 10");
         $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach($videos as &$v) {
-            $v['featured_image'] = $v['featured_image'] ? BASE_URL . "assets/images/posts/" . $v['featured_image'] : null;
+            $v['featured_image'] = get_post_thumbnail($v['featured_image']);
         }
         api_response(true, "Videos fetched", $videos);
         break;
@@ -136,7 +136,7 @@ switch($action) {
 
         if($user && password_verify($password, $user['password'])) {
             unset($user['password']); // Don't return password
-            $user['profile_image'] = BASE_URL . "assets/images/" . ($user['profile_image'] ?: 'default_avatar.png');
+            $user['profile_image'] = get_profile_image($user['profile_image'], '');
             api_response(true, "Login successful", $user);
         } else {
             api_response(false, "Invalid credentials");
@@ -147,14 +147,24 @@ switch($action) {
         $q = $_GET['q'] ?? '';
         if(empty($q)) api_response(false, "Query empty");
 
-        $stmt = $pdo->prepare("SELECT id, title, slug, featured_image, published_at FROM posts WHERE title LIKE ? AND status = 'published' ORDER BY published_at DESC LIMIT 20");
+        $stmt = $pdo->prepare("SELECT id, title, slug, featured_image, published_at, views FROM posts WHERE title LIKE ? AND status = 'published' ORDER BY published_at DESC LIMIT 20");
         $stmt->execute(["%$q%"]);
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach($posts as &$p) {
-            $p['featured_image'] = $p['featured_image'] ? BASE_URL . "assets/images/posts/" . $p['featured_image'] : null;
+            $p['featured_image'] = get_post_thumbnail($p['featured_image']);
         }
         api_response(true, "Search results", $posts);
+        break;
+
+    case 'ads':
+        // Fetch active ads
+        $stmt = $pdo->query("SELECT id, title, image, link, type FROM ads WHERE status = 1 ORDER BY RAND() LIMIT 5");
+        $ads = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach($ads as &$ad) {
+            $ad['image_url'] = $ad['image'] ? BASE_URL . "assets/images/ads/" . $ad['image'] : null;
+        }
+        api_response(true, "Ads fetched", $ads);
         break;
 
     case 'register_push':
