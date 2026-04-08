@@ -129,7 +129,9 @@ export default function ArticleDetail() {
         {/* Related News Section */}
         {post.related && post.related.length > 0 && (
           <View style={styles.relatedSection}>
-            <Text style={styles.relatedHeader}>Related News</Text>
+            <Text style={styles.relatedHeader}>
+              {post.category_name ? 'Related News' : 'You Might Also Like'}
+            </Text>
             {post.related.map((item: any) => (
               <TouchableOpacity 
                 key={item.id} 

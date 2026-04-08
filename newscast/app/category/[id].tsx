@@ -10,6 +10,7 @@ export default function CategoryDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [posts, setPosts] = useState<any[]>([]);
+  const [catName, setCatName] = useState('Category News');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
@@ -22,6 +23,9 @@ export default function CategoryDetail() {
     const res = await getAction('posts', { category_id: id, page: p });
     if (res.success) {
       setPosts(refresh ? res.data : [...posts, ...res.data]);
+      if (res.data?.length > 0 && res.data[0].category_name) {
+        setCatName(res.data[0].category_name);
+      }
     }
     setLoading(false);
     setRefreshing(false);
@@ -73,7 +77,7 @@ export default function CategoryDetail() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Feather name="arrow-left" size={24} color="#1e293b" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Category News</Text>
+        <Text style={styles.headerTitle}>{catName}</Text>
       </View>
       
       <FlatList
@@ -83,7 +87,18 @@ export default function CategoryDetail() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
-        contentContainerStyle={{ padding: 15 }}
+        contentContainerStyle={{ padding: 15, flexGrow: 1 }}
+        ListEmptyComponent={
+          <View style={styles.emptyBox}>
+            <Feather name="folder-minus" size={64} color="#cbd5e1" />
+            <Text style={styles.emptyTitle}>No News Here Yet</Text>
+            <Text style={styles.emptySubtitle}>This category doesn't have any published articles at the moment.</Text>
+            <TouchableOpacity style={styles.emptyBtn} onPress={() => router.replace('/' as any)}>
+              <Feather name="home" size={16} color="#fff" />
+              <Text style={styles.emptyBtnText}>Browse All News</Text>
+            </TouchableOpacity>
+          </View>
+        }
       />
     </SafeAreaView>
   );
@@ -104,4 +119,23 @@ const styles = StyleSheet.create({
   dateText: { fontSize: 11, color: '#94a3b8', fontWeight: '600', marginBottom: 5 },
   title: { fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 8 },
   excerpt: { fontSize: 13, color: '#64748b', lineHeight: 20 },
+
+  emptyBox: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    paddingVertical: 80, paddingHorizontal: 30,
+  },
+  emptyTitle: {
+    fontSize: 20, fontWeight: '800', color: '#1e293b',
+    marginTop: 20, marginBottom: 10, textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14, color: '#94a3b8', textAlign: 'center',
+    lineHeight: 22, marginBottom: 30,
+  },
+  emptyBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#ff3c00', paddingVertical: 14,
+    paddingHorizontal: 28, borderRadius: 30,
+  },
+  emptyBtnText: { color: '#fff', fontWeight: '800', fontSize: 15 },
 });
