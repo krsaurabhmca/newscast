@@ -2,13 +2,8 @@ import axios from 'axios';
 
 // ─── ENVIRONMENT CONFIGURATION ────────────────────────────────────────────────
 // For LIVE / Production server:
-export const BASE_URL = 'https://panchayatvoice.in/';
-
-// For LOCAL development (phone & PC on same WiFi):
-// export const BASE_URL = 'http://192.168.1.11/news/';
-// ─────────────────────────────────────────────────────────────────────────────
-
-export const API_URL = `${BASE_URL}api/v1/api.php`;
+export const BASE_URL = 'https://www.panchayatvoice.in/';
+export const API_URL = `${BASE_URL}api/v1/`;
 
 /**
  * Ensures a URL is absolute by prepending the BASE_URL if needed.
@@ -31,29 +26,42 @@ export const getFullUrl = (path: string) => {
 
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
 });
 
 export const getAction = async (action: string, params = {}) => {
   try {
-    const response = await api.get('', {
+    const response = await api.get('api.php', {
       params: { action, ...params },
     });
     return response.data;
-  } catch (error) {
-    console.error('API Error:', action, error);
+  } catch (error: any) {
+    console.error('API GET Error Details:', {
+      action,
+      message: error.message,
+      code: error.code,
+      url: error.config?.url,
+      baseURL: error.config?.baseURL,
+    });
     return { success: false, message: 'Server error' };
   }
 };
 
 export const postAction = async (action: string, data = {}) => {
   try {
-    const response = await api.post(`?action=${action}`, data);
+    const response = await api.post(`api.php?action=${action}`, data);
     return response.data;
-  } catch (error) {
-    console.error('API Error:', action, error);
+  } catch (error: any) {
+    console.error('API POST Error Details:', {
+      action,
+      message: error.message,
+      code: error.code,
+      url: error.config?.url,
+      baseURL: error.config?.baseURL,
+    });
     return { success: false, message: 'Server error' };
   }
 };

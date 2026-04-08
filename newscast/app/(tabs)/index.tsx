@@ -13,21 +13,31 @@ export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
   const [sliderPosts, setSliderPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
 
   const fetchPosts = async (p = 1, refresh = false) => {
-    const res = await getAction('posts', { page: p });
-    if (res.success) {
-      if (p === 1) {
-          setSliderPosts(res.data.slice(0, 5));
-          setPosts(res.data.slice(5));
+    try {
+      const res = await getAction('posts', { page: p });
+      if (res && res.success) {
+        if (p === 1) {
+          setSliderPosts(res.data.slice(0, 5) || []);
+          setPosts(res.data.slice(5) || []);
+        } else {
+          setPosts(prev => [...prev, ...(res.data || [])]);
+        }
+        setError(null);
       } else {
-          setPosts(prev => [...prev, ...res.data]);
+        if (p === 1) setError(res?.message || 'Failed to fetch content');
       }
+    } catch (err: any) {
+      console.error('Fetch posts component error:', err);
+      if (p === 1) setError('Connection problem. Please try again.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-    setLoading(false);
-    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -117,6 +127,18 @@ export default function Home() {
     </View>
   );
 
+  if (error && page === 1 && !refreshing) {
+    return (
+      <View style={styles.center}>
+        <Feather name="wifi-off" size={50} color="#cbd5e1" />
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryBtn} onPress={() => { setLoading(true); fetchPosts(1); }}>
+          <Text style={styles.retryText}>Retry Again</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   if (loading && page === 1) {
     return (
       <View style={styles.center}>
@@ -194,4 +216,7 @@ const styles = StyleSheet.create({
   dateText: { fontSize: 11, color: '#94a3b8', fontWeight: '600' },
   title: { fontSize: 18, fontWeight: '800', color: '#1e293b', lineHeight: 24, marginBottom: 8 },
   excerpt: { fontSize: 14, color: '#64748b', lineHeight: 20 },
+  errorText: { color: '#64748b', fontSize: 16, marginTop: 15, marginBottom: 20, fontWeight: '600' },
+  retryBtn: { backgroundColor: '#ff3c00', paddingHorizontal: 30, paddingVertical: 12, borderRadius: 10 },
+  retryText: { color: '#fff', fontWeight: '800', fontSize: 15 },
 });

@@ -9,17 +9,27 @@ export default function Categories() {
   const router = useRouter();
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
-    const res = await getAction('categories');
-    if (res.success) {
-      setCategories(res.data);
+    try {
+      const res = await getAction('categories');
+      if (res && res.success) {
+        setCategories(res.data || []);
+        setError(null);
+      } else {
+        setError(res?.message || 'Unable to load categories');
+      }
+    } catch (err) {
+      console.error('Fetch categories error:', err);
+      setError('Network error. Check your internet.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const renderCategory = ({ item }: { item: any }) => (
@@ -39,6 +49,18 @@ export default function Categories() {
   );
 
   if (loading) return <View style={styles.center}><ActivityIndicator color="#ff3c00" size="large" /></View>;
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Feather name="alert-circle" size={50} color="#cbd5e1" />
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryBtn} onPress={() => { setLoading(true); fetchCategories(); }}>
+          <Text style={styles.retryText}>Try Again</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -71,5 +93,8 @@ const styles = StyleSheet.create({
   iconBox: { width: 50, height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   info: { flex: 1, marginLeft: 15 },
   catName: { fontSize: 16, fontWeight: '800', color: '#1e293b' },
-  catSlug: { fontSize: 12, color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' }
+  catSlug: { fontSize: 12, color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase' },
+  errorText: { color: '#64748b', fontSize: 16, marginTop: 15, marginBottom: 20, fontWeight: '600' },
+  retryBtn: { backgroundColor: '#ff3c00', paddingHorizontal: 30, paddingVertical: 12, borderRadius: 10 },
+  retryText: { color: '#fff', fontWeight: '800', fontSize: 15 },
 });
