@@ -73,9 +73,14 @@ switch($action) {
         if($post) {
             $post['featured_image'] = get_post_thumbnail($post['featured_image']);
             
-            // Related posts
-            $stmt_related = $pdo->prepare("SELECT id, title, featured_image, published_at, views FROM posts WHERE category_id = ? AND id != ? AND status = 'published' ORDER BY published_at DESC LIMIT 3");
-            $stmt_related->execute([$post['category_id'], $id]);
+            // Related posts — use same category if available, else fall back to latest
+            if ($post['category_id']) {
+                $stmt_related = $pdo->prepare("SELECT id, title, featured_image, published_at, views FROM posts WHERE category_id = ? AND id != ? AND status = 'published' ORDER BY published_at DESC LIMIT 4");
+                $stmt_related->execute([$post['category_id'], $id]);
+            } else {
+                $stmt_related = $pdo->prepare("SELECT id, title, featured_image, published_at, views FROM posts WHERE id != ? AND status = 'published' ORDER BY published_at DESC LIMIT 4");
+                $stmt_related->execute([$id]);
+            }
             $related = $stmt_related->fetchAll(PDO::FETCH_ASSOC);
             foreach($related as &$r) {
                 $r['featured_image'] = get_post_thumbnail($r['featured_image']);
@@ -158,11 +163,12 @@ switch($action) {
         break;
 
     case 'ads':
-        // Fetch active ads
-        $stmt = $pdo->query("SELECT id, title, image, link, type FROM ads WHERE status = 1 ORDER BY RAND() LIMIT 5");
+        $today = date('Y-m-d');
+        $stmt = $pdo->prepare("SELECT id, name, image_path, link_url, link_type, type FROM ads WHERE status = 1 AND (start_date IS NULL OR start_date <= ?) AND (end_date IS NULL OR end_date >= ?) ORDER BY RAND() LIMIT 5");
+        $stmt->execute([$today, $today]);
         $ads = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach($ads as &$ad) {
-            $ad['image_url'] = $ad['image'] ? BASE_URL . "assets/images/ads/" . $ad['image'] : null;
+            $ad['image_url'] = $ad['image_path'] ? BASE_URL . "assets/images/ads/" . $ad['image_path'] : null;
         }
         api_response(true, "Ads fetched", $ads);
         break;

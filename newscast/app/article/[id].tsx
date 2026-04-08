@@ -68,7 +68,7 @@ export default function ArticleDetail() {
         <TouchableOpacity onPress={() => { Speech.stop(); router.back(); }} style={styles.backBtn}>
             <Feather name="arrow-left" size={24} color="#1e293b" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>{post.category_name}</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>{post.category_name || 'News'}</Text>
         <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
             <Feather name="share-2" size={20} color="#64748b" />
         </TouchableOpacity>
