@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Linking, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, Linking, Platform, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
 import { getAction } from '../../config/api';
 
@@ -26,7 +28,12 @@ export default function Videos() {
   const renderVideo = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.card} onPress={() => handlePlay(item.video_url)}>
       <View style={styles.thumbWrap}>
-        <Image source={{ uri: item.featured_image }} style={styles.thumb} />
+        <Image 
+          source={{ uri: item.featured_image }} 
+          style={styles.thumb} 
+          contentFit="cover"
+          transition={300}
+        />
         <View style={styles.playOverlay}>
           <View style={styles.playCircle}>
             <Feather name="play" size={24} color="#fff" style={{ marginLeft: 3 }} />
@@ -67,7 +74,7 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 22, fontWeight: '900', color: '#fff' },
   card: { backgroundColor: '#1e293b', borderRadius: 20, marginBottom: 20, overflow: 'hidden', elevation: 5 },
   thumbWrap: { width: '100%', height: 220, position: 'relative' },
-  thumb: { width: '100%', height: '100%', objectFit: 'cover' },
+  thumb: { width: '100%', height: '100%' },
   playOverlay: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.2)', justifyContent: 'center', alignItems: 'center' },
   playCircle: { width: 60, height: 60, borderRadius: 30, backgroundColor: 'rgba(255, 60, 0, 0.9)', justifyContent: 'center', alignItems: 'center', shadowColor: '#ff3c00', shadowOpacity: 0.5, shadowRadius: 15 },
   info: { padding: 15 },

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Image, Alert, TextInput, ActivityIndicator, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, TextInput, ActivityIndicator, Platform, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
-import { postAction } from '../../config/api';
+import { postAction, getFullUrl } from '../../config/api';
 
 export default function More() {
   const [user, setUser] = useState<any>(null);
@@ -78,7 +80,7 @@ export default function More() {
             <MenuItem icon="lock" title="Admin Login" subtitle="Access portal management" onPress={() => setShowLogin(true)} />
         ) : (
             <View style={styles.profileBox}>
-                <Image source={{ uri: user.profile_image }} style={styles.avatar} />
+                <Image source={{ uri: getFullUrl(user.profile_image) }} style={styles.avatar} />
                 <View style={styles.profileInfo}>
                     <Text style={styles.profileName}>{user.full_name}</Text>
                     <Text style={styles.profileRole}>{user.role}</Text>

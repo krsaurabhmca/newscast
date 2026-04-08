@@ -80,14 +80,22 @@ function get_post_categories($pdo, $post_id)
  */
 function get_post_thumbnail($image)
 {
+    if (empty($image)) {
+        return BASE_URL . 'assets/images/default-post.jpg';
+    }
+
+    // If it's a base64 data URI, return as-is
     if (strpos($image, 'data:image') === 0) {
         return $image;
     }
-    if ($image && file_exists(dirname(__DIR__) . '/assets/images/posts/' . $image)) {
-        return BASE_URL . 'assets/images/posts/' . $image;
+
+    // If it's already a full URL, return as-is
+    if (strpos($image, 'http') === 0) {
+        return $image;
     }
 
-    return BASE_URL . 'assets/images/default-post.jpg';
+    // Build full URL from filename — do NOT check file_exists (breaks on remote/live server)
+    return BASE_URL . 'assets/images/posts/' . $image;
 }
 
 /**

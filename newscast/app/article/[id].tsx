@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Image, StyleSheet, ActivityIndicator, useWindowDimensions, TouchableOpacity, SafeAreaView, Platform, StatusBar, Share } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, useWindowDimensions, TouchableOpacity, Platform, StatusBar, Share } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import RenderHtml from 'react-native-render-html';
 import { Feather } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
-import { getAction } from '../../config/api';
+import { getAction, BASE_URL, getFullUrl } from '../../config/api';
 
 export default function ArticleDetail() {
   const { id } = useLocalSearchParams();
@@ -35,7 +37,7 @@ export default function ArticleDetail() {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `${post.title}\n\nRead more at: https://panchayatvoice.in/post/${post.slug}`,
+        message: `${post.title}\n\nRead more at: ${BASE_URL}/article/${post.slug}`,
       });
     } catch (error) {
       console.log(error);
@@ -90,14 +92,23 @@ export default function ArticleDetail() {
             </TouchableOpacity>
         </View>
 
-        {post.featured_image && (
-            <Image source={{ uri: post.featured_image }} style={styles.image} resizeMode="cover" />
-        )}
+        <Image 
+            source={{ uri: getFullUrl(post.featured_image) }} 
+            style={styles.image} 
+            contentFit="cover"
+            transition={300}
+            cachePolicy="disk"
+        />
 
         {/* In-Article Ad */}
         {ads.length > 0 && (
             <TouchableOpacity style={styles.adBox}>
-                <Image source={{ uri: ads[0].image_url }} style={styles.adImage} />
+                <Image 
+                    source={{ uri: getFullUrl(ads[0].image_url) }} 
+                    style={styles.adImage} 
+                    contentFit="cover"
+                    transition={300}
+                />
                 <View style={styles.adBadge}><Text style={styles.adBadgeText}>Ad</Text></View>
             </TouchableOpacity>
         )}
@@ -105,7 +116,7 @@ export default function ArticleDetail() {
         <View style={styles.htmlWrap}>
             <RenderHtml
                 contentWidth={width - 40}
-                source={{ html: post.content }}
+                source={{ html: post.content, baseUrl: BASE_URL }}
                 tagsStyles={{
                     p: { fontSize: 16, lineHeight: 26, color: '#334155', marginBottom: 15 },
                     h1: { fontSize: 24, fontWeight: '800', color: '#1e293b', marginTop: 10, marginBottom: 15 },
@@ -125,7 +136,7 @@ export default function ArticleDetail() {
                 style={styles.relatedCard} 
                 onPress={() => router.push({ pathname: '/article/[id]', params: { id: item.id } } as any)}
               >
-                <Image source={{ uri: item.featured_image }} style={styles.relatedImage} />
+                <Image source={{ uri: getFullUrl(item.featured_image) }} style={styles.relatedImage} />
                 <View style={styles.relatedInfo}>
                   <Text style={styles.relatedTitle} numberOfLines={2}>{item.title}</Text>
                   <Text style={styles.relatedDate}>{new Date(item.published_at).toDateString()}</Text>
@@ -155,10 +166,10 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#f8fafc', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 },
   speakingBadge: { backgroundColor: '#ff3c00' },
   metaText: { fontSize: 13, color: '#94a3b8', fontWeight: '600' },
-  image: { width: '100%', height: 240, borderRadius: 16, marginBottom: 20 },
+  image: { width: '100%', height: 240, borderRadius: 16, marginBottom: 20, backgroundColor: '#f1f5f9' },
   
   adBox: { width: '100%', height: 100, marginBottom: 20, position: 'relative', borderRadius: 12, overflow: 'hidden', backgroundColor: '#f1f5f9' },
-  adImage: { width: '100%', height: '100%', objectFit: 'cover' },
+  adImage: { width: '100%', height: '100%' },
   adBadge: { position: 'absolute', top: 5, right: 5, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   adBadgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
 

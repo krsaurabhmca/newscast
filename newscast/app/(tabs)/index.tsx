@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl, StatusBar, SafeAreaView, Dimensions, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl, StatusBar, Dimensions, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { getAction } from '../../config/api';
+import { getAction, getFullUrl } from '../../config/api';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -50,7 +52,12 @@ export default function Home() {
         onPress={() => router.push(`/article/${item.id}` as any)}
         activeOpacity={0.9}
     >
-        <Image source={{ uri: item.featured_image }} style={styles.sliderImage} />
+        <Image 
+            source={{ uri: getFullUrl(item.featured_image) }} 
+            style={styles.sliderImage} 
+            contentFit="cover"
+            transition={300}
+        />
         <View style={styles.sliderOverlay}>
             <Text style={styles.sliderCategory}>{item.category_name}</Text>
             <Text style={styles.sliderTitle} numberOfLines={2}>{item.title}</Text>
@@ -65,7 +72,12 @@ export default function Home() {
         activeOpacity={0.9}
     >
       {item.featured_image ? (
-        <Image source={{ uri: item.featured_image }} style={styles.image} />
+        <Image 
+            source={{ uri: getFullUrl(item.featured_image) }} 
+            style={styles.image} 
+            contentFit="cover"
+            transition={300}
+        />
       ) : (
         <View style={[styles.image, { backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center' }]}>
             <Feather name="image" size={40} color="#cbd5e1" />
@@ -118,7 +130,7 @@ export default function Home() {
       <StatusBar barStyle="dark-content" />
       <View style={styles.appHeader}>
         <Text style={styles.logoText}>News<Text style={{color: '#ff3c00'}}>Cast</Text></Text>
-        <TouchableOpacity onPress={() => {}}>
+        <TouchableOpacity onPress={() => router.push('/search' as any)}>
             <Feather name="search" size={22} color="#1e293b" />
         </TouchableOpacity>
       </View>
@@ -149,7 +161,7 @@ const styles = StyleSheet.create({
   
   sliderSection: { marginBottom: 10 },
   sliderCard: { width: SCREEN_WIDTH - 40, height: 220, marginRight: 10, borderRadius: 20, overflow: 'hidden', position: 'relative' },
-  sliderImage: { width: '100%', height: '100%', objectFit: 'cover' },
+  sliderImage: { width: '100%', height: '100%' },
   sliderOverlay: { 
     position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, 
     backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' 
@@ -168,7 +180,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
   },
-  image: { width: '100%', height: 200, objectFit: 'cover' },
+  image: { width: '100%', height: 200 },
   cardInfo: { padding: 15 },
   badgeRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   categoryBadge: {

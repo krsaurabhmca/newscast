@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, SafeAreaView, Platform, StatusBar } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, Platform, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
-import { getAction } from '../../config/api';
+import { getAction, getFullUrl } from '../../config/api';
 
 export default function Digital() {
   const [data, setData] = useState<any>(null);
@@ -23,7 +25,12 @@ export default function Digital() {
 
   const renderEpaper = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.paperCard}>
-      <Image source={{ uri: item.thumbnail }} style={styles.paperThumb} />
+      <Image 
+        source={{ uri: getFullUrl(item.thumbnail) }} 
+        style={styles.paperThumb} 
+        contentFit="cover"
+        transition={300}
+      />
       <View style={styles.paperInfo}>
         <Text style={styles.paperDate}>{new Date(item.paper_date).toDateString()}</Text>
         <Text style={styles.paperTitle} numberOfLines={1}>{item.title}</Text>
@@ -37,7 +44,12 @@ export default function Digital() {
 
   const renderMagazine = ({ item }: { item: any }) => (
     <TouchableOpacity style={styles.magCard}>
-      <Image source={{ uri: item.cover_image }} style={styles.magThumb} />
+      <Image 
+        source={{ uri: getFullUrl(item.cover_image) }} 
+        style={styles.magThumb} 
+        contentFit="cover"
+        transition={300}
+      />
       <View style={styles.magInfo}>
         <Text style={styles.magMonth}>{new Date(item.issue_month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Text>
         <Text style={styles.magTitle} numberOfLines={1}>{item.title}</Text>
@@ -107,7 +119,7 @@ const styles = StyleSheet.create({
   seeAll: { fontSize: 13, color: '#ff3c00', fontWeight: '800' },
   
   paperCard: { width: 180, marginRight: 20, backgroundColor: '#fff', borderRadius: 15, elevation: 3, shadowOpacity: 0.05, overflow: 'hidden' },
-  paperThumb: { width: '100%', height: 240, objectFit: 'cover' },
+  paperThumb: { width: '100%', height: 240 },
   paperInfo: { padding: 12 },
   paperDate: { fontSize: 10, color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', marginBottom: 2 },
   paperTitle: { fontSize: 14, fontWeight: '800', color: '#1e293b', marginBottom: 10 },
@@ -115,7 +127,7 @@ const styles = StyleSheet.create({
   btnText: { color: '#fff', fontSize: 11, fontWeight: '800' },
 
   magCard: { width: 140, marginRight: 15 },
-  magThumb: { width: '100%', height: 180, borderRadius: 12, objectFit: 'cover', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10 },
+  magThumb: { width: '100%', height: 180, borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10 },
   magInfo: { marginTop: 10 },
   magMonth: { fontSize: 10, fontWeight: '800', color: '#ff3c00', textTransform: 'uppercase' },
   magTitle: { fontSize: 13, fontWeight: '700', color: '#1e293b' },

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, RefreshControl, Platform, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { getAction } from '../../config/api';
+import { getAction, getFullUrl } from '../../config/api';
 
 export default function CategoryDetail() {
   const { id } = useLocalSearchParams();
@@ -44,7 +46,12 @@ export default function CategoryDetail() {
         activeOpacity={0.9}
     >
       {item.featured_image ? (
-        <Image source={{ uri: item.featured_image }} style={styles.image} />
+        <Image 
+            source={{ uri: getFullUrl(item.featured_image) }} 
+            style={styles.image} 
+            contentFit="cover"
+            transition={300}
+        />
       ) : (
         <View style={[styles.image, { backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center' }]}>
             <Feather name="image" size={40} color="#cbd5e1" />
@@ -61,7 +68,7 @@ export default function CategoryDetail() {
   if (loading && page === 1) return <View style={styles.center}><ActivityIndicator color="#ff3c00" size="large" /></View>;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Feather name="arrow-left" size={24} color="#1e293b" />
@@ -78,12 +85,12 @@ export default function CategoryDetail() {
         onEndReachedThreshold={0.5}
         contentContainerStyle={{ padding: 15 }}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
+  container: { flex: 1, backgroundColor: '#f8fafc', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: { 
      flexDirection: 'row', alignItems: 'center', paddingVertical: 15, paddingHorizontal: 20,
@@ -92,7 +99,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center' },
   headerTitle: { marginLeft: 15, fontSize: 18, fontWeight: '800', color: '#1e293b' },
   card: { backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden', marginBottom: 20, elevation: 4 },
-  image: { width: '100%', height: 180, objectFit: 'cover' },
+  image: { width: '100%', height: 180 },
   cardInfo: { padding: 15 },
   dateText: { fontSize: 11, color: '#94a3b8', fontWeight: '600', marginBottom: 5 },
   title: { fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 8 },

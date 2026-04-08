@@ -1,12 +1,36 @@
-// newscast/config/api.ts
 import axios from 'axios';
 
-import { Platform } from 'react-native';
+// ─── ENVIRONMENT CONFIGURATION ────────────────────────────────────────────────
+// For LIVE / Production server:
+export const BASE_URL = 'https://panchayatvoice.in/';
 
-const API_BASE_URL = 'https://panchayatvoice.in/api/v1/api.php';
+// For LOCAL development (phone & PC on same WiFi):
+// export const BASE_URL = 'http://192.168.1.11/news/';
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const API_URL = `${BASE_URL}api/v1/api.php`;
+
+/**
+ * Ensures a URL is absolute by prepending the BASE_URL if needed.
+ */
+export const getFullUrl = (path: string) => {
+  if (!path || path === '') return `${BASE_URL}assets/images/default-post.jpg`;
+  
+  let cleanPath = path.toString().trim();
+  
+  // Robustly strip any variation of the known domains
+  cleanPath = cleanPath.replace(/^https?:\/\/(www\.)?(panchayatvoice\.in|localhost)\/(news\/)?/i, '');
+  
+  if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1);
+  
+  // If it's another domain (like YouTube), keep it as is
+  if (cleanPath.startsWith('http')) return cleanPath;
+  
+  return `${BASE_URL}${cleanPath}`;
+};
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
