@@ -26,8 +26,14 @@ $message = '';
 $ch = curl_init($raw_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-// Add a user agent to prevent 403 Forbidden from GitHub in some local environments
 curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
+curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Cache-Control: no-cache, no-store, must-revalidate',
+    'Pragma: no-cache',
+    'Expires: 0',
+]);
 $response = curl_exec($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
