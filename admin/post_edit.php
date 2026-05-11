@@ -189,7 +189,7 @@ try {
             <div class="form-group">
                 <label>Body Content <span style="color:var(--danger);">*</span></label>
                 <div id="editor-container">
-                    <div id="editor"><?php echo $post['content']; ?></div>
+                    <div id="editor"></div>
                 </div>
                 <input type="hidden" name="content" id="quill-content" value="<?php echo htmlspecialchars($post['content']); ?>">
             </div>
@@ -323,6 +323,12 @@ try {
                     ]
                 }
             });
+
+            // Safely inject initial content from PHP
+            const initialContent = <?php echo json_encode($post['content']); ?>;
+            if (initialContent) {
+                quill.clipboard.dangerouslyPasteHTML(initialContent);
+            }
 
             // Tooltips are handled globally in footer.php
 
