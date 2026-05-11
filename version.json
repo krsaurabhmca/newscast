@@ -1,6 +1,6 @@
 {
-    "version": "1.5.0",
+    "version": "1.5.2",
     "db_version": 1,
     "last_updated": "2026-05-11",
-    "changelog": "v1.5.0: Modernized Admin UI for Post Add/Edit with pro-dashboard aesthetics. Fixed Quill editor SyntaxErrors and IndexSizeErrors. Hardened database transaction logic to prevent 'MySQL server has gone away' fatal errors. Consolidated tooltip logic into global footer."
+    "changelog": "v1.5.2: Improved validation to support video-only posts (iframe). Added detailed error messaging for missing fields in Admin Panel. Fixed UI synchronization between Quill and server-side validation."
 }
