@@ -65,9 +65,15 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
         }
     }
 
-    $content_clean = strip_tags($content);
-    if (empty($title) || empty($content_clean) || empty($category_ids)) {
-        $_SESSION['flash_msg'] = "Please fill in required fields (Title, Content and Category).";
+    $content_clean = trim(strip_tags($content, '<img><iframe>'));
+    
+    $errors = [];
+    if (empty($title)) $errors[] = "Title";
+    if (empty($content_clean)) $errors[] = "Content";
+    if (empty($category_ids)) $errors[] = "at least one Category";
+
+    if (!empty($errors)) {
+        $_SESSION['flash_msg'] = "The following fields are required: " . implode(', ', $errors) . ".";
         $_SESSION['flash_type'] = "danger";
     }
     else {
@@ -291,20 +297,27 @@ try {
             const hiddenContent = document.querySelector('input[name="content"]');
 
             form.onsubmit = function() {
-                const html = quill.root.innerHTML;
-                const text = quill.getText().trim();
+                try {
+                    const html = quill.root.innerHTML;
+                    const text = quill.getText().trim();
+                    const hasMedia = quill.root.querySelector('img, iframe') !== null;
 
-                if (text.length === 0 && quill.root.querySelector('img') === null) {
-                    alert('Article content cannot be empty.');
-                    return false;
-                }
+                    if (text.length === 0 && !hasMedia) {
+                        alert('Article content cannot be empty.');
+                        return false;
+                    }
 
-                hiddenContent.value = html;
+                    hiddenContent.value = html;
 
-                const cats = document.querySelectorAll('input[name="category_ids[]"]:checked');
-                if (cats.length === 0) {
-                    alert('Select at least one category.');
-                    return false;
+                    const cats = document.querySelectorAll('input[name="category_ids[]"]:checked');
+                    if (cats.length === 0) {
+                        alert('Please select at least one category.');
+                        return false;
+                    }
+                    return true;
+                } catch (e) {
+                    console.error("Validation error:", e);
+                    return true; // Fallback to server-side validation
                 }
             };
         }

@@ -103,23 +103,19 @@ $live_vid_id = dash_yt_id($live_url);
         <div class="dlb-actions">
             <?php if ($live_enabled): ?>
                 <a href="?live_toggle=off" class="dlb-btn dlb-btn-off">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                    Stop Live
+                    <i data-feather="stop-circle" style="width: 14px;"></i> Stop Live
                 </a>
             <?php else: ?>
                 <a href="?live_toggle=on" class="dlb-btn dlb-btn-on">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
-                    Go Live
+                    <i data-feather="play-circle" style="width: 14px;"></i> Go Live
                 </a>
             <?php endif; ?>
             <a href="settings.php?tab=livestream" class="dlb-btn dlb-btn-settings">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    Settings
-                </a>
+                <i data-feather="settings" style="width: 14px;"></i> Configuration
+            </a>
             <?php if ($live_enabled): ?>
                 <a href="<?php echo BASE_URL; ?>" target="_blank" class="dlb-btn dlb-btn-view">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    View on Site
+                    <i data-feather="external-link" style="width: 14px;"></i> View Site
                 </a>
             <?php endif; ?>
         </div>
@@ -148,12 +144,11 @@ $live_vid_id = dash_yt_id($live_url);
         <h2 class="dlb-title">YouTube Live Stream</h2>
         <p style="color:#94a3b8;font-size:13px;margin:6px 0 14px;">Set up a live stream URL to broadcast directly on your homepage with an animated Live badge.</p>
         <a href="settings.php" onclick="setTimeout(()=>showTab&&showTab('livestream'),500)" class="dlb-btn dlb-btn-on">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Configure Live Stream
+            <i data-feather="plus-circle" style="width: 14px;"></i> Configure Live Stream
         </a>
     </div>
     <div class="dlb-preview" style="background:#f8fafc;display:flex;align-items:center;justify-content:center;">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        <i data-feather="video-off" style="width: 64px; height: 64px; color: #cbd5e1; stroke-width: 1;"></i>
     </div>
 </div>
 <?php endif; ?>
@@ -161,21 +156,21 @@ $live_vid_id = dash_yt_id($live_url);
 <style>
 .dash-live-banner {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 340px;
     gap: 0;
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.08);
-    min-height: 160px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+    min-height: 180px;
 }
-.live-on  { background: linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0f172a 100%); border: 1.5px solid rgba(220,38,38,.35); }
-.live-off { background: linear-gradient(135deg,#1e293b 0%,#0f172a 100%); border: 1.5px solid #334155; }
-.live-empty { background: white; border: 1.5px dashed #e2e8f0; }
+.live-on  { background: linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#0f172a 100%); border: 1px solid rgba(220,38,38,.2); }
+.live-off { background: linear-gradient(135deg,#1e293b 0%,#0f172a 100%); border: 1px solid #334155; }
+.live-empty { background: white; border: 1px dashed #e2e8f0; }
 .live-empty .dlb-info { color: #334155; }
 
 .dlb-info {
-    padding: 22px 26px;
+    padding: 30px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -185,10 +180,9 @@ $live_vid_id = dash_yt_id($live_url);
     display: flex;
     align-items: center;
     gap: 7px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     position: relative;
 }
-/* Pulsing ring */
 .dlb-pulse-ring {
     position: absolute;
     left: -3px; top: -3px;
@@ -215,7 +209,7 @@ $live_vid_id = dash_yt_id($live_url);
 .dlb-live-text {
     font-size: 11px; font-weight: 900;
     color: #dc2626;
-    letter-spacing: .12em;
+    letter-spacing: .15em;
 }
 .dlb-off-dot {
     width: 8px; height: 8px; border-radius: 50%;
@@ -228,56 +222,54 @@ $live_vid_id = dash_yt_id($live_url);
     letter-spacing: .08em;
 }
 .dlb-title {
-    font-size: 18px; font-weight: 800;
+    font-size: 22px; font-weight: 800;
     color: #f1f5f9;
-    margin: 0 0 4px;
-    line-height: 1.3;
+    margin: 0 0 6px;
+    line-height: 1.2;
 }
 .live-empty .dlb-title { color: #0f172a; }
-.dlb-url { font-size: 11px; color: #64748b; margin: 0 0 14px; word-break: break-all; }
-.dlb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.dlb-url { font-size: 12px; color: #94a3b8; margin: 0 0 18px; word-break: break-all; font-family: monospace; }
+.dlb-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .dlb-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 14px; border-radius: 8px;
-    font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 10px;
+    font-size: 13px; font-weight: 700;
     text-decoration: none;
-    transition: .18s;
+    transition: all 0.2s;
     white-space: nowrap;
 }
-.dlb-btn-on  { background:#dc2626; color:#fff; }
-.dlb-btn-on:hover { background:#b91c1c; }
+.dlb-btn-on  { background:#dc2626; color:#fff; box-shadow: 0 4px 12px rgba(220,38,38,0.3); }
+.dlb-btn-on:hover { background:#b91c1c; transform: translateY(-1px); }
 .dlb-btn-off { background:rgba(255,255,255,.1); color:#f1f5f9; border:1px solid rgba(255,255,255,.15); }
-.dlb-btn-off:hover { background:rgba(255,255,255,.18); }
-.dlb-btn-settings { background:rgba(255,255,255,.08); color:#94a3b8; border:1px solid rgba(255,255,255,.1); }
-.dlb-btn-settings:hover { background:rgba(255,255,255,.15); color:#f1f5f9; }
+.dlb-btn-off:hover { background:rgba(255,255,255,.18); transform: translateY(-1px); }
+.dlb-btn-settings { background:rgba(255,255,255,.05); color:#94a3b8; border:1px solid rgba(255,255,255,.08); }
+.dlb-btn-settings:hover { background:rgba(255,255,255,.12); color:#f1f5f9; }
 .dlb-btn-view { background:#16a34a; color:#fff; }
-.dlb-btn-view:hover { background:#15803d; }
-/* Video preview panel */
+.dlb-btn-view:hover { background:#15803d; transform: translateY(-1px); }
+
 .dlb-preview {
     position: relative;
     background: #000;
-    min-height: 160px;
+    min-height: 180px;
 }
-.dlb-preview iframe { display:block; }
 .dlb-corner-live {
-    position: absolute; top:10px; left:10px;
+    position: absolute; top:12px; left:12px;
     background: rgba(220,38,38,.9);
     color: #fff;
     font-size: 10px; font-weight: 900;
-    padding: 3px 8px;
-    border-radius: 5px;
-    display: flex; align-items: center; gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: flex; align-items: center; gap: 5px;
     pointer-events: none;
-    letter-spacing:.06em;
 }
 .dlb-dot-sm {
     width:6px; height:6px; border-radius:50%;
     background:#fff;
     animation: dlbBlink 1s infinite;
 }
-@media (max-width:900px) {
+@media (max-width:1024px) {
     .dash-live-banner { grid-template-columns:1fr; }
-    .dlb-preview { min-height: 200px; }
+    .dlb-preview { min-height: 220px; }
 }
 </style>
 
@@ -288,101 +280,74 @@ $live_vid_id = dash_yt_id($live_url);
 <!-- ═══════════════════════════ STATS ROW ═══════════════════════════ -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 28px;">
 
-    <div class="stat-card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="stat-card" style="position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2;">
             <div>
-                <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px;">Published</p>
-                <div style="font-size: 30px; font-weight: 900; color: #0f172a;"><?php echo number_format($published_posts); ?></div>
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;"><?php echo $draft_posts; ?> drafts pending</p>
+                <p style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Articles</p>
+                <div style="font-size: 32px; font-weight: 900; color: #0f172a; line-height: 1;"><?php echo number_format($published_posts); ?></div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 8px; font-weight: 500;"><?php echo $draft_posts; ?> drafts pending</p>
             </div>
-            <div style="background: rgba(99,102,241,.1); color: var(--primary); width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
-                <i data-feather="file-text" style="width: 24px;"></i>
+            <div style="background: rgba(99,102,241,.1); color: var(--primary); width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i data-feather="file-text" style="width: 26px;"></i>
             </div>
         </div>
-        <div style="margin-top: 15px; height: 4px; background: #f1f5f9; border-radius: 4px;">
-            <div style="height: 4px; background: var(--primary); border-radius: 4px; width: <?php echo $total_posts > 0 ? round(($published_posts/$total_posts)*100) : 0; ?>%;"></div>
+        <div style="margin-top: 15px; height: 5px; background: #f1f5f9; border-radius: 10px; position: relative; z-index: 2;">
+            <div style="height: 5px; background: var(--primary); border-radius: 10px; width: <?php echo $total_posts > 0 ? round(($published_posts/$total_posts)*100) : 0; ?>%; box-shadow: 0 0 10px rgba(99,102,241,0.3);"></div>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="stat-card" style="position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2;">
             <div>
-                <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px;">Total Reach</p>
-                <div style="font-size: 30px; font-weight: 900; color: #0f172a;"><?php echo number_format($total_views); ?></div>
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Cumulative views</p>
+                <p style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Total Views</p>
+                <div style="font-size: 32px; font-weight: 900; color: #0f172a; line-height: 1;"><?php echo number_format($total_views); ?></div>
+                <p style="font-size: 12px; color: #10b981; margin-top: 8px; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                    <i data-feather="arrow-up-right" style="width: 12px;"></i> <?php echo $today_posts; ?> today
+                </p>
             </div>
-            <div style="background: rgba(16,185,129,.1); color: #10b981; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
-                <i data-feather="trending-up" style="width: 24px;"></i>
+            <div style="background: rgba(16,185,129,.1); color: #10b981; width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i data-feather="trending-up" style="width: 26px;"></i>
             </div>
-        </div>
-        <div style="margin-top: 15px; padding: 6px 10px; background: #ecfdf5; border-radius: 8px; display: inline-flex; align-items: center; gap: 5px;">
-            <i data-feather="eye" style="width: 12px; color: #10b981;"></i>
-            <span style="font-size: 12px; font-weight: 600; color: #059669;"><?php echo $today_posts; ?> new today</span>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="stat-card" style="position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2;">
             <div>
-                <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px;">Categories</p>
-                <div style="font-size: 30px; font-weight: 900; color: #0f172a;"><?php echo number_format($total_categories); ?></div>
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Active sections</p>
+                <p style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Categories</p>
+                <div style="font-size: 32px; font-weight: 900; color: #0f172a; line-height: 1;"><?php echo number_format($total_categories); ?></div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 8px; font-weight: 500;">Active sections</p>
             </div>
-            <div style="background: rgba(245,158,11,.1); color: #f59e0b; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
-                <i data-feather="layers" style="width: 24px;"></i>
+            <div style="background: rgba(245,158,11,.1); color: #f59e0b; width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i data-feather="layers" style="width: 26px;"></i>
             </div>
         </div>
-        <a href="categories.php" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #f59e0b; text-decoration: none;">
-            Manage <i data-feather="arrow-right" style="width: 12px;"></i>
-        </a>
     </div>
 
-    <div class="stat-card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="stat-card" style="position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2;">
             <div>
-                <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px;">Messages</p>
-                <div style="font-size: 30px; font-weight: 900; color: #0f172a;"><?php echo number_format($unread_msgs); ?></div>
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Unread in inbox</p>
+                <p style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Inbox</p>
+                <div style="font-size: 32px; font-weight: 900; color: #0f172a; line-height: 1;"><?php echo number_format($unread_msgs); ?></div>
+                <p style="font-size: 12px; color: #ef4444; margin-top: 8px; font-weight: 700;">New messages</p>
             </div>
-            <div style="background: rgba(239,68,68,.1); color: #ef4444; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
-                <i data-feather="inbox" style="width: 24px;"></i>
+            <div style="background: rgba(239,68,68,.1); color: #ef4444; width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i data-feather="mail" style="width: 26px;"></i>
             </div>
         </div>
-        <a href="feedback.php" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #ef4444; text-decoration: none;">
-            View Inbox <i data-feather="arrow-right" style="width: 12px;"></i>
-        </a>
     </div>
 
-    <div class="stat-card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="stat-card" style="position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2;">
             <div>
-                <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px;">Ad Reach</p>
-                <div style="font-size: 30px; font-weight: 900; color: #0f172a;"><?php echo number_format($total_ad_views); ?></div>
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;"><?php echo $total_ad_clicks; ?> total clicks</p>
+                <p style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Ad Impressions</p>
+                <div style="font-size: 32px; font-weight: 900; color: #0f172a; line-height: 1;"><?php echo number_format($total_ad_views); ?></div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 8px; font-weight: 500;"><?php echo $total_ad_clicks; ?> clicks</p>
             </div>
-            <div style="background: rgba(99,102,241,.1); color: var(--primary); width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
-                <i data-feather="image" style="width: 24px;"></i>
+            <div style="background: rgba(99,102,241,.1); color: var(--primary); width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i data-feather="bar-chart-2" style="width: 26px;"></i>
             </div>
         </div>
-        <a href="ads.php" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--primary); text-decoration: none;">
-            Analyze Ads <i data-feather="arrow-right" style="width: 12px;"></i>
-        </a>
-    </div>
-
-    <div class="stat-card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-                <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px;">Contributors</p>
-                <div style="font-size: 30px; font-weight: 900; color: #0f172a;"><?php echo number_format($total_users); ?></div>
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Journalists & Editors</p>
-            </div>
-            <div style="background: rgba(139,92,246,.1); color: #8b5cf6; width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
-                <i data-feather="users" style="width: 24px;"></i>
-            </div>
-        </div>
-        <a href="users.php" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #8b5cf6; text-decoration: none;">
-            Manage Team <i data-feather="arrow-right" style="width: 12px;"></i>
-        </a>
     </div>
 </div>
 
@@ -390,214 +355,205 @@ $live_vid_id = dash_yt_id($live_url);
 <div class="admin-grid">
 
     <!-- LEFT COLUMN -->
-    <div class="admin-main-col" style="display: flex; flex-direction: column; gap: 25px;">
+    <div class="admin-main-col" style="display: flex; flex-direction: column; gap: 30px;">
 
         <!-- Top Performing Articles -->
-        <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
-            <div style="padding: 20px 25px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+        <div class="stat-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border);">
+            <div style="padding: 22px 25px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; background: #fcfcfd;">
                 <div>
-                    <h3 style="font-size: 16px; font-weight: 700; margin: 0;">🏆 Top Performing Articles</h3>
-                    <p style="font-size: 12px; color: #94a3b8; margin: 3px 0 0;">By total views</p>
+                    <h3 style="font-size: 16px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i data-feather="award" style="width: 18px; color: #f59e0b;"></i>
+                        Top Performing Articles
+                    </h3>
                 </div>
-                <a href="posts.php" class="btn btn-primary" style="font-size: 12px; padding: 7px 15px;">All Posts</a>
+                <a href="posts.php" class="btn" style="font-size: 12px; padding: 6px 12px; background: #f1f5f9; color: #475569;">All Reports</a>
             </div>
-            <table class="content-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Category</th>
-                        <th>Views</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($top_posts)): ?>
-                        <tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 40px;">No published posts yet.</td></tr>
-                    <?php else: ?>
-                    <?php foreach ($top_posts as $i => $post):
-                        $cats = explode(',', $post['cats'] ?? '');
-                        $colors = explode(',', $post['colors'] ?? '');
-                    ?>
-                    <tr>
-                        <td style="font-size: 13px; font-weight: 800; color: <?php echo $i === 0 ? '#f59e0b' : ($i === 1 ? '#94a3b8' : ($i === 2 ? '#92400e' : '#cbd5e1')); ?>;">
-                            <?php echo $i + 1; ?>
-                        </td>
-                        <td style="max-width: 250px;">
-                            <a href="<?php echo BASE_URL; ?>article/<?php echo $post['slug']; ?>" target="_blank" style="font-weight: 600; color: #0f172a; text-decoration: none; font-size: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo htmlspecialchars($post['title']); ?></a>
-                        </td>
-                        <td>
-                            <span style="background: <?php echo $colors[0] ?? '#6366f1'; ?>18; color: <?php echo $colors[0] ?? '#6366f1'; ?>; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;"><?php echo htmlspecialchars($cats[0] ?? 'N/A'); ?></span>
-                        </td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <div style="flex: 1; height: 6px; background: #f1f5f9; border-radius: 10px; max-width: 60px;">
-                                    <div style="height: 6px; background: var(--primary); border-radius: 10px; width: <?php echo $top_posts[0]['views'] > 0 ? round(($post['views']/$top_posts[0]['views'])*100) : 0; ?>%;"></div>
+            <div style="overflow-x: auto;">
+                <table class="content-table" style="margin-top: 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px; text-align: center;">#</th>
+                            <th>Article Title</th>
+                            <th>Category</th>
+                            <th>Engagement</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($top_posts)): ?>
+                            <tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 50px;">No published articles yet.</td></tr>
+                        <?php else: ?>
+                        <?php foreach ($top_posts as $i => $post):
+                            $cats = explode(',', $post['cats'] ?? '');
+                            $colors = explode(',', $post['colors'] ?? '');
+                        ?>
+                        <tr onmouseover="this.style.background='#fbfcfe'" onmouseout="this.style.background='transparent'" style="transition: background 0.2s;">
+                            <td style="text-align: center; font-weight: 800; color: <?php echo $i === 0 ? '#f59e0b' : ($i === 1 ? '#94a3b8' : ($i === 2 ? '#92400e' : '#cbd5e1')); ?>; font-size: 15px;">
+                                <?php echo $i + 1; ?>
+                            </td>
+                            <td style="max-width: 300px;">
+                                <a href="<?php echo BASE_URL; ?>article/<?php echo $post['slug']; ?>" target="_blank" style="font-weight: 700; color: var(--text-main); text-decoration: none; font-size: 14px; display: block; margin-bottom: 4px;"><?php echo htmlspecialchars($post['title']); ?></a>
+                                <span style="font-size: 11px; color: #94a3b8;">Published: <?php echo date('M d, Y', strtotime($post['published_at'])); ?></span>
+                            </td>
+                            <td>
+                                <span style="background: <?php echo ($colors[0] ?? '#6366f1'); ?>15; color: <?php echo $colors[0] ?? '#6366f1'; ?>; padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;"><?php echo htmlspecialchars($cats[0] ?? 'N/A'); ?></span>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="flex: 1; height: 6px; background: #f1f5f9; border-radius: 10px; max-width: 70px;">
+                                        <div style="height: 6px; background: var(--primary); border-radius: 10px; width: <?php echo $top_posts[0]['views'] > 0 ? round(($post['views']/$top_posts[0]['views'])*100) : 0; ?>%; box-shadow: 0 0 8px rgba(99,102,241,0.2);"></div>
+                                    </div>
+                                    <span style="font-weight: 800; font-size: 14px; color: var(--text-main);"><?php echo number_format($post['views']); ?></span>
                                 </div>
-                                <span style="font-weight: 700; font-size: 13px; color: #0f172a;"><?php echo number_format($post['views']); ?></span>
-                            </div>
-                        </td>
-                        <td>
-                            <a href="post_edit.php?id=<?php echo $post['id']; ?>" style="font-size: 12px; color: var(--primary); font-weight: 600; text-decoration: none;">Edit</a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Recently Added -->
-        <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
-            <div style="padding: 20px 25px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3 style="font-size: 16px; font-weight: 700; margin: 0;">🕒 Recently Added</h3>
-                    <p style="font-size: 12px; color: #94a3b8; margin: 3px 0 0;">Latest editorial activity</p>
-                </div>
-                <a href="post_add.php" class="btn" style="font-size: 12px; padding: 7px 15px; background: #ecfdf5; color: #059669; font-weight: 700;">+ New Post</a>
-            </div>
-            <div style="padding: 5px 0;">
-            <?php foreach ($recent_posts as $post):
-                $cols = explode(',', $post['colors'] ?? '#6366f1');
-                $cats = explode(',', $post['cats'] ?? 'Uncategorized');
-            ?>
-            <div style="padding: 14px 25px; display: flex; gap: 14px; align-items: center; border-bottom: 1px solid #f8fafc;">
-                <div style="width: 8px; height: 8px; border-radius: 50%; background: <?php echo $cols[0]; ?>; flex-shrink: 0;"></div>
-                <div style="flex: 1; min-width: 0;">
-                    <a href="post_edit.php?id=<?php echo $post['id']; ?>" style="font-size: 14px; font-weight: 600; color: #0f172a; text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars($post['title']); ?></a>
-                    <span style="font-size: 11px; color: <?php echo $cols[0]; ?>; font-weight: 700;"><?php echo htmlspecialchars($cats[0]); ?></span>
-                </div>
-                <div style="text-align: right; flex-shrink: 0;">
-                    <span class="badge badge-<?php echo $post['status']; ?>"><?php echo ucfirst($post['status']); ?></span>
-                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;"><?php echo date('d M', strtotime($post['created_at'])); ?></div>
-                </div>
-            </div>
-            <?php endforeach; ?>
+                            </td>
+                            <td style="text-align: right;">
+                                <a href="post_edit.php?id=<?php echo $post['id']; ?>" class="btn" style="padding: 5px 10px; background: #eff6ff; color: #2563eb; font-size: 12px;">Edit</a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Ad Performance Details -->
-        <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
-            <div style="padding: 20px 25px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h3 style="font-size: 16px; font-weight: 700; margin: 0;">📈 Active Ad Performance</h3>
-                    <p style="font-size: 12px; color: #94a3b8; margin: 3px 0 0;">Top performing campaigns</p>
+        <!-- Two Column Secondary Row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+            <!-- Recently Added -->
+            <div class="stat-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border);">
+                <div style="padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="font-size: 15px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i data-feather="clock" style="width: 16px; color: #6366f1;"></i>
+                        Recent Activity
+                    </h3>
+                    <a href="post_add.php" style="font-size: 12px; color: var(--primary); font-weight: 700; text-decoration: none;">+ New</a>
                 </div>
-                <a href="ads.php" class="btn" style="font-size: 12px; padding: 7px 15px; background: #fff1f2; color: #e11d48; font-weight: 700;">All Ads</a>
+                <div style="padding: 5px 0;">
+                <?php foreach ($recent_posts as $post):
+                    $cols = explode(',', $post['colors'] ?? '#6366f1');
+                ?>
+                <div style="padding: 15px 20px; display: flex; gap: 15px; align-items: center; border-bottom: 1px solid #f8fafc; transition: background 0.2s;" onmouseover="this.style.background='#fcfcfd'" onmouseout="this.style.background='transparent'">
+                    <div style="width: 10px; height: 10px; border-radius: 50%; background: <?php echo $cols[0]; ?>; flex-shrink: 0; box-shadow: 0 0 0 3px <?php echo $cols[0]; ?>20;"></div>
+                    <div style="flex: 1; min-width: 0;">
+                        <a href="post_edit.php?id=<?php echo $post['id']; ?>" style="font-size: 13px; font-weight: 700; color: var(--text-main); text-decoration: none; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;"><?php echo htmlspecialchars($post['title']); ?></a>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="badge-<?php echo $post['status']; ?>" style="font-size: 10px; font-weight: 800; text-transform: uppercase;"><?php echo $post['status']; ?></span>
+                            <span style="font-size: 11px; color: #94a3b8;"><?php echo date('M d', strtotime($post['created_at'])); ?></span>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+                </div>
             </div>
-            <table class="content-table">
-                <thead>
-                    <tr>
-                        <th>Campaign</th>
-                        <th>Location</th>
-                        <th>CTR</th>
-                        <th>Stats</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($top_ads)): ?>
-                        <tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 40px;">No advertisements found.</td></tr>
-                    <?php else: ?>
-                    <?php foreach ($top_ads as $ad): 
-                        $ctr = $ad['impressions'] > 0 ? round(($ad['clicks']/$ad['impressions'])*100, 1) : 0;
-                    ?>
-                    <tr>
-                        <td>
-                            <div style="font-weight: 600; color: #0f172a; font-size: 13px;"><?php echo htmlspecialchars($ad['name']); ?></div>
-                            <span style="font-size: 10px; color: #64748b; text-transform: uppercase;"><?php echo $ad['type']; ?></span>
-                        </td>
-                        <td>
-                            <span style="background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;">
-                                <?php echo str_replace('_', ' ', $ad['location']); ?>
-                            </span>
-                        </td>
-                        <td>
-                            <div style="font-weight: 700; color: <?php echo $ctr > 2 ? '#059669' : '#0f172a'; ?>; font-size: 13px;"><?php echo $ctr; ?>%</div>
-                        </td>
-                        <td>
-                            <div style="font-size: 11px; color: #64748b;">
-                                <span style="font-weight: 700; color: #0f172a;"><?php echo number_format($ad['impressions']); ?></span> views<br>
-                                <span style="font-weight: 700; color: #0f172a;"><?php echo number_format($ad['clicks']); ?></span> clicks
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+
+            <!-- Ad Performance -->
+            <div class="stat-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border);">
+                <div style="padding: 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="font-size: 15px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i data-feather="bar-chart" style="width: 16px; color: #ef4444;"></i>
+                        Ad Pulse
+                    </h3>
+                    <a href="ads.php" style="font-size: 12px; color: #ef4444; font-weight: 700; text-decoration: none;">Stats</a>
+                </div>
+                <div style="padding: 5px 0;">
+                <?php foreach ($top_ads as $ad): 
+                    $ctr = $ad['impressions'] > 0 ? round(($ad['clicks']/$ad['impressions'])*100, 1) : 0;
+                ?>
+                <div style="padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f8fafc;">
+                    <div style="min-width: 0; flex: 1;">
+                        <div style="font-weight: 700; color: var(--text-main); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars($ad['name']); ?></div>
+                        <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700;"><?php echo str_replace('_', ' ', $ad['location']); ?></span>
+                    </div>
+                    <div style="text-align: right; flex-shrink: 0;">
+                        <div style="font-weight: 800; color: #0f172a; font-size: 14px;"><?php echo $ctr; ?>% <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">CTR</span></div>
+                        <div style="font-size: 11px; color: #64748b;"><?php echo number_format($ad['impressions']); ?> views</div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- RIGHT COLUMN -->
-    <div class="admin-sidebar-col" style="display: flex; flex-direction: column; gap: 25px;">
+    <div class="admin-sidebar-col" style="display: flex; flex-direction: column; gap: 30px;">
 
         <!-- Quick Actions -->
-        <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 20px;">
-            <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 15px;">⚡ Quick Actions</h3>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="post_add.php" class="btn btn-primary" style="justify-content: center;">
-                    <i data-feather="plus" style="width: 16px;"></i> New Article
+        <div class="stat-card" style="background: #0f172a; color: white; border: none; padding: 25px;">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i data-feather="zap" style="width: 18px; color: #f59e0b;"></i>
+                Quick Command
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <a href="post_add.php" class="btn btn-primary" style="justify-content: center; flex-direction: column; height: 80px; gap: 8px;">
+                    <i data-feather="plus" style="width: 20px;"></i> <span>Article</span>
                 </a>
-                <a href="categories.php" class="btn" style="background: #fdf4ff; color: #9333ea; font-weight: 700; justify-content: center; border-color: #f3e8ff;">
-                    <i data-feather="layers" style="width: 16px;"></i> Add Category
+                <a href="categories.php" class="btn" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); justify-content: center; flex-direction: column; height: 80px; gap: 8px;">
+                    <i data-feather="layers" style="width: 20px;"></i> <span>Category</span>
                 </a>
-                <a href="<?php echo BASE_URL; ?>" target="_blank" class="btn" style="background: #f0fdf4; color: #059669; font-weight: 700; justify-content: center; border-color: #dcfce7;">
-                    <i data-feather="external-link" style="width: 16px;"></i> View Website
+                <a href="ads.php" class="btn" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); justify-content: center; flex-direction: column; height: 80px; gap: 8px;">
+                    <i data-feather="image" style="width: 20px;"></i> <span>New Ad</span>
                 </a>
-                <a href="settings.php" class="btn" style="background: #f8fafc; color: #475569; font-weight: 700; justify-content: center;">
-                    <i data-feather="settings" style="width: 16px;"></i> Site Settings
+                <a href="settings.php" class="btn" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); justify-content: center; flex-direction: column; height: 80px; gap: 8px;">
+                    <i data-feather="settings" style="width: 20px;"></i> <span>Settings</span>
                 </a>
             </div>
+            <a href="<?php echo BASE_URL; ?>" target="_blank" class="btn" style="width: 100%; margin-top: 15px; background: #16a34a; color: white; justify-content: center;">
+                <i data-feather="external-link" style="width: 16px;"></i> View Main Website
+            </a>
         </div>
 
         <!-- Category Distribution -->
-        <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); padding: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-                <h3 style="font-size: 15px; font-weight: 700; margin: 0;">📊 Category Pulse</h3>
-                <a href="categories.php" style="font-size: 12px; color: var(--primary); font-weight: 700; text-decoration: none;">Manage</a>
+        <div class="stat-card" style="padding: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
+                <h3 style="font-size: 16px; font-weight: 800; margin: 0; color: var(--text-main);">📊 Section Pulse</h3>
             </div>
             <?php foreach ($cat_stats as $cat): ?>
-            <div style="margin-bottom: 14px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <i data-feather="<?php echo $cat['icon']; ?>" style="width: 14px; color: <?php echo $cat['color']; ?>;"></i>
-                        <span style="font-size: 13px; font-weight: 600; color: #334155;"><?php echo htmlspecialchars($cat['name']); ?></span>
+            <div style="margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 30px; height: 30px; border-radius: 8px; background: <?php echo $cat['color']; ?>10; display: flex; align-items: center; justify-content: center;">
+                            <i data-feather="<?php echo $cat['icon']; ?>" style="width: 14px; color: <?php echo $cat['color']; ?>;"></i>
+                        </div>
+                        <span style="font-size: 14px; font-weight: 700; color: var(--text-main);"><?php echo htmlspecialchars($cat['name']); ?></span>
                     </div>
-                    <span style="font-size: 12px; font-weight: 700; color: #64748b;"><?php echo $cat['cnt']; ?></span>
+                    <span style="font-size: 13px; font-weight: 800; color: #64748b;"><?php echo $cat['cnt']; ?></span>
                 </div>
                 <div style="height: 6px; background: #f1f5f9; border-radius: 10px;">
-                    <div style="height: 6px; background: <?php echo $cat['color']; ?>; border-radius: 10px; width: <?php echo $max_cnt > 0 ? round(($cat['cnt']/$max_cnt)*100) : 0; ?>%; transition: width 1s;"></div>
+                    <div style="height: 6px; background: <?php echo $cat['color']; ?>; border-radius: 10px; width: <?php echo $max_cnt > 0 ? round(($cat['cnt']/$max_cnt)*100) : 0; ?>%; box-shadow: 0 0 8px <?php echo $cat['color']; ?>30;"></div>
                 </div>
             </div>
             <?php endforeach; ?>
         </div>
 
         <!-- Recent Messages -->
-        <div style="background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden;">
-            <div style="padding: 18px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="font-size: 15px; font-weight: 700; margin: 0;">💬 Recent Messages</h3>
-                <a href="feedback.php" style="font-size: 12px; color: var(--primary); font-weight: 700; text-decoration: none;">Inbox</a>
+        <div class="stat-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border);">
+            <div style="padding: 20px 25px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 15px; font-weight: 800; margin: 0; color: var(--text-main);">💬 Feedback</h3>
+                <a href="feedback.php" style="font-size: 12px; color: var(--primary); font-weight: 700; text-decoration: none;">Open Inbox</a>
             </div>
-            <?php if (empty($recent_feedback)): ?>
-                <p style="padding: 20px; color: #94a3b8; font-size: 13px; text-align: center;">No messages yet.</p>
-            <?php else: ?>
-            <?php foreach ($recent_feedback as $msg): ?>
-            <a href="feedback.php?view=<?php echo $msg['id']; ?>" style="display: flex; gap: 12px; padding: 14px 20px; border-bottom: 1px solid #f8fafc; text-decoration: none; transition: background .15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0;">
-                    <?php echo strtoupper(substr($msg['name'], 0, 1)); ?>
-                </div>
-                <div style="min-width: 0;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 13px; font-weight: 700; color: #0f172a;"><?php echo htmlspecialchars($msg['name']); ?></span>
-                        <?php if ($msg['status'] === 'new'): ?>
-                            <span style="width: 6px; height: 6px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
-                        <?php endif; ?>
+            <div style="max-height: 350px; overflow-y: auto;">
+                <?php if (empty($recent_feedback)): ?>
+                    <p style="padding: 30px; color: #94a3b8; font-size: 13px; text-align: center;">Clean inbox! No messages.</p>
+                <?php else: ?>
+                <?php foreach ($recent_feedback as $msg): ?>
+                <a href="feedback.php?view=<?php echo $msg['id']; ?>" style="display: flex; gap: 15px; padding: 18px 25px; border-bottom: 1px solid #f8fafc; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='#fbfcfe'" onmouseout="this.style.background='transparent'">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(99,102,241,0.2);">
+                        <?php echo strtoupper(substr($msg['name'], 0, 1)); ?>
                     </div>
-                    <div style="font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars(substr($msg['message'], 0, 45)); ?>...</div>
-                </div>
-            </a>
-            <?php endforeach; ?>
-            <?php endif; ?>
+                    <div style="min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+                            <span style="font-size: 14px; font-weight: 800; color: var(--text-main);"><?php echo htmlspecialchars($msg['name']); ?></span>
+                            <?php if ($msg['status'] === 'new'): ?>
+                                <span style="background: #ef4444; width: 6px; height: 6px; border-radius: 50%;"></span>
+                            <?php endif; ?>
+                        </div>
+                        <div style="font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;"><?php echo htmlspecialchars(substr($msg['message'], 0, 50)); ?>...</div>
+                    </div>
+                </a>
+                <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>
