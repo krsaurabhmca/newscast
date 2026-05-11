@@ -1,6 +1,6 @@
 {
-    "version": "1.5.3",
+    "version": "1.5.4",
     "db_version": 1,
     "last_updated": "2026-05-11",
-    "changelog": "v1.5.3: Fixed a critical bug where article content could be lost during editing if JavaScript failed to sync the editor. Added hidden field initialization and robust ID-based selectors for content capture."
+    "changelog": "v1.5.4: Fixed critical Quill IndexSizeError by transitioning to post-initialization content injection. Improved editor stability for complex HTML and media-rich articles."
 }
