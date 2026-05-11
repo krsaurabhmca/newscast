@@ -21,7 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_social_share']))
         exit();
     }
     catch (Exception $e) {
-        $pdo->rollBack();
+        if ($pdo->inTransaction()) {
+            try { $pdo->rollBack(); } catch (Exception $rb_e) {}
+        }
+        $error_msg = $e->getMessage();
+        if (strpos($error_msg, 'gone away') !== false) {
+            $error_msg = "Database connection lost. This usually happens if the content being saved exceeds the server limit (max_allowed_packet).";
+        }
+        $_SESSION['flash_msg'] = "Error: " . $error_msg;
+        $_SESSION['flash_type'] = "danger";
+        header("Location: social_share.php");
+        exit();
     }
 }
 

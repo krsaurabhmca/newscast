@@ -65,8 +65,9 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
         }
     }
 
-    if (empty($title) || empty($category_ids)) {
-        $_SESSION['flash_msg'] = "Please fill in required fields (Title and Category).";
+    $content_clean = strip_tags($content);
+    if (empty($title) || empty($content_clean) || empty($category_ids)) {
+        $_SESSION['flash_msg'] = "Please fill in required fields (Title, Content and Category).";
         $_SESSION['flash_type'] = "danger";
     }
     else {
@@ -109,119 +110,155 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
             redirect('admin/posts.php', 'Post created successfully!');
         }
         catch (PDOException $e) {
-            $pdo->rollBack();
-            $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
+            if ($pdo->inTransaction()) {
+                try {
+                    $pdo->rollBack();
+                } catch (Exception $rb_e) {
+                    // Connection lost, can't rollback
+                }
+            }
+            $error_msg = $e->getMessage();
+            if (strpos($error_msg, 'gone away') !== false) {
+                $_SESSION['flash_msg'] = "Error: Database connection lost. This usually happens if the article content (like images) is too large for the server configuration (max_allowed_packet). Please try reducing image sizes.";
+                $_SESSION['flash_type'] = "danger";
+                header("Location: post_add.php");
+                exit();
+            }
+            $_SESSION['flash_msg'] = "Error: " . $error_msg;
             $_SESSION['flash_type'] = "danger";
         }
     }
 }
 
-$categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
+try {
+    $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
+} catch (PDOException $e) {
+    $categories = [];
+}
 ?>
 
 <form action="" method="POST" enctype="multipart/form-data" id="postForm">
-    <div class="admin-grid">
-        
-        <!-- MAIN AREA -->
-        <div class="admin-main-col" style="display: flex; flex-direction: column; gap: 20px;">
-            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #eef2f6;">
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="font-weight: 700; color: #475569; font-size: 14px; margin-bottom: 8px; display: block;">Title <span style="color:red;">*</span></label>
-                    <input type="text" name="title" class="form-control" style="font-size: 18px; font-weight: 700; padding: 12px;" placeholder="Post headline..." required>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="font-weight: 700; color: #475569; font-size: 14px; margin-bottom: 8px; display: block;">Body Content <span style="color:red;">*</span></label>
-                    <div id="editor-container" style="background: white;">
-                        <div id="editor" style="height: 400px; font-size: 15px;"></div>
-                    </div>
-                    <input type="hidden" name="content">
-                </div>
-
-                <div class="form-group">
-                    <label style="font-weight: 700; color: #475569; font-size: 13px; margin-bottom: 8px; display: block;">Short Summary / Excerpt</label>
-                    <textarea name="excerpt" class="form-control" rows="2" style="font-size: 13px;" placeholder="Brief overview for the homepage..."></textarea>
-                </div>
+<div class="admin-grid">
+    
+    <!-- MAIN AREA -->
+    <div class="admin-main-col">
+        <div class="stat-card" style="margin-bottom: 25px;">
+            <div class="form-group">
+                <label>Title <span style="color:var(--danger);">*</span></label>
+                <input type="text" name="title" class="form-control" placeholder="Enter article title..." style="font-size: 1.25rem; font-weight: 700; height: 55px;" required>
             </div>
 
-            <!-- Configuration -->
-            <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                <h3 style="font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Advanced Configuration</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label style="font-size: 12px; font-weight: 700; color: #64748b;">URL Slug</label>
-                        <input type="text" name="slug" class="form-control" style="font-size: 13px;" placeholder="auto-generated">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 12px; font-weight: 700; color: #64748b;">Direct Ad Link (e.g. Website URL)</label>
-                        <input type="text" name="external_link" class="form-control" style="font-size: 13px;" placeholder="Makes this an AD automatically">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 12px; font-weight: 700; color: #64748b;">YouTube Video Link</label>
-                        <input type="url" name="video_url" class="form-control" style="font-size: 13px;" placeholder="https://youtube.com/...">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 12px; font-weight: 700; color: #64748b;">Meta Description</label>
-                        <input type="text" name="meta_description" class="form-control" style="font-size: 13px;" maxlength="160" placeholder="SEO description">
-                    </div>
+            <div class="form-group">
+                <label>Body Content <span style="color:var(--danger);">*</span></label>
+                <div id="editor-container">
+                    <div id="editor" style="height: 400px; font-size: 15px;"></div>
                 </div>
+                <input type="hidden" name="content">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Short Summary / Excerpt</label>
+                <textarea name="excerpt" class="form-control" rows="3" placeholder="Briefly describe the article..."></textarea>
+                <p class="field-hint">Appears on listing pages and search results.</p>
             </div>
         </div>
 
-        <!-- SIDEBAR -->
-        <div class="admin-sidebar-col" style="display: flex; flex-direction: column; gap: 20px;">
-            
-            <!-- Actions -->
-            <div style="background: #1e293b; padding: 20px; border-radius: 12px; color: white;">
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 5px;">Publish Schedule</label>
-                    <input type="datetime-local" name="published_at" class="form-control" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white; font-size: 13px;">
-                    <small style="color: #64748b; font-size: 10px;">Leave blank for instant publish.</small>
+        <!-- Configuration -->
+        <div class="stat-card">
+            <h3 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i data-feather="settings" style="width: 18px; color: var(--primary);"></i>
+                Advanced Configuration
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>URL Slug (Optional)</label>
+                    <input type="text" name="slug" class="form-control" placeholder="auto-generated-if-blank">
                 </div>
-                <button type="submit" name="publish_post" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 800; border-radius: 8px; font-size: 15px; margin-bottom: 10px;">Publish Post</button>
-                <button type="submit" name="save_draft" class="btn" style="width: 100%; padding: 10px; font-weight: 700; border-radius: 8px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">Save Draft</button>
-                <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
-                        <input type="checkbox" name="is_featured" style="width: 16px; height: 16px; accent-color: #3b82f6;"> Featured on Homepage
-                    </label>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Direct Ad Link (Optional)</label>
+                    <input type="text" name="external_link" class="form-control" placeholder="https://...">
                 </div>
-            </div>
-
-            <!-- Categories -->
-            <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #eef2f6;">
-                <h3 style="font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 12px;">Categories <span style="color:red;">*</span></h3>
-                <div style="max-height: 180px; overflow-y: auto; padding: 10px; border: 1px solid #f1f5f9; border-radius: 8px; background: #fafafa;">
-                    <?php foreach ($categories as $cat): ?>
-                        <label style="display: flex; align-items: center; gap: 8px; padding: 5px 0; cursor: pointer; font-size: 13px;">
-                            <input type="checkbox" name="category_ids[]" value="<?php echo $cat['id']; ?>">
-                            <span><?php echo $cat['name']; ?></span>
-                        </label>
-                    <?php
-endforeach; ?>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>YouTube Video Link</label>
+                    <input type="url" name="video_url" class="form-control" placeholder="https://youtube.com/watch?v=...">
                 </div>
-            </div>
-
-            <!-- Tags -->
-            <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #eef2f6;">
-                <h3 style="font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 12px;">Tags</h3>
-                <div style="position: relative;" id="tag-container">
-                    <input type="text" name="tags" id="tag-input" class="form-control" placeholder="Tag1, Tag2, Tag3..." style="font-size: 13px;" autocomplete="off">
-                    <div id="tag-suggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 50; display: none; max-height: 200px; overflow-y: auto; margin-top: 5px;"></div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Meta Description</label>
+                    <input type="text" name="meta_description" class="form-control" maxlength="160" placeholder="SEO summary...">
                 </div>
-                <p style="font-size: 11px; color: #94a3b8; margin-top: 8px;">Separate tags with commas. Suggestions will appear as you type.</p>
-            </div>
-
-            <!-- Image -->
-            <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #eef2f6;">
-                <h3 style="font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 12px;">Cover Photo</h3>
-                <div id="previewBox" style="width: 100%; height: 150px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
-                    <i data-feather="image" id="imgPlaceholder" style="color: #cbd5e1; width: 32px; height: 32px;"></i>
-                    <img id="imgPreview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                </div>
-                <input type="file" name="image" id="imgInput" class="form-control" style="font-size: 12px; margin-top: 10px;" accept="image/*">
             </div>
         </div>
     </div>
+
+    <!-- SIDEBAR -->
+    <div class="admin-sidebar-col" style="display: flex; flex-direction: column; gap: 25px;">
+        
+        <!-- Actions -->
+        <div class="stat-card" style="background: #0f172a; color: white; border: none;">
+            <div class="form-group">
+                <label style="color: #94a3b8; font-size: 12px;">Publish Schedule</label>
+                <input type="datetime-local" name="published_at" class="form-control" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;">
+                <p style="color: #64748b; font-size: 10px; margin-top: 5px;">Leave blank for instant publish.</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="submit" name="publish_post" class="btn btn-primary" style="width: 100%; justify-content: center; height: 50px; font-size: 15px;">
+                    <i data-feather="zap" style="width: 18px;"></i> Publish Now
+                </button>
+                <button type="submit" name="save_draft" class="btn" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+                    <i data-feather="edit-3" style="width: 16px;"></i> Save as Draft
+                </button>
+            </div>
+            <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; color: #cbd5e1;">
+                    <input type="checkbox" name="is_featured" style="width: 18px; height: 18px; accent-color: var(--primary);">
+                    Featured on Homepage
+                </label>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="stat-card">
+            <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <i data-feather="layers" style="width: 16px; color: var(--primary);"></i>
+                Categories <span style="color:var(--danger);">*</span>
+            </h3>
+            <div style="max-height: 220px; overflow-y: auto; padding-right: 5px; margin-right: -5px;">
+                <?php foreach ($categories as $cat): ?>
+                    <label style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; font-size: 13px; border-radius: 8px; transition: background .2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                        <input type="checkbox" name="category_ids[]" value="<?php echo $cat['id']; ?>" style="accent-color: var(--primary);">
+                        <span style="color: var(--text-main); font-weight: 500;"><?php echo $cat['name']; ?></span>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="stat-card">
+            <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <i data-feather="tag" style="width: 16px; color: var(--primary);"></i>
+                Keyword Tags
+            </h3>
+            <div style="position: relative;" id="tag-container">
+                <input type="text" name="tags" id="tag-input" class="form-control" placeholder="news, update, world..." autocomplete="off">
+                <div id="tag-suggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 50; display: none; max-height: 200px; overflow-y: auto; margin-top: 8px;"></div>
+            </div>
+            <p class="field-hint" style="margin-top: 10px;">Separate with commas. Suggestions appear as you type.</p>
+        </div>
+
+        <!-- Image -->
+        <div class="stat-card">
+            <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <i data-feather="image" style="width: 16px; color: var(--primary);"></i>
+                Featured Image
+            </h3>
+            <div id="previewBox" style="width: 100%; height: 180px; background: #f8fafc; border: 2px dashed var(--border); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.3s ease;">
+                <i data-feather="upload-cloud" id="imgPlaceholder" style="color: #cbd5e1; width: 40px; height: 40px;"></i>
+                <img id="imgPreview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+            </div>
+            <input type="file" name="image" id="imgInput" class="form-control" style="margin-top: 15px; font-size: 12px;" accept="image/*">
+        </div>
+    </div>
+</div>
 </form>
 
 <script>
@@ -247,51 +284,21 @@ endforeach; ?>
                 }
             });
 
-            // Add titles/tooltips to toolbar buttons
-            const tooltips = {
-                'ql-font': 'Font Family',
-                'ql-size': 'Font Size',
-                'ql-bold': 'Bold',
-                'ql-italic': 'Italic',
-                'ql-underline': 'Underline',
-                'ql-strike': 'Strikethrough',
-                'ql-color': 'Text Color',
-                'ql-background': 'Background Color',
-                'ql-script[value="sub"]': 'Subscript',
-                'ql-script[value="super"]': 'Superscript',
-                'ql-header[value="1"]': 'Heading 1',
-                'ql-header[value="2"]': 'Heading 2',
-                'ql-header[value="3"]': 'Heading 3',
-                'ql-header[value="4"]': 'Heading 4',
-                'ql-header[value="5"]': 'Heading 5',
-                'ql-header[value="6"]': 'Heading 6',
-                'ql-list[value="ordered"]': 'Ordered List',
-                'ql-list[value="bullet"]': 'Bullet List',
-                'ql-indent[value="-1"]': 'Decrease Indent',
-                'ql-indent[value="+1"]': 'Increase Indent',
-                'ql-align': 'Text Alignment',
-                'ql-blockquote': 'Blockquote',
-                'ql-code-block': 'Code Block',
-                'ql-link': 'Insert Link',
-                'ql-image': 'Insert Image',
-                'ql-video': 'Insert Video (YouTube/Vimeo)',
-                'ql-clean': 'Clear Formatting'
-            };
+            // Tooltips are handled globally in footer.php
 
-            for (const [selector, title] of Object.entries(tooltips)) {
-                const elements = document.querySelectorAll(`.ql-toolbar .${selector}`);
-                elements.forEach(el => el.setAttribute('title', title));
-            }
 
             const form = document.getElementById('postForm');
             const hiddenContent = document.querySelector('input[name="content"]');
 
             form.onsubmit = function() {
                 const html = quill.root.innerHTML;
-                if (html === '<p><br></p>') {
-                    alert('Please write some content.');
+                const text = quill.getText().trim();
+
+                if (text.length === 0 && quill.root.querySelector('img') === null) {
+                    alert('Article content cannot be empty.');
                     return false;
                 }
+
                 hiddenContent.value = html;
 
                 const cats = document.querySelectorAll('input[name="category_ids[]"]:checked');

@@ -87,8 +87,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         redirect('admin/settings.php', 'Settings updated successfully!');
     }
     catch (Exception $e) {
-        $pdo->rollBack();
-        $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
+        if ($pdo->inTransaction()) {
+            try { $pdo->rollBack(); } catch (Exception $rb_e) {}
+        }
+        $error_msg = $e->getMessage();
+        if (strpos($error_msg, 'gone away') !== false) {
+            $error_msg = "Database connection lost. This usually happens if the content being saved (like a large logo or setting) exceeds the server limit (max_allowed_packet).";
+        }
+        $_SESSION['flash_msg'] = "Error: " . $error_msg;
         $_SESSION['flash_type'] = "danger";
     }
 }

@@ -1,6 +1,6 @@
 {
-    "version": "1.4.3",
+    "version": "1.5.0",
     "db_version": 1,
-    "last_updated": "2026-04-08",
-    "changelog": "v1.4.3: Refined API response headers and fixed connectivity issues in mobile app. Added robust error handling and retry mechanisms. Verified all core endpoints for stability."
+    "last_updated": "2026-05-11",
+    "changelog": "v1.5.0: Modernized Admin UI for Post Add/Edit with pro-dashboard aesthetics. Fixed Quill editor SyntaxErrors and IndexSizeErrors. Hardened database transaction logic to prevent 'MySQL server has gone away' fatal errors. Consolidated tooltip logic into global footer."
 }

@@ -30,7 +30,10 @@
                     'ql-clean': 'Remove Formatting'
                 };
                 for (var cls in tooltips) {
-                    var els = document.querySelectorAll('.ql-toolbar .' + cls + ', .ql-toolbar button[class="' + cls + '"]');
+                    // Fix: Selector was malformed for list[value="ordered"]
+                    // The class selector already handles the button identification
+                    var selector = '.ql-toolbar .' + cls;
+                    var els = document.querySelectorAll(selector);
                     if (els.length > 0) {
                         els.forEach(function(el) {
                             el.setAttribute('title', tooltips[cls]);
