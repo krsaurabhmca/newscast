@@ -1,6 +1,6 @@
 {
-    "version": "1.5.2",
+    "version": "1.5.3",
     "db_version": 1,
     "last_updated": "2026-05-11",
-    "changelog": "v1.5.2: Improved validation to support video-only posts (iframe). Added detailed error messaging for missing fields in Admin Panel. Fixed UI synchronization between Quill and server-side validation."
+    "changelog": "v1.5.3: Fixed a critical bug where article content could be lost during editing if JavaScript failed to sync the editor. Added hidden field initialization and robust ID-based selectors for content capture."
 }
