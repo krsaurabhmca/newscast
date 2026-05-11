@@ -191,7 +191,7 @@ try {
                 <div id="editor-container">
                     <div id="editor"><?php echo $post['content']; ?></div>
                 </div>
-                <input type="hidden" name="content">
+                <input type="hidden" name="content" id="quill-content" value="<?php echo htmlspecialchars($post['content']); ?>">
             </div>
 
             <div class="form-group" style="margin-bottom: 0;">
@@ -328,7 +328,7 @@ try {
 
 
             const form = document.getElementById('postForm');
-            const hiddenContent = document.querySelector('input[name="content"]');
+            const hiddenContent = document.getElementById('quill-content');
 
             form.onsubmit = function() {
                 try {

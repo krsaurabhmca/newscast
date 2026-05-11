@@ -159,7 +159,7 @@ try {
                 <div id="editor-container">
                     <div id="editor" style="height: 400px; font-size: 15px;"></div>
                 </div>
-                <input type="hidden" name="content">
+                <input type="hidden" name="content" id="quill-content">
             </div>
 
             <div class="form-group" style="margin-bottom: 0;">
@@ -294,7 +294,7 @@ try {
 
 
             const form = document.getElementById('postForm');
-            const hiddenContent = document.querySelector('input[name="content"]');
+            const hiddenContent = document.getElementById('quill-content');
 
             form.onsubmit = function() {
                 try {
