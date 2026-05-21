@@ -1,6 +1,6 @@
 {
-    "version": "1.5.5",
+    "version": "1.5.6",
     "db_version": 2,
     "last_updated": "2026-05-21",
-    "changelog": "v1.5.5: Upgraded the Auto Installer Wizard. Fixed BASE_URL trailing slash generation for CSS fixes, implemented robust foreign key handling during admin creation, and added auto-login post-installation for immediate access to Settings."
+    "changelog": "v1.5.6: Major UI/UX overhaul across Admin Dashboard. Redesigned Manage Posts page with modern table, badges, and integrated toolbar. Enhanced Profile page for a compact SaaS feel. Cleaned up Sidebar navigation. Added AI Auto-Draft quick links. Replaced bulky text buttons with clean icon actions."
 }

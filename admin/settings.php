@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'onesignal_safari_web_id' => clean($_POST['onesignal_safari_web_id'] ?? ''),
         'collapse_sidebar' => clean($_POST['collapse_sidebar'] ?? 'no'),
         'ebook_magazine_enabled' => clean($_POST['ebook_magazine_enabled'] ?? 'no'),
+        'groq_api_key' => clean($_POST['groq_api_key'] ?? ''),
     ];
 
     try {
@@ -259,6 +260,9 @@ include 'includes/header.php';
     </button>
     <button type="button" onclick="showTab('webpush')" id="tab-webpush">
         <i data-feather="bell" style="width:15px;"></i> Web Push
+    </button>
+    <button type="button" onclick="showTab('ai')" id="tab-ai">
+        <i data-feather="cpu" style="width:15px;"></i> AI Integration
     </button>
 </div>
 
@@ -936,6 +940,33 @@ endforeach; ?>
                         <li>Copy the <strong>App ID</strong> from the "Keys & IDs" section and paste it above.</li>
                         <li>Ensure you have uploaded the SDK files (OneSignalSDKWorker.js) to your root directory.</li>
                     </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ AI & AUTOMATION ══════════ -->
+    <div class="settings-panel" id="panel-ai">
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <div class="icon" style="background:#f3e8ff; color: #9333ea;">
+                    <i data-feather="cpu" style="width:18px;"></i>
+                </div>
+                <div>
+                    <h3>AI Integrations</h3>
+                    <p>Connect to powerful AI models for auto-news generation</p>
+                </div>
+            </div>
+            <div class="settings-card-body">
+                <div class="settings-grid">
+                    <div style="grid-column: 1/-1;">
+                        <label class="field-label">Groq API Key</label>
+                        <div class="social-input-group">
+                            <i data-feather="key" class="social-icon" style="width:16px;"></i>
+                            <input type="password" name="groq_api_key" class="form-control" placeholder="gsk_xxxxxxxxxxxxxxxx" value="<?php echo htmlspecialchars(get_setting('groq_api_key')); ?>">
+                        </div>
+                        <span class="field-hint">Required for the AI News module. Get your free key at <a href="https://console.groq.com/" target="_blank" style="color:var(--primary); font-weight: 600;">console.groq.com</a></span>
+                    </div>
                 </div>
             </div>
         </div>

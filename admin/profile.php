@@ -69,60 +69,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<div style="max-width: 800px; margin: 0 auto;">
-    <div class="stat-card" style="padding: 40px;">
-        <div style="display: flex; align-items: center; gap: 25px; margin-bottom: 40px; border-bottom: 1px solid #f1f5f9; padding-bottom: 30px;">
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="stat-card" style="padding: 25px;">
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
             <div style="position: relative;">
                 <img src="<?php echo get_profile_image($user['profile_image']); ?>" 
-                     style="width: 100px; height: 100px; border-radius: 20px; object-fit: cover; border: 4px solid #f1f5f9; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
-                <div style="position: absolute; bottom: -5px; right: -5px; background: var(--primary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #fff;">
-                    <i data-feather="camera" style="width: 14px;"></i>
+                     style="width: 80px; height: 80px; border-radius: 16px; object-fit: cover; border: 3px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                <div style="position: absolute; bottom: -5px; right: -5px; background: var(--primary); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff;">
+                    <i data-feather="camera" style="width: 12px;"></i>
                 </div>
             </div>
             <div>
-                <h2 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 0;"><?php echo htmlspecialchars($user['username']); ?></h2>
-                <p style="color: #64748b; margin: 5px 0 0; font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;"><?php echo ucfirst($user['role']); ?> Settings</p>
+                <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;"><?php echo htmlspecialchars($user['username']); ?></h2>
+                <p style="color: #64748b; margin: 3px 0 0; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;"><?php echo ucfirst($user['role']); ?> Profile</p>
             </div>
         </div>
 
         <?php if (isset($errors['general'])): ?>
-            <div class="alert alert-danger"><?php echo $errors['general']; ?></div>
+            <div class="alert alert-danger" style="padding: 10px; font-size: 13px;"><?php echo $errors['general']; ?></div>
         <?php endif; ?>
 
         <form method="POST" enctype="multipart/form-data">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" class="form-control <?php echo isset($errors['username']) ? 'is-error' : ''; ?>" 
-                           value="<?php echo htmlspecialchars($user['username']); ?>" required>
-                    <?php if(isset($errors['username'])): ?><small style="color: #ef4444;"><?php echo $errors['username']; ?></small><?php endif; ?>
-                </div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" class="form-control <?php echo isset($errors['username']) ? 'is-error' : ''; ?>" 
+                       value="<?php echo htmlspecialchars($user['username']); ?>" required>
+                <?php if(isset($errors['username'])): ?><small style="color: #ef4444;"><?php echo $errors['username']; ?></small><?php endif; ?>
+            </div>
 
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" class="form-control <?php echo isset($errors['email']) ? 'is-error' : ''; ?>" 
-                           value="<?php echo htmlspecialchars($user['email']); ?>" required>
-                    <?php if(isset($errors['email'])): ?><small style="color: #ef4444;"><?php echo $errors['email']; ?></small><?php endif; ?>
-                </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" class="form-control <?php echo isset($errors['email']) ? 'is-error' : ''; ?>" 
+                       value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                <?php if(isset($errors['email'])): ?><small style="color: #ef4444;"><?php echo $errors['email']; ?></small><?php endif; ?>
             </div>
 
             <div class="form-group">
                 <label>Update Profile Photo</label>
-                <div style="background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 12px; padding: 20px; text-align: center;">
+                <div style="background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 12px; padding: 15px; text-align: center; transition: 0.2s;">
                     <input type="file" name="profile_image" id="profile_img_input" style="display: none;" accept="image/*">
-                    <label for="profile_img_input" style="cursor: pointer; display: block;">
-                        <i data-feather="upload-cloud" style="width: 30px; color: #94a3b8; margin-bottom: 10px;"></i>
-                        <div style="font-size: 14px; font-weight: 600; color: #475569;">Click to upload or drag and drop</div>
-                        <div style="font-size: 12px; color: #94a3b8; margin-top: 5px;">PNG, JPG, WEBP (Max 2MB)</div>
+                    <label for="profile_img_input" style="cursor: pointer; display: block; margin:0;">
+                        <i data-feather="upload-cloud" style="width: 24px; color: #94a3b8; margin-bottom: 5px;"></i>
+                        <div style="font-size: 13px; font-weight: 600; color: #475569;">Click to upload a new avatar</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 3px;">PNG, JPG, WEBP (Max 2MB)</div>
                     </label>
-                    <div id="preview-name" style="margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--primary);"></div>
+                    <div id="preview-name" style="margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--primary);"></div>
                 </div>
                 <?php if(isset($errors['image'])): ?><small style="color: #ef4444;"><?php echo $errors['image']; ?></small><?php endif; ?>
             </div>
 
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
-                <button type="submit" class="btn btn-primary" style="padding: 12px 25px;">Save Changes</button>
-                <a href="dashboard.php" class="btn" style="background: #f1f5f9; color: #475569;">Cancel</a>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 13px;">Save Changes</button>
+                <a href="dashboard.php" class="btn" style="background: #f1f5f9; color: #475569; padding: 10px 20px; font-size: 13px;">Cancel</a>
             </div>
         </form>
     </div>

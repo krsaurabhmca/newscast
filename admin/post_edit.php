@@ -182,7 +182,12 @@ try {
     <div class="admin-main-col">
         <div class="stat-card" style="margin-bottom: 25px;">
             <div class="form-group">
-                <label>Title <span style="color:var(--danger);">*</span></label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="margin: 0;">Title <span style="color:var(--danger);">*</span></label>
+                    <a href="ai_news.php" style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                        <i data-feather="cpu" style="width: 12px;"></i> Auto-Draft with AI
+                    </a>
+                </div>
                 <input type="text" name="title" class="form-control" value="<?php echo htmlspecialchars($post['title']); ?>" style="font-size: 1.25rem; font-weight: 700; height: 55px;" required>
             </div>
 

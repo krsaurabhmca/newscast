@@ -141,6 +141,10 @@ try {
 } catch (PDOException $e) {
     $categories = [];
 }
+
+// Prefill for AI workflow
+$prefill_title = isset($_POST['prefill_title']) ? htmlspecialchars($_POST['prefill_title'], ENT_QUOTES) : '';
+$prefill_content = isset($_POST['prefill_content']) ? $_POST['prefill_content'] : '';
 ?>
 
 <form action="" method="POST" enctype="multipart/form-data" id="postForm">
@@ -150,14 +154,19 @@ try {
     <div class="admin-main-col">
         <div class="stat-card" style="margin-bottom: 25px;">
             <div class="form-group">
-                <label>Title <span style="color:var(--danger);">*</span></label>
-                <input type="text" name="title" class="form-control" placeholder="Enter article title..." style="font-size: 1.25rem; font-weight: 700; height: 55px;" required>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="margin: 0;">Title <span style="color:var(--danger);">*</span></label>
+                    <a href="ai_news.php" style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                        <i data-feather="cpu" style="width: 12px;"></i> Auto-Draft with AI
+                    </a>
+                </div>
+                <input type="text" name="title" class="form-control" placeholder="Enter article title..." style="font-size: 1.25rem; font-weight: 700; height: 55px;" value="<?php echo $prefill_title; ?>" required>
             </div>
 
             <div class="form-group">
                 <label>Body Content <span style="color:var(--danger);">*</span></label>
                 <div id="editor-container">
-                    <div id="editor" style="height: 400px; font-size: 15px;"></div>
+                    <div id="editor" style="height: 400px; font-size: 15px;"><?php echo $prefill_content; ?></div>
                 </div>
                 <input type="hidden" name="content" id="quill-content">
             </div>

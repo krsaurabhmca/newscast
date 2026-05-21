@@ -63,7 +63,14 @@ if (isset($_GET['edit'])) {
 }
 
 // Fetch All Categories
-$categories = $pdo->query("SELECT * FROM categories ORDER BY created_at DESC")->fetchAll();
+$search = trim($_GET['s'] ?? '');
+if ($search !== '') {
+    $stmt = $pdo->prepare("SELECT * FROM categories WHERE name LIKE ? ORDER BY created_at DESC");
+    $stmt->execute(["%$search%"]);
+    $categories = $stmt->fetchAll();
+} else {
+    $categories = $pdo->query("SELECT * FROM categories ORDER BY created_at DESC")->fetchAll();
+}
 ?>
 
 <div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
@@ -132,7 +139,16 @@ $categories = $pdo->query("SELECT * FROM categories ORDER BY created_at DESC")->
 
     <!-- Categories List -->
     <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 20px;">All Categories</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">All Categories</h3>
+            <form method="GET" action="" style="display: flex; gap: 10px;">
+                <input type="text" name="s" class="form-control" placeholder="Search categories..." value="<?php echo htmlspecialchars($search); ?>" style="width: 220px; padding: 8px 12px; font-size: 13px;">
+                <button type="submit" class="btn btn-primary" style="padding: 8px 15px; font-size: 13px;">Search</button>
+                <?php if ($search): ?>
+                    <a href="categories.php" class="btn" style="padding: 8px 15px; font-size: 13px; background: #f1f5f9; color: #475569;">Clear</a>
+                <?php endif; ?>
+            </form>
+        </div>
         <table class="content-table">
             <thead>
                 <tr>
@@ -164,8 +180,12 @@ $categories = $pdo->query("SELECT * FROM categories ORDER BY created_at DESC")->
                     <td><?php echo $count; ?></td>
                     <td>
                         <div style="display: flex; gap: 5px;">
-                            <a href="?edit=<?php echo $cat['id']; ?>" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; background: #6366f1;">Edit</a>
-                            <a href="?delete=<?php echo $cat['id']; ?>" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="return confirm('Delete this category?')">Delete</a>
+                            <a href="?edit=<?php echo $cat['id']; ?>" class="btn" style="padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #f1f5f9; color: #475569;" title="Edit">
+                                <i data-feather="edit-2" style="width: 14px; margin: 0;"></i>
+                            </a>
+                            <a href="?delete=<?php echo $cat['id']; ?>" class="btn btn-danger" style="padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #fef2f2; color: #ef4444; border: 1px solid transparent;" onclick="return confirm('Delete this category?')" title="Delete">
+                                <i data-feather="trash-2" style="width: 14px; margin: 0;"></i>
+                            </a>
                         </div>
                     </td>
                 </tr>
