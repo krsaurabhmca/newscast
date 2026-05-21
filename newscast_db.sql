@@ -52,31 +52,46 @@ INSERT INTO `ads` VALUES (1,'Matthew Rowe','content_bottom','image','ad_699df7bf
 UNLOCK TABLES;
 
 --
--- Table structure for table `bookmarks`
+-- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `bookmarks`;
+DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `bookmarks` (
+CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `post_id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','editor') DEFAULT 'editor',
+  `profile_image` varchar(255) DEFAULT 'default_avatar.png',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `user_post` (`user_id`,`post_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `bookmarks`
+-- Dumping data for table `users`
 --
 
-LOCK TABLES `bookmarks` WRITE;
-/*!40000 ALTER TABLE `bookmarks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bookmarks` ENABLE KEYS */;
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'admin','admin@newscast.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi','admin','default_avatar.png','2026-02-24 18:05:12'),(2,'Saurabh','krsaurabhbca@gmail.com','$2y$10$vYghMlwV7KBhjpuHcGvlH.3bFBbAuXt0n1VNk3i/cwPKkmHm3/Nra','editor','default_avatar.png','2026-02-24 18:59:59');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-03-01 21:10:18
 --
 -- Table structure for table `categories`
 --
@@ -106,6 +121,78 @@ LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
 INSERT INTO `categories` VALUES (1,'Technology','technology','','2026-02-24 18:05:12','globe','#6366f1','active'),(2,'Business','business','','2026-02-24 18:05:12','map-pin','#f59e0b','active'),(3,'Health','health','','2026-02-24 18:05:12','stop-circle','#3ef41a','active'),(4,'Entertainment','entertainment','','2026-02-24 18:05:12','music','#db2777','active'),(5,'Sports','sports','','2026-02-24 18:05:12','shield','#475569','active'),(6,'Video','video','','2026-02-24 18:46:06','film','#16a34a','active'),(7,'Politics','politics','National and international political news','2026-02-24 19:45:07','flag','#dc2626','active'),(8,'Science','science','Space, discoveries, and innovation','2026-02-24 19:45:07','zap','#0891b2','disabled'),(9,'Lifestyle','lifestyle','Travel, food, and daily living','2026-02-24 19:45:07','coffee','#f59e0b','disabled'),(10,'Education','education','Academic news, careers and school updates','2026-02-24 19:45:07','book','#7c3aed','active'),(11,'Environment','environment','Climate change, nature and green news','2026-02-24 19:45:07','cloud','#0d9488','disabled'),(12,'Opinion','opinion','Expert views, editorials, and commentary','2026-02-24 19:45:07','message-circle','#475569','disabled'),(13,'World','world','International news from across the globe','2026-02-24 19:45:07','globe','#1d4ed8','active'),(14,'Local','local','News from your immediate vicinity','2026-02-24 19:45:07','map-pin','#ea580c','disabled'),(15,'Crime','crime','Legal news, police reports and investigations','2026-02-24 19:45:07','shield','#1e293b','active'),(16,'General','general','General news and latest updates.','2026-03-01 07:44:45','grid','#64748b','active');
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `posts`
+--
+
+DROP TABLE IF EXISTS `posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `posts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `category_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `content` longtext NOT NULL,
+  `excerpt` text DEFAULT NULL,
+  `featured_image` varchar(255) DEFAULT NULL,
+  `video_url` varchar(255) DEFAULT NULL,
+  `external_link` varchar(255) DEFAULT NULL,
+  `external_type` enum('none','url','whatsapp','call') DEFAULT 'none',
+  `external_label` enum('none','Ad','Promoted','Sponsored') DEFAULT 'none',
+  `status` enum('draft','published') DEFAULT 'draft',
+  `views` int(11) DEFAULT 0,
+  `is_featured` tinyint(1) DEFAULT 0,
+  `meta_description` varchar(160) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `published_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `category_id` (`category_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `posts`
+--
+
+LOCK TABLES `posts` WRITE;
+/*!40000 ALTER TABLE `posts` DISABLE KEYS */;
+INSERT INTO `posts` VALUES (1,2,1,'Test Poste','test-poste','<p>Test PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest Poste</p>','','post_699de99cbc65c.png',NULL,NULL,'none','none','published',4,1,'','2026-02-24 18:09:17','2026-02-24 19:33:14','2026-02-24 23:39:17'),(3,2,1,'Excepteur qui qui et','officia-molestiae-et','<p>Amet, nihil voluptas. Amet, nihil voluptas.Et eiusmod rerum tem.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.</p>','Cillum veniam fugit','',NULL,NULL,'none','none','published',5,0,'Eos vel atque qui et repellendus Consequuntur quo','2026-02-24 18:21:10','2026-02-25 11:04:09','2026-02-24 23:51:10'),(10,1,1,'Economy Trends for the Next Decade','economy-trends-for-the-next-decade-731','<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q...','post_699dec75e2e76.jpg',NULL,NULL,'none','none','published',239,1,'','2026-02-24 18:22:06','2026-02-24 20:58:50','2026-02-24 23:52:06'),(12,2,1,'Mastering the Art of Modern Cooking','mastering-the-art-of-modern-cooking-426','<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q...','post_699dec8ab7717.png',NULL,NULL,'none','none','published',367,1,'','2026-02-24 18:22:06','2026-02-25 06:35:05','2026-02-24 23:52:06'),(13,5,1,'Cybersecurity Tips for Everyone','cybersecurity-tips-for-everyone-110','<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q...',NULL,NULL,NULL,'none','none','published',369,1,NULL,'2026-02-24 18:22:06','2026-02-24 19:33:14','2026-02-24 23:52:06'),(14,6,2,'Pariatur Sint aut e','impedit-officiis-ve','<p>Tempora sit, eveniet. Tempora sit, eveniet.Omnis qui aut distin.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.</p>','Rerum consectetur ve','','https://www.youtube.com/watch?v=CT_WEGUKejQ&amp;t=2175s','','none','none','draft',11,1,'Odio asperiores enim alias et facere iusto at et suscipit ipsa','2026-02-24 19:01:28','2026-02-24 20:37:38','2026-02-25 00:31:00'),(16,2,1,'Revolutionize Your Newsroom with NewsCast Auto-Share','revolutionize-newsroom-newscast-auto-share','In the fast-paced world of digital journalism, speed is everything. NewsCast introduces a powerful Auto-Share feature that lets you push articles to Facebook and Instagram the moment you hit publish. No more manual copying, no more wasted time. Just instant reach and professional delivery.','In the fast-paced world of digital journalism, speed is everything. NewsCast introduces a powerful Auto-Share feature that lets you push articles to F...','share.png',NULL,NULL,'none','none','published',10239,1,NULL,'2026-03-01 11:25:36','2026-03-01 11:38:00','2026-03-01 17:06:44'),(17,2,1,'Beat the Clock: Save Hours Every Week on Social Media','save-hours-social-media-automation','Journalists should focus on stories, not social media management. Our automated system handles the synchronization of your content across major platforms, saving you hours of repetitive work. Focus on the scoop, and let NewsCast handle the audience engagement.','Journalists should focus on stories, not social media management. Our automated system handles the synchronization of your content across major platfo...','share.png',NULL,NULL,'none','none','published',5381,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:38:10','2026-03-01 17:06:44'),(18,2,1,'The Power of Multi-Platform News Distribution','power-multi-platform-news-distribution','Your readers are on Facebook, Instagram, and beyond. NewsCast allows you to maintain a consistent presence across all connected nodes with a single click. Broadcast your message globally and ensure your headlines are seen everywhere simultaneously.','Your readers are on Facebook, Instagram, and beyond. NewsCast allows you to maintain a consistent presence across all connected nodes with a single cl...','share.png',NULL,NULL,'none','none','published',11617,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:36:44','2026-03-01 17:06:44'),(19,2,1,'Professional Branding Made Easy for Digital Publishers','professional-branding-digital-publishers','Consistency is key to a premium news brand. Our Social Share module ensures that every post sent to Facebook and Instagram is formatted professionally, carrying your brand identity and driving traffic directly back to your domain with clean, reliable links.','Consistency is key to a premium news brand. Our Social Share module ensures that every post sent to Facebook and Instagram is formatted professionally...','share.png',NULL,NULL,'none','none','published',7168,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:37:50','2026-03-01 17:06:44'),(20,2,1,'Manual Dispatch: Total Control over Your Breaking News','manual-dispatch-breaking-news-control','While automation is powerful, sometimes you need surgical precision. Our \"Manual Broadcast\" center gives you the ability to select the exact content architecture and dispatch it to specific nodes—Facebook page or Instagram edge—whenever you need that extra push.','While automation is powerful, sometimes you need surgical precision. Our \"Manual Broadcast\" center gives you the ability to select the exact content a...','share.png',NULL,NULL,'none','none','published',11184,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:37:55','2026-03-01 17:06:44'),(21,2,1,'How Social Signals Boost Your News Site SEO','social-signals-boost-news-seo','Engagement on social media isn\'t just about views—it\'s about authority. By automating your social shares with NewsCast, you create a steady stream of social signals that search engines love, helping your articles rank higher and reach a wider organic audience.','Engagement on social media isn\'t just about views—it\'s about authority. By automating your social shares with NewsCast, you create a steady stream o...','share.png',NULL,NULL,'none','none','published',6140,0,NULL,'2026-03-01 11:25:36','2026-03-01 15:30:47','2026-03-01 17:06:44'),(22,2,1,'Seamless Setup: From Newsroom to Social Feed in Minutes','seamless-setup-social-news-feed','Don\'t let technical jargon slow you down. Our new \"Full Setup Guide\" and \"Configuration Grid\" make it easy for any administrative user to link their Meta App, exchange permanent tokens, and start broadcasting. Professional news distribution has never been this simple.','Don\'t let technical jargon slow you down. Our new \"Full Setup Guide\" and \"Configuration Grid\" make it easy for any administrative user to link their M...','share.png',NULL,NULL,'none','none','published',9339,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:36:44','2026-03-01 17:06:44'),(23,2,1,'The Science of the Social Share: Engagement Analytics','science-social-share-engagement','Every post shared through NewsCast is optimized for engagement. By leveraging the Meta Graph API, we ensure your articles are displayed with high-quality featured images and crisp meta-descriptions, capturing the reader\'s attention and maximizing click-through rates.','Every post shared through NewsCast is optimized for engagement. By leveraging the Meta Graph API, we ensure your articles are displayed with high-qual...','share.png',NULL,NULL,'none','none','published',13005,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:36:44','2026-03-01 17:06:44'),(24,2,1,'Digital Seal: Empowering Independent Media Everywhere','digital-seal-empowering-independent-media','NewsCast is built by Digital Seal to provide enterprise-grade tools to independent newsrooms. Our Social Auto-Share system is just one part of a comprehensive ecosystem designed to make professional media publishing accessible and efficient for everyone.','NewsCast is built by Digital Seal to provide enterprise-grade tools to independent newsrooms. Our Social Auto-Share system is just one part of a compr...','share.png',NULL,NULL,'none','none','published',9521,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:36:44','2026-03-01 17:06:44'),(25,2,1,'Stay Connected: Real-time System Diagnostics for Your Feed','stay-connected-real-time-diagnostics','Never worry about a broken link again. With our built-in connection badges and diagnostic tools, you can instantly verify if your Facebook and Instagram nodes are active. Reliability is at the heart of NewsCast, ensuring your news always reaches your followers.','Never worry about a broken link again. With our built-in connection badges and diagnostic tools, you can instantly verify if your Facebook and Instagr...','share.png',NULL,NULL,'none','none','published',11902,0,NULL,'2026-03-01 11:25:36','2026-03-01 15:30:52','2026-03-01 17:06:44');
+/*!40000 ALTER TABLE `posts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `bookmarks`
+--
+
+DROP TABLE IF EXISTS `bookmarks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bookmarks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_post` (`user_id`,`post_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `bookmarks`
+--
+
+LOCK TABLES `bookmarks` WRITE;
+/*!40000 ALTER TABLE `bookmarks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bookmarks` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -252,6 +339,33 @@ INSERT INTO `post_categories` VALUES (1,9,1),(2,10,1),(3,1,2),(4,3,2),(5,12,2),(
 UNLOCK TABLES;
 
 --
+-- Table structure for table `tags`
+--
+
+DROP TABLE IF EXISTS `tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tags` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tags`
+--
+
+LOCK TABLES `tags` WRITE;
+/*!40000 ALTER TABLE `tags` DISABLE KEYS */;
+INSERT INTO `tags` VALUES (2,'breaking','breaking','2026-02-25 06:18:43'),(3,'news','news','2026-02-25 06:18:43'),(6,'top 10','top-10','2026-02-25 06:22:55');
+/*!40000 ALTER TABLE `tags` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `post_tags`
 --
 
@@ -273,52 +387,6 @@ LOCK TABLES `post_tags` WRITE;
 /*!40000 ALTER TABLE `post_tags` DISABLE KEYS */;
 INSERT INTO `post_tags` VALUES (4,2),(4,3),(4,6);
 /*!40000 ALTER TABLE `post_tags` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `posts`
---
-
-DROP TABLE IF EXISTS `posts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `posts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `category_id` int(11) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `title` varchar(255) NOT NULL,
-  `slug` varchar(255) NOT NULL,
-  `content` longtext NOT NULL,
-  `excerpt` text DEFAULT NULL,
-  `featured_image` varchar(255) DEFAULT NULL,
-  `video_url` varchar(255) DEFAULT NULL,
-  `external_link` varchar(255) DEFAULT NULL,
-  `external_type` enum('none','url','whatsapp','call') DEFAULT 'none',
-  `external_label` enum('none','Ad','Promoted','Sponsored') DEFAULT 'none',
-  `status` enum('draft','published') DEFAULT 'draft',
-  `views` int(11) DEFAULT 0,
-  `is_featured` tinyint(1) DEFAULT 0,
-  `meta_description` varchar(160) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `published_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `slug` (`slug`),
-  KEY `category_id` (`category_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `posts`
---
-
-LOCK TABLES `posts` WRITE;
-/*!40000 ALTER TABLE `posts` DISABLE KEYS */;
-INSERT INTO `posts` VALUES (1,2,1,'Test Poste','test-poste','<p>Test PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest PosteTest Poste</p>','','post_699de99cbc65c.png',NULL,NULL,'none','none','published',4,1,'','2026-02-24 18:09:17','2026-02-24 19:33:14','2026-02-24 23:39:17'),(3,2,1,'Excepteur qui qui et','officia-molestiae-et','<p>Amet, nihil voluptas. Amet, nihil voluptas.Et eiusmod rerum tem.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.Amet, nihil voluptas.</p>','Cillum veniam fugit','',NULL,NULL,'none','none','published',5,0,'Eos vel atque qui et repellendus Consequuntur quo','2026-02-24 18:21:10','2026-02-25 11:04:09','2026-02-24 23:51:10'),(10,1,1,'Economy Trends for the Next Decade','economy-trends-for-the-next-decade-731','<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q...','post_699dec75e2e76.jpg',NULL,NULL,'none','none','published',239,1,'','2026-02-24 18:22:06','2026-02-24 20:58:50','2026-02-24 23:52:06'),(12,2,1,'Mastering the Art of Modern Cooking','mastering-the-art-of-modern-cooking-426','<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q...','post_699dec8ab7717.png',NULL,NULL,'none','none','published',367,1,'','2026-02-24 18:22:06','2026-02-25 06:35:05','2026-02-24 23:52:06'),(13,5,1,'Cybersecurity Tips for Everyone','cybersecurity-tips-for-everyone-110','<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q...',NULL,NULL,NULL,'none','none','published',369,1,NULL,'2026-02-24 18:22:06','2026-02-24 19:33:14','2026-02-24 23:52:06'),(14,6,2,'Pariatur Sint aut e','impedit-officiis-ve','<p>Tempora sit, eveniet. Tempora sit, eveniet.Omnis qui aut distin.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.Tempora sit, eveniet.</p>','Rerum consectetur ve','','https://www.youtube.com/watch?v=CT_WEGUKejQ&amp;t=2175s','','none','none','draft',11,1,'Odio asperiores enim alias et facere iusto at et suscipit ipsa','2026-02-24 19:01:28','2026-02-24 20:37:38','2026-02-25 00:31:00'),(16,2,1,'Revolutionize Your Newsroom with NewsCast Auto-Share','revolutionize-newsroom-newscast-auto-share','In the fast-paced world of digital journalism, speed is everything. NewsCast introduces a powerful Auto-Share feature that lets you push articles to Facebook and Instagram the moment you hit publish. No more manual copying, no more wasted time. Just instant reach and professional delivery.','In the fast-paced world of digital journalism, speed is everything. NewsCast introduces a powerful Auto-Share feature that lets you push articles to F...','share.png',NULL,NULL,'none','none','published',10239,1,NULL,'2026-03-01 11:25:36','2026-03-01 11:38:00','2026-03-01 17:06:44'),(17,2,1,'Beat the Clock: Save Hours Every Week on Social Media','save-hours-social-media-automation','Journalists should focus on stories, not social media management. Our automated system handles the synchronization of your content across major platforms, saving you hours of repetitive work. Focus on the scoop, and let NewsCast handle the audience engagement.','Journalists should focus on stories, not social media management. Our automated system handles the synchronization of your content across major platfo...','share.png',NULL,NULL,'none','none','published',5381,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:38:10','2026-03-01 17:06:44'),(18,2,1,'The Power of Multi-Platform News Distribution','power-multi-platform-news-distribution','Your readers are on Facebook, Instagram, and beyond. NewsCast allows you to maintain a consistent presence across all connected nodes with a single click. Broadcast your message globally and ensure your headlines are seen everywhere simultaneously.','Your readers are on Facebook, Instagram, and beyond. NewsCast allows you to maintain a consistent presence across all connected nodes with a single cl...','share.png',NULL,NULL,'none','none','published',11617,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:36:44','2026-03-01 17:06:44'),(19,2,1,'Professional Branding Made Easy for Digital Publishers','professional-branding-digital-publishers','Consistency is key to a premium news brand. Our Social Share module ensures that every post sent to Facebook and Instagram is formatted professionally, carrying your brand identity and driving traffic directly back to your domain with clean, reliable links.','Consistency is key to a premium news brand. Our Social Share module ensures that every post sent to Facebook and Instagram is formatted professionally...','share.png',NULL,NULL,'none','none','published',7168,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:37:50','2026-03-01 17:06:44'),(20,2,1,'Manual Dispatch: Total Control over Your Breaking News','manual-dispatch-breaking-news-control','While automation is powerful, sometimes you need surgical precision. Our \"Manual Broadcast\" center gives you the ability to select the exact content architecture and dispatch it to specific nodes—Facebook page or Instagram edge—whenever you need that extra push.','While automation is powerful, sometimes you need surgical precision. Our \"Manual Broadcast\" center gives you the ability to select the exact content a...','share.png',NULL,NULL,'none','none','published',11184,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:37:55','2026-03-01 17:06:44'),(21,2,1,'How Social Signals Boost Your News Site SEO','social-signals-boost-news-seo','Engagement on social media isn\'t just about views—it\'s about authority. By automating your social shares with NewsCast, you create a steady stream of social signals that search engines love, helping your articles rank higher and reach a wider organic audience.','Engagement on social media isn\'t just about views—it\'s about authority. By automating your social shares with NewsCast, you create a steady stream o...','share.png',NULL,NULL,'none','none','published',6140,0,NULL,'2026-03-01 11:25:36','2026-03-01 15:30:47','2026-03-01 17:06:44'),(22,2,1,'Seamless Setup: From Newsroom to Social Feed in Minutes','seamless-setup-social-news-feed','Don\'t let technical jargon slow you down. Our new \"Full Setup Guide\" and \"Configuration Grid\" make it easy for any administrative user to link their Meta App, exchange permanent tokens, and start broadcasting. Professional news distribution has never been this simple.','Don\'t let technical jargon slow you down. Our new \"Full Setup Guide\" and \"Configuration Grid\" make it easy for any administrative user to link their M...','share.png',NULL,NULL,'none','none','published',9339,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:36:44','2026-03-01 17:06:44'),(23,2,1,'The Science of the Social Share: Engagement Analytics','science-social-share-engagement','Every post shared through NewsCast is optimized for engagement. By leveraging the Meta Graph API, we ensure your articles are displayed with high-quality featured images and crisp meta-descriptions, capturing the reader\'s attention and maximizing click-through rates.','Every post shared through NewsCast is optimized for engagement. By leveraging the Meta Graph API, we ensure your articles are displayed with high-qual...','share.png',NULL,NULL,'none','none','published',13005,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:36:44','2026-03-01 17:06:44'),(24,2,1,'Digital Seal: Empowering Independent Media Everywhere','digital-seal-empowering-independent-media','NewsCast is built by Digital Seal to provide enterprise-grade tools to independent newsrooms. Our Social Auto-Share system is just one part of a comprehensive ecosystem designed to make professional media publishing accessible and efficient for everyone.','NewsCast is built by Digital Seal to provide enterprise-grade tools to independent newsrooms. Our Social Auto-Share system is just one part of a compr...','share.png',NULL,NULL,'none','none','published',9521,0,NULL,'2026-03-01 11:25:36','2026-03-01 11:36:44','2026-03-01 17:06:44'),(25,2,1,'Stay Connected: Real-time System Diagnostics for Your Feed','stay-connected-real-time-diagnostics','Never worry about a broken link again. With our built-in connection badges and diagnostic tools, you can instantly verify if your Facebook and Instagram nodes are active. Reliability is at the heart of NewsCast, ensuring your news always reaches your followers.','Never worry about a broken link again. With our built-in connection badges and diagnostic tools, you can instantly verify if your Facebook and Instagr...','share.png',NULL,NULL,'none','none','published',11902,0,NULL,'2026-03-01 11:25:36','2026-03-01 15:30:52','2026-03-01 17:06:44');
-/*!40000 ALTER TABLE `posts` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -402,33 +470,6 @@ LOCK TABLES `social_shares` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `tags`
---
-
-DROP TABLE IF EXISTS `tags`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tags` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `slug` varchar(100) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `slug` (`slug`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `tags`
---
-
-LOCK TABLES `tags` WRITE;
-/*!40000 ALTER TABLE `tags` DISABLE KEYS */;
-INSERT INTO `tags` VALUES (2,'breaking','breaking','2026-02-25 06:18:43'),(3,'news','news','2026-02-25 06:18:43'),(6,'top 10','top-10','2026-02-25 06:22:55');
-/*!40000 ALTER TABLE `tags` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `timeline`
 --
 
@@ -482,44 +523,3 @@ INSERT INTO `user_activity` VALUES (1,1,7,'view','2026-02-25 06:29:19'),(2,1,7,'
 /*!40000 ALTER TABLE `user_activity` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` enum('admin','editor') DEFAULT 'editor',
-  `profile_image` varchar(255) DEFAULT 'default_avatar.png',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','admin@newscast.com','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi','admin','default_avatar.png','2026-02-24 18:05:12'),(2,'Saurabh','krsaurabhbca@gmail.com','$2y$10$vYghMlwV7KBhjpuHcGvlH.3bFBbAuXt0n1VNk3i/cwPKkmHm3/Nra','editor','default_avatar.png','2026-02-24 18:59:59');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2026-03-01 21:10:18
