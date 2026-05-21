@@ -1,6 +1,6 @@
 {
-    "version": "1.5.4",
-    "db_version": 1,
-    "last_updated": "2026-05-11",
-    "changelog": "v1.5.4: Fixed critical Quill IndexSizeError by transitioning to post-initialization content injection. Improved editor stability for complex HTML and media-rich articles."
+    "version": "1.5.5",
+    "db_version": 2,
+    "last_updated": "2026-05-21",
+    "changelog": "v1.5.5: Upgraded the Auto Installer Wizard. Fixed BASE_URL trailing slash generation for CSS fixes, implemented robust foreign key handling during admin creation, and added auto-login post-installation for immediate access to Settings."
 }

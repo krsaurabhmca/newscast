@@ -13,7 +13,7 @@ $error = '';
 $success = '';
 
 // If already configured, don't allow re-install unless explicitly requested (e.g. by deleting config.php)
-if (file_exists($config_file) && $step < 5) {
+if (file_exists($config_file) && $step < 3) {
     // Try connecting to existing database
     try {
         require_once $config_file;
@@ -41,6 +41,9 @@ if ($step == 2 && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $db_user = clean_input($_POST['db_user']);
     $db_pass = $_POST['db_pass'];
     $base_url = clean_input($_POST['base_url']);
+    $base_url = preg_replace('/\/install\.php.*$/', '', $base_url);
+    $base_url = preg_replace('/\/\?step=.*$/', '', $base_url);
+    $base_url = rtrim($base_url, '/') . '/';
 
     // Attempt connection
     try {
@@ -55,17 +58,76 @@ if ($step == 2 && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql_file = 'newscast_db.sql';
         if (file_exists($sql_file)) {
             $sql = file_get_contents($sql_file);
-            // Remove comments and multi-line comments
-            $sql = preg_replace('/--.*?\n/', '', $sql);
-            $sql = preg_replace('/\/\*.*?\*\//s', '', $sql);
+            // Robust SQL parser to handle strings, comments, and semicolons
+            $queries = [];
+            $query = '';
+            $in_string = false;
+            $quote_char = '';
+            $in_multi_comment = false;
+            $in_single_comment = false;
+            $sql_len = strlen($sql);
             
-            $queries = explode(';', $sql);
+            for ($i = 0; $i < $sql_len; $i++) {
+                $char = $sql[$i];
+                $next_char = $i + 1 < $sql_len ? $sql[$i + 1] : '';
+                
+                if ($in_string) {
+                    $query .= $char;
+                    $backslash_count = 0;
+                    $j = $i - 1;
+                    while ($j >= 0 && $sql[$j] === '\\') {
+                        $backslash_count++;
+                        $j--;
+                    }
+                    if ($char === $quote_char && $backslash_count % 2 === 0) {
+                        $in_string = false;
+                    }
+                } elseif ($in_multi_comment) {
+                    $query .= $char;
+                    if ($char === '*' && $next_char === '/') {
+                        $in_multi_comment = false;
+                        $query .= $next_char;
+                        $i++;
+                    }
+                } elseif ($in_single_comment) {
+                    $query .= $char;
+                    if ($char === "\n" || $char === "\r") {
+                        $in_single_comment = false;
+                    }
+                } else {
+                    if ($char === '-' && $next_char === '-') {
+                        $in_single_comment = true;
+                        $query .= $char;
+                    } elseif ($char === '/' && $next_char === '*') {
+                        $in_multi_comment = true;
+                        $query .= $char;
+                    } elseif ($char === "'" || $char === '"') {
+                        $in_string = true;
+                        $quote_char = $char;
+                        $query .= $char;
+                    } elseif ($char === ';') {
+                        if (trim($query) !== '') {
+                            $queries[] = trim($query);
+                        }
+                        $query = '';
+                    } else {
+                        $query .= $char;
+                    }
+                }
+            }
+            if (trim($query) !== '') {
+                $queries[] = trim($query);
+            }
+            
+            $test_pdo->exec("SET FOREIGN_KEY_CHECKS=0;");
             foreach ($queries as $query) {
                 $query = trim($query);
                 if (!empty($query)) {
                     $test_pdo->exec($query);
                 }
             }
+            
+            $test_pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
         }
 
         // Generate Config File
@@ -130,11 +192,21 @@ if ($step == 3 && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $site_name = clean_input($_POST['site_name']);
 
     try {
-        // Clear existing users if any to ensure fresh start
+        // Clear existing users but keep dummy data associated with user 1
+        $pdo->exec("SET FOREIGN_KEY_CHECKS=0");
         $pdo->exec("TRUNCATE TABLE users");
         
-        $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, status) VALUES (?, ?, ?, 'admin', 'active')");
-        $stmt->execute([$adm_user, $adm_pass, $adm_email, 'admin']);
+        // Insert as ID 1 so existing dummy posts belong to the new admin
+        $stmt = $pdo->prepare("INSERT INTO users (id, username, password, email, role, profile_image) VALUES (1, ?, ?, ?, 'admin', 'default_avatar.png')");
+        $stmt->execute([$adm_user, $adm_pass, $adm_email]);
+        
+        // Auto-login
+        $_SESSION['user_id'] = 1;
+        $_SESSION['username'] = $adm_user;
+        $_SESSION['role'] = 'admin';
+        $_SESSION['profile_image'] = 'default_avatar.png';
+        
+        $pdo->exec("SET FOREIGN_KEY_CHECKS=1");
 
         // Update site name in settings
         $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('site_name', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$site_name, $site_name]);
@@ -148,7 +220,11 @@ if ($step == 3 && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Get primary base URL
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
-$current_url = $protocol . "://" . $_SERVER['HTTP_HOST'] . str_replace('install.php', '', $_SERVER['REQUEST_URI']);
+$script_path = dirname($_SERVER['SCRIPT_NAME']);
+if ($script_path === '/' || $script_path === '\\') {
+    $script_path = '';
+}
+$current_url = rtrim($protocol . "://" . $_SERVER['HTTP_HOST'] . $script_path, '/') . '/';
 
 ?>
 <!DOCTYPE html>
@@ -306,7 +382,7 @@ $current_url = $protocol . "://" . $_SERVER['HTTP_HOST'] . str_replace('install.
                     <i class="bi bi-shield-exclamation"></i> <strong>Security Tip:</strong> Please delete the <code>install.php</code> and <code>newscast_db.sql</code> files from your server root now.
                 </div>
 
-                <a href="login.php" class="btn btn-primary btn-lg w-100 mb-3">Login to Admin Panel</a>
+                <a href="admin/settings.php" class="btn btn-primary btn-lg w-100 mb-3">Go to Settings</a>
                 <a href="index.php" class="btn btn-outline-secondary w-100">View Homepage</a>
             </div>
         <?php endif; ?>
