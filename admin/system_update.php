@@ -167,7 +167,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
             <i data-feather="download-cloud" style="width: 40px; height: 40px;"></i>
         </div>
         <h2 style="font-size: 24px; font-weight: 800; color: #0f172a;">NewsCast System Updater</h2>
-        <p style="color: #64748b; font-size: 14px;">Direct OTA integration with <?php echo htmlspecialchars($repo_url); ?></p>
     </div>
 
     <?php if ($error): ?>
