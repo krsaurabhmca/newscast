@@ -58,40 +58,15 @@ if (isset($_GET['edit'])) {
 $tags = $pdo->query("SELECT * FROM tags ORDER BY created_at DESC")->fetchAll();
 ?>
 
-<div class="admin-grid-layout">
-    <!-- Tag Form (Add/Edit) -->
-    <div style="background: white; padding: 25px; border-radius: 12px; height: fit-content; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 20px;"><?php echo $edit_tag ? 'Edit Tag' : 'Add New Tag'; ?></h3>
-        <form action="" method="POST">
-            <?php if ($edit_tag): ?>
-                <input type="hidden" name="id" value="<?php echo $edit_tag['id']; ?>">
-            <?php endif; ?>
-
-            <div class="form-group">
-                <label>Tag Name</label>
-                <input type="text" name="name" class="form-control" required placeholder="e.g. Breaking News" value="<?php echo $edit_tag ? $edit_tag['name'] : ''; ?>">
-            </div>
-
-            <div class="form-group">
-                <label>Slug (Optional)</label>
-                <input type="text" name="slug" class="form-control" placeholder="e.g. breaking-news" value="<?php echo $edit_tag ? $edit_tag['slug'] : ''; ?>">
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" name="<?php echo $edit_tag ? 'update_tag' : 'add_tag'; ?>" class="btn btn-primary" style="flex: 1; justify-content: center;">
-                    <?php echo $edit_tag ? 'Update Tag' : 'Save Tag'; ?>
-                </button>
-                <?php if ($edit_tag): ?>
-                    <a href="tags.php" class="btn" style="background: #f1f5f9; color: #444;">Cancel</a>
-                <?php endif; ?>
-            </div>
-        </form>
+<!-- Tags List -->
+<div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">All Tags</h3>
+        <button onclick="openModal()" class="btn btn-primary"><i data-feather="plus" style="width: 16px;"></i> Add New Tag</button>
     </div>
-
-    <!-- Tags List -->
-    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 20px;">All Tags</h3>
-        <div class="table-responsive"><table class="content-table">
+    
+    <div class="table-responsive">
+        <table class="content-table">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -125,8 +100,55 @@ $tags = $pdo->query("SELECT * FROM tags ORDER BY created_at DESC")->fetchAll();
                 </tr>
                 <?php endif; ?>
             </tbody>
-        </table></div>
+        </table>
     </div>
 </div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="tagModal" style="<?php echo $edit_tag ? 'display: flex;' : ''; ?>">
+    <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3><?php echo $edit_tag ? 'Edit Tag' : 'Add New Tag'; ?></h3>
+            <button type="button" onclick="closeModal()" style="background: none; border: none; cursor: pointer; color: #94a3b8; display: flex; align-items: center; justify-content: center;"><i data-feather="x"></i></button>
+        </div>
+        <div style="padding: 25px;">
+            <form action="tags.php" method="POST">
+                <?php if ($edit_tag): ?>
+                    <input type="hidden" name="id" value="<?php echo $edit_tag['id']; ?>">
+                <?php endif; ?>
+
+                <div class="form-group">
+                    <label>Tag Name</label>
+                    <input type="text" name="name" class="form-control" required placeholder="e.g. Breaking News" value="<?php echo $edit_tag ? $edit_tag['name'] : ''; ?>">
+                </div>
+
+                <div class="form-group">
+                    <label>Slug (Optional)</label>
+                    <input type="text" name="slug" class="form-control" placeholder="e.g. breaking-news" value="<?php echo $edit_tag ? $edit_tag['slug'] : ''; ?>">
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" name="<?php echo $edit_tag ? 'update_tag' : 'add_tag'; ?>" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                        <?php echo $edit_tag ? 'Update Tag' : 'Save Tag'; ?>
+                    </button>
+                    <button type="button" onclick="closeModal()" class="btn" style="background: #f1f5f9; color: #444;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openModal() {
+    document.getElementById('tagModal').style.display = 'flex';
+}
+function closeModal() {
+    <?php if ($edit_tag): ?>
+        window.location.href = 'tags.php';
+    <?php else: ?>
+        document.getElementById('tagModal').style.display = 'none';
+    <?php endif; ?>
+}
+</script>
 
 <?php include 'includes/footer.php'; ?>
