@@ -34,6 +34,8 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Pragma: no-cache',
     'Expires: 0',
 ]);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 $response = curl_exec($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
@@ -65,6 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
     curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_exec($ch);
     $err = curl_error($ch);
     curl_close($ch);
@@ -94,20 +98,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
             
             if ($root_folder) {
                 // Function to recursively copy files
-                function recurse_copy($src, $dst) { 
-                    $dir = opendir($src); 
-                    @mkdir($dst, 0777, true); 
-                    while(false !== ( $file = readdir($dir)) ) { 
-                        if (( $file != '.' ) && ( $file != '..' )) { 
-                            if ( is_dir($src . '/' . $file) ) { 
-                                recurse_copy($src . '/' . $file, $dst . '/' . $file); 
-                            } 
-                            else { 
-                                copy($src . '/' . $file, $dst . '/' . $file); 
+                if (!function_exists('recurse_copy')) {
+                    function recurse_copy($src, $dst) { 
+                        $dir = opendir($src); 
+                        @mkdir($dst, 0777, true); 
+                        while(false !== ( $file = readdir($dir)) ) { 
+                            if (( $file != '.' ) && ( $file != '..' )) { 
+                                if ( is_dir($src . '/' . $file) ) { 
+                                    recurse_copy($src . '/' . $file, $dst . '/' . $file); 
+                                } 
+                                else { 
+                                    copy($src . '/' . $file, $dst . '/' . $file); 
+                                } 
                             } 
                         } 
-                    } 
-                    closedir($dir); 
+                        closedir($dir); 
+                    }
                 }
                 
                 // Copy all files from unzipped newscast-main to current root directory '../'
@@ -127,18 +133,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
             }
             
             // Cleanup Temp Files
-            function remove_dir($dir) {
-                if (is_dir($dir)) {
-                    $objects = scandir($dir);
-                    foreach ($objects as $object) {
-                        if ($object != "." && $object != "..") {
-                            if (is_dir($dir . '/' . $object) && !is_link($dir . "/" . $object))
-                                remove_dir($dir . '/' . $object);
-                            else
-                                unlink($dir . '/' . $object);
+            if (!function_exists('remove_dir')) {
+                function remove_dir($dir) {
+                    if (is_dir($dir)) {
+                        $objects = scandir($dir);
+                        foreach ($objects as $object) {
+                            if ($object != "." && $object != "..") {
+                                if (is_dir($dir . '/' . $object) && !is_link($dir . "/" . $object))
+                                    remove_dir($dir . '/' . $object);
+                                else
+                                    unlink($dir . '/' . $object);
+                            }
                         }
+                        rmdir($dir);
                     }
-                    rmdir($dir);
                 }
             }
             remove_dir($temp_extract);
