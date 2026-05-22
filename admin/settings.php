@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'twitter_url' => clean($_POST['twitter_url']),
         'instagram_url' => clean($_POST['instagram_url']),
         'youtube_url' => clean($_POST['youtube_url']),
+        'whatsapp_channel' => clean($_POST['whatsapp_channel']),
         'google_map' => $_POST['google_map'],
         'theme_color' => clean($_POST['theme_color']),
         'footer_theme' => clean($_POST['footer_theme']),
@@ -449,6 +450,7 @@ $socials = [
     ['name' => 'twitter_url', 'label' => 'X / Twitter', 'icon' => 'twitter', 'color' => '#000', 'placeholder' => 'https://twitter.com/yourhandle'],
     ['name' => 'instagram_url', 'label' => 'Instagram', 'icon' => 'instagram', 'color' => '#e1306c', 'placeholder' => 'https://instagram.com/yourprofile'],
     ['name' => 'youtube_url', 'label' => 'YouTube', 'icon' => 'youtube', 'color' => '#ff0000', 'placeholder' => 'https://youtube.com/yourchannel'],
+    ['name' => 'whatsapp_channel', 'label' => 'WhatsApp Channel', 'icon' => 'message-circle', 'color' => '#25D366', 'placeholder' => 'https://whatsapp.com/channel/yourchannel'],
 ];
 foreach ($socials as $s): ?>
                     <div>

@@ -174,6 +174,9 @@
                         <?php if(get_setting('youtube_url')): ?>
                             <a href="<?php echo get_setting('youtube_url'); ?>" target="_blank" class="foot-social" style="color:#ff0000;"><i data-feather="youtube" style="width: 17px;"></i></a>
                         <?php endif; ?>
+                        <?php if(get_setting('whatsapp_channel')): ?>
+                            <a href="<?php echo get_setting('whatsapp_channel'); ?>" target="_blank" class="foot-social" style="color:#25d366;"><i data-feather="message-circle" style="width: 17px;"></i></a>
+                        <?php endif; ?>
                     </div>
                 </div>
 

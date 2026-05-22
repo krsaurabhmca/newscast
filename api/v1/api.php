@@ -20,6 +20,7 @@ switch($action) {
                 'instagram' => get_setting('instagram_url'),
                 'youtube' => get_setting('youtube_url'),
                 'whatsapp' => get_setting('whatsapp_number'),
+                'whatsapp_channel' => get_setting('whatsapp_channel'),
             ]
         ];
         api_response(true, "Config fetched", $config);
