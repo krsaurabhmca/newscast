@@ -111,9 +111,10 @@ $tags = $pdo->query("SELECT * FROM tags ORDER BY created_at DESC")->fetchAll();
                     <td><code><?php echo $tag['slug']; ?></code></td>
                     <td><?php echo $count; ?></td>
                     <td>
-                        <div style="display: flex; gap: 5px;">
-                            <a href="?edit=<?php echo $tag['id']; ?>" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px; background: #6366f1;">Edit</a>
-                            <a href="?delete=<?php echo $tag['id']; ?>" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;" onclick="return confirm('Delete this tag?')">Delete</a>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="../tag/<?php echo $tag['slug']; ?>" target="_blank" title="View Tag" style="background: #fff; border: 1px solid #e2e8f0; color: #10b981; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#f0fdf4'; this.style.borderColor='#10b981';" onmouseout="this.style.background='#fff'; this.style.borderColor='#e2e8f0';"><i data-feather="external-link" style="width: 16px;"></i></a>
+                            <a href="?edit=<?php echo $tag['id']; ?>" title="Edit Tag" style="background: #fff; border: 1px solid #e2e8f0; color: #6366f1; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#eef2ff'; this.style.borderColor='#6366f1';" onmouseout="this.style.background='#fff'; this.style.borderColor='#e2e8f0';"><i data-feather="edit-2" style="width: 16px;"></i></a>
+                            <a href="?delete=<?php echo $tag['id']; ?>" onclick="return confirm('Delete this tag?')" title="Delete Tag" style="background: #fff; border: 1px solid #fecaca; color: #ef4444; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#fef2f2'; this.style.borderColor='#ef4444';" onmouseout="this.style.background='#fff'; this.style.borderColor='#fecaca';"><i data-feather="trash-2" style="width: 16px;"></i></a>
                         </div>
                     </td>
                 </tr>
