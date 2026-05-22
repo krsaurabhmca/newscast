@@ -280,6 +280,9 @@ endforeach; ?>
                         <h1 style="margin: 0; font-size: 36px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900;"><?php echo SITE_NAME_DYNAMIC; ?></h1>
                     <?php endif; ?>
                     <p style="margin: 5px 0 0; font-size: 14px; font-weight: bold; text-transform: uppercase;">E-Paper Edition</p>
+                    <?php if($primary_cat): ?>
+                        <p style="margin: 5px 0 0; font-size: 13px; font-weight: bold; color: #ff3c00; text-transform: uppercase; letter-spacing: 1px;"><?php echo htmlspecialchars($primary_cat['name']); ?></p>
+                    <?php endif; ?>
                 </div>
                 <div style="text-align: right; font-size: 14px;">
                     <p style="margin: 0;"><strong>Published:</strong> <?php echo format_date($post['created_at']); ?></p>
@@ -446,7 +449,7 @@ endif; ?>
         
         html2canvas(element, { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 }).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'epaper-<?php echo $post['slug']; ?>.jpg';
+            link.download = '<?php echo create_slug(SITE_NAME_DYNAMIC); ?>-<?php echo date("Y-m-d", strtotime($post["published_at"])); ?>-<?php echo $post["id"]; ?>.jpg';
             link.href = canvas.toDataURL('image/jpeg', 0.98);
             link.click();
             
