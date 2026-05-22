@@ -104,13 +104,31 @@ include 'includes/header.php';
 ?>
 
 <style>
-.settings-nav { display: flex; gap: 5px; margin-bottom: 28px; flex-wrap: wrap; }
-.settings-nav button {
-    padding: 9px 20px; border-radius: 10px; border: 1px solid #e2e8f0;
-    background: white; font-size: 13px; font-weight: 600; color: #64748b;
-    cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all .2s;
+.settings-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 30px;
+    align-items: start;
 }
-.settings-nav button.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(99,102,241,.25); }
+
+.settings-nav { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+    background: white;
+    padding: 15px;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    position: sticky;
+    top: 90px;
+}
+.settings-nav button {
+    padding: 12px 15px; border-radius: 10px; border: 1px solid transparent;
+    background: transparent; font-size: 14px; font-weight: 600; color: #64748b;
+    cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all .2s;
+    text-align: left;
+}
+.settings-nav button.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99,102,241,.25); }
 .settings-nav button:hover:not(.active) { background: #f8fafc; color: #0f172a; }
 
 .settings-panel { 
@@ -233,40 +251,58 @@ include 'includes/header.php';
     color: #1e40af;
     border: 1px solid #bfdbfe;
 }
+
+@media (max-width: 768px) {
+    .settings-layout {
+        grid-template-columns: 1fr;
+    }
+    .settings-nav {
+        position: static;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+    }
+    .settings-nav button {
+        white-space: nowrap;
+    }
+}
 </style>
 
-<!-- Tab Navigation -->
-<div class="settings-nav">
-    <button type="button" onclick="showTab('general')" id="tab-general" class="active">
-        <i data-feather="info" style="width:15px;"></i> General
-    </button>
-    <button type="button" onclick="showTab('media')" id="tab-media">
-        <i data-feather="image" style="width:15px;"></i> Branding & Media
-    </button>
-    <button type="button" onclick="showTab('social')" id="tab-social">
-        <i data-feather="share-2" style="width:15px;"></i> Social Links
-    </button>
-    <button type="button" onclick="showTab('appearance')" id="tab-appearance">
-        <i data-feather="sliders" style="width:15px;"></i> Appearance
-    </button>
-    <button type="button" onclick="showTab('seo')" id="tab-seo">
-        <i data-feather="search" style="width:15px;"></i> SEO &amp; Analytics
-    </button>
-    <button type="button" onclick="showTab('livestream')" id="tab-livestream">
-        <i data-feather="youtube" style="width:15px;"></i> Live Stream
-    </button>
-    <button type="button" onclick="showTab('email')" id="tab-email">
-        <i data-feather="mail" style="width:15px;"></i> Email / SMTP
-    </button>
-    <button type="button" onclick="showTab('webpush')" id="tab-webpush">
-        <i data-feather="bell" style="width:15px;"></i> Web Push
-    </button>
-    <button type="button" onclick="showTab('ai')" id="tab-ai">
-        <i data-feather="cpu" style="width:15px;"></i> AI Integration
-    </button>
-</div>
+<div class="settings-layout">
+    <!-- Sidebar Navigation -->
+    <div class="settings-nav">
+        <button type="button" onclick="showTab('general')" id="tab-general" class="active">
+            <i data-feather="info" style="width:15px;"></i> General
+        </button>
+        <button type="button" onclick="showTab('media')" id="tab-media">
+            <i data-feather="image" style="width:15px;"></i> Branding & Media
+        </button>
+        <button type="button" onclick="showTab('social')" id="tab-social">
+            <i data-feather="share-2" style="width:15px;"></i> Social Links
+        </button>
+        <button type="button" onclick="showTab('appearance')" id="tab-appearance">
+            <i data-feather="sliders" style="width:15px;"></i> Appearance
+        </button>
+        <button type="button" onclick="showTab('seo')" id="tab-seo">
+            <i data-feather="search" style="width:15px;"></i> SEO &amp; Analytics
+        </button>
+        <button type="button" onclick="showTab('livestream')" id="tab-livestream">
+            <i data-feather="youtube" style="width:15px;"></i> Live Stream
+        </button>
+        <button type="button" onclick="showTab('email')" id="tab-email">
+            <i data-feather="mail" style="width:15px;"></i> Email / SMTP
+        </button>
+        <button type="button" onclick="showTab('webpush')" id="tab-webpush">
+            <i data-feather="bell" style="width:15px;"></i> Web Push
+        </button>
+        <button type="button" onclick="showTab('ai')" id="tab-ai">
+            <i data-feather="cpu" style="width:15px;"></i> AI Integration
+        </button>
+    </div>
 
-<form action="" method="POST" enctype="multipart/form-data">
+    <!-- Content Area -->
+    <div class="settings-content">
+        <form action="" method="POST" enctype="multipart/form-data">
 
     <!-- ══════════ GENERAL ══════════ -->
     <div class="settings-panel active" id="panel-general">
@@ -979,7 +1015,9 @@ endforeach; ?>
         </button>
     </div>
 
-</form>
+        </form>
+    </div> <!-- /.settings-content -->
+</div> <!-- /.settings-layout -->
 
 <script>
 function showTab(tab) {

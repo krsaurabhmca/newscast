@@ -4,18 +4,20 @@ include 'includes/header.php';
 
 // Handle Add Item
 if (isset($_POST['add_timeline'])) {
+    $event_name = clean($_POST['event_name']);
+    $event_date = clean($_POST['event_date']);
     $event_time = clean($_POST['event_time']);
     $description = clean($_POST['description']);
     $status_color = clean($_POST['status_color']);
 
-    if (empty($event_time) || empty($description)) {
-        $_SESSION['flash_msg'] = "Time and description are required.";
+    if (empty($event_name) || empty($event_date) || empty($event_time) || empty($description)) {
+        $_SESSION['flash_msg'] = "All fields are required.";
         $_SESSION['flash_type'] = "danger";
     } else {
         try {
-            $stmt = $pdo->prepare("INSERT INTO timeline (event_time, description, status_color) VALUES (?, ?, ?)");
-            $stmt->execute([$event_time, $description, $status_color]);
-            redirect('admin/timeline.php', 'Timeline item added successfully!');
+            $stmt = $pdo->prepare("INSERT INTO timeline (event_name, event_date, event_time, description, status_color) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$event_name, $event_date, $event_time, $description, $status_color]);
+            redirect('admin/timeline.php', 'Event added successfully!');
         } catch (PDOException $e) {
             $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
             $_SESSION['flash_type'] = "danger";
@@ -26,14 +28,16 @@ if (isset($_POST['add_timeline'])) {
 // Handle Update Item
 if (isset($_POST['update_timeline'])) {
     $id = $_POST['id'];
+    $event_name = clean($_POST['event_name']);
+    $event_date = clean($_POST['event_date']);
     $event_time = clean($_POST['event_time']);
     $description = clean($_POST['description']);
     $status_color = clean($_POST['status_color']);
 
     try {
-        $stmt = $pdo->prepare("UPDATE timeline SET event_time = ?, description = ?, status_color = ? WHERE id = ?");
-        $stmt->execute([$event_time, $description, $status_color, $id]);
-        redirect('admin/timeline.php', 'Timeline item updated successfully!');
+        $stmt = $pdo->prepare("UPDATE timeline SET event_name = ?, event_date = ?, event_time = ?, description = ?, status_color = ? WHERE id = ?");
+        $stmt->execute([$event_name, $event_date, $event_time, $description, $status_color, $id]);
+        redirect('admin/timeline.php', 'Event updated successfully!');
     } catch (PDOException $e) {
         $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
         $_SESSION['flash_type'] = "danger";
@@ -63,11 +67,21 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
 <div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
     <!-- Form (Add/Edit) -->
     <div style="background: white; padding: 25px; border-radius: 12px; height: fit-content; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 20px;"><?php echo $edit_item ? 'Edit Timeline Item' : 'Add New Timeline Item'; ?></h3>
+        <h3 style="margin-bottom: 20px;"><?php echo $edit_item ? 'Edit Event' : 'Add New Event'; ?></h3>
         <form action="" method="POST">
             <?php if ($edit_item): ?>
                 <input type="hidden" name="id" value="<?php echo $edit_item['id']; ?>">
             <?php endif; ?>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Name</label>
+                <input type="text" name="event_name" class="form-control" required value="<?php echo $edit_item ? htmlspecialchars($edit_item['event_name']) : ''; ?>" placeholder="E.g. Election Results">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Date</label>
+                <input type="date" name="event_date" class="form-control" required value="<?php echo $edit_item ? $edit_item['event_date'] : date('Y-m-d'); ?>">
+            </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
                 <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Time</label>
@@ -75,8 +89,8 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Update Description</label>
-                <textarea name="description" class="form-control" rows="4" required placeholder="What happened?"><?php echo $edit_item ? $edit_item['description'] : ''; ?></textarea>
+                <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Description</label>
+                <textarea name="description" class="form-control" rows="4" required placeholder="What happened?"><?php echo $edit_item ? htmlspecialchars($edit_item['description']) : ''; ?></textarea>
             </div>
             
             <input type="hidden" name="status_color" value="#6366f1"> <!-- Hidden default, logic moves to frontend -->
@@ -84,7 +98,7 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button type="submit" name="<?php echo $edit_item ? 'update_timeline' : 'add_timeline'; ?>" class="btn btn-primary" style="flex: 1; justify-content: center; display: flex; align-items: center; gap: 8px;">
                     <i data-feather="upload-cloud" style="width:16px;"></i>
-                    <?php echo $edit_item ? 'Update Item' : 'Post to Timeline'; ?>
+                    <?php echo $edit_item ? 'Update Event' : 'Post Event'; ?>
                 </button>
                 <?php if ($edit_item): ?>
                     <a href="timeline.php" class="btn" style="background: #f1f5f9; color: #444; display: flex; align-items: center; justify-content: center;">Cancel</a>
@@ -95,28 +109,29 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
 
     <!-- List -->
     <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 20px;">Today's Live Timeline</h3>
+        <h3 style="margin-bottom: 20px;">Manage Events</h3>
         <table class="content-table">
             <thead>
                 <tr>
                     <th>Status</th>
-                    <th>Time</th>
-                    <th>Description</th>
+                    <th>Date & Time</th>
+                    <th>Event Info</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php 
-                $now = date('H:i');
+                $now_date = date('Y-m-d');
+                $now_time = date('H:i');
                 foreach ($timeline as $item): 
-                    // Automatic Status Logic for Admin List
+                    // Automatic Status Logic
                     $status_text = 'Upcoming';
                     $status_color = '#f59e0b';
                     
-                    if ($item['event_time'] < $now) {
+                    if ($item['event_date'] < $now_date || ($item['event_date'] == $now_date && $item['event_time'] < $now_time)) {
                         $status_text = 'Completed';
                         $status_color = '#10b981';
-                    } elseif ($item['event_time'] == $now) {
+                    } elseif ($item['event_date'] == $now_date && $item['event_time'] == $now_time) {
                         $status_text = 'Ongoing';
                         $status_color = '#ef4444';
                     }
@@ -127,8 +142,14 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
                             <?php echo $status_text; ?>
                         </span>
                     </td>
-                    <td style="width: 100px;"><strong><?php echo date("h:i A", strtotime($item['event_time'])); ?></strong></td>
-                    <td style="font-size: 14px; line-height: 1.6; color: #475569;"><?php echo $item['description']; ?></td>
+                    <td style="width: 150px;">
+                        <strong><?php echo date("M d, Y", strtotime($item['event_date'])); ?></strong><br>
+                        <span style="font-size: 12px; color: #64748b;"><?php echo date("h:i A", strtotime($item['event_time'])); ?></span>
+                    </td>
+                    <td style="font-size: 14px; line-height: 1.6; color: #475569;">
+                        <strong style="color: #0f172a; display: block; margin-bottom: 3px;"><?php echo htmlspecialchars($item['event_name']); ?></strong>
+                        <?php echo htmlspecialchars($item['description']); ?>
+                    </td>
                     <td style="width: 140px;">
                         <div style="display: flex; gap: 8px;">
                             <a href="?edit=<?php echo $item['id']; ?>" class="btn" style="padding: 6px 12px; font-size: 12px; background: #f1f5f9; color: #444; display: flex; align-items: center; gap: 5px;">

@@ -211,6 +211,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
             </a>
         </div>
     <?php endif; ?>
+
+    <?php
+    $changelog_file = 'changelog.json';
+    $changelogs = [];
+    if (file_exists($changelog_file)) {
+        $changelogs = json_decode(file_get_contents($changelog_file), true) ?: [];
+    }
+    if (!empty($changelogs)):
+    ?>
+    <div style="margin-top: 50px;">
+        <h3 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Version History & Changelog</h3>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <?php foreach ($changelogs as $index => $log): ?>
+            <div style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: white;">
+                <div style="padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: <?php echo $index === 0 ? '#f8fafc' : 'white'; ?>;" onclick="document.getElementById('changelog-<?php echo $index; ?>').style.display = document.getElementById('changelog-<?php echo $index; ?>').style.display === 'none' ? 'block' : 'none'; this.querySelector('svg').style.transform = document.getElementById('changelog-<?php echo $index; ?>').style.display === 'none' ? 'rotate(0deg)' : 'rotate(180deg)';">
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <span style="font-size: 16px; font-weight: 800; color: #0f172a;">v<?php echo htmlspecialchars($log['version']); ?></span>
+                        <span style="font-size: 13px; color: #64748b; font-weight: 600;"><i data-feather="calendar" style="width: 14px; vertical-align: text-bottom;"></i> <?php echo date('M d, Y', strtotime($log['date'])); ?></span>
+                    </div>
+                    <i data-feather="chevron-down" style="color: #94a3b8; transition: transform 0.3s; transform: <?php echo $index === 0 ? 'rotate(180deg)' : 'rotate(0deg)'; ?>;"></i>
+                </div>
+                <div id="changelog-<?php echo $index; ?>" style="display: <?php echo $index === 0 ? 'block' : 'none'; ?>; padding: 20px; border-top: 1px solid #e2e8f0;">
+                    <ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14px; line-height: 1.6;">
+                        <?php foreach($log['changes'] as $change): ?>
+                            <li style="margin-bottom: 8px;"><?php echo htmlspecialchars($change); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php include 'includes/footer.php'; ?>

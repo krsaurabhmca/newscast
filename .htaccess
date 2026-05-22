@@ -11,6 +11,11 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^category/([^/]+)$ category.php?slug=$1 [L,QSA]
 
+# Poll Rewrites
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^poll/([^/]+)$ poll.php?slug=$1 [L,QSA]
+
 # Tag Rewrites
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

@@ -57,15 +57,23 @@ if (!is_logged_in()) {
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 20px;">
-                    <a href="<?php echo BASE_URL; ?>" target="_blank" class="desktop-only" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: #475569; font-size: 13px; font-weight: 700; background: #f1f5f9; padding: 10px 15px; border-radius: 8px; transition: .2s;">
-                        <i data-feather="external-link" style="width: 16px;"></i> View Website
+                    <a href="<?php echo BASE_URL; ?>" target="_blank" class="desktop-only" style="color: #475569; padding: 8px 10px; border-radius: 8px; background: #f1f5f9; transition: .2s; display: flex; align-items: center; justify-content: center;" title="Visit Website">
+                        <i data-feather="globe" style="width: 18px; height: 18px;"></i>
                     </a>
 
-                    <a href="post_add.php" class="btn btn-primary desktop-only" style="background: var(--primary); font-size: 13px; font-weight: 600; border-radius: 8px; padding: 10px 18px;">
-                        <i data-feather="plus" style="width: 16px;"></i> Create Post
+                    <a href="post_add.php" class="desktop-only" style="color: white; padding: 8px 10px; border-radius: 8px; background: var(--primary); transition: .2s; display: flex; align-items: center; justify-content: center;" title="Create New Post">
+                        <i data-feather="plus" style="width: 18px; height: 18px;"></i>
                     </a>
                     
-                    <div style="width: 1px; height: 25px; background: #e2e8f0;" class="desktop-only"></div>
+                    <a href="system_update.php" class="desktop-only" style="color: #475569; padding: 8px 10px; border-radius: 8px; background: #f1f5f9; transition: .2s; display: flex; align-items: center; justify-content: center;" title="Check System Update">
+                        <i data-feather="refresh-cw" style="width: 18px; height: 18px;"></i>
+                    </a>
+
+                    <a href="logout.php" class="desktop-only" style="color: #ef4444; padding: 8px 10px; border-radius: 8px; background: #fef2f2; transition: .2s; display: flex; align-items: center; justify-content: center;" title="Logout">
+                        <i data-feather="log-out" style="width: 18px; height: 18px;"></i>
+                    </a>
+                    
+                    <div style="width: 1px; height: 25px; background: #e2e8f0; margin: 0 5px;" class="desktop-only"></div>
 
                     <a href="profile.php" class="user-meta" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; transition: .2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                         <div style="text-align: right;" class="desktop-only">

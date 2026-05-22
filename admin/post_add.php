@@ -145,6 +145,7 @@ try {
 // Prefill for AI workflow
 $prefill_title = isset($_POST['prefill_title']) ? htmlspecialchars($_POST['prefill_title'], ENT_QUOTES) : '';
 $prefill_content = isset($_POST['prefill_content']) ? $_POST['prefill_content'] : '';
+$prefill_slug = isset($_POST['prefill_slug']) ? htmlspecialchars($_POST['prefill_slug'], ENT_QUOTES) : '';
 ?>
 
 <form action="" method="POST" enctype="multipart/form-data" id="postForm">
@@ -187,7 +188,7 @@ $prefill_content = isset($_POST['prefill_content']) ? $_POST['prefill_content'] 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label>URL Slug (Optional)</label>
-                    <input type="text" name="slug" class="form-control" placeholder="auto-generated-if-blank">
+                    <input type="text" name="slug" class="form-control" placeholder="auto-generated-if-blank" value="<?php echo $prefill_slug; ?>">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label>Direct Ad Link (Optional)</label>

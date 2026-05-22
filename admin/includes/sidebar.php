@@ -22,7 +22,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </li>
             <li>
                 <a href="timeline.php" class="<?php echo $current_page == 'timeline.php' ? 'active' : ''; ?>">
-                    <i data-feather="clock" style="width: 18px;"></i> Activity Timeline
+                    <i data-feather="calendar" style="width: 18px;"></i> Event Timeline
                 </a>
             </li>
             <li>
@@ -58,16 +58,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <i data-feather="tag" style="width: 18px;"></i> Keyword Tags
                 </a>
             </li>
+            <li>
+                <a href="polls.php" class="<?php echo $current_page == 'polls.php' ? 'active' : ''; ?>">
+                    <i data-feather="pie-chart" style="width: 18px;"></i> Manage Polls
+                </a>
+            </li>
         </ul>
 
         <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
         <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 25px 0 10px 10px;">DIGITAL MEDIA</p>
         <ul class="nav-links">
-            <li>
-                <a href="epapers.php" class="<?php echo $current_page == 'epapers.php' ? 'active' : ''; ?>">
-                    <i data-feather="file-text" style="width: 18px;"></i> Digital Papers
-                </a>
-            </li>
+
             <li>
                 <a href="magazines.php" class="<?php echo $current_page == 'magazines.php' ? 'active' : ''; ?>">
                     <i data-feather="book-open" style="width: 18px;"></i> Magazines
@@ -108,11 +109,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <i data-feather="file-text" style="width: 18px;"></i> Joining Letter
                 </a>
             </li>
-            <li>
-                <a href="reporter_payments.php" class="<?php echo $current_page == 'reporter_payments.php' ? 'active' : ''; ?>">
-                    <i data-feather="dollar-sign" style="width: 18px;"></i> Payments
-                </a>
-            </li>
+
         </ul>
 
         <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 25px 0 10px 10px;">SYSTEM</p>

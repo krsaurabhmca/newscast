@@ -11,6 +11,11 @@ require_once __DIR__ . '/functions.php';
 $stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC");
 $nav_categories = $stmt->fetchAll();
 
+// Fetch latest active poll
+$latest_poll_stmt = $pdo->query("SELECT id FROM polls WHERE status = 'active' AND (starts_at IS NULL OR starts_at <= NOW()) AND (expires_at IS NULL OR expires_at >= NOW()) ORDER BY created_at DESC LIMIT 1");
+$latest_poll_header = $latest_poll_stmt->fetch();
+$poll_header_url = $latest_poll_header ? BASE_URL . "poll.php?id=" . $latest_poll_header['id'] : '#';
+
 // Default SEO — fallback to settings, then hardcoded
 $site_title = SITE_NAME;
 $meta_desc = get_setting('meta_description', 'Your ultimate destination for the latest news and insights.');
@@ -189,6 +194,16 @@ endif; ?>
                         Top News
                     </a>
                 </li>
+                <?php if($latest_poll_header): ?>
+                <li>
+                    <a href="<?php echo $poll_header_url; ?>">
+                        <div class="icon" style="color: #9333ea;">
+                            <i data-feather="pie-chart" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        Poll
+                    </a>
+                </li>
+                <?php endif; ?>
                 <?php foreach ($nav_categories as $cat): ?>
                 <li>
                     <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>">
@@ -254,12 +269,14 @@ endif; ?>
                             </a>
                         </li>
                         <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
+                        <?php if($latest_poll_header): ?>
                         <li>
-                            <a href="<?php echo BASE_URL; ?>digital-paper">
-                                <i data-feather="file-text" style="width: 20px; height: 20px;"></i>
-                                E-Paper
+                            <a href="<?php echo $poll_header_url; ?>">
+                                <i data-feather="pie-chart" style="width: 20px; height: 20px;"></i>
+                                Poll
                             </a>
                         </li>
+                        <?php endif; ?>
                         <li>
                             <a href="<?php echo BASE_URL; ?>magazine">
                                 <i data-feather="book-open" style="width: 20px; height: 20px;"></i>
@@ -361,7 +378,9 @@ endif; ?>
                             <li><a href="<?php echo BASE_URL; ?>"><i data-feather="home"></i> Home</a></li>
                             <li><a href="<?php echo BASE_URL; ?>category/video"><i data-feather="video"></i> Video</a></li>
                             <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
-                            <li><a href="<?php echo BASE_URL; ?>digital-paper"><i data-feather="file-text"></i> Digital Paper</a></li>
+                            <?php if($latest_poll_header): ?>
+                            <li><a href="<?php echo $poll_header_url; ?>"><i data-feather="pie-chart"></i> Poll</a></li>
+                            <?php endif; ?>
                             <li><a href="<?php echo BASE_URL; ?>magazine"><i data-feather="book-open"></i> Magazine</a></li>
                             <?php endif; ?>
                             <li class="divider">Sections</li>

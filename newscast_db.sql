@@ -284,6 +284,8 @@ CREATE TABLE `tags` (
 
 CREATE TABLE `timeline` (
   `id` int(11) NOT NULL,
+  `event_name` varchar(255) DEFAULT NULL,
+  `event_date` date DEFAULT NULL,
   `event_time` varchar(20) NOT NULL,
   `description` text NOT NULL,
   `status_color` varchar(20) DEFAULT '#6366f1',
@@ -525,3 +527,79 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--
+-- Table structure for table polls
+--
+
+CREATE TABLE polls (
+  id int(11) NOT NULL,
+  question varchar(255) NOT NULL,
+  status enum('active','closed') DEFAULT 'active',
+  starts_at datetime DEFAULT NULL,
+  expires_at datetime DEFAULT NULL,
+  created_at timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table poll_options
+--
+
+CREATE TABLE poll_options (
+  id int(11) NOT NULL,
+  poll_id int(11) NOT NULL,
+  option_text varchar(255) NOT NULL,
+  otes_count int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table poll_votes
+--
+
+CREATE TABLE poll_votes (
+  id int(11) NOT NULL,
+  poll_id int(11) NOT NULL,
+  rowser_id varchar(100) NOT NULL,
+  ip_address varchar(45) NOT NULL,
+  oted_at timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indexes for dumped tables
+--
+
+ALTER TABLE polls
+  ADD PRIMARY KEY (id);
+
+ALTER TABLE poll_options
+  ADD PRIMARY KEY (id),
+  ADD KEY poll_id (poll_id);
+
+ALTER TABLE poll_votes
+  ADD PRIMARY KEY (id),
+  ADD UNIQUE KEY poll_browser (poll_id,rowser_id),
+  ADD KEY poll_id (poll_id);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+ALTER TABLE polls
+  MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE poll_options
+  MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE poll_votes
+  MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+ALTER TABLE poll_options
+  ADD CONSTRAINT poll_options_ibfk_1 FOREIGN KEY (poll_id) REFERENCES polls (id) ON DELETE CASCADE;
+
+ALTER TABLE poll_votes
+  ADD CONSTRAINT poll_votes_ibfk_1 FOREIGN KEY (poll_id) REFERENCES polls (id) ON DELETE CASCADE;
+

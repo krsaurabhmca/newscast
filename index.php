@@ -300,7 +300,7 @@ endforeach; ?>
             <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 30px;">
                 <h4 style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #1a1a1b; display: flex; align-items: center; gap: 8px;">
                     <i data-feather="calendar" style="width: 16px; color: var(--primary);"></i> 
-                    TODAY'S TIMELINE
+                    EVENTS OF THE DAY
                 </h4>
                 
                 <div style="position: relative; padding-left: 20px;">
@@ -308,7 +308,7 @@ endforeach; ?>
                     <div style="position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: #f1f5f9;"></div>
 
                     <?php
-$timeline_stmt = $pdo->query("SELECT * FROM timeline ORDER BY event_time ASC");
+$timeline_stmt = $pdo->query("SELECT * FROM timeline WHERE event_date = CURDATE() ORDER BY event_time ASC");
 $timeline_items = $timeline_stmt->fetchAll();
 $now = date('H:i');
 
@@ -327,14 +327,15 @@ if ($timeline_items):
                     <div style="position: relative; margin-bottom: 20px;">
                         <span style="position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; background: <?php echo $color; ?>; border: 2px solid white; box-shadow: 0 0 0 4px <?php echo $color; ?>22; z-index: 1; <?php echo($item['event_time'] == $now) ? 'animation: pulse 1s infinite;' : ''; ?>"></span>
                         <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;"><?php echo date("h:i A", strtotime($item['event_time'])); ?></div>
-                        <div style="font-size: 13px; font-weight: 700; color: #1e293b; line-height: 1.4;"><?php echo $item['description']; ?></div>
+                        <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;"><?php echo htmlspecialchars($item['event_name']); ?></div>
+                        <div style="font-size: 13px; font-weight: 600; color: #475569; line-height: 1.4; margin-top: 3px;"><?php echo htmlspecialchars($item['description']); ?></div>
                     </div>
                     <?php
     endforeach;
 else: ?>
                     <div style="text-align: center; padding: 20px 0;">
                         <i data-feather="clock" style="width: 24px; color: #cbd5e1; margin-bottom: 10px;"></i>
-                        <p style="font-size: 12px; color: #94a3b8;">No updates for today yet.</p>
+                        <p style="font-size: 12px; color: #94a3b8;">No events scheduled for today.</p>
                     </div>
                     <?php
 endif; ?>

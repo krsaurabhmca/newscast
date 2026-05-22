@@ -15,7 +15,7 @@ if (!is_admin()) {
 }
 
 $API_KEY = get_setting('groq_api_key');
-$MODEL   = "llama-3.3-70b-versatile";
+$MODEL   = "llama-3.1-8b-instant";
 
 /*
 ========================================
@@ -81,9 +81,10 @@ ARTICLE RULES:
    - Over dramatic words
    - Repeated content
 
-6. Format Output Like:
+8. Format Output Like:
 
 # Headline
+[Slug: english-url-slug-here]
 
 ## Summary
 
@@ -111,6 +112,8 @@ Main Article Content
     curl_setopt($ch, CURLOPT_URL, "https://api.groq.com/openai/v1/chat/completions");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "Authorization: Bearer ".$API_KEY,
         "Content-Type: application/json"
@@ -426,18 +429,19 @@ function addMessage(type, text, rawMarkdown = '') {
 }
 
 function draftPost(markdown, html) {
-    // Extract Headline (first # or just the first line)
+    // Extract Headline and Slug
     let title = "Auto Generated AI Draft";
+    let slug = "";
     const lines = markdown.split('\n');
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (line.startsWith('# ')) {
             title = line.substring(2).trim();
-            break;
-        } else if (line.length > 10 && !line.startsWith('#')) {
-            // fallback to first substantial line
+        } else if (line.startsWith('[Slug:')) {
+            slug = line.replace('[Slug:', '').replace(']', '').trim();
+        } else if (line.length > 10 && !line.startsWith('#') && title === "Auto Generated AI Draft") {
+            // fallback to first substantial line if no title found yet
             title = line;
-            break;
         }
     }
 
@@ -457,8 +461,14 @@ function draftPost(markdown, html) {
     contentInput.name = 'prefill_content';
     contentInput.value = html; // Sending the parsed HTML to the Quill Editor
 
+    const slugInput = document.createElement('input');
+    slugInput.type = 'hidden';
+    slugInput.name = 'prefill_slug';
+    slugInput.value = slug;
+
     form.appendChild(titleInput);
     form.appendChild(contentInput);
+    form.appendChild(slugInput);
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);

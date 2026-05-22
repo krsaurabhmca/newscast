@@ -11,6 +11,7 @@ $total_views      = $pdo->query("SELECT COALESCE(SUM(views),0) FROM posts")->fet
 $total_users      = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $unread_msgs      = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status = 'new'")->fetchColumn();
 $today_posts      = $pdo->query("SELECT COUNT(*) FROM posts WHERE DATE(created_at) = CURDATE()")->fetchColumn();
+$active_polls     = $pdo->query("SELECT COUNT(*) FROM polls WHERE status = 'active'")->fetchColumn();
 
 // ── Advertisement stats ───────────────────────────────────────
 $total_ad_views   = $pdo->query("SELECT COALESCE(SUM(impressions),0) FROM ads")->fetchColumn();
@@ -349,6 +350,19 @@ $live_vid_id = dash_yt_id($live_url);
             </div>
         </div>
     </div>
+
+    <div class="stat-card" style="position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2;">
+            <div>
+                <p style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Active Polls</p>
+                <div style="font-size: 32px; font-weight: 900; color: #0f172a; line-height: 1;"><?php echo number_format($active_polls); ?></div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 8px; font-weight: 500;">Currently running</p>
+            </div>
+            <div style="background: rgba(16,185,129,.1); color: #10b981; width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                <i data-feather="pie-chart" style="width: 26px;"></i>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ═══════════════════════════ MAIN GRID ═══════════════════════════ -->
@@ -491,8 +505,8 @@ $live_vid_id = dash_yt_id($live_url);
                 <a href="categories.php" class="btn" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); justify-content: center; flex-direction: column; height: 80px; gap: 8px;">
                     <i data-feather="layers" style="width: 20px;"></i> <span>Category</span>
                 </a>
-                <a href="ads.php" class="btn" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); justify-content: center; flex-direction: column; height: 80px; gap: 8px;">
-                    <i data-feather="image" style="width: 20px;"></i> <span>New Ad</span>
+                <a href="polls.php" class="btn" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); justify-content: center; flex-direction: column; height: 80px; gap: 8px;">
+                    <i data-feather="pie-chart" style="width: 20px;"></i> <span>Polls</span>
                 </a>
                 <a href="settings.php" class="btn" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); justify-content: center; flex-direction: column; height: 80px; gap: 8px;">
                     <i data-feather="settings" style="width: 20px;"></i> <span>Settings</span>

@@ -132,6 +132,8 @@ $related = $stmt->fetchAll();
 <?php
 endif; ?>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <main class="content-container">
     <div class="article-layout">
         <article class="article-page">
@@ -187,8 +189,8 @@ $share_title = urlencode($post['title']);
                             <i data-feather="share-2" style="width: 20px;"></i>
                         </a>
 
-                        <a href="javascript:void(0)" id="bookmark-btn" onclick="toggleBookmark(<?php echo $post['id']; ?>)" style="color: <?php echo $is_bookmarked ? '#f59e0b' : '#94a3b8'; ?>;" title="<?php echo $is_bookmarked ? 'Saved' : 'Save for later'; ?>">
-                            <i data-feather="bookmark" style="width: 20px; <?php echo $is_bookmarked ? 'fill: #f59e0b;' : ''; ?>"></i>
+                        <a href="javascript:void(0)" onclick="downloadEPaper()" style="color: #0f172a;" title="Download as E-Paper (Image)">
+                            <i data-feather="download-cloud" style="width: 20px;"></i>
                         </a>
                     </div>
                 </div>
@@ -266,6 +268,65 @@ endforeach; ?>
                 </div>
             </div>
         </article>
+
+        <!-- Hidden E-Paper Template for PDF Generation -->
+        <div id="epaper-template" style="display: none; padding: 30px; background: #fff; width: 800px; box-sizing: border-box; color: #000; font-family: 'Times New Roman', Times, serif; margin: 0; position: relative; left: 0; top: 0;">
+            <!-- Header -->
+            <div style="border-bottom: 4px solid #000; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <?php if (get_setting('site_logo')): ?>
+                        <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 60px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
+                    <?php else: ?>
+                        <h1 style="margin: 0; font-size: 36px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900;"><?php echo SITE_NAME_DYNAMIC; ?></h1>
+                    <?php endif; ?>
+                    <p style="margin: 5px 0 0; font-size: 14px; font-weight: bold; text-transform: uppercase;">E-Paper Edition</p>
+                </div>
+                <div style="text-align: right; font-size: 14px;">
+                    <p style="margin: 0;"><strong>Published:</strong> <?php echo format_date($post['created_at']); ?></p>
+                    <p style="margin: 5px 0 0;"><strong>Reporter:</strong> <?php echo $post['username']; ?></p>
+                </div>
+            </div>
+            
+            <!-- Article Title -->
+            <h1 style="font-size: 42px; line-height: 1.1; margin: 0 0 20px 0; font-weight: bold; text-align: center;"><?php echo $post['title']; ?></h1>
+            
+            <!-- Featured Image -->
+            <?php if ($post['featured_image']): ?>
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" style="max-width: 100%; max-height: 400px; border: 1px solid #ccc; padding: 5px;">
+                </div>
+            <?php endif; ?>
+            
+            <!-- Content -->
+            <div style="font-size: 16px; line-height: 1.6; text-align: justify; columns: 2; column-gap: 40px;">
+                <?php echo strip_tags($post['content'], '<p><br><b><strong><i><em>'); ?>
+            </div>
+            
+            <!-- E-Paper Ad (Article Bottom) -->
+            <?php 
+                $epaper_ad = display_ad('article_bottom', $pdo); 
+                if ($epaper_ad): 
+            ?>
+                <div style="margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px; page-break-inside: avoid;">
+                    <div style="text-align: center; max-width: 100%;">
+                        <h5 style="margin: 0 0 10px 0; font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 2px;">Advertisement</h5>
+                        <?php echo $epaper_ad; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Footer & QR Code -->
+            <div style="margin-top: 50px; border-top: 2px solid #000; padding-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 14px; color: #555;">
+                    <p style="margin: 0;"><strong><?php echo SITE_NAME_DYNAMIC; ?></strong> - Digital News Platform</p>
+                    <p style="margin: 5px 0 0;">URL: <?php echo rtrim(BASE_URL, '/'); ?></p>
+                </div>
+                <div style="text-align: center;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<?php echo urlencode((isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"); ?>&margin=0" alt="QR Code" style="border: 5px solid #fff; outline: 1px solid #ccc;">
+                    <p style="margin: 5px 0 0; font-size: 10px; font-weight: bold;">SCAN TO READ ONLINE</p>
+                </div>
+            </div>
+        </div>
 
         <!-- Sidebar Ads/Trending -->
         <aside class="article-sidebar">
@@ -359,40 +420,6 @@ endforeach; ?>
         feather.replace();
     }
 
-    // 🔖 Bookmark Logic
-    async function toggleBookmark(postId) {
-        <?php if (!$user_id): ?>
-            alert('Please login to save articles.');
-            window.location.href = '<?php echo BASE_URL; ?>login.php';
-            return;
-        <?php
-endif; ?>
-
-        try {
-            const response = await fetch('<?php echo BASE_URL; ?>api_bookmark.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `post_id=${postId}`
-            });
-            const res = await response.json();
-            
-            const btn = document.getElementById('bookmark-btn');
-            const icon = btn.querySelector('i');
-            
-            if (res.status === 'added') {
-                btn.style.color = '#f59e0b';
-                icon.style.fill = '#f59e0b';
-                btn.title = 'Saved';
-            } else {
-                btn.style.color = '#94a3b8';
-                icon.style.fill = 'none';
-                btn.title = 'Save for later';
-            }
-            feather.replace();
-        } catch (e) {
-            console.error('Bookmark error:', e);
-        }
-    }
 
     // 🌐 Google Translate Integration
     function googleTranslateElementInit() {
@@ -406,7 +433,38 @@ endif; ?>
         <?php
 endif; ?>
     }
+
+    // 📄 E-Paper Image Generation
+    function downloadEPaper() {
+        const btn = document.querySelector('[title="Download as E-Paper (Image)"]');
+        const icon = btn.innerHTML;
+        btn.innerHTML = '<i data-feather="loader" style="width: 20px; animation: spin 1s linear infinite;"></i>';
+        feather.replace();
+
+        const element = document.getElementById('epaper-template');
+        element.style.display = 'block'; // Make it temporarily visible for html2canvas
+        
+        html2canvas(element, { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'epaper-<?php echo $post['slug']; ?>.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.98);
+            link.click();
+            
+            element.style.display = 'none';
+            btn.innerHTML = icon;
+            feather.replace();
+        }).catch(err => {
+            console.error('Image Generation Error:', err);
+            element.style.display = 'none';
+            btn.innerHTML = icon;
+            feather.replace();
+            alert('Failed to generate Image. Please try again.');
+        });
+    }
 </script>
+<style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <?php
