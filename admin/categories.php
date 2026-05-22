@@ -73,74 +73,11 @@ if ($search !== '') {
 }
 ?>
 
-<div class="admin-grid-layout">
-    <!-- Category Form (Add/Edit) -->
-    <div style="background: white; padding: 25px; border-radius: 12px; height: fit-content; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 20px;"><?php echo $edit_cat ? 'Edit Category' : 'Add New Category'; ?></h3>
-        <form action="" method="POST">
-            <?php if ($edit_cat): ?>
-                <input type="hidden" name="id" value="<?php echo $edit_cat['id']; ?>">
-            <?php endif; ?>
-
-            <div class="form-group">
-                <label>Category Name</label>
-                <input type="text" name="name" class="form-control" required placeholder="e.g. Technology" value="<?php echo $edit_cat ? $edit_cat['name'] : ''; ?>">
-            </div>
-
-            <div class="form-group">
-                <label>Category Icon</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <div id="icon-preview" style="padding: 10px; background: #f1f5f9; border-radius: 8px; color: var(--primary);">
-                        <i data-feather="<?php echo $edit_cat ? $edit_cat['icon'] : 'folder'; ?>"></i>
-                    </div>
-                    <input type="text" name="icon" id="icon-input" class="form-control" placeholder="Icon name" value="<?php echo $edit_cat ? $edit_cat['icon'] : 'folder'; ?>">
-                    <button type="button" class="btn" onclick="openIconModal()" style="background: #f1f5f9; color: #444;">Choose</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Theme Color</label>
-                <div class="color-list" style="max-height: 80px; overflow-y: auto; padding: 5px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px;">
-                    <?php 
-                    $std_colors = ['#dc2626', '#2563eb', '#6366f1', '#db2777', '#16a34a', '#e11d48', '#0891b2', '#f59e0b', '#7c3aed', '#0d9488', '#475569', '#1d4ed8', '#ea580c', '#1e293b'];
-                    foreach($std_colors as $color): ?>
-                        <div class="color-item" style="background: <?php echo $color; ?>;" onclick="selectColor('<?php echo $color; ?>')"></div>
-                    <?php endforeach; ?>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="color" name="color" id="color-input" class="form-control" style="width: 60px; height: 45px; padding: 5px;" value="<?php echo $edit_cat ? $edit_cat['color'] : '#6366f1'; ?>">
-                    <input type="text" id="color-hex" class="form-control" value="<?php echo $edit_cat ? $edit_cat['color'] : '#6366f1'; ?>" oninput="syncColorInput(this.value)">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Status</label>
-                <select name="status" class="form-control">
-                    <option value="active" <?php echo ($edit_cat && $edit_cat['status'] == 'active') ? 'selected' : ''; ?>>Active (Visible)</option>
-                    <option value="disabled" <?php echo ($edit_cat && $edit_cat['status'] == 'disabled') ? 'selected' : ''; ?>>Disabled (Hidden)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Description (Optional)</label>
-                <textarea name="description" class="form-control" rows="3"><?php echo $edit_cat ? $edit_cat['description'] : ''; ?></textarea>
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" name="<?php echo $edit_cat ? 'update_category' : 'add_category'; ?>" class="btn btn-primary" style="flex: 1; justify-content: center;">
-                    <?php echo $edit_cat ? 'Update Category' : 'Save Category'; ?>
-                </button>
-                <?php if ($edit_cat): ?>
-                    <a href="categories.php" class="btn" style="background: #f1f5f9; color: #444;">Cancel</a>
-                <?php endif; ?>
-            </div>
-        </form>
-    </div>
-
-    <!-- Categories List -->
-    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="margin: 0;">All Categories</h3>
+<!-- Categories List -->
+<div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">All Categories</h3>
+        <div style="display: flex; gap: 15px; align-items: center;">
             <form method="GET" action="" style="display: flex; gap: 10px;">
                 <input type="text" name="s" class="form-control" placeholder="Search categories..." value="<?php echo htmlspecialchars($search); ?>" style="width: 220px; padding: 8px 12px; font-size: 13px;">
                 <button type="submit" class="btn btn-primary" style="padding: 8px 15px; font-size: 13px;">Search</button>
@@ -148,7 +85,9 @@ if ($search !== '') {
                     <a href="categories.php" class="btn" style="padding: 8px 15px; font-size: 13px; background: #f1f5f9; color: #475569;">Clear</a>
                 <?php endif; ?>
             </form>
+            <button onclick="openCategoryModal()" class="btn btn-primary"><i data-feather="plus" style="width: 16px;"></i> Add New Category</button>
         </div>
+    </div>
         <div class="table-responsive"><table class="content-table">
             <thead>
                 <tr>
@@ -195,6 +134,73 @@ if ($search !== '') {
     </div>
 </div>
 
+<!-- Category Add/Edit Modal -->
+<div class="modal-overlay" id="categoryModal" style="<?php echo $edit_cat ? 'display: flex;' : ''; ?>">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3><?php echo $edit_cat ? 'Edit Category' : 'Add New Category'; ?></h3>
+            <button type="button" onclick="closeCategoryModal()" style="background: none; border: none; cursor: pointer; color: #94a3b8; display: flex; align-items: center; justify-content: center;"><i data-feather="x"></i></button>
+        </div>
+        <div style="padding: 25px; overflow-y: auto;">
+            <form action="categories.php" method="POST">
+                <?php if ($edit_cat): ?>
+                    <input type="hidden" name="id" value="<?php echo $edit_cat['id']; ?>">
+                <?php endif; ?>
+
+                <div class="form-group">
+                    <label>Category Name</label>
+                    <input type="text" name="name" class="form-control" required placeholder="e.g. Technology" value="<?php echo $edit_cat ? $edit_cat['name'] : ''; ?>">
+                </div>
+
+                <div class="form-group">
+                    <label>Category Icon</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div id="icon-preview" style="padding: 10px; background: #f1f5f9; border-radius: 8px; color: var(--primary);">
+                            <i data-feather="<?php echo $edit_cat ? $edit_cat['icon'] : 'folder'; ?>"></i>
+                        </div>
+                        <input type="text" name="icon" id="icon-input" class="form-control" placeholder="Icon name" value="<?php echo $edit_cat ? $edit_cat['icon'] : 'folder'; ?>">
+                        <button type="button" class="btn" onclick="openIconModal()" style="background: #f1f5f9; color: #444;">Choose</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Theme Color</label>
+                    <div class="color-list" style="max-height: 80px; overflow-y: auto; padding: 5px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px;">
+                        <?php 
+                        $std_colors = ['#dc2626', '#2563eb', '#6366f1', '#db2777', '#16a34a', '#e11d48', '#0891b2', '#f59e0b', '#7c3aed', '#0d9488', '#475569', '#1d4ed8', '#ea580c', '#1e293b'];
+                        foreach($std_colors as $color): ?>
+                            <div class="color-item" style="background: <?php echo $color; ?>;" onclick="selectColor('<?php echo $color; ?>')"></div>
+                        <?php endforeach; ?>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="color" name="color" id="color-input" class="form-control" style="width: 60px; height: 45px; padding: 5px;" value="<?php echo $edit_cat ? $edit_cat['color'] : '#6366f1'; ?>">
+                        <input type="text" id="color-hex" class="form-control" value="<?php echo $edit_cat ? $edit_cat['color'] : '#6366f1'; ?>" oninput="syncColorInput(this.value)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" class="form-control">
+                        <option value="active" <?php echo ($edit_cat && $edit_cat['status'] == 'active') ? 'selected' : ''; ?>>Active (Visible)</option>
+                        <option value="disabled" <?php echo ($edit_cat && $edit_cat['status'] == 'disabled') ? 'selected' : ''; ?>>Disabled (Hidden)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Description (Optional)</label>
+                    <textarea name="description" class="form-control" rows="3"><?php echo $edit_cat ? $edit_cat['description'] : ''; ?></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" name="<?php echo $edit_cat ? 'update_category' : 'add_category'; ?>" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                        <?php echo $edit_cat ? 'Update Category' : 'Save Category'; ?>
+                    </button>
+                    <button type="button" onclick="closeCategoryModal()" class="btn" style="background: #f1f5f9; color: #444;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 <!-- Icon Selector Modal -->
 <div id="iconModal" class="modal-overlay">
     <div class="modal-content">
@@ -216,8 +222,22 @@ if ($search !== '') {
 </div>
 
 <script>
+    function openCategoryModal() {
+        document.getElementById('categoryModal').style.display = 'flex';
+    }
+    
+    function closeCategoryModal() {
+        <?php if ($edit_cat): ?>
+            window.location.href = 'categories.php';
+        <?php else: ?>
+            document.getElementById('categoryModal').style.display = 'none';
+        <?php endif; ?>
+    }
+
     function openIconModal() {
         document.getElementById('iconModal').style.display = 'flex';
+        // Ensure icon modal is on top of category modal
+        document.getElementById('iconModal').style.zIndex = '10000';
     }
     
     function closeIconModal() {
