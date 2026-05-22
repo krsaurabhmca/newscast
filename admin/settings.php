@@ -20,7 +20,7 @@ function getYoutubeId($url)
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
     if (is_demo_account()) {
-        redirect('settings.php', 'Action restricted: Demo accounts cannot save settings.', 'danger');
+        redirect('admin/settings.php', 'Action restricted: Demo accounts cannot save settings.', 'danger');
         exit;
     }
     $to_save = [

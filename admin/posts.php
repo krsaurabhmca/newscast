@@ -5,7 +5,7 @@ include 'includes/header.php';
 // ── Delete ─────────────────────────────────────────────
 if (isset($_GET['delete'])) {
     if (is_demo_account()) {
-        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
+        redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
     }
     $id = (int)$_GET['delete'];
@@ -161,7 +161,7 @@ function paginate_url(array $overrides = []): string {
         <div class="modern-toolbar">
             <div class="toolbar-filters">
                 <div class="search-wrapper">
-                    <i data-feather="search"></i>
+                    <!-- <i data-feather="search"></i> -->
                     <input type="text" name="s" placeholder="Search articles by title..." value="<?= htmlspecialchars($search) ?>">
                 </div>
 

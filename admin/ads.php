@@ -65,7 +65,7 @@ if (isset($_GET['toggle_status'])) {
 // Handle Delete
 if (isset($_GET['delete'])) {
     if (is_demo_account()) {
-        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
+        redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
     }
     $ad_id = $_GET['delete'];

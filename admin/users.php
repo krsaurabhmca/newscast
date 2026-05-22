@@ -33,7 +33,7 @@ if (isset($_POST['add_user'])) {
 // Login As
 if (isset($_GET['login_as'])) {
     if (is_demo_account()) {
-        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot login as other users.', 'danger');
+        redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot login as other users.', 'danger');
         exit;
     }
     $login_id = (int)$_GET['login_as'];
@@ -53,7 +53,7 @@ if (isset($_GET['login_as'])) {
 // Delete
 if (isset($_GET['delete'])) {
     if (is_demo_account()) {
-        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
+        redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
     }
     $del = (int)$_GET['delete'];

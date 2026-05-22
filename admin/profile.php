@@ -12,7 +12,7 @@ $user = $stmt->fetch();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (is_demo_account()) {
-        redirect('profile.php', 'Action restricted: Demo accounts cannot modify their profile.', 'danger');
+        redirect('admin/profile.php', 'Action restricted: Demo accounts cannot modify their profile.', 'danger');
         exit;
     }
     $username = clean($_POST['username']);
