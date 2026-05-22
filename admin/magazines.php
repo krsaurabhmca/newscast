@@ -241,7 +241,7 @@ include 'includes/header.php';
         <div style="font-size:11px;color:#94a3b8;font-weight:600;">Monthly Digital</div>
       </div>
 
-      <table class="content-table">
+      <div class="table-responsive"><table class="content-table">
         <thead>
           <tr>
             <th width="60">Cover</th>
@@ -309,7 +309,7 @@ include 'includes/header.php';
           </tr>
         <?php endforeach; endif; ?>
         </tbody>
-      </table>
+      </table></div>
 
       <?php if ($total_pages > 1): ?>
       <div class="pagi">

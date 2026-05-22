@@ -73,7 +73,7 @@ if ($search !== '') {
 }
 ?>
 
-<div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
+<div class="admin-grid-layout">
     <!-- Category Form (Add/Edit) -->
     <div style="background: white; padding: 25px; border-radius: 12px; height: fit-content; box-shadow: var(--shadow);">
         <h3 style="margin-bottom: 20px;"><?php echo $edit_cat ? 'Edit Category' : 'Add New Category'; ?></h3>
@@ -149,7 +149,7 @@ if ($search !== '') {
                 <?php endif; ?>
             </form>
         </div>
-        <table class="content-table">
+        <div class="table-responsive"><table class="content-table">
             <thead>
                 <tr>
                     <th>Icon</th>
@@ -191,7 +191,7 @@ if ($search !== '') {
                 </tr>
                 <?php endforeach; ?>
             </tbody>
-        </table>
+        </table></div>
     </div>
 </div>
 

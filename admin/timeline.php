@@ -64,7 +64,7 @@ if (isset($_GET['edit'])) {
 $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetchAll();
 ?>
 
-<div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
+<div class="admin-grid-layout">
     <!-- Form (Add/Edit) -->
     <div style="background: white; padding: 25px; border-radius: 12px; height: fit-content; box-shadow: var(--shadow);">
         <h3 style="margin-bottom: 20px;"><?php echo $edit_item ? 'Edit Event' : 'Add New Event'; ?></h3>
@@ -110,7 +110,7 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
     <!-- List -->
     <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
         <h3 style="margin-bottom: 20px;">Manage Events</h3>
-        <table class="content-table">
+        <div class="table-responsive"><table class="content-table">
             <thead>
                 <tr>
                     <th>Status</th>
@@ -169,7 +169,7 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
                     </td></tr>
                 <?php endif; ?>
             </tbody>
-        </table>
+        </table></div>
     </div>
 </div>
 

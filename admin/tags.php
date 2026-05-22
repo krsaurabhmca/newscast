@@ -58,7 +58,7 @@ if (isset($_GET['edit'])) {
 $tags = $pdo->query("SELECT * FROM tags ORDER BY created_at DESC")->fetchAll();
 ?>
 
-<div style="display: grid; grid-template-columns: 350px 1fr; gap: 30px;">
+<div class="admin-grid-layout">
     <!-- Tag Form (Add/Edit) -->
     <div style="background: white; padding: 25px; border-radius: 12px; height: fit-content; box-shadow: var(--shadow);">
         <h3 style="margin-bottom: 20px;"><?php echo $edit_tag ? 'Edit Tag' : 'Add New Tag'; ?></h3>
@@ -91,7 +91,7 @@ $tags = $pdo->query("SELECT * FROM tags ORDER BY created_at DESC")->fetchAll();
     <!-- Tags List -->
     <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
         <h3 style="margin-bottom: 20px;">All Tags</h3>
-        <table class="content-table">
+        <div class="table-responsive"><table class="content-table">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -125,7 +125,7 @@ $tags = $pdo->query("SELECT * FROM tags ORDER BY created_at DESC")->fetchAll();
                 </tr>
                 <?php endif; ?>
             </tbody>
-        </table>
+        </table></div>
     </div>
 </div>
 

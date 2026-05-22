@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = "Contributors & Team";
 include 'includes/header.php';
 if (!is_admin()) { redirect('admin/dashboard.php', 'Access denied.', 'danger'); }
@@ -140,7 +140,7 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
       <div class="tc-hd">
         <div><div style="font-size:15px;font-weight:700;">Team Members</div><div style="font-size:13px;color:#64748b;"><?=number_format($total)?> member<?=$total!=1?'s':''?></div></div>
       </div>
-      <table class="content-table">
+      <div class="table-responsive"><table class="content-table">
         <thead><tr><th>Member</th><th>Email</th><th>Role</th><th>Joined</th><th>Action</th></tr></thead>
         <tbody>
         <?php if(empty($users)): ?>
@@ -177,7 +177,7 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
           </tr>
         <?php endforeach; endif; ?>
         </tbody>
-      </table>
+      </table></div>
       <?php if($total_pages>1): ?><div class="pagi">
         <a href="<?=u_url(['page'=>max(1,$page-1)])?>" class="pb dis<?=$page<=1?' dis':''?>"><i data-feather="chevron-left" style="width:13px;"></i></a>
         <?php for($i=max(1,$page-2);$i<=min($total_pages,$page+2);$i++): ?>
