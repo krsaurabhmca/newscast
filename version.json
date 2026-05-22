@@ -1,6 +1,6 @@
 {
-    "version": "2.0.0",
+    "version": "2.0.1",
     "db_version": 3,
-    "last_updated": "2026-05-22",
-    "changelog": "v2.0.0: Major Upgrade! Brand new Events Timeline. Comprehensive Polls system added with SEO-friendly URLs. Restructured and modernized Admin Settings into a clean sidebar layout. PDF E-Papers converted to high-quality Image downloads to prevent clipping. Integrated Ads into downloads and public poll pages. AI Article Drafter now automatically generates SEO English/Hinglish slugs. Removed legacy payments and epapers modules."
+    "last_updated": "2026-05-23",
+    "changelog": "v2.0.1: Hotfixes and Improvements! Fixed a timezone-related infinite reload loop on Polls with expiry times. Fixed a bug where creating a poll via Admin UI didn't generate an SEO slug. Added Category overlay to generated E-Paper Images and improved the downloaded E-Paper filename format. Enforced strict Hindi-only generation for AI News while keeping SEO URLs in English/Hinglish."
 }
