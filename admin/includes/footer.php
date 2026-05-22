@@ -59,7 +59,63 @@
                 // Also Add explicit title mapping for inner dropdown items if needed
             }, 1000); // Small delay to wait for Quill to render
         });
+
+        // Admin Language Switcher Logic
+        function setAdminLang(lang) {
+            const domain = window.location.hostname;
+            if (lang === 'hi') {
+                document.cookie = "googtrans=/en/hi; path=/";
+                document.cookie = "googtrans=/en/hi; path=/; domain=" + domain;
+            } else {
+                document.cookie = "googtrans=/en/en; path=/";
+                document.cookie = "googtrans=/en/en; path=/; domain=" + domain;
+                // Also clear it
+                document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + domain;
+            }
+            window.location.reload();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const isHindi = document.cookie.indexOf('googtrans=/en/hi') !== -1;
+            const btnHi = document.getElementById('btn-lang-hi');
+            const btnEn = document.getElementById('btn-lang-en');
+            
+            if (btnHi && btnEn) {
+                if (isHindi) {
+                    btnHi.style.background = 'white';
+                    btnHi.style.color = '#0f172a';
+                    btnHi.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+                    
+                    btnEn.style.background = 'transparent';
+                    btnEn.style.color = '#64748b';
+                    btnEn.style.boxShadow = 'none';
+                } else {
+                    btnEn.style.background = 'white';
+                    btnEn.style.color = '#0f172a';
+                    btnEn.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+                    
+                    btnHi.style.background = 'transparent';
+                    btnHi.style.color = '#64748b';
+                    btnHi.style.boxShadow = 'none';
+                }
+            }
+        });
+        
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'hi', autoDisplay: false}, 'google_translate_element');
+        }
     </script>
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    
+    <style>
+        /* Hide Google Translate top banner & tooltips */
+        .goog-te-banner-frame.skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+    </style>
+    
     <?php include '../includes/feedback_drawer.php'; ?>
 </body>
 </html>

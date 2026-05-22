@@ -57,6 +57,12 @@ if (!is_logged_in()) {
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 20px;">
+                    <!-- Custom Language Switcher -->
+                    <div class="lang-switch desktop-only" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; gap: 4px;">
+                        <button onclick="setAdminLang('en')" id="btn-lang-en" style="border: none; background: transparent; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; color: #475569; transition: .2s;">EN</button>
+                        <button onclick="setAdminLang('hi')" id="btn-lang-hi" style="border: none; background: transparent; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; color: #475569; transition: .2s;">HI</button>
+                    </div>
+
                     <a href="<?php echo BASE_URL; ?>" target="_blank" class="desktop-only" style="color: #475569; padding: 8px 10px; border-radius: 8px; background: #f1f5f9; transition: .2s; display: flex; align-items: center; justify-content: center;" title="Visit Website">
                         <i data-feather="globe" style="width: 18px; height: 18px;"></i>
                     </a>
