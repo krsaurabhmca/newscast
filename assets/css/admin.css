@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
     --primary: #6366f1;
@@ -100,7 +100,7 @@ body {
     opacity: 1;
 }
 
-/* ── Alert / Flash Messages ─────────────────────────── */
+/* â”€â”€ Alert / Flash Messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .alert {
     padding: 14px 20px 14px 16px;
     border-radius: 12px;
@@ -128,7 +128,7 @@ body {
 }
 
 .alert-success::before {
-    content: "✓";
+    content: "âœ“";
     color: #10b981;
     font-weight: 900;
 }
@@ -143,7 +143,7 @@ body {
 
 .alert-danger::before,
 .alert-error::before {
-    content: "✕";
+    content: "âœ•";
     color: #ef4444;
     font-weight: 900;
 }
@@ -156,7 +156,7 @@ body {
 }
 
 .alert-warning::before {
-    content: "⚠";
+    content: "âš ";
     color: #f59e0b;
 }
 
@@ -168,7 +168,7 @@ body {
 }
 
 .alert-info::before {
-    content: "ℹ";
+    content: "â„¹";
     color: #3b82f6;
 }
 
@@ -267,7 +267,7 @@ body {
     border-color: var(--primary);
 }
 
-/* ── Admin Grid Layout ─────────────────────────── */
+/* â”€â”€ Admin Grid Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .admin-grid {
     display: grid;
     grid-template-columns: 1fr 280px;
@@ -290,7 +290,7 @@ body {
     }
 }
 
-/* ── Quill Editor Responsive Fix ─────────────────────────── */
+/* â”€â”€ Quill Editor Responsive Fix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #editor-container {
     width: 100%;
     max-width: 100%;
@@ -580,95 +580,91 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
- / *   R e s p o n s i v e   T a b l e   C o n t a i n e r   * / 
- . t a b l e - r e s p o n s i v e   { 
-         o v e r f l o w - x :   a u t o ; 
-         - w e b k i t - o v e r f l o w - s c r o l l i n g :   t o u c h ; 
-         w i d t h :   1 0 0 % ; 
- } 
- 
- / *   T w o - c o l u m n   l a y o u t   f o r   T a g s ,   C a t e g o r i e s ,   U s e r s ,   e t c .   * / 
- . a d m i n - g r i d - l a y o u t   { 
-         d i s p l a y :   g r i d ; 
-         g r i d - t e m p l a t e - c o l u m n s :   3 5 0 p x   1 f r ; 
-         g a p :   3 0 p x ; 
- } 
- @ m e d i a   ( m a x - w i d t h :   9 0 0 p x )   { 
-         . a d m i n - g r i d - l a y o u t   { 
-                 g r i d - t e m p l a t e - c o l u m n s :   1 f r ; 
-                 g a p :   2 0 p x ; 
-         } 
- } 
- 
- 
- 
- / *   F u l l s c r e e n   E d i t o r   M o d e   * / 
- b o d y . e d i t o r - f u l l s c r e e n   { 
-         o v e r f l o w :   h i d d e n ; 
- } 
- 
- # e d i t o r - c o n t a i n e r . f u l l s c r e e n   { 
-         p o s i t i o n :   f i x e d ; 
-         t o p :   0 ; 
-         l e f t :   0 ; 
-         w i d t h :   1 0 0 v w   ! i m p o r t a n t ; 
-         h e i g h t :   1 0 0 v h   ! i m p o r t a n t ; 
-         m a x - w i d t h :   1 0 0 v w   ! i m p o r t a n t ; 
-         z - i n d e x :   9 9 9 9 9 ; 
-         b a c k g r o u n d :   # f 8 f a f c ; 
-         d i s p l a y :   f l e x ; 
-         f l e x - d i r e c t i o n :   c o l u m n ; 
- } 
- 
- # e d i t o r - c o n t a i n e r . f u l l s c r e e n   . q l - t o o l b a r . q l - s n o w   { 
-         b o r d e r - r a d i u s :   0 ; 
-         b o r d e r - w i d t h :   0   0   1 p x   0   ! i m p o r t a n t ; 
-         p a d d i n g :   1 5 p x   2 0 p x ; 
-         b a c k g r o u n d :   # f f f ; 
-         b o x - s h a d o w :   0   2 p x   1 0 p x   r g b a ( 0 , 0 , 0 , 0 . 0 5 ) ; 
- } 
- 
- # e d i t o r - c o n t a i n e r . f u l l s c r e e n   . q l - c o n t a i n e r . q l - s n o w   { 
-         b o r d e r - r a d i u s :   0 ; 
-         b o r d e r - w i d t h :   0   ! i m p o r t a n t ; 
-         f l e x :   1 ; 
-         h e i g h t :   a u t o ; 
-         b a c k g r o u n d :   # f 8 f a f c ; 
-         o v e r f l o w - y :   a u t o ; 
- } 
- 
- # e d i t o r - c o n t a i n e r . f u l l s c r e e n   . q l - e d i t o r   { 
-         m a x - w i d t h :   9 0 0 p x ; 
-         m a r g i n :   2 0 p x   a u t o ; 
-         f o n t - s i z e :   1 8 p x ; 
-         p a d d i n g :   4 0 p x ; 
-         b a c k g r o u n d :   # f f f ; 
-         b o x - s h a d o w :   0   5 p x   2 5 p x   r g b a ( 0 , 0 , 0 , 0 . 0 5 ) ; 
-         m i n - h e i g h t :   c a l c ( 1 0 0 %   -   4 0 p x ) ; 
-         b o r d e r - r a d i u s :   8 p x ; 
- } 
- 
- . f u l l s c r e e n - c l o s e - b t n   { 
-         d i s p l a y :   n o n e ; 
-         p o s i t i o n :   f i x e d ; 
-         t o p :   1 5 p x ; 
-         r i g h t :   2 0 p x ; 
-         z - i n d e x :   1 0 0 0 0 0 ; 
-         b a c k g r o u n d :   # e f 4 4 4 4 ; 
-         c o l o r :   w h i t e ; 
-         b o r d e r :   n o n e ; 
-         b o r d e r - r a d i u s :   8 p x ; 
-         p a d d i n g :   8 p x   1 5 p x ; 
-         f o n t - w e i g h t :   6 0 0 ; 
-         c u r s o r :   p o i n t e r ; 
-         a l i g n - i t e m s :   c e n t e r ; 
-         g a p :   5 p x ; 
-         b o x - s h a d o w :   0   4 p x   1 2 p x   r g b a ( 2 3 9 ,   6 8 ,   6 8 ,   0 . 3 ) ; 
- } 
- 
- # e d i t o r - c o n t a i n e r . f u l l s c r e e n   ~   . f u l l s c r e e n - c l o s e - b t n   { 
-         d i s p l a y :   f l e x ; 
- } 
- 
- 
- 
+
+/* Responsive Table Container */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+/* Two-column layout for Tags, Categories, Users, etc. */
+.admin-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+@media (max-width: 900px) {
+    .admin-grid-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* Fullscreen Editor Mode */
+body.editor-fullscreen {
+    overflow: hidden;
+}
+
+#editor-container.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    z-index: 99999;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+}
+
+#editor-container.fullscreen .ql-toolbar.ql-snow {
+    border-radius: 0;
+    border-width: 0 0 1px 0 !important;
+    padding: 15px 20px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+#editor-container.fullscreen .ql-container.ql-snow {
+    border-radius: 0;
+    border-width: 0 !important;
+    flex: 1;
+    height: auto;
+    background: #f8fafc;
+    overflow-y: auto;
+}
+
+#editor-container.fullscreen .ql-editor {
+    max-width: 900px;
+    margin: 20px auto;
+    font-size: 18px;
+    padding: 40px;
+    background: #fff;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+    min-height: calc(100% - 40px);
+    border-radius: 8px;
+}
+
+.fullscreen-close-btn {
+    display: none;
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    z-index: 100000;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    font-weight: 600;
+    cursor: pointer;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+#editor-container.fullscreen ~ .fullscreen-close-btn {
+    display: flex;
+}
