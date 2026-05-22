@@ -23,9 +23,54 @@ if (isset($_POST['add_user'])) {
             else {
                 $pdo->prepare("INSERT INTO users (username,email,password,role) VALUES(?,?,?,?)")
                     ->execute([$form_values['username'],$form_values['email'],password_hash($password,PASSWORD_DEFAULT),$form_values['role']]);
+<?php
+$page_title = "Contributors & Team";
+include 'includes/header.php';
+if (!is_admin()) { redirect('admin/dashboard.php', 'Access denied.', 'danger'); }
+
+$errors = []; $form_values = [];
+
+// Add User
+if (isset($_POST['add_user'])) {
+    $form_values = ['username'=>clean($_POST['username']??''), 'email'=>clean($_POST['email']??''), 'role'=>clean($_POST['role']??'editor')];
+    $password = $_POST['password'] ?? '';
+    if (empty($form_values['username'])) $errors['username'] = 'Username is required.';
+    elseif (strlen($form_values['username']) < 3) $errors['username'] = 'Must be at least 3 characters.';
+    if (empty($form_values['email'])) $errors['email'] = 'Email is required.';
+    elseif (!filter_var($form_values['email'], FILTER_VALIDATE_EMAIL)) $errors['email'] = 'Enter a valid email address.';
+    if (empty($password)) $errors['password'] = 'Password is required.';
+    elseif (strlen($password) < 6) $errors['password'] = 'Must be at least 6 characters.';
+    if (empty($errors)) {
+        try {
+            $check = $pdo->prepare("SELECT id FROM users WHERE username=? OR email=?");
+            $check->execute([$form_values['username'], $form_values['email']]);
+            if ($check->fetch()) { $errors['general'] = 'Username or email already exists.'; }
+            else {
+                $pdo->prepare("INSERT INTO users (username,email,password,role) VALUES(?,?,?,?)")
+                    ->execute([$form_values['username'],$form_values['email'],password_hash($password,PASSWORD_DEFAULT),$form_values['role']]);
                 redirect('admin/users.php', 'Team member added successfully!');
             }
         } catch (PDOException $e) { $errors['general'] = 'Error: '.$e->getMessage(); }
+    }
+}
+
+// Login As
+if (isset($_GET['login_as'])) {
+    if (is_demo_account()) {
+        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot login as other users.', 'danger');
+        exit;
+    }
+    $login_id = (int)$_GET['login_as'];
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$login_id]);
+    $target_user = $stmt->fetch();
+    if ($target_user) {
+        $_SESSION['user_id'] = $target_user['id'];
+        $_SESSION['username'] = $target_user['username'];
+        $_SESSION['role'] = $target_user['role'];
+        $_SESSION['profile_image'] = $target_user['profile_image'];
+        redirect('admin/dashboard.php', 'Successfully logged in as ' . $target_user['username']);
+        exit;
     }
 }
 
@@ -77,53 +122,9 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
 @media(max-width:900px){.two-col{grid-template-columns:1fr;}}
 </style>
 
-<div class="two-col">
-  <!-- FORM -->
-  <div class="form-card">
-    <div class="form-card-hd">
-      <div style="width:35px;height:35px;border-radius:9px;background:#eef2ff;color:var(--primary);display:flex;align-items:center;justify-content:center;">
-        <i data-feather="user-plus" style="width:16px;"></i></div>
-      <div><div style="font-size:14px;font-weight:700;">Add Contributor</div><div style="font-size:11px;color:#94a3b8;">Editors & Admins</div></div>
-    </div>
-    <div class="form-card-bd">
-      <?php if (isset($errors['general'])): ?>
-      <div class="err-banner"><i data-feather="alert-circle" style="width:15px;margin-right:5px;"></i><?= htmlspecialchars($errors['general']) ?></div>
-      <?php endif; ?>
-      <form method="POST" novalidate>
-        <div class="form-group">
-          <label class="field-label">Username <span style="color:#ef4444">*</span></label>
-          <input type="text" name="username" class="form-control <?=isset($errors['username'])?'is-error':''?>" value="<?=htmlspecialchars($form_values['username']??'')?>" placeholder="e.g. rajesh_editor">
-          <?php if(isset($errors['username'])): ?><div class="field-err"><i data-feather="alert-circle" style="width:12px;"></i><?=$errors['username']?></div><?php endif; ?>
-        </div>
-        <div class="form-group">
-          <label class="field-label">Email <span style="color:#ef4444">*</span></label>
-          <input type="email" name="email" class="form-control <?=isset($errors['email'])?'is-error':''?>" value="<?=htmlspecialchars($form_values['email']??'')?>" placeholder="editor@newscast.com">
-          <?php if(isset($errors['email'])): ?><div class="field-err"><i data-feather="alert-circle" style="width:12px;"></i><?=$errors['email']?></div><?php endif; ?>
-        </div>
-        <div class="form-group">
-          <label class="field-label">Password <span style="color:#ef4444">*</span></label>
-          <div style="position:relative;">
-            <input type="password" name="password" id="pwdF" class="form-control <?=isset($errors['password'])?'is-error':''?>" placeholder="Min 6 chars" style="padding-right:42px;">
-            <button type="button" onclick="var f=document.getElementById('pwdF');f.type=f.type=='password'?'text':'password';" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;"><i data-feather="eye" style="width:15px;"></i></button>
-          </div>
-          <?php if(isset($errors['password'])): ?><div class="field-err"><i data-feather="alert-circle" style="width:12px;"></i><?=$errors['password']?></div><?php endif; ?>
-        </div>
-        <div class="form-group">
-          <label class="field-label">Role</label>
-          <select name="role" class="form-control">
-            <option value="editor" <?=($form_values['role']??'editor')==='editor'?'selected':''?>>Editor / Journalist</option>
-            <option value="admin"  <?=($form_values['role']??'')==='admin'?'selected':''?>>Administrator</option>
-          </select>
-        </div>
-        <button type="submit" name="add_user" class="btn btn-primary" style="width:100%;justify-content:center;">
-          <i data-feather="user-plus" style="width:15px;"></i> Add to Team
-        </button>
-      </form>
-    </div>
-  </div>
-
+<div style="display:block;">
   <!-- TABLE -->
-  <div>
+  <div style="width: 100%;">
     <form method="GET"><div class="table-toolbar">
       <div class="sb"><i data-feather="search"></i><input type="text" name="s" class="form-control" placeholder="Search name or email..." value="<?=htmlspecialchars($search)?>"></div>
       <select name="role" class="fsel" onchange="this.form.submit()">
@@ -137,6 +138,7 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
         <option value="name"   <?=$sort=='name'?'selected':''?>>Name A-Z</option>
       </select>
       <button class="btn btn-primary" style="padding:9px 14px;font-size:13px;"><i data-feather="search" style="width:14px;"></i></button>
+      <button type="button" onclick="openUserModal()" class="btn btn-primary" style="padding:9px 14px;font-size:13px; font-weight: 600;"><i data-feather="plus" style="width:14px;"></i> Add New Contributor</button>
       <?php if($search||$role_f): ?><a href="users.php" class="btn" style="padding:9px 14px;font-size:13px;background:#f1f5f9;color:#64748b;"><i data-feather="x" style="width:14px;"></i></a><?php endif; ?>
     </div></form>
 
@@ -172,11 +174,14 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
             <td style="font-size:13px;color:#64748b;white-space:nowrap;"><?=format_date($u['created_at'])?></td>
             <td><?php if((int)$u['id']!==(int)$_SESSION['user_id']): ?>
               <div style="display:flex;gap:5px;">
-                <a href="user_edit.php?id=<?=$u['id']?>" class="btn" style="padding:5px 11px;font-size:12px;background:#f1f5f9;color:#475569;"><i data-feather="edit" style="width:13px;"></i></a>
-                <a href="?delete=<?=$u['id']?>&<?=http_build_query(array_filter(['s'=>$search,'role'=>$role_f,'sort'=>$sort,'page'=>$page]))?>" class="btn btn-danger" style="padding:5px 11px;font-size:12px;" onclick="return confirm('Remove this member?')"><i data-feather="trash-2" style="width:13px;"></i></a>
+                <a href="?login_as=<?=$u['id']?>" class="btn" style="padding:5px 11px;font-size:12px;background:#f0fdf4;color:#16a34a;" title="Login As"><i data-feather="log-in" style="width:13px;"></i></a>
+                <a href="user_edit.php?id=<?=$u['id']?>" class="btn" style="padding:5px 11px;font-size:12px;background:#f1f5f9;color:#475569;" title="Edit"><i data-feather="edit-2" style="width:13px;"></i></a>
+                <a href="?delete=<?=$u['id']?>&<?=http_build_query(array_filter(['s'=>$search,'role'=>$role_f,'sort'=>$sort,'page'=>$page]))?>" class="btn btn-danger" style="padding:5px 11px;font-size:12px;background:#fef2f2;color:#ef4444;border:none;" onclick="return confirm('Remove this member?')" title="Delete"><i data-feather="trash-2" style="width:13px;"></i></a>
               </div>
             <?php else: ?>
-              <a href="profile.php" class="btn" style="padding:5px 11px;font-size:12px;background:#f1f5f9;color:#475569;"><i data-feather="edit" style="width:13px;"></i> Profile</a>
+              <div style="display:flex;gap:5px;">
+                <a href="profile.php" class="btn" style="padding:5px 11px;font-size:12px;background:#f1f5f9;color:#475569;"><i data-feather="edit-2" style="width:13px;"></i> Profile</a>
+              </div>
             <?php endif; ?></td>
           </tr>
         <?php endforeach; endif; ?>
@@ -192,4 +197,61 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
     </div>
   </div>
 </div>
+
+<!-- Add User Modal -->
+<div class="modal-overlay" id="userModal" style="<?=isset($_POST['add_user'])&&!empty($errors) ? 'display:flex;' : 'display:none;'?>">
+  <div class="modal-content" style="max-width: 450px;">
+    <div class="modal-header">
+      <h3>Add Contributor</h3>
+      <button onclick="closeUserModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i data-feather="x"></i></button>
+    </div>
+    <div style="padding: 25px;">
+      <?php if (isset($errors['general'])): ?>
+      <div class="err-banner"><i data-feather="alert-circle" style="width:15px;margin-right:5px;"></i><?= htmlspecialchars($errors['general']) ?></div>
+      <?php endif; ?>
+      <form method="POST" novalidate>
+        <div class="form-group">
+          <label class="field-label">Username <span style="color:#ef4444">*</span></label>
+          <input type="text" name="username" class="form-control <?=isset($errors['username'])?'is-error':''?>" value="<?=htmlspecialchars($form_values['username']??'')?>" placeholder="e.g. rajesh_editor">
+          <?php if(isset($errors['username'])): ?><div class="field-err"><i data-feather="alert-circle" style="width:12px;"></i><?=$errors['username']?></div><?php endif; ?>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Email <span style="color:#ef4444">*</span></label>
+          <input type="email" name="email" class="form-control <?=isset($errors['email'])?'is-error':''?>" value="<?=htmlspecialchars($form_values['email']??'')?>" placeholder="editor@newscast.com">
+          <?php if(isset($errors['email'])): ?><div class="field-err"><i data-feather="alert-circle" style="width:12px;"></i><?=$errors['email']?></div><?php endif; ?>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Password <span style="color:#ef4444">*</span></label>
+          <div style="position:relative;">
+            <input type="password" name="password" id="pwdF" class="form-control <?=isset($errors['password'])?'is-error':''?>" placeholder="Min 6 chars" style="padding-right:42px;">
+            <button type="button" onclick="var f=document.getElementById('pwdF');f.type=f.type=='password'?'text':'password';" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;"><i data-feather="eye" style="width:15px;"></i></button>
+          </div>
+          <?php if(isset($errors['password'])): ?><div class="field-err"><i data-feather="alert-circle" style="width:12px;"></i><?=$errors['password']?></div><?php endif; ?>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Role</label>
+          <select name="role" class="form-control">
+            <option value="editor" <?=($form_values['role']??'editor')==='editor'?'selected':''?>>Editor / Journalist</option>
+            <option value="admin"  <?=($form_values['role']??'')==='admin'?'selected':''?>>Administrator</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:25px;">
+          <button type="submit" name="add_user" class="btn btn-primary" style="flex:1;justify-content:center;">
+            Add Member
+          </button>
+          <button type="button" onclick="closeUserModal()" class="btn" style="background:#f1f5f9;color:#475569;">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function openUserModal() {
+  document.getElementById('userModal').style.display = 'flex';
+}
+function closeUserModal() {
+  document.getElementById('userModal').style.display = 'none';
+}
+</script>
 <?php include 'includes/footer.php'; ?>
