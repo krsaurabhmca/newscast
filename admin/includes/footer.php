@@ -110,10 +110,14 @@
     <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     
     <style>
-        /* Hide Google Translate top banner & tooltips */
-        .goog-te-banner-frame.skiptranslate { display: none !important; }
-        body { top: 0px !important; }
+        /* Hide Google Translate top banner & tooltips aggressively */
+        iframe.goog-te-banner-frame { display: none !important; }
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; position: static !important; }
+        html { top: 0 !important; position: static !important; }
         .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+        #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+        .goog-te-gadget { display: none !important; }
     </style>
     
     <?php include '../includes/feedback_drawer.php'; ?>
