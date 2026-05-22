@@ -177,4 +177,69 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
     </div>
 </div>
 
+
+<!-- Add/Edit Event Modal -->
+<div class="modal-overlay" id="timelineModal" style="<?php echo (isset($_POST['add_timeline']) && isset($_SESSION['flash_type']) && $_SESSION['flash_type'] == 'danger') || $edit_item ? 'display:flex;' : 'display:none;'; ?>">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3><?php echo $edit_item ? 'Edit Event' : 'Add New Event'; ?></h3>
+            <?php if ($edit_item): ?>
+                <a href="timeline.php" style="background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;"><i data-feather="x"></i></a>
+            <?php else: ?>
+                <button onclick="closeTimelineModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i data-feather="x"></i></button>
+            <?php endif; ?>
+        </div>
+        <div style="padding: 25px;">
+            <form action="timeline.php" method="POST">
+                <?php if ($edit_item): ?>
+                    <input type="hidden" name="id" value="<?php echo $edit_item['id']; ?>">
+                <?php endif; ?>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Name</label>
+                    <input type="text" name="event_name" class="form-control" required value="<?php echo $edit_item ? htmlspecialchars($edit_item['event_name']) : ''; ?>" placeholder="E.g. Election Results">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Date</label>
+                    <input type="date" name="event_date" class="form-control" required value="<?php echo $edit_item ? $edit_item['event_date'] : date('Y-m-d'); ?>">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Time</label>
+                    <input type="time" name="event_time" class="form-control" required value="<?php echo $edit_item ? $edit_item['event_time'] : date('H:i'); ?>">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Description</label>
+                    <textarea name="description" class="form-control" rows="4" required placeholder="What happened?"><?php echo $edit_item ? htmlspecialchars($edit_item['description']) : ''; ?></textarea>
+                </div>
+                
+                <input type="hidden" name="status_color" value="#6366f1">
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" name="<?php echo $edit_item ? 'update_timeline' : 'add_timeline'; ?>" class="btn btn-primary" style="flex: 1; justify-content: center; display: flex; align-items: center; gap: 8px;">
+                        <i data-feather="upload-cloud" style="width:16px;"></i>
+                        <?php echo $edit_item ? 'Update Event' : 'Post Event'; ?>
+                    </button>
+                    <?php if ($edit_item): ?>
+                        <a href="timeline.php" class="btn" style="background: #f1f5f9; color: #475569; display: flex; align-items: center; justify-content: center; text-decoration: none;">Cancel</a>
+                    <?php else: ?>
+                        <button type="button" onclick="closeTimelineModal()" class="btn" style="background: #f1f5f9; color: #475569;">Cancel</button>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openTimelineModal() {
+    document.getElementById('timelineModal').style.display = 'flex';
+}
+function closeTimelineModal() {
+    document.getElementById('timelineModal').style.display = 'none';
+}
+</script>
+
 <?php include 'includes/footer.php'; ?>
