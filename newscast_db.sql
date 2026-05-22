@@ -535,6 +535,7 @@ COMMIT;
 CREATE TABLE polls (
   id int(11) NOT NULL,
   question varchar(255) NOT NULL,
+  slug varchar(255) NOT NULL,
   status enum('active','closed') DEFAULT 'active',
   starts_at datetime DEFAULT NULL,
   expires_at datetime DEFAULT NULL,
@@ -549,7 +550,7 @@ CREATE TABLE poll_options (
   id int(11) NOT NULL,
   poll_id int(11) NOT NULL,
   option_text varchar(255) NOT NULL,
-  otes_count int(11) DEFAULT 0
+  votes_count int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -559,9 +560,9 @@ CREATE TABLE poll_options (
 CREATE TABLE poll_votes (
   id int(11) NOT NULL,
   poll_id int(11) NOT NULL,
-  rowser_id varchar(100) NOT NULL,
+  browser_id varchar(100) NOT NULL,
   ip_address varchar(45) NOT NULL,
-  oted_at timestamp NOT NULL DEFAULT current_timestamp()
+  voted_at timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -577,7 +578,7 @@ ALTER TABLE poll_options
 
 ALTER TABLE poll_votes
   ADD PRIMARY KEY (id),
-  ADD UNIQUE KEY poll_browser (poll_id,rowser_id),
+  ADD UNIQUE KEY poll_browser (poll_id, browser_id),
   ADD KEY poll_id (poll_id);
 
 --
