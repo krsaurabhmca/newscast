@@ -4,22 +4,23 @@ RewriteEngine On
 # Article Rewrites
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^article/([^/]+)$ article.php?slug=$1 [L,QSA]
+RewriteRule ^article/([^/]+)/?$ article.php?slug=$1 [L,QSA]
 
 # Category Rewrites
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^category/([^/]+)$ category.php?slug=$1 [L,QSA]
+RewriteRule ^category/([^/]+)/?$ category.php?slug=$1 [L,QSA]
 
 # Poll Rewrites
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^poll/([^/]+)$ poll.php?slug=$1 [L,QSA]
+RewriteRule ^poll/?$ poll.php [L,QSA]
+RewriteRule ^poll/([^/]+)/?$ poll.php?slug=$1 [L,QSA]
 
 # Tag Rewrites
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^tag/([^/]+)$ tag.php?slug=$1 [L,QSA]
+RewriteRule ^tag/([^/]+)/?$ tag.php?slug=$1 [L,QSA]
 
 # E-Paper Rewrites
 RewriteRule ^digital-paper$ epaper.php [L,QSA]
