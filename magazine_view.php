@@ -795,6 +795,18 @@ $meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('
     }
 
     // ── Main Controller ──────────────────────────────
+    let idleTimer;
+    function resetIdleTimer() {
+        $('body').removeClass('ui-hidden');
+        clearTimeout(idleTimer);
+        if(state.bookReady) {
+            idleTimer = setTimeout(() => {
+                $('body').addClass('ui-hidden');
+            }, 3000); // Hide UI after 3s of inactivity
+        }
+    }
+    $(document).on('mousemove touchstart keydown', resetIdleTimer);
+
     $(document).ready(async () => {
         try {
             updateLoading('Fetching document...', 10);
