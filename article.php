@@ -274,11 +274,12 @@ endforeach; ?>
             <!-- Header -->
             <div style="border-bottom: 4px solid #000; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
                 <div>
-                    <?php if (get_setting('site_logo')): ?>
-                        <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 60px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
-                    <?php else: ?>
-                        <h1 style="margin: 0; font-size: 36px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900;"><?php echo SITE_NAME_DYNAMIC; ?></h1>
-                    <?php endif; ?>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <?php if (get_setting('site_logo')): ?>
+                            <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 60px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
+                        <?php endif; ?>
+                        <h1 style="margin: 0; font-size: 36px; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; line-height: 1;"><?php echo SITE_NAME_DYNAMIC; ?></h1>
+                    </div>
                     <p style="margin: 5px 0 0; font-size: 14px; font-weight: bold; text-transform: uppercase;">E-Paper Edition</p>
                     <?php if($primary_cat): ?>
                         <p style="margin: 5px 0 0; font-size: 13px; font-weight: bold; color: #ff3c00; text-transform: uppercase; letter-spacing: 1px;"><?php echo htmlspecialchars($primary_cat['name']); ?></p>
