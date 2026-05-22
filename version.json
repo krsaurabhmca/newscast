@@ -1,6 +1,6 @@
 {
-    "version": "2.0.2",
+    "version": "2.0.3",
     "db_version": 3,
     "last_updated": "2026-05-23",
-    "changelog": "v2.0.2: Major UI and Security Updates! Upgraded the Magazine Viewer with a full-screen immersive floating UI and auto-hide controls. Added WhatsApp Channel integration to Settings and Footer. Secured the Admin Panel by implementing robust Demo Account restrictions across all modules and fixing redirect routing. Refactored Users and Timeline management to use sleek pop-up modals and a 'Login As' feature. Enhanced the E-Paper download template to include the site name alongside the logo."
+    "changelog": "v2.0.3: Poll Voting API Hotfix! Fixed an issue where the poll voting API would fail to parse JSON responses on live servers due to extraneous PHP warnings, malformed BASE_URL trailing slashes, or relative path resolution errors."
 }

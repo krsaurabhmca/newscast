@@ -1,20 +1,27 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
+ini_set('display_errors', 0);
+error_reporting(0);
+ob_start();
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+
+function sendJson($data) {
+    ob_clean();
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
-    exit;
+    sendJson(['success' => false, 'message' => 'Invalid request method.']);
 }
 
 $poll_id = isset($_POST['poll_id']) ? (int)$_POST['poll_id'] : 0;
 $option_id = isset($_POST['option_id']) ? (int)$_POST['option_id'] : 0;
 
 if (!$poll_id || !$option_id) {
-    echo json_encode(['success' => false, 'message' => 'Invalid parameters.']);
-    exit;
+    sendJson(['success' => false, 'message' => 'Invalid parameters.']);
 }
 
 // Ensure the poll is active
@@ -23,18 +30,15 @@ $stmt->execute([$poll_id]);
 $poll = $stmt->fetch();
 
 if (!$poll || $poll['status'] !== 'active') {
-    echo json_encode(['success' => false, 'message' => 'This poll is closed or does not exist.']);
-    exit;
+    sendJson(['success' => false, 'message' => 'This poll is closed or does not exist.']);
 }
 
 $now = date('Y-m-d H:i:s');
 if ($poll['starts_at'] && $poll['starts_at'] > $now) {
-    echo json_encode(['success' => false, 'message' => 'This poll has not started yet.']);
-    exit;
+    sendJson(['success' => false, 'message' => 'This poll has not started yet.']);
 }
 if ($poll['expires_at'] && $poll['expires_at'] < $now) {
-    echo json_encode(['success' => false, 'message' => 'This poll has expired.']);
-    exit;
+    sendJson(['success' => false, 'message' => 'This poll has expired.']);
 }
 
 // Stop fake voting: Browser cookie check
@@ -53,8 +57,7 @@ $ip_address = $_SERVER['REMOTE_ADDR'];
 $check = $pdo->prepare("SELECT id FROM poll_votes WHERE poll_id = ? AND (browser_id = ? OR ip_address = ?)");
 $check->execute([$poll_id, $browser_id, $ip_address]);
 if ($check->rowCount() > 0) {
-    echo json_encode(['success' => false, 'message' => 'You have already voted on this poll.']);
-    exit;
+    sendJson(['success' => false, 'message' => 'You have already voted on this poll.']);
 }
 
 try {
@@ -69,9 +72,9 @@ try {
     $ins->execute([$poll_id, $browser_id, $ip_address]);
     
     $pdo->commit();
-    echo json_encode(['success' => true, 'message' => 'Your vote has been recorded.']);
+    sendJson(['success' => true, 'message' => 'Your vote has been recorded.']);
 } catch (PDOException $e) {
     $pdo->rollBack();
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    sendJson(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
 ?>

@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.disabled = true;
             btn.innerText = 'Voting...';
             
-            fetch('<?php echo BASE_URL; ?>api/api_poll_vote.php', {
+            fetch('<?php echo rtrim(BASE_URL, "/"); ?>/api/api_poll_vote.php', {
                 method: 'POST',
                 body: formData
             })
