@@ -113,12 +113,22 @@
         /* Hide Google Translate top banner & tooltips aggressively */
         iframe.goog-te-banner-frame { display: none !important; }
         .goog-te-banner-frame { display: none !important; }
+        .VIpgJd-ZVi9od-ORHb-OEVmcd { display: none !important; } /* Modern Google translate class */
         body { top: 0 !important; position: static !important; }
-        html { top: 0 !important; position: static !important; }
+        html { top: 0 !important; position: static !important; height: auto !important; }
         .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
         #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
         .goog-te-gadget { display: none !important; }
     </style>
+    <script>
+        // Forcefully prevent the body from shifting down and hide the banner if CSS fails
+        setInterval(function() {
+            if (document.body.style.top !== '0px') {
+                document.body.style.top = '0px';
+            }
+            document.querySelectorAll('.goog-te-banner-frame, .VIpgJd-ZVi9od-ORHb-OEVmcd').forEach(el => el.style.display = 'none');
+        }, 100);
+    </script>
     
     <?php include '../includes/feedback_drawer.php'; ?>
 </body>
