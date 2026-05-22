@@ -151,10 +151,18 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
             </div>
 
             <div class="form-group">
-                <label>Body Content <span style="color:var(--danger);">*</span></label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="margin: 0;">Body Content <span style="color:var(--danger);">*</span></label>
+                    <button type="button" onclick="toggleEditorFullscreen()" style="background: none; border: none; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; padding: 4px 8px; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                        <i data-feather="maximize" style="width: 14px;"></i> Fullscreen
+                    </button>
+                </div>
                 <div id="editor-container">
                     <div id="editor" style="height: 400px; font-size: 15px;"><?php echo $prefill_content; ?></div>
                 </div>
+                <button type="button" class="fullscreen-close-btn" onclick="toggleEditorFullscreen()">
+                    <i data-feather="minimize" style="width: 16px;"></i> Exit Fullscreen
+                </button>
                 <input type="hidden" name="content" id="quill-content">
             </div>
 
@@ -381,6 +389,22 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
         });
 
         feather.replace();
+    });
+</script>
+<script>
+    function toggleEditorFullscreen() {
+        const container = document.getElementById('editor-container');
+        const body = document.body;
+        
+        container.classList.toggle('fullscreen');
+        body.classList.toggle('editor-fullscreen');
+    }
+
+    // Allow Esc key to exit fullscreen
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('editor-fullscreen')) {
+            toggleEditorFullscreen();
+        }
     });
 </script>
 
