@@ -23,31 +23,7 @@ if (isset($_POST['add_user'])) {
             else {
                 $pdo->prepare("INSERT INTO users (username,email,password,role) VALUES(?,?,?,?)")
                     ->execute([$form_values['username'],$form_values['email'],password_hash($password,PASSWORD_DEFAULT),$form_values['role']]);
-<?php
-$page_title = "Contributors & Team";
-include 'includes/header.php';
-if (!is_admin()) { redirect('admin/dashboard.php', 'Access denied.', 'danger'); }
 
-$errors = []; $form_values = [];
-
-// Add User
-if (isset($_POST['add_user'])) {
-    $form_values = ['username'=>clean($_POST['username']??''), 'email'=>clean($_POST['email']??''), 'role'=>clean($_POST['role']??'editor')];
-    $password = $_POST['password'] ?? '';
-    if (empty($form_values['username'])) $errors['username'] = 'Username is required.';
-    elseif (strlen($form_values['username']) < 3) $errors['username'] = 'Must be at least 3 characters.';
-    if (empty($form_values['email'])) $errors['email'] = 'Email is required.';
-    elseif (!filter_var($form_values['email'], FILTER_VALIDATE_EMAIL)) $errors['email'] = 'Enter a valid email address.';
-    if (empty($password)) $errors['password'] = 'Password is required.';
-    elseif (strlen($password) < 6) $errors['password'] = 'Must be at least 6 characters.';
-    if (empty($errors)) {
-        try {
-            $check = $pdo->prepare("SELECT id FROM users WHERE username=? OR email=?");
-            $check->execute([$form_values['username'], $form_values['email']]);
-            if ($check->fetch()) { $errors['general'] = 'Username or email already exists.'; }
-            else {
-                $pdo->prepare("INSERT INTO users (username,email,password,role) VALUES(?,?,?,?)")
-                    ->execute([$form_values['username'],$form_values['email'],password_hash($password,PASSWORD_DEFAULT),$form_values['role']]);
                 redirect('admin/users.php', 'Team member added successfully!');
             }
         } catch (PDOException $e) { $errors['general'] = 'Error: '.$e->getMessage(); }
