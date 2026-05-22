@@ -1,6 +1,6 @@
 {
-    "version": "2.0.3",
+    "version": "2.0.4",
     "db_version": 3,
     "last_updated": "2026-05-23",
-    "changelog": "v2.0.3: Poll Voting API Hotfix! Fixed an issue where the poll voting API would fail to parse JSON responses on live servers due to extraneous PHP warnings, malformed BASE_URL trailing slashes, or relative path resolution errors."
+    "changelog": "v2.0.4: Admin Panel Localization! Added a seamless English/Hindi language toggle in the admin header using an invisible Google Translate integration. Administrators can now instantly translate the entire dashboard to Hindi with a single click, without any distracting translation banners or tooltips."
 }
