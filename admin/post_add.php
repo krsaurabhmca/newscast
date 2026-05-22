@@ -130,6 +130,8 @@ try {
 $prefill_title = isset($_POST['prefill_title']) ? htmlspecialchars($_POST['prefill_title'], ENT_QUOTES) : '';
 $prefill_content = isset($_POST['prefill_content']) ? $_POST['prefill_content'] : '';
 $prefill_slug = isset($_POST['prefill_slug']) ? htmlspecialchars($_POST['prefill_slug'], ENT_QUOTES) : '';
+$prefill_excerpt = isset($_POST['prefill_excerpt']) ? htmlspecialchars($_POST['prefill_excerpt'], ENT_QUOTES) : '';
+$prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST['prefill_category'], ENT_QUOTES) : '';
 ?>
 
 <form action="" method="POST" enctype="multipart/form-data" id="postForm">
@@ -158,7 +160,7 @@ $prefill_slug = isset($_POST['prefill_slug']) ? htmlspecialchars($_POST['prefill
 
             <div class="form-group" style="margin-bottom: 0;">
                 <label>Short Summary / Excerpt</label>
-                <textarea name="excerpt" class="form-control" rows="3" placeholder="Briefly describe the article..."></textarea>
+                <textarea name="excerpt" class="form-control" rows="3" placeholder="Briefly describe the article..."><?php echo $prefill_excerpt; ?></textarea>
                 <p class="field-hint">Appears on listing pages and search results.</p>
             </div>
         </div>
@@ -225,7 +227,7 @@ $prefill_slug = isset($_POST['prefill_slug']) ? htmlspecialchars($_POST['prefill
             <div style="max-height: 220px; overflow-y: auto; padding-right: 5px; margin-right: -5px;">
                 <?php foreach ($categories as $cat): ?>
                     <label style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; font-size: 13px; border-radius: 8px; transition: background .2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <input type="checkbox" name="category_ids[]" value="<?php echo $cat['id']; ?>" style="accent-color: var(--primary);">
+                        <input type="checkbox" name="category_ids[]" value="<?php echo $cat['id']; ?>" <?php echo (strtolower(trim($prefill_category)) == strtolower(trim($cat['name']))) ? 'checked' : ''; ?> style="accent-color: var(--primary);">
                         <span style="color: var(--text-main); font-weight: 500;"><?php echo $cat['name']; ?></span>
                     </label>
                 <?php endforeach; ?>

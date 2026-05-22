@@ -87,6 +87,8 @@ ARTICLE RULES:
 
 # Headline
 [Slug: english-url-slug-here]
+[Category: Most Relevant Category Here]
+[Excerpt: Short 2-3 line summary here]
 
 ## Summary
 
@@ -431,9 +433,11 @@ function addMessage(type, text, rawMarkdown = '') {
 }
 
 function draftPost(markdown, html) {
-    // Extract Headline and Slug
+    // Extract Headline, Slug, Category, and Excerpt
     let title = "Auto Generated AI Draft";
     let slug = "";
+    let category = "";
+    let excerpt = "";
     const lines = markdown.split('\n');
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
@@ -441,7 +445,11 @@ function draftPost(markdown, html) {
             title = line.substring(2).trim();
         } else if (line.startsWith('[Slug:')) {
             slug = line.replace('[Slug:', '').replace(']', '').trim();
-        } else if (line.length > 10 && !line.startsWith('#') && title === "Auto Generated AI Draft") {
+        } else if (line.startsWith('[Category:')) {
+            category = line.replace('[Category:', '').replace(']', '').trim();
+        } else if (line.startsWith('[Excerpt:')) {
+            excerpt = line.replace('[Excerpt:', '').replace(']', '').trim();
+        } else if (line.length > 10 && !line.startsWith('#') && !line.startsWith('[') && title === "Auto Generated AI Draft") {
             // fallback to first substantial line if no title found yet
             title = line;
         }
@@ -468,9 +476,21 @@ function draftPost(markdown, html) {
     slugInput.name = 'prefill_slug';
     slugInput.value = slug;
 
+    const categoryInput = document.createElement('input');
+    categoryInput.type = 'hidden';
+    categoryInput.name = 'prefill_category';
+    categoryInput.value = category;
+
+    const excerptInput = document.createElement('input');
+    excerptInput.type = 'hidden';
+    excerptInput.name = 'prefill_excerpt';
+    excerptInput.value = excerpt;
+
     form.appendChild(titleInput);
     form.appendChild(contentInput);
     form.appendChild(slugInput);
+    form.appendChild(categoryInput);
+    form.appendChild(excerptInput);
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
