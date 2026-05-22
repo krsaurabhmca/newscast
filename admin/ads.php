@@ -16,36 +16,19 @@ if (isset($_POST['save_ad'])) {
     $ad_id = isset($_POST['ad_id']) ? (int)$_POST['ad_id'] : null;
 
     $image_path = isset($_POST['existing_image']) ? $_POST['existing_image'] : '';
-    // Handle Image Upload with Auto-compression (reduce 60-70%)
+    // Handle Image Upload with Auto-compression to WEBP
     if ($type == 'image' && isset($_FILES['ad_image']) && $_FILES['ad_image']['error'] === 0) {
-        $img_name = $_FILES['ad_image']['name'];
-        $tmp_name = $_FILES['ad_image']['tmp_name'];
-        $img_ext = strtolower(pathinfo($img_name, PATHINFO_EXTENSION));
+        $img_ext = strtolower(pathinfo($_FILES['ad_image']['name'], PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
         if (in_array($img_ext, $allowed)) {
-            $new_img_name = uniqid("ad_") . "." . $img_ext;
-            $upload_path = "../assets/images/ads/" . $new_img_name;
-
-            if (!is_dir("../assets/images/ads/")) {
-                mkdir("../assets/images/ads/", 0777, true);
-            }
-
-            // Auto compress and resize (60% quality = ~70% reduction)
-            if (compress_image($tmp_name, $upload_path, 60)) {
+            $uploaded_file = upload_and_optimize_image($_FILES['ad_image'], "../assets/images/ads/", "ad_", 1000, 80);
+            
+            if ($uploaded_file) {
                 if ($image_path && file_exists("../assets/images/ads/" . $image_path)) {
                     unlink("../assets/images/ads/" . $image_path);
                 }
-                $image_path = $new_img_name;
-            }
-            else {
-                // Fallback if compression fails
-                if (move_uploaded_file($tmp_name, $upload_path)) {
-                    if ($image_path && file_exists("../assets/images/ads/" . $image_path)) {
-                        unlink("../assets/images/ads/" . $image_path);
-                    }
-                    $image_path = $new_img_name;
-                }
+                $image_path = $uploaded_file;
             }
         }
     }

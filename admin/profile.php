@@ -35,15 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowed = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
 
         if (in_array($img_ext, $allowed)) {
-            $new_name = "user_" . $user_id . "_" . time() . "." . $img_ext;
-            $upload_path = "../assets/images/" . $new_name;
+            $uploaded_file = upload_and_optimize_image($_FILES['profile_image'], "../assets/images/", "user_" . $user_id . "_", 500, 80);
 
-            if (move_uploaded_file($tmp_name, $upload_path)) {
+            if ($uploaded_file) {
                 // Delete old image if not default
                 if ($profile_image && file_exists("../assets/images/" . $profile_image)) {
                     unlink("../assets/images/" . $profile_image);
                 }
-                $profile_image = $new_name;
+                $profile_image = $uploaded_file;
             } else {
                 $errors['image'] = "Failed to upload image.";
             }

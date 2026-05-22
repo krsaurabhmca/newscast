@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = "Edit Team Member";
 include 'includes/header.php';
 
@@ -40,20 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Handle Image Upload
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
-        $img_name = $_FILES['profile_image']['name'];
-        $tmp_name = $_FILES['profile_image']['tmp_name'];
-        $img_ext = strtolower(pathinfo($img_name, PATHINFO_EXTENSION));
+        $img_ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
 
         if (in_array($img_ext, $allowed)) {
-            $new_name = "user_" . $id . "_" . time() . "." . $img_ext;
-            $upload_path = "../assets/images/" . $new_name;
+            $uploaded_file = upload_and_optimize_image($_FILES['profile_image'], "../assets/images/", "user_" . $id . "_", 500, 80);
 
-            if (move_uploaded_file($tmp_name, $upload_path)) {
+            if ($uploaded_file) {
                 if ($profile_image && $profile_image != 'default-avatar.svg' && file_exists("../assets/images/" . $profile_image)) {
                     unlink("../assets/images/" . $profile_image);
                 }
-                $profile_image = $new_name;
+                $profile_image = $uploaded_file;
             } else {
                 $errors['image'] = "Failed to upload image.";
             }

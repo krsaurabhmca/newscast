@@ -246,6 +246,81 @@ function get_post_excerpt($post, $word_count = 25)
     return get_excerpt($text, $word_count);
 }
 /**
+ * Upload, Resize, and Convert Image to highly optimized WEBP
+ * @return string|false Returns new WEBP filename on success, false on failure
+ */
+function upload_and_optimize_image($file_array, $upload_dir, $prefix = 'img_', $max_width = 1200, $quality = 80)
+{
+    if (!isset($file_array['tmp_name']) || empty($file_array['tmp_name']) || $file_array['error'] !== 0) {
+        return false;
+    }
+    
+    if (!is_dir($upload_dir)) {
+        @mkdir($upload_dir, 0777, true);
+    }
+
+    $source = $file_array['tmp_name'];
+    $info = @getimagesize($source);
+    if ($info === false) {
+        return false;
+    }
+
+    // Attempt to use GD to convert and resize
+    if (extension_loaded('gd')) {
+        $image = null;
+        switch ($info['mime']) {
+            case 'image/jpeg': $image = @imagecreatefromjpeg($source); break;
+            case 'image/gif':  $image = @imagecreatefromgif($source);  break;
+            case 'image/png':  $image = @imagecreatefrompng($source);  break;
+            case 'image/webp': $image = @imagecreatefromwebp($source); break;
+        }
+
+        if ($image) {
+            $width = imagesx($image);
+            $height = imagesy($image);
+
+            $new_width = $width;
+            $new_height = $height;
+
+            if ($width > $max_width) {
+                $new_width = $max_width;
+                $new_height = floor($height * ($max_width / $width));
+            }
+
+            $tmp = imagecreatetruecolor($new_width, $new_height);
+            // Preserve transparency
+            imagealphablending($tmp, false);
+            imagesavealpha($tmp, true);
+            $transparent = imagecolorallocatealpha($tmp, 255, 255, 255, 127);
+            imagefilledrectangle($tmp, 0, 0, $new_width, $new_height, $transparent);
+
+            imagecopyresampled($tmp, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+            imagedestroy($image);
+            $image = $tmp;
+
+            $new_filename = uniqid($prefix) . '_' . time() . '.webp';
+            $destination = rtrim($upload_dir, '/') . '/' . $new_filename;
+
+            if (imagewebp($image, $destination, $quality)) {
+                imagedestroy($image);
+                return $new_filename;
+            }
+            imagedestroy($image);
+        }
+    }
+
+    // Fallback: If GD fails or not loaded, just move original file
+    $img_ext = strtolower(pathinfo($file_array['name'], PATHINFO_EXTENSION));
+    $new_filename = uniqid($prefix) . '_' . time() . '.' . $img_ext;
+    $destination = rtrim($upload_dir, '/') . '/' . $new_filename;
+    if (move_uploaded_file($source, $destination)) {
+        return $new_filename;
+    }
+
+    return false;
+}
+
+/**
  * Compress and resize images on upload
  * Reduces file size while maintaining visibility (Target: 60-70% reduction)
  */

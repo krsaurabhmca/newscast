@@ -31,10 +31,10 @@ if (isset($_POST['add_magazine'])) {
 
         if (move_uploaded_file($_FILES['pdf_file']['tmp_name'], $upload_dir . $safe_name)) {
             if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] === 0) {
-                $cover_ext  = pathinfo($_FILES['cover_image']['name'], PATHINFO_EXTENSION);
-                $cover_name = 'cover_' . time() . '.' . $cover_ext;
-                move_uploaded_file($_FILES['cover_image']['tmp_name'], $upload_dir . $cover_name);
-                $cover_img = $cover_name;
+                $uploaded_cover = upload_and_optimize_image($_FILES['cover_image'], $upload_dir, "cover_", 800, 80);
+                if ($uploaded_cover) {
+                    $cover_img = $uploaded_cover;
+                }
             }
             // Store issue_month as first day of month
             $issue_date = $form_values['issue_month'] . '-01';

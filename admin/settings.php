@@ -77,10 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         $images = ['site_logo' => 'logo', 'site_favicon' => 'favicon'];
         foreach ($images as $field => $prefix) {
             if (isset($_FILES[$field]) && $_FILES[$field]['error'] === 0) {
-                $img_ext = pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
-                $new_img_name = $prefix . "." . $img_ext;
-                if (move_uploaded_file($_FILES[$field]['tmp_name'], "../assets/images/" . $new_img_name)) {
-                    $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$field, $new_img_name, $new_img_name]);
+                $max_w = ($field === 'site_favicon') ? 256 : 1000;
+                $uploaded_file = upload_and_optimize_image($_FILES[$field], "../assets/images/", $prefix . "_", $max_w, 90);
+                if ($uploaded_file) {
+                    $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$field, $uploaded_file, $uploaded_file]);
                 }
             }
         }

@@ -59,37 +59,18 @@ if (isset($_POST['update_post'])) {
         }
     }
 
-    // Image Upload with Auto-compression (reduce 60-70%)
+    // Image Upload with Auto-compression to WEBP
     $featured_image = $post['featured_image'];
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-        $img_name = $_FILES['image']['name'];
-        $tmp_name = $_FILES['image']['tmp_name'];
-        $img_ext = strtolower(pathinfo($img_name, PATHINFO_EXTENSION));
+        $img_ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
         if (in_array($img_ext, $allowed)) {
-            $new_img_name = uniqid("post_") . "." . $img_ext;
-            $upload_path = "../assets/images/posts/" . $new_img_name;
-
-            if (!is_dir("../assets/images/posts/")) {
-                mkdir("../assets/images/posts/", 0777, true);
-            }
-
-            // Auto compress and resize (60% quality = ~70% reduction)
-            if (compress_image($tmp_name, $upload_path, 60)) {
+            $uploaded_file = upload_and_optimize_image($_FILES['image'], "../assets/images/posts/", "post_", 1200, 80);
+            if ($uploaded_file) {
                 if ($featured_image && file_exists("../assets/images/posts/" . $featured_image)) {
                     unlink("../assets/images/posts/" . $featured_image);
                 }
-                $featured_image = $new_img_name;
-            }
-            else {
-                // Fallback if compression fails
-                if (move_uploaded_file($tmp_name, $upload_path)) {
-                    if ($featured_image && file_exists("../assets/images/posts/" . $featured_image)) {
-                        unlink("../assets/images/posts/" . $featured_image);
-                    }
-                    $featured_image = $new_img_name;
-                }
+                $featured_image = $uploaded_file;
             }
         }
     }
