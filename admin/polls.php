@@ -24,9 +24,14 @@ if (isset($_POST['add_poll'])) {
         $_SESSION['flash_type'] = "danger";
     } else {
         try {
+            // Generate a unique slug
+            $base_slug = create_slug($question);
+            if (empty($base_slug)) $base_slug = 'poll';
+            $slug = $base_slug . '-' . substr(md5(uniqid()), 0, 6);
+
             $pdo->beginTransaction();
-            $stmt = $pdo->prepare("INSERT INTO polls (question, status, starts_at, expires_at) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$question, $status, $starts_at, $expires_at]);
+            $stmt = $pdo->prepare("INSERT INTO polls (question, slug, status, starts_at, expires_at) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$question, $slug, $status, $starts_at, $expires_at]);
             $poll_id = $pdo->lastInsertId();
 
             $opt_stmt = $pdo->prepare("INSERT INTO poll_options (poll_id, option_text) VALUES (?, ?)");

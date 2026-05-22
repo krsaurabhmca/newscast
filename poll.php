@@ -215,10 +215,14 @@ $share_text = urlencode($poll['question']);
             <span id="total-votes"><i data-feather="users" style="width:14px; vertical-align:text-bottom;"></i> <?php echo $total_votes; ?> Votes</span>
             <?php if($is_closed): ?>
                 <span style="color:#ef4444; font-weight:700;"><i data-feather="lock" style="width:14px; vertical-align:text-bottom;"></i> Closed</span>
-            <?php elseif($is_upcoming): ?>
-                <span style="color:#d97706; font-weight:700;" id="countdown-timer" data-time="<?php echo $poll['starts_at']; ?>" data-type="starts"><i data-feather="clock" style="width:14px; vertical-align:text-bottom;"></i> Starts in: ...</span>
-            <?php elseif($expires_time > 0): ?>
-                <span style="color:#10b981; font-weight:700;" id="countdown-timer" data-time="<?php echo $poll['expires_at']; ?>" data-type="expires"><i data-feather="clock" style="width:14px; vertical-align:text-bottom;"></i> Closes in: ...</span>
+            <?php elseif($is_upcoming): 
+                $remaining = $starts_time - $now_time;
+            ?>
+                <span style="color:#d97706; font-weight:700;" id="countdown-timer" data-remaining="<?php echo $remaining; ?>" data-type="starts"><i data-feather="clock" style="width:14px; vertical-align:text-bottom;"></i> Starts in: ...</span>
+            <?php elseif($expires_time > 0): 
+                $remaining = $expires_time - $now_time;
+            ?>
+                <span style="color:#10b981; font-weight:700;" id="countdown-timer" data-remaining="<?php echo $remaining; ?>" data-type="expires"><i data-feather="clock" style="width:14px; vertical-align:text-bottom;"></i> Closes in: ...</span>
             <?php endif; ?>
         </div>
 
@@ -375,14 +379,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Countdown Timer Logic
     const timerEl = document.getElementById('countdown-timer');
     if (timerEl) {
-        const targetTime = new Date(timerEl.getAttribute('data-time').replace(/-/g, '/')).getTime();
+        let remaining = parseInt(timerEl.getAttribute('data-remaining'), 10);
         const type = timerEl.getAttribute('data-type');
         
         const interval = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = targetTime - now;
+            remaining--;
             
-            if (distance < 0) {
+            if (remaining < 0) {
                 clearInterval(interval);
                 timerEl.innerHTML = `<i data-feather="${type === 'starts' ? 'play-circle' : 'lock'}" style="width:14px; vertical-align:text-bottom;"></i> ${type === 'starts' ? 'Just Started! Refreshing...' : 'Closed'}`;
                 if(typeof feather !== 'undefined') feather.replace();
@@ -390,10 +393,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const days = Math.floor(remaining / (60 * 60 * 24));
+            const hours = Math.floor((remaining % (60 * 60 * 24)) / (60 * 60));
+            const minutes = Math.floor((remaining % (60 * 60)) / 60);
+            const seconds = Math.floor(remaining % 60);
             
             let timeStr = "";
             if (days > 0) timeStr += days + "d ";
