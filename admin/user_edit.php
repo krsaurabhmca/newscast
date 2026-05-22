@@ -23,6 +23,10 @@ if (!$user) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (is_demo_account()) {
+        redirect("user_edit.php?id=$id", 'Action restricted: Demo accounts cannot modify users.', 'danger');
+        exit;
+    }
     $username = clean($_POST['username'] ?? '');
     $email = clean($_POST['email'] ?? '');
     $role = clean($_POST['role'] ?? '');

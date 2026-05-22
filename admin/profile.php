@@ -11,6 +11,10 @@ $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (is_demo_account()) {
+        redirect('profile.php', 'Action restricted: Demo accounts cannot modify their profile.', 'danger');
+        exit;
+    }
     $username = clean($_POST['username']);
     $email = clean($_POST['email']);
     $profile_image = $user['profile_image'];

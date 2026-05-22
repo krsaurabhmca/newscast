@@ -19,6 +19,17 @@ function clean($data)
 }
 
 /**
+ * Check if the user is a demo account
+ */
+function is_demo_account()
+{
+    if (isset($_SESSION['username'])) {
+        return stripos($_SESSION['username'], 'demo') !== false;
+    }
+    return false;
+}
+
+/**
  * Check if user is logged in
  */
 function is_logged_in()

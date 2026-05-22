@@ -4,6 +4,10 @@ include 'includes/header.php';
 
 // Handle delete
 if (isset($_GET['delete'])) {
+    if (is_demo_account()) {
+        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
+        exit;
+    }
     $stmt = $pdo->prepare("DELETE FROM feedback WHERE id = ?");
     $stmt->execute([(int)$_GET['delete']]);
     redirect('admin/feedback.php', 'Message deleted.');

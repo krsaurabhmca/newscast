@@ -31,6 +31,10 @@ if (isset($_POST['add_user'])) {
 
 // Delete
 if (isset($_GET['delete'])) {
+    if (is_demo_account()) {
+        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
+        exit;
+    }
     $del = (int)$_GET['delete'];
     if ($del !== (int)$_SESSION['user_id']) { $pdo->prepare("DELETE FROM users WHERE id=?")->execute([$del]); redirect('admin/users.php','User removed.'); }
     else redirect('admin/users.php','Cannot delete your own account.','danger');

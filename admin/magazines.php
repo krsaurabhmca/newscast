@@ -50,6 +50,10 @@ if (isset($_POST['add_magazine'])) {
 
 // ── Delete ──────────────────────────────────────────────
 if (isset($_GET['delete'])) {
+    if (is_demo_account()) {
+        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
+        exit;
+    }
     $id  = (int)$_GET['delete'];
     $row = $pdo->prepare("SELECT file_path, cover_image FROM magazines WHERE id=?");
     $row->execute([$id]); $row = $row->fetch();

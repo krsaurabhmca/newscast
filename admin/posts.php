@@ -4,6 +4,10 @@ include 'includes/header.php';
 
 // ── Delete ─────────────────────────────────────────────
 if (isset($_GET['delete'])) {
+    if (is_demo_account()) {
+        redirect(basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
+        exit;
+    }
     $id = (int)$_GET['delete'];
     $stmt = $pdo->prepare("SELECT featured_image FROM posts WHERE id = ?");
     $stmt->execute([$id]);

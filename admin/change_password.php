@@ -6,6 +6,10 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (is_demo_account()) {
+        redirect('change_password.php', 'Action restricted: Demo accounts cannot change passwords.', 'danger');
+        exit;
+    }
     $current_password = $_POST['current_password'];
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
