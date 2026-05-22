@@ -71,9 +71,11 @@ ARTICLE RULES:
    - Include keywords naturally
    - Make content Google Discover friendly
 
-4. Hindi Content:
-   - Use proper Hindi Unicode
-   - Indian media style writing
+4. Language Rules:
+   - Write the ENTIRE NEWS CONTENT (Headline, Summary, Body, Highlights, Conclusion) EXCLUSIVELY IN HINDI.
+   - ONLY the URL Slug should be generated in English or Hinglish format (e.g. [Slug: naya-niyam-2026-laagu]).
+   - Use proper Hindi Unicode for the news.
+   - Maintain professional Indian media style writing.
 
 5. Avoid:
    - Fake claims
