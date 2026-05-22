@@ -68,52 +68,13 @@ if (isset($_GET['edit'])) {
 $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetchAll();
 ?>
 
-<div class="admin-grid-layout">
-    <!-- Form (Add/Edit) -->
-    <div style="background: white; padding: 25px; border-radius: 12px; height: fit-content; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 20px;"><?php echo $edit_item ? 'Edit Event' : 'Add New Event'; ?></h3>
-        <form action="" method="POST">
-            <?php if ($edit_item): ?>
-                <input type="hidden" name="id" value="<?php echo $edit_item['id']; ?>">
-            <?php endif; ?>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Name</label>
-                <input type="text" name="event_name" class="form-control" required value="<?php echo $edit_item ? htmlspecialchars($edit_item['event_name']) : ''; ?>" placeholder="E.g. Election Results">
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Date</label>
-                <input type="date" name="event_date" class="form-control" required value="<?php echo $edit_item ? $edit_item['event_date'] : date('Y-m-d'); ?>">
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Event Time</label>
-                <input type="time" name="event_time" class="form-control" required value="<?php echo $edit_item ? $edit_item['event_time'] : date('H:i'); ?>">
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom: 5px; font-weight: 700; font-size: 13px;">Description</label>
-                <textarea name="description" class="form-control" rows="4" required placeholder="What happened?"><?php echo $edit_item ? htmlspecialchars($edit_item['description']) : ''; ?></textarea>
-            </div>
-            
-            <input type="hidden" name="status_color" value="#6366f1"> <!-- Hidden default, logic moves to frontend -->
-
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button type="submit" name="<?php echo $edit_item ? 'update_timeline' : 'add_timeline'; ?>" class="btn btn-primary" style="flex: 1; justify-content: center; display: flex; align-items: center; gap: 8px;">
-                    <i data-feather="upload-cloud" style="width:16px;"></i>
-                    <?php echo $edit_item ? 'Update Event' : 'Post Event'; ?>
-                </button>
-                <?php if ($edit_item): ?>
-                    <a href="timeline.php" class="btn" style="background: #f1f5f9; color: #444; display: flex; align-items: center; justify-content: center;">Cancel</a>
-                <?php endif; ?>
-            </div>
-        </form>
-    </div>
-
+<div style="display:block;">
     <!-- List -->
-    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
-        <h3 style="margin-bottom: 20px;">Manage Events</h3>
+    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow); width: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">Manage Events</h3>
+            <button onclick="openTimelineModal()" class="btn btn-primary" style="padding: 8px 16px; font-size: 14px; font-weight: 600;"><i data-feather="plus" style="width: 16px;"></i> Add New Event</button>
+        </div>
         <div class="table-responsive"><table class="content-table">
             <thead>
                 <tr>
