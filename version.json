@@ -1,6 +1,6 @@
 {
-    "version": "2.0.1",
+    "version": "2.0.2",
     "db_version": 3,
     "last_updated": "2026-05-23",
-    "changelog": "v2.0.1: Hotfixes and Improvements! Fixed a timezone-related infinite reload loop on Polls with expiry times. Fixed a bug where creating a poll via Admin UI didn't generate an SEO slug. Added Category overlay to generated E-Paper Images and improved the downloaded E-Paper filename format. Enforced strict Hindi-only generation for AI News while keeping SEO URLs in English/Hinglish."
+    "changelog": "v2.0.2: Major UI and Security Updates! Upgraded the Magazine Viewer with a full-screen immersive floating UI and auto-hide controls. Added WhatsApp Channel integration to Settings and Footer. Secured the Admin Panel by implementing robust Demo Account restrictions across all modules and fixing redirect routing. Refactored Users and Timeline management to use sleek pop-up modals and a 'Login As' feature. Enhanced the E-Paper download template to include the site name alongside the logo."
 }
