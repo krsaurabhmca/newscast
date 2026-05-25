@@ -43,11 +43,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <i data-feather="edit-3" style="width: 18px;"></i> Manage Articles
                 </a>
             </li>
-            <li>
-                <a href="ai_news.php" class="<?php echo $current_page == 'ai_news.php' ? 'active' : ''; ?>" style="color: #9333ea; font-weight: 700;">
-                    <i data-feather="cpu" style="width: 18px; color: #9333ea;"></i> AI News Generator
-                </a>
-            </li>
+
             <li>
                 <a href="categories.php" class="<?php echo $current_page == 'categories.php' ? 'active' : ''; ?>">
                     <i data-feather="layers" style="width: 18px;"></i> Categories

@@ -131,5 +131,8 @@
     </script>
     
     <?php include '../includes/feedback_drawer.php'; ?>
+    
+    <!-- AI Chat UI -->
+    <?php include 'ai_chat_modal.php'; ?>
 </body>
 </html>

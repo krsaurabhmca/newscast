@@ -1,6 +1,6 @@
 {
-    "version": "2.0.6",
+    "version": "2.0.7",
     "db_version": 3,
     "last_updated": "2026-05-25",
-    "changelog": "v2.0.6: Improved AI News Generator. Added dynamic category fetching so the AI correctly selects an existing category for auto-drafting, and fixed a bug where metadata tags were bleeding into the main article body."
+    "changelog": "v2.0.7: Added global AI Chat modal overlay. Overhauled homepage with premium category sections and automated trending slider. Completely redesigned public footer with multi-column compact layout. Added new admin help documentation."
 }

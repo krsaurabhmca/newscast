@@ -17,6 +17,10 @@ include 'includes/header.php';
                 <li style="margin-bottom: 8px;"><a href="#accessibility" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="headphones" style="width: 18px;"></i> Accessibility (TTS)</a></li>
                 <li style="margin-bottom: 8px;"><a href="#translation" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="globe" style="width: 18px;"></i> Multi-Language</a></li>
                 <li style="margin-bottom: 8px;"><a href="#epapermag" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="file-text" style="width: 18px;"></i> E-Paper & Magazine</a></li>
+                <li style="margin-bottom: 8px;"><a href="#ai-news" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="cpu" style="width: 18px;"></i> AI News Generator</a></li>
+                <li style="margin-bottom: 8px;"><a href="#push-notif" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="bell" style="width: 18px;"></i> Push Notifications</a></li>
+                <li style="margin-bottom: 8px;"><a href="#team-hr" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="users" style="width: 18px;"></i> Team & HR Tools</a></li>
+                <li style="margin-bottom: 8px;"><a href="#ui-controls" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="layout" style="width: 18px;"></i> Homepage UI</a></li>
                 <li style="margin-bottom: 8px;"><a href="#user-engage" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="bookmark" style="width: 18px;"></i> User Engagement</a></li>
                 <li style="margin-bottom: 8px;"><a href="#branding" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="palette" style="width: 18px;"></i> Theme & Branding</a></li>
                 <li style="margin-bottom: 8px;"><a href="#ads" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="trending-up" style="width: 18px;"></i> Ads Monetization</a></li>
@@ -93,6 +97,60 @@ include 'includes/header.php';
                     <li><strong>E-Paper Archive:</strong> Users can filter papers by specific dates.</li>
                     <li><strong>Magazine Center:</strong> High-performance PDF renderer for magazines with download counters.</li>
                     <li><strong>Theme Sync:</strong> All filter buttons and UI elements automatically match your primary portal color.</li>
+                </ul>
+            </section>
+
+            <!-- AI News Generator -->
+            <section id="ai-news" style="background: white; padding: 35px; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+                <h3 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                    <span style="background: #9333ea; color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i data-feather="cpu" style="width: 20px;"></i></span>
+                    AI News Generator
+                </h3>
+                <p style="color: #475569; line-height: 1.8;">A powerful Groq-powered AI editor integrated globally into the admin panel.</p>
+                <ul style="color: #475569; line-height: 1.8; padding-left: 20px; margin-top: 15px;">
+                    <li><strong>Floating Chat Modal:</strong> Accessible via the purple floating action button in the bottom right corner of ANY admin page.</li>
+                    <li><strong>Professional Output:</strong> Generates Hindi news with SEO-friendly English/Hinglish slugs.</li>
+                    <li><strong>1-Click Draft:</strong> Instantly converts the AI's response into a new article draft using the "Draft as Post" button.</li>
+                </ul>
+            </section>
+
+            <!-- Push Notifications -->
+            <section id="push-notif" style="background: white; padding: 35px; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+                <h3 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                    <span style="background: #14b8a6; color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i data-feather="bell" style="width: 20px;"></i></span>
+                    Web Push Notifications
+                </h3>
+                <p style="color: #475569; line-height: 1.8;">Keep users engaged with real-time browser notifications via OneSignal.</p>
+                <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-top: 15px; border: 1px dashed #cbd5e1;">
+                    <strong style="color: #1e293b; display: block; margin-bottom: 5px;">How it works:</strong>
+                    Set up your OneSignal App ID in <span style="font-weight: 700;">Settings > Integrations</span>. Once active, a sleek, compact horizontal subscription banner will appear on the homepage for unsubscribed users.
+                </div>
+            </section>
+
+            <!-- Team & HR Tools -->
+            <section id="team-hr" style="background: white; padding: 35px; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+                <h3 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                    <span style="background: #eab308; color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i data-feather="users" style="width: 20px;"></i></span>
+                    Team & HR Tools
+                </h3>
+                <p style="color: #475569; line-height: 1.8;">Manage your press team professionally directly from the dashboard.</p>
+                <ul style="color: #475569; line-height: 1.8; padding-left: 20px; margin-top: 15px;">
+                    <li><strong>Reporter ID Cards:</strong> Generate printable press ID cards with QR codes automatically from user profiles.</li>
+                    <li><strong>Joining Letters:</strong> Issue official branded appointment letters instantly.</li>
+                </ul>
+            </section>
+
+            <!-- Homepage UI -->
+            <section id="ui-controls" style="background: white; padding: 35px; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+                <h3 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                    <span style="background: #3b82f6; color: white; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;"><i data-feather="layout" style="width: 20px;"></i></span>
+                    Homepage UI Controls
+                </h3>
+                <p style="color: #475569; line-height: 1.8;">Dynamic control over how your news is displayed to visitors.</p>
+                <ul style="color: #475569; line-height: 1.8; padding-left: 20px; margin-top: 15px;">
+                    <li><strong>Trending Slider:</strong> The top 4 featured posts automatically rotate in a premium sliding carousel.</li>
+                    <li><strong>Category Visibility:</strong> Navigate to <span style="font-weight: 700;">Categories</span> and use the quick toggle switch to display specific categories directly on the homepage (up to 3 categories).</li>
+                    <li><strong>Compact Footer:</strong> The updated public footer features a multi-column design that saves vertical space while providing quick links and a newsletter signup.</li>
                 </ul>
             </section>
 

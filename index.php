@@ -14,26 +14,27 @@ function yt_id($url)
     return null;
 }
 
-// 1. Fetch Featured Post (Lead Story)
+// 1. Fetch Featured Posts (Lead Stories for Slider)
 $stmt = $pdo->query("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors, GROUP_CONCAT(c.slug) as cat_slugs 
                      FROM posts p 
                      JOIN post_categories pc ON p.id = pc.post_id 
                      JOIN categories c ON pc.category_id = c.id 
                      WHERE p.status = 'published' AND p.is_featured = 1 AND p.published_at <= NOW()
-                     GROUP BY p.id ORDER BY p.published_at DESC LIMIT 1");
-$featured = $stmt->fetch();
+                     GROUP BY p.id ORDER BY p.published_at DESC LIMIT 4");
+$featured_posts = $stmt->fetchAll();
 
-if (!$featured) {
+if (count($featured_posts) == 0) {
     $stmt = $pdo->query("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors, GROUP_CONCAT(c.slug) as cat_slugs 
                          FROM posts p 
                          JOIN post_categories pc ON p.id = pc.post_id 
                          JOIN categories c ON pc.category_id = c.id 
                          WHERE p.status = 'published' AND p.published_at <= NOW()
-                         GROUP BY p.id ORDER BY p.published_at DESC LIMIT 1");
-    $featured = $stmt->fetch();
+                         GROUP BY p.id ORDER BY p.published_at DESC LIMIT 4");
+    $featured_posts = $stmt->fetchAll();
 }
 
-$featured_id = $featured ? $featured['id'] : 0;
+$featured_ids = array_column($featured_posts, 'id');
+$featured_id = $featured_ids[0] ?? 0; // fallback for other queries if needed
 
 // 2. Fetch Top 10 Posts (by views)
 $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
@@ -56,15 +57,27 @@ $stmt->execute([$featured_id]);
 $breaking_news_latest = $stmt->fetchAll();
 
 // 4. Fetch Latest News for main grid
-$exclude_ids = array_merge([$featured_id], array_column($top_10, 'id'), array_column($breaking_news_latest, 'id'));
+$total_posts_stmt = $pdo->query("SELECT COUNT(*) FROM posts WHERE status = 'published' AND published_at <= NOW()");
+$total_posts = $total_posts_stmt->fetchColumn();
+
+if ($total_posts > 20) {
+    $exclude_ids = array_merge($featured_ids, array_column($top_10, 'id'), array_column($breaking_news_latest, 'id'));
+} else {
+    // If DB is small, don't hide everything, just exclude the main featured posts
+    $exclude_ids = $featured_ids;
+}
+$exclude_ids = array_unique(array_filter($exclude_ids));
 $placeholders = $exclude_ids ? str_repeat('?,', count($exclude_ids) - 1) . '?' : '0';
-$stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
-                        FROM posts p 
-                        JOIN post_categories pc ON p.id = pc.post_id 
-                        JOIN categories c ON pc.category_id = c.id 
-                        WHERE p.status = 'published' AND p.id NOT IN ($placeholders) AND p.published_at <= NOW()
-                        GROUP BY p.id ORDER BY p.published_at DESC LIMIT 12");
-$stmt->execute($exclude_ids ?: []);
+
+$sql = "SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
+        FROM posts p 
+        JOIN post_categories pc ON p.id = pc.post_id 
+        JOIN categories c ON pc.category_id = c.id 
+        WHERE p.status = 'published' " . ($exclude_ids ? "AND p.id NOT IN ($placeholders)" : "") . " AND p.published_at <= NOW()
+        GROUP BY p.id ORDER BY p.published_at DESC LIMIT 12";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute(array_values($exclude_ids));
 $latest_news = $stmt->fetchAll();
 
 // Trending Tags
@@ -75,130 +88,443 @@ $live_enabled = get_setting('live_youtube_enabled') === '1';
 $live_url = get_setting('live_youtube_url');
 $live_title = get_setting('live_stream_title', 'Watch Live');
 $live_vid_id = $live_url ? yt_id($live_url) : null;
+
+// 6. Fetch Featured Homepage Categories
+$stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' AND show_on_homepage = 1 ORDER BY created_at DESC LIMIT 3");
+$featured_categories = $stmt->fetchAll();
 ?>
 
-<main class="content-container">
+<main class="content-container" style="max-width: 1400px; margin: 0 auto; padding: 30px 20px;">
     <!-- Trending Bar -->
-    <div class="trending-tags">
-        <span class="trending-label">TRENDING</span>
+    <div class="trending-scroll-container" style="display: flex; gap: 15px; margin-bottom: 35px; overflow-x: auto; padding-bottom: 10px; align-items: center; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none;">
+        <span style="background: var(--primary); color: #fff; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 800; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">TRENDING</span>
         <?php foreach ($categories_list as $tag): ?>
-            <a href="<?php echo BASE_URL; ?>tag/<?php echo $tag['slug']; ?>" class="tag-item">
+            <a href="<?php echo BASE_URL; ?>tag/<?php echo $tag['slug']; ?>" class="tag-pill">
                 #<?php echo $tag['name']; ?>
             </a>
-        <?php
-endforeach; ?>
+        <?php endforeach; ?>
     </div>
 
-    <!-- Bhaskar Home Hero (Lead Story Section) -->
-    <section class="bhaskar-hero">
-        <div class="main-feature">
-            <?php if ($live_enabled && $live_vid_id): ?>
-                <div style="border-bottom: 2px solid #ff0000; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
-                    <h3 style="font-size: 18px; font-weight: 800; color: #ff0000; margin:0; display: flex; align-items: center; gap: 8px;">
-                        <span style="width: 10px; height: 10px; background: #ff0000; border-radius: 50%; animation: pulse 1s infinite;"></span>
-                        LIVE BROADCAST
-                    </h3>
-                    <span style="font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase;">Real-time Coverage</span>
-                </div>
-                <?php
-    $stream_sound = get_setting('live_stream_sound', '0') === '1' ? '0' : '1';
-?>
-                <div style="background: #000; border-radius: 12px; overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                    <div style="position: relative; padding-top: 56.25%;">
-                        <iframe 
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
-                            src="https://www.youtube.com/embed/<?php echo $live_vid_id; ?>?autoplay=1&mute=<?php echo $stream_sound; ?>&rel=0&modestbranding=1&controls=0&disablekb=1" 
-                            title="Live Stream" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
-                        <!-- Transparent Overlay to block controls -->
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: default; background: transparent;"></div>
-                    </div>
-                </div>
-                <h2 style="font-size: 24px; font-weight: 800; line-height: 1.3; color: #1a1a1b; margin-top: 15px;"><?php echo htmlspecialchars($live_title); ?></h2>
-                <p style="color: #666; font-size: 15px; line-height: 1.6; margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Stay updated with our direct live broadcast. Witness the news as it unfolds on the ground.</p>
-            <?php
-else: ?>
-                <div style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px;">
-                    <h3 style="font-size: 18px; font-weight: 800; color: var(--primary); margin:0;">LEAD STORY</h3>
-                </div>
-                <?php if ($featured):
-        $post_url = ($featured['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $featured['id'] : BASE_URL . "article/" . $featured['slug'];
-?>
-                <a href="<?php echo $post_url; ?>" <?php echo($featured['external_type'] != 'none') ? 'target="_blank"' : ''; ?>>
-                    <div style="position: relative;">
-                        <img src="<?php echo get_post_thumbnail($featured['featured_image']); ?>" alt="" style="aspect-ratio: 16/9; object-fit: cover; border-radius: 8px;">
-                        <?php if ($featured['video_url']): ?>
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 60, 0, 0.85); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                <i data-feather="play" style="width: 30px; height: 30px; fill: white;"></i>
-                            </div>
-                        <?php
-        endif; ?>
-                    </div>
-                    <h2 style="margin-top:15px; font-size: 28px; line-height: 1.2; font-weight: 800;"><?php echo $featured['title']; ?></h2>
-                </a>
-                <p style="color: #666; font-size: 16px; margin-top: 10px; line-height: 1.6;"><?php echo get_post_excerpt($featured, 30); ?></p>
-                <?php
-    endif; ?>
-            <?php
-endif; ?>
-        </div>
-
-        <div class="sub-features">
-            <div style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
-                <h3 style="font-size: 18px; font-weight: 800; color: #333; margin:0;">BREAKING NEWS</h3>
+    <!-- Live Stream (If Enabled) -->
+    <?php if ($live_enabled && $live_vid_id): 
+        $stream_sound = get_setting('live_stream_sound', '0') === '1' ? '0' : '1';
+    ?>
+    <section style="margin-bottom: 50px;">
+        <div style="background: #0f172a; border-radius: 20px; overflow: hidden; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column;">
+            <div style="padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h3 style="font-size: 20px; font-weight: 800; color: #fff; margin:0; display: flex; align-items: center; gap: 12px;">
+                    <span style="width: 12px; height: 12px; background: #ef4444; border-radius: 50%; animation: pulse 1s infinite; box-shadow: 0 0 10px #ef4444;"></span>
+                    LIVE BROADCAST: <?php echo htmlspecialchars($live_title); ?>
+                </h3>
             </div>
-            <?php foreach ($breaking_news_latest as $post):
-    $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
-?>
-            <a href="<?php echo $post_url; ?>" class="small-card" <?php echo($post['external_type'] != 'none') ? 'target="_blank"' : ''; ?> style="display: flex; gap: 12px; text-decoration: none; color: inherit; margin-bottom: 15px;">
-                <div style="position: relative; flex-shrink: 0;">
-                    <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" alt="" style="width: 100px; height: 70px; object-fit: cover; border-radius: 4px;">
-                </div>
-                <div>
-                    <h3 style="font-size: 14px; margin: 0 0 5px 0; line-height: 1.3; font-weight: 700; color: #1a1a1b;"><?php echo $post['title']; ?></h3>
-                    <p style="font-size: 12px; color: #666; margin-bottom: 5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                        <?php echo get_post_excerpt($post, 15); ?>
-                    </p>
-                    <span style="color: #888; font-size: 11px;"><?php echo format_date($post['created_at']); ?></span>
-                </div>
-            </a>
-            <?php
-endforeach; ?>
+            <div style="position: relative; padding-top: 50%; max-height: 500px; background: #000;">
+                <iframe 
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+                    src="https://www.youtube.com/embed/<?php echo $live_vid_id; ?>?autoplay=1&mute=<?php echo $stream_sound; ?>&rel=0&modestbranding=1&controls=0&disablekb=1" 
+                    title="Live Stream" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: default; background: transparent;"></div>
+            </div>
         </div>
     </section>
+    <?php endif; ?>
 
-    <style>
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.9); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-    </style>
+    <!-- Asymmetrical Hero Grid -->
+    <section class="hero-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 60px;">
+        <!-- Lead Story Slider (Left) -->
+        <div style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); height: 550px;" class="hero-slider-container">
+            <?php if (!empty($featured_posts)): 
+                foreach ($featured_posts as $index => $f_post):
+                    $post_url = ($f_post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $f_post['id'] : BASE_URL . "article/" . $f_post['slug'];
+            ?>
+            <a href="<?php echo $post_url; ?>" <?php echo($f_post['external_type'] != 'none') ? 'target="_blank"' : ''; ?> class="hero-slide" style="position: absolute; inset: 0; text-decoration: none; display: <?php echo $index === 0 ? 'block' : 'none'; ?>; transition: opacity 0.5s ease; opacity: <?php echo $index === 0 ? '1' : '0'; ?>;">
+                <img src="<?php echo get_post_thumbnail($f_post['featured_image']); ?>" style="width: 100%; height: 100%; object-fit: cover;" class="hero-img">
+                <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px;">
+                    <?php 
+                        $f_names = explode(',', $f_post['cat_names']);
+                        $f_colors = explode(',', $f_post['cat_colors']);
+                    ?>
+                    <span style="background: <?php echo $f_colors[0] ?? 'var(--primary)'; ?>; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; text-transform: uppercase; width: max-content; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                        <?php echo $f_names[0] ?? 'Featured'; ?>
+                    </span>
+                    <h2 style="color: #f8fafc; font-size: 42px; font-weight: 800; line-height: 1.2; margin: 0 0 15px 0; text-shadow: 0 2px 15px rgba(0,0,0,0.3);"><?php echo $f_post['title']; ?></h2>
+                    <p style="color: #cbd5e1; font-size: 18px; line-height: 1.6; margin: 0; max-width: 800px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 5px rgba(0,0,0,0.5);"><?php echo get_post_excerpt($f_post, 25); ?></p>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-top: 20px; color: #94a3b8; font-size: 14px; font-weight: 600;">
+                        <span style="display: flex; align-items: center; gap: 5px;"><i data-feather="clock" style="width: 16px;"></i> <?php echo format_date($f_post['created_at']); ?></span>
+                        <?php if ($f_post['video_url']): ?>
+                            <span style="display: flex; align-items: center; gap: 5px; color: #ef4444;"><i data-feather="play-circle" style="width: 16px;"></i> Video Included</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </a>
+            <?php endforeach; ?>
+            
+            <!-- Slider Controls -->
+            <div style="position: absolute; bottom: 40px; right: 40px; display: flex; gap: 10px; z-index: 10;">
+                <button onclick="prevSlide(event)" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;" class="slider-btn"><i data-feather="chevron-left"></i></button>
+                <button onclick="nextSlide(event)" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;" class="slider-btn"><i data-feather="chevron-right"></i></button>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Breaking News Stack (Right) -->
+        <div style="display: flex; flex-direction: column; background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; overflow: hidden;">
+            <div style="padding: 25px 25px 20px 25px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; background: #f8fafc;">
+                <div style="width: 14px; height: 14px; background: #ef4444; border-radius: 50%; animation: pulse 1.5s infinite; box-shadow: 0 0 8px #ef4444;"></div>
+                <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Breaking Now</h3>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; flex: 1; padding: 10px 25px 25px 25px; gap: 20px; overflow-y: auto;">
+                <?php foreach ($breaking_news_latest as $post):
+                    $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
+                ?>
+                <a href="<?php echo $post_url; ?>" class="breaking-card" <?php echo($post['external_type'] != 'none') ? 'target="_blank"' : ''; ?> style="display: flex; gap: 18px; text-decoration: none; align-items: center; padding-top: 15px; border-top: 1px solid #f1f5f9;">
+                    <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" style="width: 100px; height: 90px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.3s;">
+                    <div style="flex: 1;">
+                        <h4 style="font-size: 16px; font-weight: 800; color: #1e293b; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color 0.2s;"><?php echo $post['title']; ?></h4>
+                        <span style="font-size: 13px; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 5px;"><i data-feather="clock" style="width: 12px;"></i> <?php echo format_date($post['created_at']); ?></span>
+                    </div>
+                </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
 
     <!-- Web Push Subscription Banner -->
     <?php 
     $onesignal_app_identifier = get_setting('onesignal_app_id', '');
     if (!empty($onesignal_app_identifier)): 
     ?>
-    <section id="push-subscription-banner" style="display: none; background: linear-gradient(135deg, var(--primary), #d93800); color: #fff; padding: 30px; border-radius: 12px; margin-bottom: 50px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
+    <section id="push-subscription-banner" style="display: none; background: linear-gradient(135deg, var(--primary), #4338ca); color: #fff; border-radius: 16px; margin-bottom: 40px; box-shadow: 0 15px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden;">
         <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 10.01%); background-size: 20px 20px; opacity: 0.5; pointer-events: none;"></div>
-        <div style="position: relative; z-index: 1;">
-            <i data-feather="bell" style="width: 40px; height: 40px; margin-bottom: 15px; opacity: 0.9;"></i>
-            <h3 style="font-size: 24px; font-weight: 800; margin-bottom: 10px;">Never Miss Breaking News!</h3>
-            <p style="font-size: 16px; opacity: 0.9; margin-bottom: 25px; max-width: 600px; margin-left: auto; margin-right: auto;">Subscribe to our push notifications and be the first to know about top stories, live events, and exclusive updates directly on your device.</p>
-            <button onclick="subscribeToWebPush()" style="background: #fff; color: var(--primary); border: none; padding: 12px 30px; font-size: 16px; font-weight: 800; border-radius: 30px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
-                <i data-feather="zap" style="width: 18px;"></i>
-                Subscribe Now
-            </button>
-            <button onclick="dismissWebPushBanner()" style="background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 12px 20px; font-size: 14px; margin-left:15px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: background 0.2s;">
-                Maybe Later
-            </button>
+        <div style="position: relative; z-index: 1; padding: 25px 35px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 20px; flex: 1; min-width: 300px;">
+                <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                    <i data-feather="bell" style="width: 28px; height: 28px;"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 20px; font-weight: 800; margin: 0 0 5px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Never Miss Breaking News!</h3>
+                    <p style="font-size: 14px; opacity: 0.9; margin: 0; line-height: 1.4;">Subscribe to our push notifications for top stories and exclusive updates.</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button onclick="subscribeToWebPush()" class="btn-subscribe" style="background: #fff; color: var(--primary); border: none; padding: 12px 24px; font-size: 14px; font-weight: 800; border-radius: 30px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; white-space: nowrap;">
+                    <i data-feather="zap" style="width: 14px;"></i>
+                    Subscribe Now
+                </button>
+                <button onclick="dismissWebPushBanner()" class="btn-dismiss-push" style="background: transparent; border: 2px solid rgba(255,255,255,0.4); color: #fff; padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; white-space: nowrap;">
+                    Later
+                </button>
+            </div>
         </div>
     </section>
+    <?php endif; ?>
+
+    <!-- Top 10 Section Redesign -->
+    <section style="margin-bottom: 60px; background: #fff; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f1f5f9;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h3 style="font-size: 22px; font-weight: 800; color: #0f172a; display:flex; align-items:center; gap:12px; text-transform:uppercase;">
+                <div style="background: linear-gradient(135deg, var(--primary), #ef4444); color: #fff; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 16px; font-weight: 800; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">10</div>
+                Top 10 Stories
+            </h3>
+        </div>
+        
+        <div class="top-10-scroll" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 25px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory;">
+            <?php foreach ($top_10 as $index => $post):
+                $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
+            ?>
+            <div style="min-width: 220px; scroll-snap-align: start;">
+                <a href="<?php echo $post_url; ?>" class="top-10-card" style="text-decoration: none; color: inherit; display: block;">
+                    <div style="position: relative; margin-bottom: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.08);">
+                        <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" alt="" style="width: 100%; aspect-ratio: 4/3; object-fit: cover; transition: transform 0.4s ease;">
+                        <div style="position: absolute; bottom: 0; left: 0; background: linear-gradient(135deg, var(--primary), #ef4444); color: #fff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; border-top-right-radius: 12px;">
+                            <?php echo $index + 1; ?>
+                        </div>
+                    </div>
+                    <h4 style="font-size: 15px; font-weight: 800; line-height: 1.4; color: #1e293b; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; transition: color 0.2s;">
+                        <?php echo $post['title']; ?>
+                    </h4>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+
+    <!-- Featured Category Sections -->
+    <?php if (!empty($featured_categories)): ?>
+        <?php foreach ($featured_categories as $fcat): 
+            $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
+                                   FROM posts p 
+                                   JOIN post_categories pc ON p.id = pc.post_id 
+                                   JOIN categories c ON pc.category_id = c.id 
+                                   WHERE p.status = 'published' AND p.published_at <= NOW() AND pc.category_id = ?
+                                   GROUP BY p.id ORDER BY p.published_at DESC LIMIT 3");
+            $stmt->execute([$fcat['id']]);
+            $cat_posts = $stmt->fetchAll();
+            
+            if (count($cat_posts) > 0):
+        ?>
+        <section style="margin-bottom: 60px; background: #fff; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f1f5f9;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+                <h3 style="font-size: 24px; font-weight: 800; color: #0f172a; text-transform:uppercase; display:flex; align-items:center; gap:12px;">
+                    <div style="background: <?php echo $fcat['color']; ?>; color: #fff; padding: 8px; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px <?php echo $fcat['color']; ?>40;">
+                        <i data-feather="<?php echo $fcat['icon']; ?>" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <?php echo $fcat['name']; ?>
+                </h3>
+                <a href="<?php echo BASE_URL; ?>category/<?php echo $fcat['slug']; ?>" class="view-all-btn" style="font-size: 14px; font-weight: 800; color: <?php echo $fcat['color']; ?>; text-decoration: none; display:flex; align-items:center; gap:5px; padding: 8px 16px; background: <?php echo $fcat['color']; ?>15; border-radius: 20px; transition: all 0.3s;">
+                    View All <i data-feather="arrow-right" style="width:16px;"></i>
+                </a>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+                <?php foreach ($cat_posts as $post): 
+                    $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
+                ?>
+                <article class="cat-grid-card" style="background: #f8fafc; border-radius: 16px; overflow: hidden; border: 1px solid #f1f5f9; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column;">
+                    <a href="<?php echo $post_url; ?>" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; height:100%;">
+                        <div style="position: relative; overflow: hidden;">
+                            <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; transition: transform 0.5s ease;">
+                            <div style="position:absolute; top:15px; left:15px; background:<?php echo $fcat['color']; ?>; color:#fff; padding:6px 14px; border-radius:20px; font-size:11px; font-weight:800; text-transform:uppercase; box-shadow:0 4px 10px rgba(0,0,0,0.3);">
+                                <?php echo $fcat['name']; ?>
+                            </div>
+                        </div>
+                        <div style="padding: 25px; flex:1; display:flex; flex-direction:column;">
+                            <h4 style="font-size: 18px; font-weight: 800; line-height: 1.4; margin-bottom: 12px; color: #0f172a; transition: color 0.2s;"><?php echo $post['title']; ?></h4>
+                            <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 20px; flex:1;"><?php echo get_post_excerpt($post, 18); ?></p>
+                            <div style="font-size: 13px; color: #94a3b8; font-weight: 600; display:flex; align-items:center; gap:6px;">
+                                <i data-feather="calendar" style="width:14px;"></i> <?php echo format_date($post['created_at']); ?>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+                <?php endforeach; ?>
+            </div>
+        </section>
+        <?php 
+            endif;
+        endforeach; 
+    endif; ?>
+
+    <!-- Main Content with Sidebar -->
+    <div style="display: grid; grid-template-columns: 1fr 350px; gap: 40px;">
+        <!-- Left: Latest News -->
+        <section>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+                <h3 style="font-size: 24px; font-weight: 800; color: #0f172a; text-transform:uppercase; display: flex; align-items: center; gap: 10px;">
+                    <i data-feather="clock" style="color: var(--primary);"></i> LATEST NEWS
+                </h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
+                <?php foreach ($latest_news as $post):
+                    $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
+                    $names = explode(',', $post['cat_names']);
+                    $colors = explode(',', $post['cat_colors']);
+                ?>
+                <article class="latest-card" style="background: #fff; border-radius: 16px; border: 1px solid #f1f5f9; padding: 15px; display: flex; flex-direction: column; transition: all 0.3s ease;">
+                    <a href="<?php echo $post_url; ?>" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
+                        <div style="position: relative; overflow: hidden; border-radius: 10px; margin-bottom: 15px;">
+                            <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" alt="" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; transition: transform 0.4s ease;">
+                        </div>
+                        <div style="font-size: 12px; font-weight: 800; margin-bottom: 10px; color: <?php echo $colors[0] ?? 'var(--primary)'; ?>; text-transform: uppercase;">
+                            <?php echo $names[0] ?? 'News'; ?>
+                        </div>
+                        <h4 style="font-size: 18px; font-weight: 800; margin-bottom: 10px; line-height: 1.4; color: #0f172a; flex: 1;"><?php echo $post['title']; ?></h4>
+                        <p style="font-size: 14px; color: #64748b; margin-bottom: 15px; line-height: 1.5;"><?php echo get_post_excerpt($post, 15); ?></p>
+                        <div style="font-size: 12px; color: #94a3b8; font-weight: 600; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+                            <?php echo format_date($post['created_at']); ?>
+                        </div>
+                    </a>
+                </article>
+                <?php endforeach; ?>
+            </div>
+        </section>
+
+        <!-- Right: Sidebar -->
+        <aside style="display: flex; flex-direction: column; gap: 30px;">
+            <!-- Today's Activity & Events Section -->
+            <div style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+                <h4 style="border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 25px; font-size: 16px; font-weight: 800; text-transform: uppercase; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                    <div style="background: #f8fafc; padding: 6px; border-radius: 6px; color: var(--primary);">
+                        <i data-feather="calendar" style="width: 16px;"></i> 
+                    </div>
+                    EVENTS OF THE DAY
+                </h4>
+                
+                <div style="position: relative; padding-left: 20px;">
+                    <!-- Vertical Line -->
+                    <div style="position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: #e2e8f0;"></div>
+
+                    <?php
+                    $timeline_stmt = $pdo->query("SELECT * FROM timeline WHERE event_date = CURDATE() ORDER BY event_time ASC");
+                    $timeline_items = $timeline_stmt->fetchAll();
+                    $now = date('H:i');
+
+                    if ($timeline_items):
+                        foreach ($timeline_items as $item):
+                            $color = '#f59e0b'; // Upcoming
+                            if ($item['event_time'] < $now) {
+                                $color = '#10b981'; // Completed
+                            }
+                            elseif ($item['event_time'] == $now) {
+                                $color = '#ef4444'; // Ongoing / Live
+                            }
+                    ?>
+                    <!-- Timeline Item -->
+                    <div style="position: relative; margin-bottom: 25px; padding-left: 10px;">
+                        <span style="position: absolute; left: -26px; top: 4px; width: 14px; height: 14px; background: <?php echo $color; ?>; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px <?php echo $color; ?>40; z-index: 1; <?php echo($item['event_time'] == $now) ? 'animation: pulse 1s infinite;' : ''; ?>"></span>
+                        <div style="font-size: 12px; font-weight: 800; color: <?php echo $color; ?>; text-transform: uppercase; margin-bottom: 4px;"><?php echo date("h:i A", strtotime($item['event_time'])); ?></div>
+                        <div style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 4px;"><?php echo htmlspecialchars($item['event_name']); ?></div>
+                        <div style="font-size: 13px; font-weight: 500; color: #64748b; line-height: 1.5;"><?php echo htmlspecialchars($item['description']); ?></div>
+                    </div>
+                    <?php
+                        endforeach;
+                    else: ?>
+                    <div style="text-align: center; padding: 20px 0;">
+                        <i data-feather="clock" style="width: 32px; color: #e2e8f0; margin-bottom: 15px;"></i>
+                        <p style="font-size: 14px; color: #94a3b8; font-weight: 500;">No events scheduled for today.</p>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Ad in sidebar -->
+            <div style="text-align: center;">
+                <?php echo display_ad('sidebar', $pdo); ?>
+            </div>
+
+            <!-- Popular News -->
+            <div style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+                <h4 style="border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 25px; font-size: 16px; font-weight: 800; text-transform: uppercase; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                    <div style="background: #f8fafc; padding: 6px; border-radius: 6px; color: #ef4444;">
+                        <i data-feather="trending-up" style="width: 16px;"></i>
+                    </div>
+                    MOST POPULAR
+                </h4>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <?php
+                    $popular = $pdo->query("SELECT * FROM posts WHERE status = 'published' ORDER BY views DESC LIMIT 5")->fetchAll();
+                    foreach ($popular as $index => $tp):
+                        $tp_url = ($tp['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $tp['id'] : BASE_URL . "article/" . $tp['slug'];
+                    ?>
+                    <a href="<?php echo $tp_url; ?>" class="popular-card" style="display: flex; gap: 15px; text-decoration: none; align-items: center;">
+                        <div style="width: 30px; font-size: 24px; font-weight: 800; color: #e2e8f0; font-style: italic;"><?php echo $index + 1; ?></div>
+                        <div style="width: 70px; height: 70px; flex-shrink: 0; border-radius: 10px; overflow: hidden;">
+                            <img src="<?php echo get_post_thumbnail($tp['featured_image']); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="flex: 1;">
+                            <h5 style="font-size: 14px; margin: 0 0 6px 0; line-height: 1.4; font-weight: 800; color: #0f172a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"><?php echo $tp['title']; ?></h5>
+                            <div style="font-size: 11px; color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                <i data-feather="eye" style="width: 12px;"></i> <?php echo number_format($tp['views']); ?> views
+                            </div>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<style>
+    /* Styling & Animations for New UI */
+    @keyframes pulse {
+        0% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { opacity: 0.5; transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
     
-    <script>
+    .tag-pill {
+        color: #475569; font-size: 13px; font-weight: 700; text-decoration: none; padding: 6px 14px; background: #f8fafc; border-radius: 20px; transition: all 0.3s; border: 1px solid #f1f5f9;
+    }
+    .tag-pill:hover { background: var(--primary); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    
+    .btn-subscribe:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important; }
+    .btn-dismiss-push:hover { background: rgba(255,255,255,0.1) !important; border-color: #fff !important; }
+    
+    .hero-slider-container:hover .hero-img { transform: scale(1.03); }
+    .slider-btn:hover { background: #fff !important; color: var(--primary) !important; transform: scale(1.1); }
+    
+    .breaking-card:first-child { border-top: none; padding-top: 0; }
+    .breaking-card img { transition: transform 0.3s; }
+    .breaking-card:hover h4 { color: var(--primary) !important; }
+    .breaking-card:hover img { transform: scale(1.05); }
+
+    .top-10-scroll::-webkit-scrollbar { display: none; }
+    .top-10-card:hover img { transform: scale(1.05); }
+    .top-10-card:hover h4 { color: var(--primary) !important; }
+
+    .cat-grid-card:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(0,0,0,0.08) !important; border-color: transparent !important; }
+    .cat-grid-card:hover img { transform: scale(1.04); }
+    .cat-grid-card:hover h4 { color: var(--primary) !important; }
+    .view-all-btn:hover { background: var(--primary) !important; color: #fff !important; }
+
+    .latest-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); border-color: transparent; }
+    .latest-card:hover img { transform: scale(1.03); }
+    .latest-card:hover h4 { color: var(--primary) !important; }
+
+    .popular-card:hover h5 { color: var(--primary) !important; }
+    
+    .btn-subscribe:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important; }
+
+    @media (max-width: 1024px) {
+        .hero-grid { grid-template-columns: 1fr !important; }
+        .hero-main-card { height: 400px !important; }
+        div[style*="grid-template-columns: 1fr 350px"] { grid-template-columns: 1fr !important; }
+        aside { display: grid !important; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+    }
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
+        div[style*="grid-template-columns: repeat(2, 1fr)"] { grid-template-columns: 1fr !important; }
+        aside { grid-template-columns: 1fr !important; }
+    }
+</style>
+
+<script>
+    // Hero Slider Logic
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.hero-slide');
+    const totalSlides = slides.length;
+    let slideInterval;
+
+    function showSlide(index) {
+        slides.forEach(slide => {
+            slide.style.opacity = '0';
+            setTimeout(() => { slide.style.display = 'none'; }, 500);
+        });
+        
+        currentSlide = (index + totalSlides) % totalSlides;
+        
+        slides[currentSlide].style.display = 'block';
+        setTimeout(() => { slides[currentSlide].style.opacity = '1'; }, 50);
+    }
+
+    function nextSlide(e) {
+        if(e) { e.preventDefault(); e.stopPropagation(); resetInterval(); }
+        showSlide(currentSlide + 1);
+    }
+
+    function prevSlide(e) {
+        if(e) { e.preventDefault(); e.stopPropagation(); resetInterval(); }
+        showSlide(currentSlide - 1);
+    }
+
+    function startInterval() {
+        if(totalSlides > 1) {
+            slideInterval = setInterval(nextSlide, 5000); // 5 seconds
+        }
+    }
+
+    function resetInterval() {
+        clearInterval(slideInterval);
+        startInterval();
+    }
+
+    startInterval();
+
     document.addEventListener("DOMContentLoaded", function() {
         if (!localStorage.getItem('webPushDismissed')) {
             window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -226,188 +552,6 @@ endforeach; ?>
         localStorage.setItem('webPushDismissed', 'true');
         document.getElementById('push-subscription-banner').style.display = 'none';
     }
-    </script>
-    <?php endif; ?>
-
-    <!-- Top 10 Section -->
-    <section style="margin-bottom: 50px; background: #f8f9fa; padding: 30px; border-radius: 12px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h3 style="font-size: 20px; font-weight: 800; color: #1a1a1b; display:flex; align-items:center; gap:10px; text-transform:uppercase;">
-                <span style="background:var(--primary); color:#fff; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:4px; font-size:14px;">10</span>
-                Top 10 Stories
-            </h3>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; overflow-x: auto; padding-bottom: 10px;">
-            <?php foreach ($top_10 as $index => $post):
-    $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
-?>
-            <div style="min-width: 184px;">
-                <a href="<?php echo $post_url; ?>" style="text-decoration: none; color: inherit;">
-                    <div style="position: relative; margin-bottom: 10px;">
-                        <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" alt="" style="width: 100%; aspect-ratio: 3/2; object-fit: cover; border-radius: 6px;">
-                        <div style="position: absolute; top: 0; left: 0; background: var(--primary); color: #fff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; border-bottom-right-radius: 8px; border-top-left-radius: 6px; box-shadow: 2px 2px 8px rgba(0,0,0,0.2);">
-                            <?php echo $index + 1; ?>
-                        </div>
-                    </div>
-                    <h4 style="font-size: 13px; font-weight: 700; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
-                        <?php echo $post['title']; ?>
-                    </h4>
-                </a>
-            </div>
-            <?php
-endforeach; ?>
-        </div>
-    </section>
-
-    <!-- Main Content with Sidebar -->
-    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 40px;">
-        <!-- Left: Latest News -->
-        <section>
-            <div style="border-top: 2px solid #333; padding-top: 15px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="font-size: 18px; font-weight: 800; color: #1a1a1b; text-transform:uppercase;">
-                    LATEST NEWS
-                </h3>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px;">
-                <?php foreach ($latest_news as $post):
-    $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
-?>
-                <article style="border-bottom: 1px solid #eee; padding-bottom: 20px;">
-                    <a href="<?php echo $post_url; ?>">
-                        <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" alt="" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">
-                        <h4 style="font-size: 17px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; color: #003399;"><?php echo $post['title']; ?></h4>
-                    </a>
-                    <p style="font-size: 14px; color: #666; margin-bottom: 10px;"><?php echo get_post_excerpt($post, 20); ?></p>
-                    <div style="font-size: 12px; color: #888; font-weight: 600;">
-                        <?php
-    $names = explode(',', $post['cat_names']);
-    $colors = explode(',', $post['cat_colors']);
-?>
-                        <span style="color: <?php echo $colors[0]; ?>;"><?php echo strtoupper($names[0]); ?></span> | 
-                        <span><?php echo format_date($post['created_at']); ?></span>
-                    </div>
-                </article>
-                <?php
-endforeach; ?>
-            </div>
-        </section>
-
-                <!-- Right: Sidebar -->
-        <aside>
-            <!-- Today's Activity & Events Section -->
-            <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 30px;">
-                <h4 style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #1a1a1b; display: flex; align-items: center; gap: 8px;">
-                    <i data-feather="calendar" style="width: 16px; color: var(--primary);"></i> 
-                    EVENTS OF THE DAY
-                </h4>
-                
-                <div style="position: relative; padding-left: 20px;">
-                    <!-- Vertical Line -->
-                    <div style="position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: #f1f5f9;"></div>
-
-                    <?php
-$timeline_stmt = $pdo->query("SELECT * FROM timeline WHERE event_date = CURDATE() ORDER BY event_time ASC");
-$timeline_items = $timeline_stmt->fetchAll();
-$now = date('H:i');
-
-if ($timeline_items):
-    foreach ($timeline_items as $item):
-        // Automatic Status Logic
-        $color = '#f59e0b'; // Upcoming
-        if ($item['event_time'] < $now) {
-            $color = '#10b981'; // Completed
-        }
-        elseif ($item['event_time'] == $now) {
-            $color = '#ef4444'; // Ongoing / Live
-        }
-?>
-                    <!-- Timeline Item -->
-                    <div style="position: relative; margin-bottom: 20px;">
-                        <span style="position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; background: <?php echo $color; ?>; border: 2px solid white; box-shadow: 0 0 0 4px <?php echo $color; ?>22; z-index: 1; <?php echo($item['event_time'] == $now) ? 'animation: pulse 1s infinite;' : ''; ?>"></span>
-                        <div style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase;"><?php echo date("h:i A", strtotime($item['event_time'])); ?></div>
-                        <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;"><?php echo htmlspecialchars($item['event_name']); ?></div>
-                        <div style="font-size: 13px; font-weight: 600; color: #475569; line-height: 1.4; margin-top: 3px;"><?php echo htmlspecialchars($item['description']); ?></div>
-                    </div>
-                    <?php
-    endforeach;
-else: ?>
-                    <div style="text-align: center; padding: 20px 0;">
-                        <i data-feather="clock" style="width: 24px; color: #cbd5e1; margin-bottom: 10px;"></i>
-                        <p style="font-size: 12px; color: #94a3b8;">No events scheduled for today.</p>
-                    </div>
-                    <?php
-endif; ?>
-                </div>
-
-                <a href="#" style="display: block; text-align: center; font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 10px; text-decoration: none;">View Full Calendar <i data-feather="chevron-right" style="width: 12px;"></i></a>
-            </div>
-
-            <!-- Ad in sidebar -->
-            <div style="margin-bottom: 40px; text-align: center;">
-                <?php echo display_ad('sidebar', $pdo); ?>
-            </div>
-
-            <!-- Popular News -->
-            <div>
-                <h4 style="border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 20px; font-size: 16px; font-weight: 800; text-transform: uppercase;">
-                    MOST POPULAR
-                </h4>
-                <?php
-$popular = $pdo->query("SELECT * FROM posts WHERE status = 'published' ORDER BY views DESC LIMIT 5")->fetchAll();
-foreach ($popular as $tp):
-    $tp_url = ($tp['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $tp['id'] : BASE_URL . "article/" . $tp['slug'];
-?>
-                <a href="<?php echo $tp_url; ?>" style="display: flex; gap: 12px; text-decoration: none; color: inherit; margin-bottom: 20px; group">
-                    <div style="width: 80px; height: 60px; flex-shrink: 0;">
-                        <img src="<?php echo get_post_thumbnail($tp['featured_image']); ?>" style="width: 100%; height: 100%; border-radius: 6px; object-fit: cover;">
-                    </div>
-                    <div>
-                        <h5 style="font-size: 13px; margin: 0 0 5px 0; line-height: 1.4; font-weight: 700;"><?php echo $tp['title']; ?></h5>
-                        <p style="font-size: 11px; color: #666; margin-bottom: 5px; line-height: 1.4;"><?php echo get_post_excerpt($tp, 10); ?></p>
-                        <div style="font-size: 10px; color: #888;">
-                            <i data-feather="eye" style="width: 10px; height: 10px; vertical-align: middle;"></i> <?php echo number_format($tp['views']); ?> views
-                        </div>
-                    </div>
-                </a>
-                <?php
-endforeach; ?>
-            </div>
-        </aside>
-    </div>
-</main>
-
-<style>
-    .tag-item:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .small-card:hover h3 { color: var(--primary); }
-    .news-card:hover h4 { color: var(--primary); }
-    aside a:hover { background: #fff !important; color: var(--primary) !important; transform: translateX(5px); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    
-    @media (max-width: 1024px) {
-        div[style*="grid-template-columns: 1fr 300px"] {
-            grid-template-columns: 1fr !important;
-        }
-        aside {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            margin-top: 40px;
-            border-top: 1px solid #eee;
-            padding-top: 40px;
-        }
-    }
-    @media (max-width: 640px) {
-        aside {
-            grid-template-columns: 1fr;
-        }
-        div[style*="grid-template-columns: repeat(2, 1fr)"] {
-            grid-template-columns: 1fr !important;
-        }
-        div[style*="grid-template-columns: repeat(5, 1fr)"] {
-            grid-template-columns: repeat(2, 1fr) !important;
-        }
-    }
-</style>
+</script>
 
 <?php include 'includes/public_footer.php'; ?>

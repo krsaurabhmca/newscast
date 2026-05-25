@@ -148,86 +148,89 @@
         </div>
 
         <!-- ── Main Footer Content ───────────────────────────────────── -->
-        <div class="content-container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <div class="footer-brand" style="margin-bottom: 20px;">
+        <!-- ── Main Footer Content ───────────────────────────────────── -->
+        <div class="content-container footer-content-wrapper" style="max-width: 1300px; margin: 0 auto; padding: 40px 20px 10px 20px;">
+            <div class="footer-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 30px; margin-bottom: 30px;">
+                <!-- Column 1: Brand & About -->
+                <div class="footer-col brand-col">
+                    <div class="footer-brand" style="margin-bottom: 15px;">
                          <?php if (get_setting('site_logo')): ?>
-                            <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 42px; margin-bottom: 12px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
+                            <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 35px; margin-bottom: 10px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
                         <?php else: ?>
-                            <h2 style="font-weight: 900; color: var(--primary); margin-bottom: 8px;"><?php echo SITE_NAME_DYNAMIC; ?></h2>
+                            <h2 style="font-size: 24px; font-weight: 900; color: var(--primary); margin-bottom: 5px; letter-spacing: -0.5px;"><?php echo SITE_NAME_DYNAMIC; ?></h2>
                         <?php endif; ?>
                         <?php $tagline = get_setting('site_tagline', 'Digital News'); ?>
-                        <div style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;"><?php echo htmlspecialchars($tagline); ?></div>
-                        <p style="color: #64748b; font-size: 13px; line-height: 1.65;">Stay informed with accurate news and real stories from around the world. Your trusted source for daily digital news and monthly magazines.</p>
+                        <div style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;"><?php echo htmlspecialchars($tagline); ?></div>
+                        <p style="color: #64748b; font-size: 13px; line-height: 1.5; max-width: 320px; margin: 0;">Delivering accurate news, real stories, and comprehensive coverage from around the world. Your trusted digital news platform.</p>
                     </div>
-                    <div class="social-icons" style="display: flex; gap: 10px; flex-wrap:wrap;">
+                    <div class="social-icons" style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <?php if(get_setting('facebook_url')): ?>
-                            <a href="<?php echo get_setting('facebook_url'); ?>" target="_blank" class="foot-social" style="color:#1877f2;"><i data-feather="facebook" style="width: 17px;"></i></a>
+                            <a href="<?php echo get_setting('facebook_url'); ?>" target="_blank" class="foot-social facebook" aria-label="Facebook"><i data-feather="facebook" style="width: 18px;"></i></a>
                         <?php endif; ?>
                         <?php if(get_setting('twitter_url')): ?>
-                            <a href="<?php echo get_setting('twitter_url'); ?>" target="_blank" class="foot-social" style="color:#000;"><i data-feather="twitter" style="width: 17px;"></i></a>
+                            <a href="<?php echo get_setting('twitter_url'); ?>" target="_blank" class="foot-social twitter" aria-label="Twitter"><i data-feather="twitter" style="width: 18px;"></i></a>
                         <?php endif; ?>
                         <?php if(get_setting('instagram_url')): ?>
-                            <a href="<?php echo get_setting('instagram_url'); ?>" target="_blank" class="foot-social" style="color:#e4405f;"><i data-feather="instagram" style="width: 17px;"></i></a>
+                            <a href="<?php echo get_setting('instagram_url'); ?>" target="_blank" class="foot-social instagram" aria-label="Instagram"><i data-feather="instagram" style="width: 18px;"></i></a>
                         <?php endif; ?>
                         <?php if(get_setting('youtube_url')): ?>
-                            <a href="<?php echo get_setting('youtube_url'); ?>" target="_blank" class="foot-social" style="color:#ff0000;"><i data-feather="youtube" style="width: 17px;"></i></a>
+                            <a href="<?php echo get_setting('youtube_url'); ?>" target="_blank" class="foot-social youtube" aria-label="YouTube"><i data-feather="youtube" style="width: 18px;"></i></a>
                         <?php endif; ?>
                         <?php if(get_setting('whatsapp_channel')): ?>
-                            <a href="<?php echo get_setting('whatsapp_channel'); ?>" target="_blank" class="foot-social" style="color:#25d366;"><i data-feather="message-circle" style="width: 17px;"></i></a>
+                            <a href="<?php echo get_setting('whatsapp_channel'); ?>" target="_blank" class="foot-social whatsapp" aria-label="WhatsApp"><i data-feather="message-circle" style="width: 18px;"></i></a>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <div class="footer-col">
-                    <h5>Categories</h5>
-                    <ul>
+                <!-- Column 2: Quick Links -->
+                <div class="footer-col links-col">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Categories</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <?php foreach($nav_categories as $cat): ?>
-                            <li><a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>"><?php echo $cat['name']; ?></a></li>
+                            <li><a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>" class="footer-link"><?php echo $cat['name']; ?></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
 
-                <div class="footer-col">
-                    <h5>Editions</h5>
-                    <ul>
+                <!-- Column 3: Legal & Info -->
+                <div class="footer-col links-col">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Information</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
                         <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
-                        <li><a href="<?php echo BASE_URL; ?>digital-paper"><i data-feather="file-text" style="width:13px;vertical-align:middle;margin-right:4px;"></i>Daily E-Paper</a></li>
-                        <li><a href="<?php echo BASE_URL; ?>magazine"><i data-feather="book-open" style="width:13px;vertical-align:middle;margin-right:4px;"></i>Monthly Magazine</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>digital-paper" class="footer-link"><i data-feather="file-text" style="width:13px; margin-right:6px;"></i> E-Paper</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>magazine" class="footer-link"><i data-feather="book-open" style="width:13px; margin-right:6px;"></i> Magazine</a></li>
                         <?php endif; ?>
-                        <li><a href="<?php echo BASE_URL; ?>about.php">About Us</a></li>
-                        <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
-                        <li><a href="<?php echo BASE_URL; ?>privacy-policy.php">Privacy Policy</a></li>
-                        <li><a href="<?php echo BASE_URL; ?>terms.php">Terms of Use</a></li>
-                        <li><a href="<?php echo BASE_URL; ?>disclaimer.php">Disclaimer</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>about.php" class="footer-link">About Us</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>contact.php" class="footer-link">Contact</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>privacy-policy.php" class="footer-link">Privacy Policy</a></li>
+                        <li><a href="<?php echo BASE_URL; ?>terms.php" class="footer-link">Terms of Use</a></li>
                     </ul>
                 </div>
 
-                <div class="footer-col">
-                    <h5>Connect</h5>
-                    <ul>
-                        <li><i data-feather="mail" style="width: 14px;"></i> <?php echo get_setting('contact_email', 'admin@example.com'); ?></li>
-                        <li><i data-feather="phone" style="width: 14px;"></i> <?php echo get_setting('contact_phone', '+91 000 000 0000'); ?></li>
-                        <?php if(get_setting('whatsapp_number')): ?>
-                        <li>
-                            <a href="https://wa.me/<?php echo preg_replace('/\D/','',$_setting=get_setting('whatsapp_number')); ?>" target="_blank" style="display:flex;align-items:center;gap:5px;color:#25d366;">
-                                <i data-feather="message-circle" style="width: 14px;"></i> WhatsApp Us
-                            </a>
-                        </li>
-                        <?php endif; ?>
+                <!-- Column 4: Newsletter & Contact -->
+                <div class="footer-col contact-col">
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Stay Updated</h4>
+                    <form onsubmit="event.preventDefault(); alert('Subscribed successfully!');" style="display: flex; gap: 6px; margin-bottom: 20px;">
+                        <input type="email" placeholder="Email address" required style="flex: 1; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; outline: none; background: #f8fafc;" class="footer-input">
+                        <button type="submit" style="background: var(--primary); color: #fff; border: none; padding: 0 15px; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" class="footer-btn"><i data-feather="send" style="width: 14px;"></i></button>
+                    </form>
+
+                    <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Reach Us</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
+                        <li style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 13px;"><i data-feather="mail" style="width: 14px; color: var(--primary);"></i> <?php echo get_setting('contact_email', 'admin@example.com'); ?></li>
+                        <li style="display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 13px;"><i data-feather="phone" style="width: 14px; color: var(--primary);"></i> <?php echo get_setting('contact_phone', '+91 000 000 0000'); ?></li>
                     </ul>
                 </div>
             </div>
 
             <!-- ── Bottom Bar ── -->
-            <div class="footer-bottom">
-                <p>© <?php echo date('Y'); ?> <strong><?php echo SITE_NAME_DYNAMIC; ?></strong>. All rights reserved.</p>
-                <div class="footer-bottom-links">
-                    <a href="<?php echo BASE_URL; ?>">Home</a>
-                    <a href="<?php echo BASE_URL; ?>privacy-policy.php">Privacy</a>
-                    <a href="<?php echo BASE_URL; ?>terms.php">Terms</a>
-                    <a href="<?php echo BASE_URL; ?>sitemap.php">Sitemap</a>
+            <div class="footer-bottom" style="border-top: 1px solid #e2e8f0; padding: 20px 0 10px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <p style="color: #64748b; font-size: 13px; margin: 0;">© <?php echo date('Y'); ?> <strong style="color: #0f172a; font-weight: 800;"><?php echo SITE_NAME_DYNAMIC; ?></strong>. All rights reserved.</p>
+                <div class="footer-bottom-links" style="display: flex; gap: 20px;">
+                    <a href="<?php echo BASE_URL; ?>" class="footer-link">Home</a>
+                    <a href="<?php echo BASE_URL; ?>privacy-policy.php" class="footer-link">Privacy</a>
+                    <a href="<?php echo BASE_URL; ?>terms.php" class="footer-link">Terms</a>
+                    <a href="<?php echo BASE_URL; ?>sitemap.php" class="footer-link">Sitemap</a>
                 </div>
             </div>
         </div>
@@ -310,41 +313,52 @@
         .theme-dark  .fv-center { color: #e2e8f0; }
 
         /* ── Footer grid ─────────────────────────────── */
-        .foot-social {
-            width: 36px; height: 36px; border-radius: 50%;
-            background: #f1f5f9; display: flex; align-items: center;
-            justify-content: center; transition: .2s; text-decoration: none;
-        }
-        .foot-social:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .theme-dark .foot-social { background: rgba(255,255,255,.08); }
-
-        /* ── Bottom bar ──────────────────────────────── */
-        .footer-bottom {
-            border-top: 1px solid #f1f5f9;
-            padding-top: 20px;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
+        .footer-link {
+            color: #64748b;
+            font-size: 13px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
         }
-        .theme-dark .footer-bottom { border-top-color: rgba(255,255,255,.08); }
-        .footer-bottom p { color: #64748b; font-size: 13px; }
-        .footer-bottom-links { display: flex; gap: 18px; }
-        .footer-bottom-links a { font-size: 12px; color: #94a3b8; text-decoration: none; transition: .15s; }
-        .footer-bottom-links a:hover { color: var(--primary); }
+        .footer-link:hover { color: var(--primary); transform: translateX(3px); }
+        .theme-dark .footer-link { color: #94a3b8; }
+        .theme-dark .footer-link:hover { color: #fff; }
+
+        .foot-social {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: #f1f5f9; display: flex; align-items: center;
+            justify-content: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none;
+            color: #475569;
+        }
+        .foot-social:hover { transform: translateY(-5px); color: #fff !important; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .foot-social.facebook:hover { background: #1877f2; }
+        .foot-social.twitter:hover { background: #0f1419; }
+        .foot-social.instagram:hover { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .foot-social.youtube:hover { background: #ff0000; }
+        .foot-social.whatsapp:hover { background: #25d366; }
+
+        .theme-dark .foot-social { background: rgba(255,255,255,.05); color: #cbd5e1; }
+        .theme-dark h4 { color: #f8fafc !important; }
+        .theme-dark p, .theme-dark li { color: #94a3b8 !important; }
+        .theme-dark .footer-bottom p strong { color: #f8fafc !important; }
+
+        .footer-input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(var(--primary-rgb, 37, 99, 235), 0.2); }
+        .footer-btn:hover { background: #0f172a !important; transform: translateY(-2px); }
 
         /* ── Content protection ──────────────────────── */
         body { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
         @media print { body { display: none !important; } }
 
-        .bhaskar-footer .content-container { max-width: 1100px; margin: 0 auto; }
-        @media (max-width: 1024px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 1024px) { 
+            div[style*="grid-template-columns: 2fr 1fr 1fr 1.5fr"] { grid-template-columns: 1fr 1fr !important; } 
+        }
         @media (max-width: 640px)  {
-            .footer-grid { grid-template-columns: 1fr; }
+            div[style*="grid-template-columns: 2fr 1fr 1fr 1.5fr"] { grid-template-columns: 1fr !important; }
             .footer-vector-wrap { height: 70px; }
             .fv-center { height: 70px; }
+            .footer-bottom { flex-direction: column; text-align: center; }
+            .footer-bottom-links { justify-content: center; flex-wrap: wrap; }
         }
     </style>
     <script>

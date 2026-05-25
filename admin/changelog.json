@@ -1,5 +1,16 @@
 [
     {
+        "version": "2.0.7",
+        "date": "2026-05-25",
+        "changes": [
+            "Transformed AI News Generator into a global floating modal.",
+            "Redesigned homepage UI with a fully automated Trending Slider.",
+            "Added dynamic Category blocks to homepage controlled via Admin.",
+            "Rebuilt public footer into a premium compact multi-column design.",
+            "Updated Admin Help & Documentation with new feature guides."
+        ]
+    },
+    {
         "version": "2.0.6",
         "date": "2026-05-25",
         "changes": [
