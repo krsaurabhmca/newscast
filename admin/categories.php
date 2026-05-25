@@ -58,6 +58,18 @@ if (isset($_GET['toggle'])) {
     redirect('admin/categories.php', 'Category status updated!');
 }
 
+// Handle Toggle Featured Status
+if (isset($_GET['toggle_featured'])) {
+    if (is_demo_account()) {
+        redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot modify data.', 'danger');
+        exit;
+    }
+    $id = $_GET['toggle_featured'];
+    $stmt = $pdo->prepare("UPDATE categories SET show_on_homepage = IF(show_on_homepage=1, 0, 1) WHERE id = ?");
+    $stmt->execute([$id]);
+    redirect('admin/categories.php', 'Featured status updated!');
+}
+
 // Handle Delete Category
 if (isset($_GET['delete'])) {
     if (is_demo_account()) {
@@ -109,7 +121,7 @@ if ($search !== '') {
                 <tr>
                     <th>Icon</th>
                     <th>Name</th>
-                    <th>Status</th>
+                    <th>Status & Visibility</th>
                     <th>Posts</th>
                     <th>Actions</th>
                 </tr>
@@ -128,20 +140,26 @@ if ($search !== '') {
                     </td>
                     <td><strong><?php echo $cat['name']; ?></strong></td>
                     <td>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <a href="?toggle=<?php echo $cat['id']; ?>" style="text-decoration: none;">
-                                <label class="switch" style="display: flex; align-items: center; gap: 10px; cursor: pointer; pointer-events: none;">
-                                    <div style="position: relative; width: 44px; height: 24px;">
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <a href="?toggle=<?php echo $cat['id']; ?>" style="text-decoration: none; display: flex; align-items: center; gap: 6px;" title="Toggle Active Status">
+                                <label class="switch" style="display: flex; align-items: center; cursor: pointer; pointer-events: none; margin: 0;">
+                                    <div style="position: relative; width: 36px; height: 20px;">
                                         <input type="checkbox" <?php echo $cat['status'] == 'active' ? 'checked' : ''; ?> style="opacity: 0; width: 0; height: 0; position: absolute;">
-                                        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px;"></span>
+                                        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 20px;"></span>
                                     </div>
                                 </label>
+                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">Active</span>
                             </a>
-                            <?php if (!empty($cat['show_on_homepage'])): ?>
-                                <span class="badge" style="background: #e0e7ff; color: #4338ca; display: flex; align-items: center; gap: 4px;" title="Shown on Homepage">
-                                    <i data-feather="home" style="width: 10px;"></i> Featured
-                                </span>
-                            <?php endif; ?>
+                            
+                            <a href="?toggle_featured=<?php echo $cat['id']; ?>" style="text-decoration: none; display: flex; align-items: center; gap: 6px;" title="Toggle Homepage Featured">
+                                <label class="switch" style="display: flex; align-items: center; cursor: pointer; pointer-events: none; margin: 0;">
+                                    <div style="position: relative; width: 36px; height: 20px;">
+                                        <input type="checkbox" <?php echo !empty($cat['show_on_homepage']) ? 'checked' : ''; ?> style="opacity: 0; width: 0; height: 0; position: absolute;">
+                                        <span class="slider slider-featured" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 20px;"></span>
+                                    </div>
+                                </label>
+                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">Featured</span>
+                            </a>
                         </div>
                     </td>
                     <td><?php echo $count; ?></td>
@@ -312,13 +330,16 @@ if ($search !== '') {
 <style>
     /* CSS for Toggle Switches */
     .switch input:checked + .slider {
-        background-color: var(--primary);
+        background-color: #10b981 !important;
+    }
+    .switch input:checked + .slider-featured {
+        background-color: #6366f1 !important;
     }
     .switch .slider:before {
         position: absolute;
         content: "";
-        height: 18px;
-        width: 18px;
+        height: 14px;
+        width: 14px;
         left: 3px;
         bottom: 3px;
         background-color: white;
@@ -327,7 +348,7 @@ if ($search !== '') {
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .switch input:checked + .slider:before {
-        transform: translateX(20px);
+        transform: translateX(16px);
     }
 </style>
 
