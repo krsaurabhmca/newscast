@@ -81,20 +81,25 @@ if (!$parsed || !isset($parsed['title']) || !isset($parsed['content'])) {
     // Fallback if AI fails to return JSON
     $parsed = [
         'title' => $original_title,
-        'slug' => slugify($original_title),
+        'slug' => create_slug($original_title),
         'content' => $original_content
     ];
 }
 
 $final_title = clean($parsed['title']);
-$final_slug = clean($parsed['slug'] ?? slugify($final_title));
+$final_slug = clean($parsed['slug'] ?? create_slug($final_title));
 $final_content = $parsed['content'];
+
+// If slug is empty (e.g. non-english characters stripped), generate a random one
+if (empty($final_slug) || $final_slug == '-') {
+    $final_slug = 'post-' . rand(10000, 99999);
+}
 
 // Check for slug uniqueness
 $stmt = $pdo->prepare("SELECT id FROM posts WHERE slug = ?");
 $stmt->execute([$final_slug]);
 if ($stmt->rowCount() > 0) {
-    $final_slug = $final_slug . '-' . time();
+    $final_slug = $final_slug . '-' . time() . rand(10, 99);
 }
 
 // 2. IMAGE DOWNLOAD & COMPRESSION
