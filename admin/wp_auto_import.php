@@ -115,52 +115,58 @@ include 'includes/header.php';
             <p style="margin: 0;">No WordPress sources added yet. Auto-sync is currently inactive.</p>
         </div>
     <?php else: ?>
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Site Name</th>
-                        <th>API URL</th>
-                        <th>Target Category</th>
-                        <th>Status</th>
-                        <th>Last Checked</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($sources as $source): ?>
-                        <tr>
-                            <td style="font-weight: 600;"><?php echo htmlspecialchars($source['site_name']); ?></td>
-                            <td style="font-size: 12px; color: #64748b; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?php echo htmlspecialchars($source['feed_url']); ?>">
-                                <?php echo htmlspecialchars($source['feed_url']); ?>
-                            </td>
-                            <td><span class="badge bg-secondary"><?php echo htmlspecialchars($source['category_name']); ?></span></td>
-                            <td>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <?php foreach ($sources as $source): ?>
+                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);" onmouseover="this.style.boxShadow='0 10px 25px rgba(0,0,0,0.08)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.02)'; this.style.transform='translateY(0)';">
+                    
+                    <div style="display: flex; align-items: center; gap: 20px; flex: 1;">
+                        <div style="width: 50px; height: 50px; background: <?php echo $source['status'] == 'active' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #94a3b8, #64748b)'; ?>; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <i data-feather="<?php echo $source['status'] == 'active' ? 'activity' : 'power'; ?>" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 5px 0; font-size: 16px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                                <?php echo htmlspecialchars($source['site_name']); ?>
                                 <?php if ($source['status'] == 'active'): ?>
-                                    <span class="badge bg-success">Active</span>
+                                    <span style="background: #dcfce7; color: #166534; font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Active</span>
                                 <?php else: ?>
-                                    <span class="badge bg-danger">Inactive</span>
+                                    <span style="background: #f1f5f9; color: #64748b; font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Paused</span>
                                 <?php endif; ?>
-                            </td>
-                            <td style="font-size: 12px; color: #64748b;">
-                                <?php echo $source['last_checked'] ? date('M d, H:i', strtotime($source['last_checked'])) : 'Never'; ?>
-                            </td>
-                            <td>
-                                <a href="?toggle=<?php echo $source['id']; ?>" class="btn btn-sm btn-<?php echo $source['status'] == 'active' ? 'warning' : 'success'; ?>" title="Toggle Status">
-                                    <i data-feather="<?php echo $source['status'] == 'active' ? 'pause' : 'play'; ?>" style="width: 14px;"></i>
-                                </a>
-                                <a href="?delete=<?php echo $source['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this source?');" title="Delete">
-                                    <i data-feather="trash-2" style="width: 14px;"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                            </h4>
+                            <div style="font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 15px;">
+                                <span style="display: flex; align-items: center; gap: 5px;"><i data-feather="folder" style="width: 12px;"></i> <?php echo htmlspecialchars($source['category_name']); ?></span>
+                                <span style="display: flex; align-items: center; gap: 5px;" title="<?php echo htmlspecialchars($source['feed_url']); ?>">
+                                    <i data-feather="link" style="width: 12px;"></i> <?php echo strlen($source['feed_url']) > 40 ? substr(htmlspecialchars($source['feed_url']), 0, 40) . '...' : htmlspecialchars($source['feed_url']); ?>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 30px;">
+                        <div style="text-align: right;">
+                            <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">Last Checked</div>
+                            <div style="font-size: 13px; font-weight: 600; color: #334155;">
+                                <?php echo $source['last_checked'] ? date('M d, g:i A', strtotime($source['last_checked'])) : '<span style="color:#f59e0b;">Waiting...</span>'; ?>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <a href="?toggle=<?php echo $source['id']; ?>" style="width: 36px; height: 36px; border-radius: 8px; background: <?php echo $source['status'] == 'active' ? '#fffbeb' : '#ecfdf5'; ?>; color: <?php echo $source['status'] == 'active' ? '#d97706' : '#10b981'; ?>; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s; border: 1px solid <?php echo $source['status'] == 'active' ? '#fde68a' : '#a7f3d0'; ?>;" title="<?php echo $source['status'] == 'active' ? 'Pause Sync' : 'Start Sync'; ?>" onmouseover="this.style.background='<?php echo $source['status'] == 'active' ? '#fef3c7' : '#d1fae5'; ?>'" onmouseout="this.style.background='<?php echo $source['status'] == 'active' ? '#fffbeb' : '#ecfdf5'; ?>'">
+                                <i data-feather="<?php echo $source['status'] == 'active' ? 'pause' : 'play'; ?>" style="width: 16px;"></i>
+                            </a>
+                            <a href="?delete=<?php echo $source['id']; ?>" onclick="return confirm('Delete this source?');" style="width: 36px; height: 36px; border-radius: 8px; background: #fef2f2; color: #ef4444; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s; border: 1px solid #fecaca;" title="Delete Source" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                                <i data-feather="trash-2" style="width: 16px;"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
-        <div style="margin-top: 20px; padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-size: 13px; font-weight: 600;">
-            <i data-feather="info" style="width: 16px; display: inline-block; vertical-align: bottom;"></i> 
-            The background auto-sync engine runs silently. It checks active sources roughly every 30 minutes to fetch and rewrite up to 5 new articles per source. Duplicates are automatically blocked.
+        <div style="margin-top: 25px; padding: 20px; background: linear-gradient(to right, #f0fdf4, #ffffff); border: 1px solid #bbf7d0; border-left: 4px solid #10b981; border-radius: 12px; color: #166534; font-size: 13px; font-weight: 600; display: flex; gap: 15px; align-items: center; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.05);">
+            <div style="background: #dcfce7; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i data-feather="info" style="width: 20px; color: #15803d;"></i> 
+            </div>
+            <div>The background auto-sync engine runs silently. It checks active sources roughly every 30 minutes to fetch and rewrite up to 5 new articles per source. Duplicates are automatically blocked.</div>
         </div>
     <?php endif; ?>
 </div>
