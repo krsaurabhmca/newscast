@@ -1,6 +1,6 @@
 {
-    "version": "2.1.12",
+    "version": "2.1.13",
     "db_version": 5,
     "last_updated": "2026-05-26",
-    "changelog": "v2.1.12: Fixed JSON syntax error in the changelog that prevented the System Updater from displaying the latest release notes."
+    "changelog": "v2.1.13: Refactored System Updater to use GitHub API, permanently bypassing CDN caching to ensure updates are detected instantly without the 5-minute wait."
 }

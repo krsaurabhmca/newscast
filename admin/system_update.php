@@ -7,7 +7,8 @@ if (!is_admin()) {
 }
 
 $repo_url = 'https://github.com/krsaurabhmca/newscast';
-$raw_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/version.json?v=' . time();
+$api_version_url = 'https://api.github.com/repos/krsaurabhmca/newscast/contents/version.json';
+$api_changelog_url = 'https://api.github.com/repos/krsaurabhmca/newscast/contents/admin/changelog.json';
 $zip_url = 'https://github.com/krsaurabhmca/newscast/archive/refs/heads/main.zip';
 
 $local_version_file = '../version.json';
@@ -62,14 +63,11 @@ $update_available = false;
 $error = '';
 $message = '';
 
-// Check for update directly when hitting the page
-$ch = curl_init($raw_url);
+// Check for update directly when hitting the page via GitHub API to bypass CDN cache
+$ch = curl_init($api_version_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
-curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-curl_setopt($ch, CURLOPT_FORBID_REUSE, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Cache-Control: no-cache, no-store, must-revalidate','Pragma: no-cache','Expires: 0']);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 $response = curl_exec($ch);
@@ -77,23 +75,28 @@ $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($http_code == 200 && $response) {
-    $remote_info = json_decode($response, true);
-    if ($remote_info) {
-        if (version_compare($remote_info['version'], $local_info['version'], '>')) {
-            $update_available = true;
-        } elseif ($remote_info['db_version'] > $local_info['db_version']) {
-            $update_available = true; // DB update only
+    $api_data = json_decode($response, true);
+    if (isset($api_data['content'])) {
+        $decoded_json = base64_decode($api_data['content']);
+        $remote_info = json_decode($decoded_json, true);
+        if ($remote_info) {
+            if (version_compare($remote_info['version'], $local_info['version'], '>')) {
+                $update_available = true;
+            } elseif ($remote_info['db_version'] > $local_info['db_version']) {
+                $update_available = true; // DB update only
+            }
+        } else {
+            $error = "Could not parse version.json from GitHub.";
         }
     } else {
-        $error = "Could not parse version.json from GitHub.";
+        $error = "Invalid API response from GitHub.";
     }
 } else {
-    $error = "Could not connect to GitHub to check for updates. HTTP Code: $http_code";
+    $error = "Could not connect to GitHub API to check for updates. HTTP Code: $http_code";
 }
 
-// Fetch Remote Changelog
-$remote_changelog_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/admin/changelog.json?v=' . time();
-$ch_cl = curl_init($remote_changelog_url);
+// Fetch Remote Changelog via API
+$ch_cl = curl_init($api_changelog_url);
 curl_setopt($ch_cl, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch_cl, CURLOPT_TIMEOUT, 10);
 curl_setopt($ch_cl, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
@@ -105,7 +108,10 @@ curl_close($ch_cl);
 
 $changelogs = [];
 if ($cl_code == 200 && $cl_response) {
-    $changelogs = json_decode($cl_response, true) ?: [];
+    $api_cl_data = json_decode($cl_response, true);
+    if (isset($api_cl_data['content'])) {
+        $changelogs = json_decode(base64_decode($api_cl_data['content']), true) ?: [];
+    }
 }
 if (empty($changelogs) && file_exists('changelog.json')) {
     $changelogs = json_decode(file_get_contents('changelog.json'), true) ?: [];

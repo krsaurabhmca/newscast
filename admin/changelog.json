@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.1.13",
+        "date": "2026-05-26",
+        "changes": [
+            "Refactored the System Updater's internal fetching logic.",
+            "The Updater now utilizes the GitHub API rather than Raw Content delivery, permanently bypassing GitHub's 5-minute CDN cache.",
+            "Updates will now be detected instantly without any waiting period."
+        ]
+    },
+    {
         "version": "2.1.12",
         "date": "2026-05-26",
         "changes": [
