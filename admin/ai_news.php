@@ -27,6 +27,11 @@ if(isset($_POST['message']))
 {
     header('Content-Type: application/json');
 
+    // Fetch available categories so AI can suggest an exact match
+    $stmt = $pdo->query("SELECT name FROM categories");
+    $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $category_list = !empty($categories) ? implode(', ', $categories) : 'News, Tech, Sports';
+
     if(empty($API_KEY)) {
         echo json_encode(["reply" => "Error: Groq API Key is not set. Please add it in the AI Integrations tab under Settings."]);
         exit;
@@ -87,7 +92,7 @@ ARTICLE RULES:
 
 # Headline
 [Slug: english-url-slug-here]
-[Category: Most Relevant Category Here]
+[Category: EXACT_CATEGORY_NAME_FROM_LIST]
 [Excerpt: Short 2-3 line summary here]
 
 ## Summary
@@ -100,6 +105,9 @@ Main Article Content
 - Point 3
 
 ## Conclusion
+
+AVAILABLE CATEGORIES TO CHOOSE FROM:
+{$category_list}
 "
             ],
             [
@@ -439,21 +447,31 @@ function draftPost(markdown, html) {
     let category = "";
     let excerpt = "";
     const lines = markdown.split('\n');
+    let cleanLines = [];
+    
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
-        if (line.startsWith('# ')) {
+        if (line.startsWith('# ') && title === "Auto Generated AI Draft") {
             title = line.substring(2).trim();
+            // Skip adding title to body
         } else if (line.startsWith('[Slug:')) {
             slug = line.replace('[Slug:', '').replace(']', '').trim();
         } else if (line.startsWith('[Category:')) {
             category = line.replace('[Category:', '').replace(']', '').trim();
         } else if (line.startsWith('[Excerpt:')) {
             excerpt = line.replace('[Excerpt:', '').replace(']', '').trim();
-        } else if (line.length > 10 && !line.startsWith('#') && !line.startsWith('[') && title === "Auto Generated AI Draft") {
-            // fallback to first substantial line if no title found yet
-            title = line;
+        } else {
+            if (line.length > 10 && !line.startsWith('#') && !line.startsWith('[') && title === "Auto Generated AI Draft" && cleanLines.length === 0) {
+                // fallback to first substantial line if no title found yet
+                title = line;
+                cleanLines.push(lines[i]);
+            } else {
+                cleanLines.push(lines[i]);
+            }
         }
     }
+
+    const cleanHtml = marked.parse(cleanLines.join('\n').trim());
 
     // Create a dynamic form to POST data to post_add.php
     const form = document.createElement('form');
@@ -469,7 +487,7 @@ function draftPost(markdown, html) {
     const contentInput = document.createElement('input');
     contentInput.type = 'hidden';
     contentInput.name = 'prefill_content';
-    contentInput.value = html; // Sending the parsed HTML to the Quill Editor
+    contentInput.value = cleanHtml; // Sending the parsed HTML (without metadata tags) to the Quill Editor
 
     const slugInput = document.createElement('input');
     slugInput.type = 'hidden';

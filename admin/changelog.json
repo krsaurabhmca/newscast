@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.0.6",
+        "date": "2026-05-25",
+        "changes": [
+            "Improved AI News Generator exact category matching.",
+            "Stripped metadata tags from AI drafted article body."
+        ]
+    },
+    {
         "version": "2.0.5",
         "date": "2026-05-25",
         "changes": [

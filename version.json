@@ -1,6 +1,6 @@
 {
-    "version": "2.0.5",
+    "version": "2.0.6",
     "db_version": 3,
     "last_updated": "2026-05-25",
-    "changelog": "v2.0.5: Added AI Image Generation feature to post creation using Groq and Pollinations, and fixed the admin logout link."
+    "changelog": "v2.0.6: Improved AI News Generator. Added dynamic category fetching so the AI correctly selects an existing category for auto-drafting, and fixed a bug where metadata tags were bleeding into the main article body."
 }
