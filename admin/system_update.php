@@ -30,16 +30,21 @@ try {
 
 // Check DB Integrity
 $schema_issues = [];
+
 try {
-    $stmt = $pdo->query("SHOW TABLES LIKE 'wp_sources'");
-    if ($stmt->rowCount() == 0) $schema_issues[] = "Missing table: wp_sources";
-    
-    $stmt = $pdo->query("SHOW COLUMNS FROM posts LIKE 'source_url'");
-    if ($stmt->rowCount() == 0) $schema_issues[] = "Missing column: source_url in posts table";
-    
-    $stmt = $pdo->query("SHOW COLUMNS FROM categories LIKE 'show_on_homepage'");
-    if ($stmt->rowCount() == 0) $schema_issues[] = "Missing column: show_on_homepage in categories table";
-} catch (Exception $e) {}
+    $stmt1 = $pdo->query("SHOW TABLES LIKE 'wp_sources'");
+    if (!$stmt1 || count($stmt1->fetchAll()) == 0) $schema_issues[] = "Missing table: wp_sources";
+} catch (Exception $e) { $schema_issues[] = "Error checking wp_sources table"; }
+
+try {
+    $stmt2 = $pdo->query("SHOW COLUMNS FROM posts LIKE 'source_url'");
+    if (!$stmt2 || count($stmt2->fetchAll()) == 0) $schema_issues[] = "Missing column: source_url in posts table";
+} catch (Exception $e) { $schema_issues[] = "Error checking source_url in posts"; }
+
+try {
+    $stmt3 = $pdo->query("SHOW COLUMNS FROM categories LIKE 'show_on_homepage'");
+    if (!$stmt3 || count($stmt3->fetchAll()) == 0) $schema_issues[] = "Missing column: show_on_homepage in categories table";
+} catch (Exception $e) { $schema_issues[] = "Error checking show_on_homepage in categories"; }
 
 // Handle DB Repair
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['repair_db'])) {
