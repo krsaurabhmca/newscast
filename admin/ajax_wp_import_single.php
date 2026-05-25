@@ -132,14 +132,14 @@ if (!empty($image_url)) {
 
 // 3. INSERT INTO DATABASE
 try {
-    $stmt = $pdo->prepare("INSERT INTO posts (title, slug, content, featured_image, author_id, status, is_breaking, is_featured, views, created_at, published_at) 
-                           VALUES (?, ?, ?, ?, ?, 'published', 0, 0, 0, NOW(), ?)");
+    $stmt = $pdo->prepare("INSERT INTO posts (user_id, title, slug, content, excerpt, featured_image, status, is_featured, published_at) 
+                           VALUES (?, ?, ?, ?, '', ?, 'published', 0, ?)");
     $stmt->execute([
+        $_SESSION['user_id'],
         $final_title,
         $final_slug,
         $final_content,
         $final_image_name,
-        $_SESSION['admin_id'],
         $published_at
     ]);
     
