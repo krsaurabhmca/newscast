@@ -19,6 +19,28 @@ if (isset($_GET['delete'])) {
     redirect('admin/posts.php', 'Post deleted successfully!');
 }
 
+// ── Bulk Delete ─────────────────────────────────────────────
+if (isset($_POST['bulk_delete']) && !empty($_POST['post_ids'])) {
+    if (is_demo_account()) {
+        redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
+        exit;
+    }
+    $ids = array_map('intval', $_POST['post_ids']);
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    
+    $stmt = $pdo->prepare("SELECT featured_image FROM posts WHERE id IN ($placeholders)");
+    $stmt->execute($ids);
+    $images = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($images as $img) {
+        if ($img && file_exists("../assets/images/posts/" . $img)) {
+            unlink("../assets/images/posts/" . $img);
+        }
+    }
+    
+    $pdo->prepare("DELETE FROM posts WHERE id IN ($placeholders)")->execute($ids);
+    redirect('admin/posts.php', count($ids) . ' posts deleted successfully!');
+}
+
 // ── Search / Filter / Sort params ───────────────────────
 $search   = trim($_GET['s']   ?? '');
 $status   = trim($_GET['st']  ?? '');
@@ -200,10 +222,20 @@ function paginate_url(array $overrides = []): string {
         </div>
     </form>
 
+    <form id="bulkForm" method="POST" action="">
+        <!-- Bulk Actions Toolbar -->
+        <div id="bulkActions" style="display: none; padding: 12px 20px; background: #fff1f2; border-bottom: 1px solid #fee2e2; align-items: center; justify-content: space-between;">
+            <span style="font-size: 13px; font-weight: 600; color: #991b1b;"><span id="selectedCount">0</span> items selected</span>
+            <button type="submit" name="bulk_delete" class="btn btn-sm" style="background: #ef4444; color: white; padding: 6px 12px; font-size: 12px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;" onclick="return confirm('Are you sure you want to delete these posts permanently?');">
+                <i data-feather="trash-2" style="width: 14px;"></i> Bulk Delete
+            </button>
+        </div>
+
     <div style="overflow-x: auto;">
         <table class="modern-table">
             <thead>
                 <tr>
+                    <th width="40px" style="padding-right: 0;"><input type="checkbox" id="selectAll" style="cursor: pointer;"></th>
                     <th width="40%">Article Details</th>
                     <th>Category</th>
                     <th>Status</th>
@@ -231,6 +263,9 @@ function paginate_url(array $overrides = []): string {
             <?php else: ?>
                 <?php foreach ($posts as $post): ?>
                 <tr>
+                    <td style="padding-right: 0;">
+                        <input type="checkbox" name="post_ids[]" value="<?= $post['id'] ?>" class="post-checkbox" style="cursor: pointer;">
+                    </td>
                     <td>
                         <div class="post-title-cell">
                             <?php if ($post['featured_image']): ?>
@@ -319,6 +354,36 @@ function paginate_url(array $overrides = []): string {
         </div>
     </div>
     <?php endif; ?>
+    </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.post-checkbox');
+    const bulkActions = document.getElementById('bulkActions');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    function updateBulkActions() {
+        const count = document.querySelectorAll('.post-checkbox:checked').length;
+        if (selectedCount) selectedCount.textContent = count;
+        if (bulkActions) bulkActions.style.display = count > 0 ? 'flex' : 'none';
+        if (selectAll) {
+            selectAll.checked = count === checkboxes.length && checkboxes.length > 0;
+        }
+    }
+    
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateBulkActions();
+        });
+    }
+    
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkActions);
+    });
+});
+</script>
 
 <?php include 'includes/footer.php'; ?>

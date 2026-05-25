@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.1.5",
+        "date": "2026-05-26",
+        "changes": [
+            "Added Bulk Delete feature in Article Management table."
+        ]
+    },
+    {
         "version": "2.1.4",
         "date": "2026-05-26",
         "changes": [

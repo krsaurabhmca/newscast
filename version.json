@@ -1,6 +1,6 @@
 {
-    "version": "2.1.4",
+    "version": "2.1.5",
     "db_version": 5,
     "last_updated": "2026-05-26",
-    "changelog": "v2.1.4: Fixed critical 500 error on homepage caused by missing 'show_on_homepage' column in database."
+    "changelog": "v2.1.5: Added Bulk Delete feature to Article Management."
 }
