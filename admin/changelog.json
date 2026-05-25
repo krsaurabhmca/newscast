@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.1",
+        "date": "2026-05-25",
+        "changes": [
+            "System Updater improvements and DB verification fixes.",
+            "Ensured robust database schema checks during updates."
+        ]
+    },
+    {
         "version": "2.1.0",
         "date": "2026-05-25",
         "changes": [

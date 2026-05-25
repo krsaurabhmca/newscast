@@ -27,10 +27,11 @@ if ($current_db_version === false) {
 // Only new versions need an entry here. No need to redefine tables that already exist in v1.
 $migrations = [
     2 => [
-        // Example: "ALTER TABLE users ADD COLUMN phone VARCHAR(20) NULL"
-        // Leave empty for now since version 1.0.1 has no db changes
+        // Version 1.0.1 db changes
     ],
-    // 3 => [ ... ],
+    3 => [
+        // Version 2.1.0 / 2.1.1 db changes
+    ],
 ];
 
 $latest_version = $current_db_version;

@@ -1,6 +1,6 @@
 {
-    "version": "2.1.0",
+    "version": "2.1.1",
     "db_version": 3,
     "last_updated": "2026-05-25",
-    "changelog": "v2.1.0: Major UI/UX Settings Redesign (Livestream & Appearance). Added floating WhatsApp widget and options to hide footer contact details. Optimized slider animation for smooth transitions."
+    "changelog": "v2.1.1: System Updater improvements, DB Update verification fix."
 }

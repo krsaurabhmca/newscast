@@ -17,6 +17,17 @@ if (file_exists($local_version_file)) {
     $local_info = json_decode($content, true) ?: $local_info;
 }
 
+// Ensure local db_version matches actual DB setting
+try {
+    $stmt_db = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'db_version'");
+    $actual_db_version = $stmt_db->fetchColumn();
+    if ($actual_db_version !== false) {
+        $local_info['db_version'] = (int)$actual_db_version;
+    } else {
+        $local_info['db_version'] = 1;
+    }
+} catch (Exception $e) {}
+
 $remote_info = null;
 $update_available = false;
 $error = '';
