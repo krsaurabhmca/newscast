@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.1.4",
+        "date": "2026-05-26",
+        "changes": [
+            "CRITICAL: Fixed 500 Internal Server Error on the homepage.",
+            "Added missing 'show_on_homepage' schema migration for live installations.",
+            "Updated newscast_db.sql for fresh installations."
+        ]
+    },
+    {
         "version": "2.1.3",
         "date": "2026-05-26",
         "changes": [

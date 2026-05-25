@@ -36,6 +36,9 @@ try {
     
     $stmt = $pdo->query("SHOW COLUMNS FROM posts LIKE 'source_url'");
     if ($stmt->rowCount() == 0) $schema_issues[] = "Missing column: source_url in posts table";
+    
+    $stmt = $pdo->query("SHOW COLUMNS FROM categories LIKE 'show_on_homepage'");
+    if ($stmt->rowCount() == 0) $schema_issues[] = "Missing column: show_on_homepage in categories table";
 } catch (Exception $e) {}
 
 // Handle DB Repair

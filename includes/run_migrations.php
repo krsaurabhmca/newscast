@@ -44,6 +44,9 @@ $migrations = [
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     ],
+    5 => [
+        "ALTER TABLE categories ADD COLUMN show_on_homepage TINYINT(1) DEFAULT 0 AFTER status"
+    ]
 ];
 
 $force_migrations = isset($force_migrations) ? $force_migrations : false;

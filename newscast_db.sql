@@ -71,7 +71,8 @@ CREATE TABLE `categories` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `icon` varchar(100) DEFAULT 'folder',
   `color` varchar(20) DEFAULT '#6366f1',
-  `status` enum('active','disabled') DEFAULT 'active'
+  `status` enum('active','disabled') DEFAULT 'active',
+  `show_on_homepage` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
