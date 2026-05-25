@@ -236,6 +236,9 @@ $share_title = urlencode($post['title']);
 
                     <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
                         <div id="google_translate_element"></div>
+                        <button onclick="resetLanguage()" title="Reset to Original Language" style="padding: 5px 10px; font-size: 12px; font-weight: 700; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; color: #475569; display: flex; align-items: center; gap: 5px;">
+                            <i data-feather="refresh-ccw" style="width: 12px;"></i> Reset
+                        </button>
                     <?php
     endif; ?>
                 </div>
@@ -561,6 +564,21 @@ endforeach; ?>
         }, 'google_translate_element');
         <?php
 endif; ?>
+    }
+
+    function resetLanguage() {
+        const domain = window.location.hostname;
+        // Aggressively clear the googtrans cookie on all possible path/domain combinations
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + domain + ';';
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + domain + ';';
+        // Also clear for parent domain if subdomain
+        const parts = domain.split('.');
+        if (parts.length > 2) {
+            const parentDomain = parts.slice(1).join('.');
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + parentDomain + ';';
+        }
+        window.location.reload();
     }
 
     // 📄 E-Paper Image Generation

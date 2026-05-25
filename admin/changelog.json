@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.11",
+        "date": "2026-05-26",
+        "changes": [
+            "Fixed a bug with the Google Translate widget on live servers where reverting to the original language would fail.",
+            "Added a dedicated 'Reset' button next to the Translate dropdown that forcefully clears language cookies across all domain scopes."
+        ]
+    },
+    {
         "version": "2.1.10",
         "date": "2026-05-26",
         "changes": [
