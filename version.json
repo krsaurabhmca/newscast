@@ -1,6 +1,6 @@
 {
-    "version": "2.1.5",
+    "version": "2.1.6",
     "db_version": 5,
     "last_updated": "2026-05-26",
-    "changelog": "v2.1.5: Added Bulk Delete feature to Article Management."
+    "changelog": "v2.1.6: Fixed 500 Internal Server Error during AI Image Generation by switching to the default stable model."
 }

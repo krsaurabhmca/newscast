@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.1.6",
+        "date": "2026-05-26",
+        "changes": [
+            "Fixed 500 Internal Server Error during AI Image Generation by switching to the default stable model."
+        ]
+    },
+    {
         "version": "2.1.5",
         "date": "2026-05-26",
         "changes": [

@@ -463,7 +463,7 @@ try {
                 if (data.success) {
                     const prompt = encodeURIComponent(data.prompt);
                     const randomSeed = Math.floor(Math.random() * 1000000);
-                    const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1200&height=800&nologo=true&seed=${randomSeed}&model=flux`;
+                    const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1200&height=800&nologo=true&seed=${randomSeed}`;
                     
                     preview.src = imageUrl;
                     aiInput.value = imageUrl;
