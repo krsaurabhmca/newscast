@@ -43,6 +43,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <i data-feather="edit-3" style="width: 18px;"></i> Manage Articles
                 </a>
             </li>
+            <li>
+                <a href="wp_auto_import.php" class="<?php echo $current_page == 'wp_auto_import.php' ? 'active' : ''; ?>">
+                    <i data-feather="download-cloud" style="width: 18px;"></i> WP Auto Import
+                </a>
+            </li>
 
             <li>
                 <a href="categories.php" class="<?php echo $current_page == 'categories.php' ? 'active' : ''; ?>">
