@@ -71,6 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'collapse_sidebar' => clean($_POST['collapse_sidebar'] ?? 'no'),
         'ebook_magazine_enabled' => clean($_POST['ebook_magazine_enabled'] ?? 'no'),
         'groq_api_key' => clean($_POST['groq_api_key'] ?? ''),
+        'whatsapp_floating_btn' => clean($_POST['whatsapp_floating_btn'] ?? 'no'),
+        'hide_contact_details' => clean($_POST['hide_contact_details'] ?? 'no'),
     ];
 
     try {
@@ -468,164 +470,228 @@ endforeach; ?>
     </div>
 
     <!-- ══════════ APPEARANCE ══════════ -->
+    <!-- ══════════ APPEARANCE ══════════ -->
     <div class="settings-panel" id="panel-appearance">
+        <!-- Unified Appearance Card -->
         <div class="settings-card">
-            <div class="settings-card-header">
-                <div class="icon" style="background:#fff7ed; color: #f59e0b;">
-                    <i data-feather="droplet" style="width:18px;"></i>
-                </div>
-                <div>
-                    <h3>Theme Color</h3>
-                    <p>Controls the primary accent color across the entire site</p>
-                </div>
-            </div>
-            <div class="settings-card-body">
-                <label class="field-label">Pick Primary Color</label>
-                <div class="color-preview-row" style="margin-bottom:15px;">
-                    <input type="color" name="theme_color" id="theme_color_pick" value="<?php echo get_setting('theme_color', '#ff3c00'); ?>">
+            <div class="settings-card-header" style="padding: 20px 25px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="icon" style="background:#fff7ed; color: #f59e0b;">
+                        <i data-feather="droplet" style="width:18px;"></i>
+                    </div>
                     <div>
-                        <div style="font-size: 14px; font-weight: 700; color: #0f172a;">Selected:</div>
-                        <div id="color_label" style="font-size: 13px; color: #64748b; font-weight: 600;"><?php echo get_setting('theme_color', '#ff3c00'); ?></div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">Appearance & Theme</h3>
+                        <p style="margin: 3px 0 0; font-size: 13px; color: #64748b;">Customize colors and layout features</p>
                     </div>
                 </div>
-                <label class="field-label">Quick Presets</label>
-                <div class="color-swatches">
-                    <?php foreach (['#ff3c00', '#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#dc2626', '#1d4ed8', '#0f172a', '#7c3aed'] as $c): ?>
-                        <button type="button" class="swatch-btn" style="background:<?php echo $c; ?>;" onclick="setColor('<?php echo $c; ?>')"></button>
-                    <?php
-endforeach; ?>
-                </div>
             </div>
-        </div>
-
-        <div class="settings-card">
-            <div class="settings-card-header">
-                <div class="icon" style="background:#f0fdf4; color: #22c55e;">
-                    <i data-feather="layout" style="width:18px;"></i>
-                </div>
-                <div>
-                    <h3>Layout & Display Options</h3>
-                    <p>Control how your site header, footer, and features look</p>
-                </div>
-            </div>
-            <div class="settings-card-body">
-                <div class="settings-grid">
+            
+            <div class="settings-card-body" style="background: #f8fafc; border-top: 1px solid #f1f5f9;">
+                
+                <!-- Color Settings -->
+                <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="color" name="theme_color" id="theme_color_pick" value="<?php echo get_setting('theme_color', '#ff3c00'); ?>" style="width: 48px; height: 48px; border-radius: 50%; border: 2px solid #e2e8f0; padding: 0; cursor: pointer; overflow: hidden; appearance: none; background: transparent;">
+                        <div>
+                            <div style="font-size: 14px; font-weight: 700; color: #0f172a;">Primary Brand Color</div>
+                            <div id="color_label" style="font-size: 12px; color: #64748b; font-weight: 600; font-family: monospace; text-transform: uppercase;"><?php echo get_setting('theme_color', '#ff3c00'); ?></div>
+                        </div>
+                    </div>
+                    
                     <div>
-                        <label class="field-label">Footer Theme</label>
-                        <div class="toggle-group">
+                        <div style="font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">Quick Presets</div>
+                        <div class="color-swatches" style="gap: 6px;">
+                            <?php foreach (['#ff3c00', '#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#dc2626', '#1d4ed8', '#0f172a', '#7c3aed'] as $c): ?>
+                                <button type="button" class="swatch-btn" style="background:<?php echo $c; ?>; width: 24px; height: 24px; border-radius: 6px;" onclick="setColor('<?php echo $c; ?>')"></button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                    
+                    <!-- Box 1 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Footer Theme</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Light or Dark background</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
                             <div class="toggle-opt">
                                 <input type="radio" name="footer_theme" id="ft_light" value="light" <?php echo get_setting('footer_theme', 'light') == 'light' ? 'checked' : ''; ?>>
-                                <label for="ft_light"><i data-feather="sun" style="width:14px;"></i> Light</label>
+                                <label for="ft_light" style="padding: 6px; font-size: 12px;">Light</label>
                             </div>
                             <div class="toggle-opt">
                                 <input type="radio" name="footer_theme" id="ft_dark" value="dark" <?php echo get_setting('footer_theme') == 'dark' ? 'checked' : ''; ?>>
-                                <label for="ft_dark"><i data-feather="moon" style="width:14px;"></i> Dark</label>
+                                <label for="ft_dark" style="padding: 6px; font-size: 12px;">Dark</label>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="field-label">Header Style</label>
-                        <div class="toggle-group">
+                    <!-- Box 2 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Header Style</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Fixed at top or scrollable</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
                             <div class="toggle-opt">
                                 <input type="radio" name="header_style" id="hs_default" value="default" <?php echo get_setting('header_style', 'default') == 'default' ? 'checked' : ''; ?>>
-                                <label for="hs_default"><i data-feather="minus" style="width:14px;"></i> Standard</label>
+                                <label for="hs_default" style="padding: 6px; font-size: 12px;">Scroll</label>
                             </div>
                             <div class="toggle-opt">
                                 <input type="radio" name="header_style" id="hs_sticky" value="sticky" <?php echo get_setting('header_style') == 'sticky' ? 'checked' : ''; ?>>
-                                <label for="hs_sticky"><i data-feather="anchor" style="width:14px;"></i> Sticky</label>
+                                <label for="hs_sticky" style="padding: 6px; font-size: 12px;">Sticky</label>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="field-label">Live Date & Time Bar</label>
-                        <div class="toggle-group">
+                    <!-- Box 3 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Date & Time Bar</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Show live clock in header</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
                             <div class="toggle-opt">
                                 <input type="radio" name="show_date_time" id="dt_yes" value="yes" <?php echo get_setting('show_date_time', 'yes') == 'yes' ? 'checked' : ''; ?>>
-                                <label for="dt_yes"><i data-feather="clock" style="width:14px;"></i> Show</label>
+                                <label for="dt_yes" style="padding: 6px; font-size: 12px;">Show</label>
                             </div>
                             <div class="toggle-opt">
                                 <input type="radio" name="show_date_time" id="dt_no" value="no" <?php echo get_setting('show_date_time') == 'no' ? 'checked' : ''; ?>>
-                                <label for="dt_no"><i data-feather="eye-off" style="width:14px;"></i> Hide</label>
+                                <label for="dt_no" style="padding: 6px; font-size: 12px;">Hide</label>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="field-label">Breaking News Banner</label>
-                        <div class="toggle-group">
+                    <!-- Box 4 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Breaking News</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Red alert banner in header</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
                             <div class="toggle-opt">
                                 <input type="radio" name="breaking_news_enabled" id="bn_yes" value="yes" <?php echo get_setting('breaking_news_enabled') == 'yes' ? 'checked' : ''; ?>>
-                                <label for="bn_yes"><i data-feather="zap" style="width:14px;"></i> Enable</label>
+                                <label for="bn_yes" style="padding: 6px; font-size: 12px;">On</label>
                             </div>
                             <div class="toggle-opt">
                                 <input type="radio" name="breaking_news_enabled" id="bn_no" value="no" <?php echo get_setting('breaking_news_enabled', 'no') == 'no' ? 'checked' : ''; ?>>
-                                <label for="bn_no"><i data-feather="zap-off" style="width:14px;"></i> Disable</label>
+                                <label for="bn_no" style="padding: 6px; font-size: 12px;">Off</label>
                             </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="field-label">Google Translate</label>
-                        <div class="toggle-group">
+                    <!-- Box 5 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Google Translate</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Language switch button</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
                             <div class="toggle-opt">
                                 <input type="radio" name="translation_enabled" id="tr_yes" value="yes" <?php echo get_setting('translation_enabled') == 'yes' ? 'checked' : ''; ?>>
-                                <label for="tr_yes"><i data-feather="globe" style="width:14px;"></i> Enable</label>
+                                <label for="tr_yes" style="padding: 6px; font-size: 12px;">On</label>
                             </div>
                             <div class="toggle-opt">
                                 <input type="radio" name="translation_enabled" id="tr_no" value="no" <?php echo get_setting('translation_enabled', 'no') == 'no' ? 'checked' : ''; ?>>
-                                <label for="tr_no"><i data-feather="x-circle" style="width:14px;"></i> Disable</label>
+                                <label for="tr_no" style="padding: 6px; font-size: 12px;">Off</label>
                             </div>
                         </div>
-                        <span class="field-hint">English ↔ Hindi translation toggle on articles.</span>
                     </div>
 
-                    <div>
-                        <label class="field-label">Text-to-Speech (Listen)</label>
-                        <div class="toggle-group">
+                    <!-- Box 6 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Voice Reader</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Text-to-speech option</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
                             <div class="toggle-opt">
                                 <input type="radio" name="tts_enabled" id="tts_yes" value="yes" <?php echo get_setting('tts_enabled', 'yes') == 'yes' ? 'checked' : ''; ?>>
-                                <label for="tts_yes"><i data-feather="volume-2" style="width:14px;"></i> Enable</label>
+                                <label for="tts_yes" style="padding: 6px; font-size: 12px;">On</label>
                             </div>
                             <div class="toggle-opt">
                                 <input type="radio" name="tts_enabled" id="tts_no" value="no" <?php echo get_setting('tts_enabled') == 'no' ? 'checked' : ''; ?>>
-                                <label for="tts_no"><i data-feather="volume-x" style="width:14px;"></i> Disable</label>
+                                <label for="tts_no" style="padding: 6px; font-size: 12px;">Off</label>
                             </div>
                         </div>
-                        <span class="field-hint">Allow users to listen to the news article.</span>
                     </div>
-
-                    <div>
-                        <label class="field-label">Admin Sidebar (Default)</label>
-                        <div class="toggle-group">
+                    
+                    <!-- Box 7 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Admin Menu</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Sidebar default state</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
                             <div class="toggle-opt">
                                 <input type="radio" name="collapse_sidebar" id="sb_expanded" value="no" <?php echo get_setting('collapse_sidebar', 'no') == 'no' ? 'checked' : ''; ?>>
-                                <label for="sb_expanded"><i data-feather="maximize-2" style="width:14px;"></i> Expanded</label>
+                                <label for="sb_expanded" style="padding: 6px; font-size: 12px;">Show</label>
                             </div>
                             <div class="toggle-opt">
                                 <input type="radio" name="collapse_sidebar" id="sb_collapsed" value="yes" <?php echo get_setting('collapse_sidebar') == 'yes' ? 'checked' : ''; ?>>
-                                <label for="sb_collapsed"><i data-feather="minimize-2" style="width:14px;"></i> Collapsed</label>
+                                <label for="sb_collapsed" style="padding: 6px; font-size: 12px;">Hide</label>
                             </div>
                         </div>
-                        <span class="field-hint">Sets the default state of the sidebar for the admin panel.</span>
                     </div>
 
-                    <div>
-                        <label class="field-label">Digital Media (E-papers & Magazines)</label>
-                        <div class="toggle-group">
+                    <!-- Box 8 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">E-Paper Module</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Show digital editions</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
                             <div class="toggle-opt">
                                 <input type="radio" name="ebook_magazine_enabled" id="em_yes" value="yes" <?php echo get_setting('ebook_magazine_enabled', 'yes') == 'yes' ? 'checked' : ''; ?>>
-                                <label for="em_yes"><i data-feather="check" style="width:14px;"></i> Enable</label>
+                                <label for="em_yes" style="padding: 6px; font-size: 12px;">Show</label>
                             </div>
                             <div class="toggle-opt">
                                 <input type="radio" name="ebook_magazine_enabled" id="em_no" value="no" <?php echo get_setting('ebook_magazine_enabled') == 'no' ? 'checked' : ''; ?>>
-                                <label for="em_no"><i data-feather="x" style="width:14px;"></i> Disable</label>
+                                <label for="em_no" style="padding: 6px; font-size: 12px;">Hide</label>
                             </div>
                         </div>
-                        <span class="field-hint">Show or hide the Digital Papers and Magazines modules.</span>
+                    </div>
+
+                    <!-- Box 9 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">WhatsApp Widget</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Floating WhatsApp button</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="whatsapp_floating_btn" id="wa_yes" value="yes" <?php echo get_setting('whatsapp_floating_btn', 'no') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="wa_yes" style="padding: 6px; font-size: 12px;">Show</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="whatsapp_floating_btn" id="wa_no" value="no" <?php echo get_setting('whatsapp_floating_btn', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="wa_no" style="padding: 6px; font-size: 12px;">Hide</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 10 -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Hide Contact Info</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Hide email/phone in header</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="hide_contact_details" id="hc_yes" value="yes" <?php echo get_setting('hide_contact_details', 'no') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="hc_yes" style="padding: 6px; font-size: 12px;">Hide</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="hide_contact_details" id="hc_no" value="no" <?php echo get_setting('hide_contact_details', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="hc_no" style="padding: 6px; font-size: 12px;">Show</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -789,99 +855,79 @@ endforeach; ?>
     <!-- ══════════ LIVE STREAM ══════════ -->
     <div class="settings-panel" id="panel-livestream">
         <div class="settings-card">
-            <div class="settings-card-header">
-                <div class="icon" style="background:#fef2f2; color:#dc2626;">
-                    <i data-feather="youtube" style="width:18px;"></i>
+            <div class="settings-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 25px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="icon" style="background:#fef2f2; color:#dc2626;">
+                        <i data-feather="youtube" style="width:18px;"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">YouTube Live Stream</h3>
+                        <p style="margin: 3px 0 0; font-size: 13px; color: #64748b;">Broadcast live events directly on your homepage</p>
+                    </div>
                 </div>
-                <div>
-                    <h3>YouTube Live Stream</h3>
-                    <p>Embed a live YouTube stream on the homepage with an animated LIVE badge</p>
+                
+                <!-- Master Toggle -->
+                <div class="toggle-group" style="width: 160px;">
+                    <div class="toggle-opt">
+                        <input type="radio" name="live_youtube_enabled" id="live_on" value="1" <?php echo get_setting('live_youtube_enabled') === '1' ? 'checked' : ''; ?>>
+                        <label for="live_on" style="padding: 8px;"><i data-feather="check" style="width:14px;"></i> On</label>
+                    </div>
+                    <div class="toggle-opt">
+                        <input type="radio" name="live_youtube_enabled" id="live_off" value="0" <?php echo get_setting('live_youtube_enabled') !== '1' ? 'checked' : ''; ?>>
+                        <label for="live_off" style="padding: 8px;"><i data-feather="x" style="width:14px;"></i> Off</label>
+                    </div>
                 </div>
             </div>
-            <div class="settings-card-body">
-                <div class="settings-grid">
-                    <!-- Enable Toggle -->
-                    <div style="grid-column:1/-1;">
-                        <label class="field-label">Show Live Stream on Homepage</label>
-                        <div class="toggle-group">
-                            <div class="toggle-opt">
-                                <input type="radio" name="live_youtube_enabled" id="live_on" value="1" <?php echo get_setting('live_youtube_enabled') === '1' ? 'checked' : ''; ?>>
-                                <label for="live_on" style="color:#16a34a; border-color:#bbf7d0;">
-                                    <i data-feather="radio" style="width:14px;"></i> Enabled — Show on Homepage
-                                </label>
-                            </div>
-                            <div class="toggle-opt">
-                                <input type="radio" name="live_youtube_enabled" id="live_off" value="0" <?php echo get_setting('live_youtube_enabled') !== '1' ? 'checked' : ''; ?>>
-                                <label for="live_off">
-                                    <i data-feather="eye-off" style="width:14px;"></i> Disabled — Hidden
-                                </label>
+            
+            <div class="settings-card-body" style="background: #f8fafc; border-top: 1px solid #f1f5f9;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+                    
+                    <!-- Left: Configuration -->
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div>
+                            <label class="field-label" style="font-size: 14px;">YouTube URL</label>
+                            <div class="social-input-group">
+                                <i data-feather="youtube" class="social-icon" style="width:18px; color:#dc2626; left: 16px;"></i>
+                                <input type="url" name="live_youtube_url" id="live_youtube_url_input" class="form-control"
+                                    style="padding-left: 48px; border-color: #cbd5e1; height: 46px; border-radius: 12px; font-size: 15px;"
+                                    placeholder="Paste video or live stream URL..."
+                                    value="<?php echo htmlspecialchars(get_setting('live_youtube_url')); ?>"
+                                    oninput="updateLivePreview(this.value)">
                             </div>
                         </div>
-                        <span class="field-hint">When enabled, the live player appears prominently on the homepage.</span>
-                    </div>
 
-                    <!-- YouTube URL -->
-                    <div>
-                        <label class="field-label">YouTube Live Video URL</label>
-                        <div class="social-input-group">
-                            <i data-feather="youtube" class="social-icon" style="width:16px; color:#dc2626;"></i>
-                            <input type="url" name="live_youtube_url" id="live_youtube_url_input" class="form-control"
-                                placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX or Live URL"
-                                value="<?php echo htmlspecialchars(get_setting('live_youtube_url')); ?>"
-                                oninput="updateLivePreview(this.value)">
+                        <div>
+                            <label class="field-label" style="font-size: 14px;">Section Title</label>
+                            <input type="text" name="live_stream_title" class="form-control"
+                                style="border-color: #cbd5e1; height: 46px; border-radius: 12px; font-size: 15px;"
+                                placeholder="e.g. Watch Live Now" value="<?php echo htmlspecialchars(get_setting('live_stream_title', 'Watch Live')); ?>">
                         </div>
-                        <span class="field-hint">Paste the YouTube video or live stream URL. Works with both regular videos and live streams.</span>
-                    </div>
 
-                    <!-- Stream Title -->
-                    <div>
-                        <label class="field-label">Stream Section Title</label>
-                        <input type="text" name="live_stream_title" class="form-control"
-                            placeholder="e.g. Watch Live | News Live" value="<?php echo htmlspecialchars(get_setting('live_stream_title', 'Watch Live')); ?>">
-                        <span class="field-hint">Appears as the heading above the embedded player.</span>
-                    </div>
-
-                    <!-- Stream Sound Toggle -->
-                    <div>
-                        <label class="field-label">Stream Sound (Autoplay)</label>
-                        <div class="toggle-group">
-                            <div class="toggle-opt">
-                                <input type="radio" name="live_stream_sound" id="sound_on" value="1" <?php echo get_setting('live_stream_sound', '0') === '1' ? 'checked' : ''; ?>>
-                                <label for="sound_on">
-                                    <i data-feather="volume-2" style="width:14px;"></i> Sound On
-                                </label>
-                            </div>
-                            <div class="toggle-opt">
-                                <input type="radio" name="live_stream_sound" id="sound_off" value="0" <?php echo get_setting('live_stream_sound', '0') !== '1' ? 'checked' : ''; ?>>
-                                <label for="sound_off">
-                                    <i data-feather="volume-x" style="width:14px;"></i> Muted
-                                </label>
+                        <div>
+                            <label class="field-label" style="font-size: 14px;">Autoplay Sound</label>
+                            <div class="toggle-group" style="max-width: 200px;">
+                                <div class="toggle-opt">
+                                    <input type="radio" name="live_stream_sound" id="sound_on" value="1" <?php echo get_setting('live_stream_sound', '0') === '1' ? 'checked' : ''; ?>>
+                                    <label for="sound_on" style="background: white;"><i data-feather="volume-2" style="width:14px;"></i> On</label>
+                                </div>
+                                <div class="toggle-opt">
+                                    <input type="radio" name="live_stream_sound" id="sound_off" value="0" <?php echo get_setting('live_stream_sound', '0') !== '1' ? 'checked' : ''; ?>>
+                                    <label for="sound_off" style="background: white;"><i data-feather="volume-x" style="width:14px;"></i> Muted</label>
+                                </div>
                             </div>
                         </div>
-                        <span class="field-hint">Note: Unmuted autoplay may be blocked by some browsers.</span>
                     </div>
 
-                    <!-- Live Preview -->
-                    <div style="grid-column:1/-1;" id="live_preview_wrap" <?php echo get_setting('live_youtube_url') ? '' : 'style="display:none;"'; ?>>
-                        <label class="field-label">Preview</label>
-                        <div style="position:relative; background:#000; border-radius:12px; overflow:hidden; aspect-ratio:16/9; max-width:560px;">
+                    <!-- Right: Live Preview -->
+                    <div id="live_preview_wrap" <?php echo get_setting('live_youtube_url') ? '' : 'style="display:none;"'; ?>>
+                        <div style="background: #000; border-radius: 16px; overflow: hidden; aspect-ratio: 16/9; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 6px solid white;">
                             <iframe id="live_preview_iframe"
                                 src="<?php echo get_setting('live_youtube_url') ? 'https://www.youtube.com/embed/' . getYoutubeId(get_setting('live_youtube_url')) . '?autoplay=0&mute=1' : ''; ?>"
-                                style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
+                                style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
                         </div>
-                        <span class="field-hint">Save &amp; refresh the homepage to see autoplay in action.</span>
+                        <p style="text-align: center; color: #64748b; font-size: 13px; margin-top: 15px; font-weight: 600;"><i data-feather="monitor" style="width:14px; margin-right:5px; vertical-align: middle;"></i> Homepage Preview</p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Tips callout -->
-        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:16px; display:flex; gap:12px; align-items:start; margin-bottom:20px;">
-            <i data-feather="info" style="width:16px; color:#dc2626; flex-shrink:0; margin-top:2px;"></i>
-            <div style="font-size:13px; color:#7f1d1d; line-height:1.7;">
-                <strong>Tips:</strong> For a YouTube <em>Live stream</em>, use the share URL from "Go Live" or studio. For a regular video, paste the normal watch URL.
-                The homepage will show an animated <span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:700;">● LIVE</span> badge and the player will autoplay muted.
-                Autoplay requires the browser to have autoplay enabled (usually works on most modern browsers when muted).
             </div>
         </div>
     </div>

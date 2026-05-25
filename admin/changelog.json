@@ -1,5 +1,15 @@
 [
     {
+        "version": "2.1.0",
+        "date": "2026-05-25",
+        "changes": [
+            "Major UI/UX Settings Redesign for Livestream & Appearance tabs.",
+            "Added floating WhatsApp widget and options to hide footer contact details.",
+            "Optimized homepage slider animation for smooth hardware-accelerated transitions.",
+            "Migrated AI Chat into a global floating modal accessible from anywhere."
+        ]
+    },
+    {
         "version": "2.0.7",
         "date": "2026-05-25",
         "changes": [

@@ -1,6 +1,6 @@
 {
-    "version": "2.0.7",
+    "version": "2.1.0",
     "db_version": 3,
     "last_updated": "2026-05-25",
-    "changelog": "v2.0.7: Added global AI Chat modal overlay. Overhauled homepage with premium category sections and automated trending slider. Completely redesigned public footer with multi-column compact layout. Added new admin help documentation."
+    "changelog": "v2.1.0: Major UI/UX Settings Redesign (Livestream & Appearance). Added floating WhatsApp widget and options to hide footer contact details. Optimized slider animation for smooth transitions."
 }

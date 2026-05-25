@@ -149,6 +149,8 @@ include 'includes/header.php';
                 <p style="color: #475569; line-height: 1.8;">Dynamic control over how your news is displayed to visitors.</p>
                 <ul style="color: #475569; line-height: 1.8; padding-left: 20px; margin-top: 15px;">
                     <li><strong>Trending Slider:</strong> The top 4 featured posts automatically rotate in a premium sliding carousel.</li>
+                    <li><strong>WhatsApp Widget:</strong> Add a floating WhatsApp contact button by enabling it in <span style="font-weight: 700;">Settings > Appearance</span>. It uses your saved WhatsApp number.</li>
+                    <li><strong>Contact Info Visibility:</strong> Hide your email and phone number from the public footer via <span style="font-weight: 700;">Settings > Appearance</span>.</li>
                     <li><strong>Category Visibility:</strong> Navigate to <span style="font-weight: 700;">Categories</span> and use the quick toggle switch to display specific categories directly on the homepage (up to 3 categories).</li>
                     <li><strong>Compact Footer:</strong> The updated public footer features a multi-column design that saves vertical space while providing quick links and a newsletter signup.</li>
                 </ul>

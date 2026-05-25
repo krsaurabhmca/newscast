@@ -135,31 +135,33 @@ $featured_categories = $stmt->fetchAll();
     <section class="hero-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 60px;">
         <!-- Lead Story Slider (Left) -->
         <div style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); height: 550px;" class="hero-slider-container">
-            <?php if (!empty($featured_posts)): 
-                foreach ($featured_posts as $index => $f_post):
+            <?php if (!empty($featured_posts)): ?>
+            <div class="slider-track" style="display: flex; height: 100%; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);">
+                <?php foreach ($featured_posts as $index => $f_post):
                     $post_url = ($f_post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $f_post['id'] : BASE_URL . "article/" . $f_post['slug'];
-            ?>
-            <a href="<?php echo $post_url; ?>" <?php echo($f_post['external_type'] != 'none') ? 'target="_blank"' : ''; ?> class="hero-slide" style="position: absolute; inset: 0; text-decoration: none; display: <?php echo $index === 0 ? 'block' : 'none'; ?>; transition: opacity 0.5s ease; opacity: <?php echo $index === 0 ? '1' : '0'; ?>;">
-                <img src="<?php echo get_post_thumbnail($f_post['featured_image']); ?>" style="width: 100%; height: 100%; object-fit: cover;" class="hero-img">
-                <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px;">
-                    <?php 
-                        $f_names = explode(',', $f_post['cat_names']);
-                        $f_colors = explode(',', $f_post['cat_colors']);
-                    ?>
-                    <span style="background: <?php echo $f_colors[0] ?? 'var(--primary)'; ?>; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; text-transform: uppercase; width: max-content; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                        <?php echo $f_names[0] ?? 'Featured'; ?>
-                    </span>
-                    <h2 style="color: #f8fafc; font-size: 42px; font-weight: 800; line-height: 1.2; margin: 0 0 15px 0; text-shadow: 0 2px 15px rgba(0,0,0,0.3);"><?php echo $f_post['title']; ?></h2>
-                    <p style="color: #cbd5e1; font-size: 18px; line-height: 1.6; margin: 0; max-width: 800px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 5px rgba(0,0,0,0.5);"><?php echo get_post_excerpt($f_post, 25); ?></p>
-                    <div style="display: flex; align-items: center; gap: 15px; margin-top: 20px; color: #94a3b8; font-size: 14px; font-weight: 600;">
-                        <span style="display: flex; align-items: center; gap: 5px;"><i data-feather="clock" style="width: 16px;"></i> <?php echo format_date($f_post['created_at']); ?></span>
-                        <?php if ($f_post['video_url']): ?>
-                            <span style="display: flex; align-items: center; gap: 5px; color: #ef4444;"><i data-feather="play-circle" style="width: 16px;"></i> Video Included</span>
-                        <?php endif; ?>
+                ?>
+                <a href="<?php echo $post_url; ?>" <?php echo($f_post['external_type'] != 'none') ? 'target="_blank"' : ''; ?> class="hero-slide" style="flex: 0 0 100%; height: 100%; position: relative; text-decoration: none; overflow: hidden;">
+                    <img src="<?php echo get_post_thumbnail($f_post['featured_image']); ?>" style="width: 100%; height: 100%; object-fit: cover;" class="hero-img">
+                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px;">
+                        <?php 
+                            $f_names = explode(',', $f_post['cat_names']);
+                            $f_colors = explode(',', $f_post['cat_colors']);
+                        ?>
+                        <span style="background: <?php echo $f_colors[0] ?? 'var(--primary)'; ?>; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 800; text-transform: uppercase; width: max-content; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                            <?php echo $f_names[0] ?? 'Featured'; ?>
+                        </span>
+                        <h2 style="color: #f8fafc; font-size: 42px; font-weight: 800; line-height: 1.2; margin: 0 0 15px 0; text-shadow: 0 2px 15px rgba(0,0,0,0.3);"><?php echo $f_post['title']; ?></h2>
+                        <p style="color: #cbd5e1; font-size: 18px; line-height: 1.6; margin: 0; max-width: 800px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 5px rgba(0,0,0,0.5);"><?php echo get_post_excerpt($f_post, 25); ?></p>
+                        <div style="display: flex; align-items: center; gap: 15px; margin-top: 20px; color: #94a3b8; font-size: 14px; font-weight: 600;">
+                            <span style="display: flex; align-items: center; gap: 5px;"><i data-feather="clock" style="width: 16px;"></i> <?php echo format_date($f_post['created_at']); ?></span>
+                            <?php if ($f_post['video_url']): ?>
+                                <span style="display: flex; align-items: center; gap: 5px; color: #ef4444;"><i data-feather="play-circle" style="width: 16px;"></i> Video Included</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
-            </a>
-            <?php endforeach; ?>
+                </a>
+                <?php endforeach; ?>
+            </div>
             
             <!-- Slider Controls -->
             <div style="position: absolute; bottom: 40px; right: 40px; display: flex; gap: 10px; z-index: 10;">
@@ -486,20 +488,15 @@ $featured_categories = $stmt->fetchAll();
 <script>
     // Hero Slider Logic
     let currentSlide = 0;
+    const track = document.querySelector('.slider-track');
     const slides = document.querySelectorAll('.hero-slide');
     const totalSlides = slides.length;
     let slideInterval;
 
     function showSlide(index) {
-        slides.forEach(slide => {
-            slide.style.opacity = '0';
-            setTimeout(() => { slide.style.display = 'none'; }, 500);
-        });
-        
+        if (!track) return;
         currentSlide = (index + totalSlides) % totalSlides;
-        
-        slides[currentSlide].style.display = 'block';
-        setTimeout(() => { slides[currentSlide].style.opacity = '1'; }, 50);
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
     }
 
     function nextSlide(e) {
