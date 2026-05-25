@@ -190,6 +190,7 @@ function get_post_tags($pdo, $post_id)
  */
 function get_all_tags($pdo, $limit = 20)
 {
+    $limit = (int)$limit;
     $stmt = $pdo->prepare("SELECT t.*, COUNT(pt.post_id) as post_count 
                            FROM tags t 
                            LEFT JOIN post_tags pt ON t.id = pt.tag_id 
@@ -197,8 +198,8 @@ function get_all_tags($pdo, $limit = 20)
                            WHERE p.published_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) OR p.id IS NULL
                            GROUP BY t.id 
                            ORDER BY post_count DESC, t.name ASC 
-                           LIMIT ?");
-    $stmt->execute([$limit]);
+                           LIMIT {$limit}");
+    $stmt->execute();
     return $stmt->fetchAll();
 }
 
