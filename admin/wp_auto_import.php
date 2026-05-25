@@ -197,6 +197,18 @@ include 'includes/header.php';
     <!-- TAB 2: MANUAL IMPORT (LIVE PROGRESS) -->
     <div id="tab-manual" class="tab-content">
         <div class="settings-card" style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; font-size: 14px; color: #1e293b; display: block; margin-bottom: 8px;">Quick Select Saved Source (Optional)</label>
+                <select class="form-control" onchange="if(this.value) { document.getElementById('wp_api_url').value = this.options[this.selectedIndex].dataset.url; document.getElementById('target_category').value = this.options[this.selectedIndex].dataset.cat; }">
+                    <option value="">-- Choose from saved Auto-Sync Sources --</option>
+                    <?php foreach ($sources as $s): ?>
+                        <option value="<?php echo $s['id']; ?>" data-url="<?php echo htmlspecialchars($s['feed_url']); ?>" data-cat="<?php echo $s['category_id']; ?>">
+                            <?php echo htmlspecialchars($s['site_name']); ?> (<?php echo htmlspecialchars($s['category_name']); ?>)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
                 <div>
                     <label style="font-weight: 700; font-size: 14px; color: #1e293b; display: block; margin-bottom: 8px;">WordPress API Endpoint</label>
