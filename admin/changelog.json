@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.7",
+        "date": "2026-05-26",
+        "changes": [
+            "Overhauled the System Updater UI with a premium look.",
+            "Added a dynamic GitHub Changelog viewer that fetches the latest release history directly from the cloud."
+        ]
+    },
+    {
         "version": "2.1.6",
         "date": "2026-05-26",
         "changes": [
