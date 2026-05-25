@@ -1,6 +1,6 @@
 {
-    "version": "2.1.11",
+    "version": "2.1.12",
     "db_version": 5,
     "last_updated": "2026-05-26",
-    "changelog": "v2.1.11: Fixed an issue where the Google Translate widget could not revert to English on the live server by adding a dedicated Reset button."
+    "changelog": "v2.1.12: Fixed JSON syntax error in the changelog that prevented the System Updater from displaying the latest release notes."
 }

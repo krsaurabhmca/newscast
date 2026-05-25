@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.1.12",
+        "date": "2026-05-26",
+        "changes": [
+            "Fixed a JSON syntax issue in the changelog that caused the System Updater to malfunction and not display the latest updates."
+        ]
+    },
+    {
         "version": "2.1.11",
         "date": "2026-05-26",
         "changes": [
@@ -77,7 +84,7 @@
             "Implemented Automated WP Syndication Engine.",
             "Added WP Sources CRUD Manager to Admin Panel.",
             "Added zero-duplicate protection using source_url mapping.",
-            "Created background 'Poor Man\'s Cron' trigger for passive 30-min syncs.",
+            "Created background 'Poor Man's Cron' trigger for passive 30-min syncs.",
             "Restored Manual Import tool with Live Progress UI and Quick Select."
         ]
     },
