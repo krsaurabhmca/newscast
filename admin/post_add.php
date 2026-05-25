@@ -47,6 +47,16 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
                 $featured_image = $uploaded_file;
             }
         }
+    } elseif (!empty($_POST['ai_image_url'])) {
+        $ai_url = $_POST['ai_image_url'];
+        $image_data = @file_get_contents($ai_url);
+        if ($image_data) {
+            $new_filename = uniqid("post_ai_") . '_' . time() . '.jpg';
+            $destination = "../assets/images/posts/" . $new_filename;
+            if (file_put_contents($destination, $image_data)) {
+                $featured_image = $new_filename;
+            }
+        }
     }
 
     $content_clean = trim(strip_tags($content, '<img><iframe>'));
@@ -249,15 +259,25 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
 
         <!-- Image -->
         <div class="stat-card">
-            <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                <i data-feather="image" style="width: 16px; color: var(--primary);"></i>
-                Featured Image
+            <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <i data-feather="image" style="width: 16px; color: var(--primary);"></i> Featured Image
+                </span>
+                <button type="button" id="btn-generate-ai" style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                    <i data-feather="cpu" style="width: 12px;"></i> AI Generate
+                </button>
             </h3>
             <div id="previewBox" style="width: 100%; height: 180px; background: #f8fafc; border: 2px dashed var(--border); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.3s ease;">
+                <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+                <div id="imgLoader" style="display: none; flex-direction: column; align-items: center; gap: 10px; color: var(--primary);">
+                    <i data-feather="loader" style="width: 24px; height: 24px; animation: spin 1s linear infinite;"></i>
+                    <span style="font-size: 12px; font-weight: 600;">Generating...</span>
+                </div>
                 <i data-feather="upload-cloud" id="imgPlaceholder" style="color: #cbd5e1; width: 40px; height: 40px;"></i>
-                <img id="imgPreview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                <img id="imgPreview" src="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; object-fit: cover; display: none;">
             </div>
             <input type="file" name="image" id="imgInput" class="form-control" style="margin-top: 15px; font-size: 12px;" accept="image/*">
+            <input type="hidden" name="ai_image_url" id="ai_image_url" value="">
         </div>
     </div>
 </div>
@@ -377,6 +397,65 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
         document.addEventListener('click', e => {
             if (!document.getElementById('tag-container').contains(e.target)) {
                 suggestionsBox.style.display = 'none';
+            }
+        });
+
+        // AI Image Generation Logic
+        document.getElementById('btn-generate-ai').addEventListener('click', async function() {
+            const title = document.querySelector('input[name="title"]').value;
+            const content = typeof quill !== 'undefined' ? quill.getText().trim() : '';
+            
+            if (!title && !content) {
+                alert('Please enter a title or write some content first so the AI knows what to draw.');
+                return;
+            }
+
+            const loader = document.getElementById('imgLoader');
+            const placeholder = document.getElementById('imgPlaceholder');
+            const preview = document.getElementById('imgPreview');
+            const imgInput = document.getElementById('imgInput');
+            const aiInput = document.getElementById('ai_image_url');
+            
+            loader.style.display = 'flex';
+            placeholder.style.display = 'none';
+            preview.style.display = 'none';
+
+            try {
+                let formData = new FormData();
+                formData.append('title', title);
+                formData.append('content', content);
+
+                const response = await fetch('../api/api_generate_image_prompt.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const prompt = encodeURIComponent(data.prompt);
+                    const randomSeed = Math.floor(Math.random() * 1000000);
+                    const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1200&height=800&nologo=true&seed=${randomSeed}&model=flux`;
+                    
+                    preview.src = imageUrl;
+                    aiInput.value = imageUrl;
+                    imgInput.value = ''; // clear file input
+                    
+                    preview.onload = function() {
+                        loader.style.display = 'none';
+                        preview.style.display = 'block';
+                        document.getElementById('previewBox').style.borderStyle = 'solid';
+                    };
+                } else {
+                    alert('Error: ' + data.message);
+                    loader.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Failed to generate image.');
+                loader.style.display = 'none';
+                placeholder.style.display = 'block';
             }
         });
 

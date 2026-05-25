@@ -1,6 +1,6 @@
 {
-    "version": "2.0.4",
+    "version": "2.0.5",
     "db_version": 3,
-    "last_updated": "2026-05-23",
-    "changelog": "v2.0.4: Admin Panel Localization! Added a seamless English/Hindi language toggle in the admin header using an invisible Google Translate integration. Administrators can now instantly translate the entire dashboard to Hindi with a single click, without any distracting translation banners or tooltips."
+    "last_updated": "2026-05-25",
+    "changelog": "v2.0.5: Added AI Image Generation feature to post creation using Groq and Pollinations, and fixed the admin logout link."
 }

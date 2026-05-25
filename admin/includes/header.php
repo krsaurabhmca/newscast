@@ -75,7 +75,7 @@ if (!is_logged_in()) {
                         <i data-feather="refresh-cw" style="width: 18px; height: 18px;"></i>
                     </a>
 
-                    <a href="logout.php" class="desktop-only" style="color: #ef4444; padding: 8px 10px; border-radius: 8px; background: #fef2f2; transition: .2s; display: flex; align-items: center; justify-content: center;" title="Logout">
+                    <a href="<?php echo BASE_URL; ?>logout.php" class="desktop-only" style="color: #ef4444; padding: 8px 10px; border-radius: 8px; background: #fef2f2; transition: .2s; display: flex; align-items: center; justify-content: center;" title="Logout">
                         <i data-feather="log-out" style="width: 18px; height: 18px;"></i>
                     </a>
                     

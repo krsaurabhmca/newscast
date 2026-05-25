@@ -1,7 +1,15 @@
 [
     {
-        "version": "1.3",
-        "date": "2026-05-22",
+        "version": "2.0.5",
+        "date": "2026-05-25",
+        "changes": [
+            "Added AI Image Generation using Groq and Pollinations.",
+            "Fixed broken logout link in admin header."
+        ]
+    },
+    {
+        "version": "2.0.4",
+        "date": "2026-05-23",
         "changes": [
             "Upgraded Timeline into robust Events of the Day feature.",
             "Removed legacy E-Paper module.",
