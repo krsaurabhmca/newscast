@@ -46,10 +46,11 @@ $migrations = [
     ],
 ];
 
+$force_migrations = isset($force_migrations) ? $force_migrations : false;
 $latest_version = $current_db_version;
 
 foreach ($migrations as $version => $queries) {
-    if ($version > $current_db_version) {
+    if ($force_migrations || $version > $current_db_version) {
         foreach ($queries as $sql) {
             try {
                 $pdo->exec($sql);
@@ -58,7 +59,9 @@ foreach ($migrations as $version => $queries) {
                 error_log("DB Migration Error v$version: " . $e->getMessage());
             }
         }
-        $latest_version = $version;
+        if ($version > $latest_version) {
+            $latest_version = $version;
+        }
     }
 }
 

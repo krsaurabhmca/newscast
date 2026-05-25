@@ -28,6 +28,27 @@ try {
     }
 } catch (Exception $e) {}
 
+// Check DB Integrity
+$schema_issues = [];
+try {
+    $stmt = $pdo->query("SHOW TABLES LIKE 'wp_sources'");
+    if ($stmt->rowCount() == 0) $schema_issues[] = "Missing table: wp_sources";
+    
+    $stmt = $pdo->query("SHOW COLUMNS FROM posts LIKE 'source_url'");
+    if ($stmt->rowCount() == 0) $schema_issues[] = "Missing column: source_url in posts table";
+} catch (Exception $e) {}
+
+// Handle DB Repair
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['repair_db'])) {
+    if (file_exists('../includes/run_migrations.php')) {
+        $force_migrations = true;
+        include '../includes/run_migrations.php';
+        $_SESSION['flash_msg'] = "Database schema has been successfully verified and repaired.";
+        $_SESSION['flash_type'] = "success";
+        redirect('admin/system_update.php');
+    }
+}
+
 $remote_info = null;
 $update_available = false;
 $error = '';
@@ -227,6 +248,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
             <a href="system_update.php" class="btn" style="background: #f1f5f9; color: #475569; font-weight: 600; font-size: 13px;">
                 <i data-feather="refresh-cw" style="width: 14px;"></i> Check Again
             </a>
+        </div>
+    <?php endif; ?>
+
+    <!-- Database Integrity Check -->
+    <?php if (!empty($schema_issues)): ?>
+        <div style="background: #fef2f2; border: 1px solid #f87171; border-radius: 12px; padding: 20px; margin-top: 30px; margin-bottom: 30px;">
+            <div style="display: flex; gap: 15px; align-items: flex-start;">
+                <div style="background: #fee2e2; color: #dc2626; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i data-feather="database"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0 0 10px 0; color: #991b1b; font-size: 18px; font-weight: 800;">Database Integrity Issues Detected</h4>
+                    <p style="color: #b91c1c; font-size: 14px; margin: 0 0 15px 0;">Your current database structure does not perfectly match the required schema for this version. The following missing elements were detected:</p>
+                    <ul style="color: #dc2626; font-size: 13px; font-weight: 600; background: rgba(220, 38, 38, 0.05); padding: 10px 10px 10px 25px; border-radius: 8px; margin-bottom: 15px;">
+                        <?php foreach($schema_issues as $iss): ?>
+                            <li><?php echo htmlspecialchars($iss); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <form action="" method="POST" onsubmit="return confirm('This will forcefully apply missing database structures. Ensure you have a backup just in case. Proceed?');">
+                        <button type="submit" name="repair_db" class="btn btn-danger" style="background: #dc2626; border: none; padding: 10px 20px; font-weight: 700; border-radius: 8px;">
+                            <i data-feather="tool" style="width: 14px; margin-right: 5px;"></i> Verify & Repair Database Now
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php else: ?>
+        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 15px 20px; margin-top: 30px; margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+            <div style="background: #dcfce7; color: #16a34a; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i data-feather="database"></i>
+            </div>
+            <div>
+                <h4 style="margin: 0; color: #166534; font-size: 15px; font-weight: 800;">Database Integrity Verified</h4>
+                <p style="color: #15803d; font-size: 13px; margin: 3px 0 0 0;">All critical tables and columns match the latest required schema. No repair needed.</p>
+            </div>
         </div>
     <?php endif; ?>
 
