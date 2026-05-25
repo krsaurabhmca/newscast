@@ -1,5 +1,16 @@
 [
     {
+        "version": "2.1.2",
+        "date": "2026-05-25",
+        "changes": [
+            "Implemented Automated WP Syndication Engine.",
+            "Added WP Sources CRUD Manager to Admin Panel.",
+            "Added zero-duplicate protection using source_url mapping.",
+            "Created background 'Poor Man\'s Cron' trigger for passive 30-min syncs.",
+            "Restored Manual Import tool with Live Progress UI and Quick Select."
+        ]
+    },
+    {
         "version": "2.1.1",
         "date": "2026-05-25",
         "changes": [
