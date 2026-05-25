@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.8",
+        "date": "2026-05-26",
+        "changes": [
+            "Added an interactive 'Poll of the Day' widget to the homepage sidebar.",
+            "Integrated seamless AJAX voting and dynamic real-time progress bars for poll results."
+        ]
+    },
+    {
         "version": "2.1.7",
         "date": "2026-05-26",
         "changes": [

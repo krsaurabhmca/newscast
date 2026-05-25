@@ -1,6 +1,6 @@
 {
-    "version": "2.1.7",
+    "version": "2.1.8",
     "db_version": 5,
     "last_updated": "2026-05-26",
-    "changelog": "v2.1.7: Overhauled the System Updater UI with a premium look and added a dynamic GitHub Changelog viewer."
+    "changelog": "v2.1.8: Added Poll widget to the homepage right sidebar allowing users to vote and see live results."
 }

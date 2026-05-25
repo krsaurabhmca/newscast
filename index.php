@@ -92,6 +92,28 @@ $live_vid_id = $live_url ? yt_id($live_url) : null;
 // 6. Fetch Featured Homepage Categories
 $stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' AND show_on_homepage = 1 ORDER BY created_at DESC LIMIT 3");
 $featured_categories = $stmt->fetchAll();
+
+// 7. Fetch Latest Active Poll
+$poll_stmt = $pdo->query("SELECT * FROM polls WHERE status = 'active' AND (starts_at IS NULL OR starts_at <= NOW()) AND (expires_at IS NULL OR expires_at >= NOW()) ORDER BY created_at DESC LIMIT 1");
+$active_poll = $poll_stmt->fetch();
+$poll_has_voted = false;
+$poll_options = [];
+$poll_total_votes = 0;
+if ($active_poll) {
+    $voter_id = $_COOKIE['voter_id'] ?? '';
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $check_vote = $pdo->prepare("SELECT id FROM poll_votes WHERE poll_id = ? AND (browser_id = ? OR ip_address = ?)");
+    $check_vote->execute([$active_poll['id'], $voter_id, $ip_address]);
+    if ($check_vote->fetch()) {
+        $poll_has_voted = true;
+    }
+    $opt_stmt = $pdo->prepare("SELECT * FROM poll_options WHERE poll_id = ? ORDER BY id ASC");
+    $opt_stmt->execute([$active_poll['id']]);
+    $poll_options = $opt_stmt->fetchAll();
+    foreach ($poll_options as $opt) {
+        $poll_total_votes += $opt['votes_count'];
+    }
+}
 ?>
 
 <main class="content-container" style="max-width: 1400px; margin: 0 auto; padding: 30px 20px;">
@@ -347,6 +369,95 @@ $featured_categories = $stmt->fetchAll();
 
         <!-- Right: Sidebar -->
         <aside style="display: flex; flex-direction: column; gap: 30px;">
+            <!-- Poll Section -->
+            <?php if ($active_poll): ?>
+            <div class="poll-widget" style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+                <h4 style="border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; font-size: 16px; font-weight: 800; text-transform: uppercase; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                    <div style="background: rgba(99, 102, 241, 0.1); padding: 6px; border-radius: 6px; color: #6366f1;">
+                        <i data-feather="pie-chart" style="width: 16px;"></i> 
+                    </div>
+                    Poll of the Day
+                </h4>
+                <div style="font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 20px; line-height: 1.4;">
+                    <?php echo htmlspecialchars($active_poll['question']); ?>
+                </div>
+
+                <div id="poll-container-<?php echo $active_poll['id']; ?>">
+                    <?php if ($poll_has_voted): ?>
+                        <!-- Results View -->
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <?php foreach ($poll_options as $opt): 
+                                $pct = $poll_total_votes > 0 ? round(($opt['votes_count'] / $poll_total_votes) * 100) : 0;
+                            ?>
+                            <div style="margin-bottom: 5px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 5px;">
+                                    <span><?php echo htmlspecialchars($opt['option_text']); ?></span>
+                                    <span><?php echo $pct; ?>%</span>
+                                </div>
+                                <div style="background: #f1f5f9; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="width: <?php echo $pct; ?>%; height: 100%; background: #6366f1; border-radius: 4px; transition: width 1s ease-out;"></div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div style="margin-top: 20px; font-size: 12px; color: #94a3b8; font-weight: 600; text-align: center;">
+                            Total Votes: <?php echo number_format($poll_total_votes); ?>
+                        </div>
+                    <?php else: ?>
+                        <!-- Voting View -->
+                        <form id="poll-form-<?php echo $active_poll['id']; ?>" onsubmit="submitPoll(event, <?php echo $active_poll['id']; ?>)">
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                                <?php foreach ($poll_options as $opt): ?>
+                                <label style="display: flex; align-items: center; gap: 12px; padding: 12px 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s;">
+                                    <input type="radio" name="poll_option" value="<?php echo $opt['id']; ?>" required style="accent-color: #6366f1; width: 16px; height: 16px; cursor: pointer;">
+                                    <span style="font-size: 14px; font-weight: 600; color: #334155;"><?php echo htmlspecialchars($opt['option_text']); ?></span>
+                                </label>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="submit" style="width: 100%; background: #6366f1; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; transition: background 0.2s;">
+                                Vote Now
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <script>
+            function submitPoll(e, pollId) {
+                e.preventDefault();
+                const form = document.getElementById('poll-form-' + pollId);
+                const formData = new FormData(form);
+                const optionId = formData.get('poll_option');
+                if (!optionId) return;
+
+                const btn = form.querySelector('button');
+                btn.disabled = true;
+                btn.innerHTML = 'Voting...';
+
+                fetch('<?php echo BASE_URL; ?>api/api_poll_vote.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'poll_id=' + pollId + '&option_id=' + optionId
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload(); // Quickest way to show updated results
+                    } else {
+                        alert(data.message);
+                        btn.disabled = false;
+                        btn.innerHTML = 'Vote Now';
+                    }
+                })
+                .catch(err => {
+                    alert('An error occurred. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Vote Now';
+                });
+            }
+            </script>
+            <?php endif; ?>
+
             <!-- Today's Activity & Events Section -->
             <div style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
                 <h4 style="border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 25px; font-size: 16px; font-weight: 800; text-transform: uppercase; color: #0f172a; display: flex; align-items: center; gap: 10px;">
