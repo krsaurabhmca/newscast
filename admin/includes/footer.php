@@ -66,12 +66,19 @@
             if (lang === 'hi') {
                 document.cookie = "googtrans=/en/hi; path=/";
                 document.cookie = "googtrans=/en/hi; path=/; domain=" + domain;
+                document.cookie = "googtrans=/en/hi; path=/; domain=." + domain;
             } else {
                 document.cookie = "googtrans=/en/en; path=/";
                 document.cookie = "googtrans=/en/en; path=/; domain=" + domain;
-                // Also clear it
+                // Aggressively clear it across all domains
                 document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + domain;
+                document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=." + domain;
+                const parts = domain.split('.');
+                if (parts.length > 2) {
+                    const parentDomain = parts.slice(1).join('.');
+                    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + parentDomain + ';';
+                }
             }
             window.location.reload();
         }

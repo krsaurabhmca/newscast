@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.14",
+        "date": "2026-05-26",
+        "changes": [
+            "Fixed Admin Panel 'EN/HI' language toggle getting stuck on Hindi on live domains due to aggressive cookie scope rules.",
+            "Completely hide the Google Translate top banner on the frontend article viewer."
+        ]
+    },
+    {
         "version": "2.1.13",
         "date": "2026-05-26",
         "changes": [

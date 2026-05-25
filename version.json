@@ -1,6 +1,6 @@
 {
-    "version": "2.1.13",
+    "version": "2.1.14",
     "db_version": 5,
     "last_updated": "2026-05-26",
-    "changelog": "v2.1.13: Refactored System Updater to use GitHub API, permanently bypassing CDN caching to ensure updates are detected instantly without the 5-minute wait."
+    "changelog": "v2.1.14: Fixed Admin Panel translation toggle cookie issue and hid Google Translate top banner on frontend."
 }
