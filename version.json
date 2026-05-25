@@ -1,6 +1,6 @@
 {
-    "version": "2.1.2",
+    "version": "2.1.3",
     "db_version": 4,
-    "last_updated": "2026-05-25",
-    "changelog": "v2.1.2: Added Automated Background WP Sync Engine with Duplicate Protection and Live UI."
+    "last_updated": "2026-05-26",
+    "changelog": "v2.1.3: Added Database Integrity Checker & Repair Tool, improved Category Management UI with direct toggles."
 }

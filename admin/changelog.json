@@ -1,5 +1,15 @@
 [
     {
+        "version": "2.1.3",
+        "date": "2026-05-26",
+        "changes": [
+            "Added Database Integrity Checker to System Updater.",
+            "Added Force DB Repair capability to resolve missing schema elements.",
+            "Refactored Category list to use direct toggles for Status and Homepage Visibility.",
+            "Cleaned up Category Edit Modal by removing redundant switch."
+        ]
+    },
+    {
         "version": "2.1.2",
         "date": "2026-05-25",
         "changes": [
