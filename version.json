@@ -1,6 +1,6 @@
 {
-    "version": "2.1.9",
+    "version": "2.1.10",
     "db_version": 5,
     "last_updated": "2026-05-26",
-    "changelog": "v2.1.9: Removed E-Paper link from the public footer."
+    "changelog": "v2.1.10: Added Poll of the Day and Events of the Day widgets to the single news article sidebar."
 }
