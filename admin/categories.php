@@ -9,7 +9,6 @@ if (isset($_POST['add_category'])) {
     $description = clean($_POST['description']);
     $icon = clean($_POST['icon']);
     $color = clean($_POST['color']);
-    $status = isset($_POST['status']) ? 'active' : 'disabled';
     $show_on_homepage = isset($_POST['show_on_homepage']) ? 1 : 0;
 
     if (empty($name)) {
@@ -17,8 +16,8 @@ if (isset($_POST['add_category'])) {
         $_SESSION['flash_type'] = "danger";
     } else {
         try {
-            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, icon, color, status, show_on_homepage) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$name, $slug, $description, $icon, $color, $status, $show_on_homepage]);
+            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, icon, color, status, show_on_homepage) VALUES (?, ?, ?, ?, ?, 'active', ?)");
+            $stmt->execute([$name, $slug, $description, $icon, $color, $show_on_homepage]);
             redirect('admin/categories.php', 'Category added successfully!');
         } catch (PDOException $e) {
             $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
@@ -35,17 +34,28 @@ if (isset($_POST['update_category'])) {
     $description = clean($_POST['description']);
     $icon = clean($_POST['icon']);
     $color = clean($_POST['color']);
-    $status = isset($_POST['status']) ? 'active' : 'disabled';
     $show_on_homepage = isset($_POST['show_on_homepage']) ? 1 : 0;
 
     try {
-        $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ?, icon = ?, color = ?, status = ?, show_on_homepage = ? WHERE id = ?");
-        $stmt->execute([$name, $slug, $description, $icon, $color, $status, $show_on_homepage, $id]);
+        $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ?, icon = ?, color = ?, show_on_homepage = ? WHERE id = ?");
+        $stmt->execute([$name, $slug, $description, $icon, $color, $show_on_homepage, $id]);
         redirect('admin/categories.php', 'Category updated successfully!');
     } catch (PDOException $e) {
         $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
         $_SESSION['flash_type'] = "danger";
     }
+}
+
+// Handle Toggle Category Status
+if (isset($_GET['toggle'])) {
+    if (is_demo_account()) {
+        redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot modify data.', 'danger');
+        exit;
+    }
+    $id = $_GET['toggle'];
+    $stmt = $pdo->prepare("UPDATE categories SET status = IF(status='active', 'disabled', 'active') WHERE id = ?");
+    $stmt->execute([$id]);
+    redirect('admin/categories.php', 'Category status updated!');
 }
 
 // Handle Delete Category
@@ -119,9 +129,14 @@ if ($search !== '') {
                     <td><strong><?php echo $cat['name']; ?></strong></td>
                     <td>
                         <div style="display: flex; gap: 8px; align-items: center;">
-                            <span class="badge" style="background: <?php echo $cat['status'] == 'active' ? '#d1fae5' : '#fee2e2'; ?>; color: <?php echo $cat['status'] == 'active' ? '#065f46' : '#991b1b'; ?>;">
-                                <?php echo ucfirst($cat['status']); ?>
-                            </span>
+                            <a href="?toggle=<?php echo $cat['id']; ?>" style="text-decoration: none;">
+                                <label class="switch" style="display: flex; align-items: center; gap: 10px; cursor: pointer; pointer-events: none;">
+                                    <div style="position: relative; width: 44px; height: 24px;">
+                                        <input type="checkbox" <?php echo $cat['status'] == 'active' ? 'checked' : ''; ?> style="opacity: 0; width: 0; height: 0; position: absolute;">
+                                        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px;"></span>
+                                    </div>
+                                </label>
+                            </a>
                             <?php if (!empty($cat['show_on_homepage'])): ?>
                                 <span class="badge" style="background: #e0e7ff; color: #4338ca; display: flex; align-items: center; gap: 4px;" title="Shown on Homepage">
                                     <i data-feather="home" style="width: 10px;"></i> Featured
@@ -191,18 +206,7 @@ if ($search !== '') {
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Status</label>
-                    <div style="margin-top: 5px;">
-                        <label class="switch" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                            <div style="position: relative; width: 44px; height: 24px;">
-                                <input type="checkbox" name="status" value="active" <?php echo (!$edit_cat || ($edit_cat && $edit_cat['status'] == 'active')) ? 'checked' : ''; ?> style="opacity: 0; width: 0; height: 0; position: absolute;">
-                                <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 24px;"></span>
-                            </div>
-                            <span style="font-size: 14px; font-weight: 600; color: #475569;">Active (Visible)</span>
-                        </label>
-                    </div>
-                </div>
+
 
                 <div class="form-group">
                     <label>Featured Category</label>
