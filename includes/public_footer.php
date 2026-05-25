@@ -381,5 +381,15 @@
     <?php endif; ?>
 
     <?php include 'includes/feedback_drawer.php'; ?>
+
+    <?php 
+    // Automated WP Sync Trigger
+    $last_wp_cron = get_setting('last_wp_cron_run');
+    if (!$last_wp_cron || (time() - strtotime($last_wp_cron)) > 1800): ?>
+    <script>
+        // Asynchronously trigger WP sync in the background
+        fetch('<?php echo BASE_URL; ?>api/cron_wp_sync.php').catch(()=>{});
+    </script>
+    <?php endif; ?>
 </body>
 </html>

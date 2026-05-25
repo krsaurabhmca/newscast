@@ -32,6 +32,18 @@ $migrations = [
     3 => [
         // Version 2.1.0 / 2.1.1 db changes
     ],
+    4 => [
+        "ALTER TABLE posts ADD COLUMN source_url VARCHAR(500) NULL DEFAULT NULL AFTER external_label",
+        "CREATE TABLE IF NOT EXISTS wp_sources (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            site_name VARCHAR(255) NOT NULL,
+            feed_url VARCHAR(500) NOT NULL,
+            category_id INT NOT NULL,
+            status ENUM('active', 'inactive') DEFAULT 'active',
+            last_checked DATETIME NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    ],
 ];
 
 $latest_version = $current_db_version;
