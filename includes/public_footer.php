@@ -197,7 +197,6 @@
                     <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Information</h4>
                     <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;">
                         <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
-                        <li><a href="<?php echo BASE_URL; ?>digital-paper" class="footer-link"><i data-feather="file-text" style="width:13px; margin-right:6px;"></i> E-Paper</a></li>
                         <li><a href="<?php echo BASE_URL; ?>magazine" class="footer-link"><i data-feather="book-open" style="width:13px; margin-right:6px;"></i> Magazine</a></li>
                         <?php endif; ?>
                         <li><a href="<?php echo BASE_URL; ?>about.php" class="footer-link">About Us</a></li>

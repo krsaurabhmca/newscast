@@ -1,6 +1,6 @@
 {
-    "version": "2.1.8",
+    "version": "2.1.9",
     "db_version": 5,
     "last_updated": "2026-05-26",
-    "changelog": "v2.1.8: Added Poll widget to the homepage right sidebar allowing users to vote and see live results."
+    "changelog": "v2.1.9: Removed E-Paper link from the public footer."
 }
