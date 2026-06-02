@@ -1,6 +1,6 @@
 {
-    "version": "2.1.19",
+    "version": "2.1.20",
     "db_version": 6,
     "last_updated": "2026-06-02",
-    "changelog": "v2.1.19: Fixed layout gap between the redesigned admin sidebar and main content area."
+    "changelog": "v2.1.20: Fixed sidebar positioning bug causing a 240px gap in the layout."
 }

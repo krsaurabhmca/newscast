@@ -20,14 +20,14 @@ function sb_active(string $page, array|string $pages = []): string {
    ════════════════════════════════ */
 .sidebar {
     width: 240px;
-    min-height: 100vh;
+    height: 100vh;
     background: #0f172a;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     overflow: hidden;
     transition: width .25s cubic-bezier(.4,0,.2,1);
-    position: relative;
+    position: fixed;
     z-index: 100;
 }
 

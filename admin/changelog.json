@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.1.20",
+        "date": "2026-06-02",
+        "changes": [
+            "Fixed CSS positioning bug on the new sidebar that was causing a layout gap."
+        ]
+    },
+    {
         "version": "2.1.19",
         "date": "2026-06-02",
         "changes": [
