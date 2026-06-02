@@ -1,6 +1,6 @@
 {
-    "version": "2.1.16",
+    "version": "2.1.17",
     "db_version": 6,
     "last_updated": "2026-06-02",
-    "changelog": "v2.1.16: Upgraded Ad Click History UI with premium design, IP geolocation (city, country, flag, ISP), unique visitor stat, colour-coded slot badges. Fixed system updater false Update Available by adding db_version 6 migration."
+    "changelog": "v2.1.17: Complete professional dashboard redesign — personalised greeting, 8 KPI cards, premium layout, colour-coded ranks, Quick Actions grid, Section Pulse bars, Feedback inbox with unread badge."
 }

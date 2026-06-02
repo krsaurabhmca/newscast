@@ -1,5 +1,21 @@
 [
     {
+        "version": "2.1.17",
+        "date": "2026-06-02",
+        "changes": [
+            "Complete professional dashboard redesign with Inter font and CSS custom property design system.",
+            "Added personalised greeting banner (Good Morning/Afternoon/Evening) with today's post count and total views.",
+            "Expanded to 8 KPI stat cards: Published, Total Views, Ad Clicks, Inbox, Categories, Active Polls, Staff, Active Ads.",
+            "KPI cards feature coloured top-bar accent, icon badges, sub-labels, and hover lift animations.",
+            "Rank badges (gold/silver/bronze) on Top Articles table for visual hierarchy.",
+            "Ad Pulse panel now shows clicks + impressions per ad alongside CTR.",
+            "6-icon Quick Actions grid with colour-coded action tiles.",
+            "Feedback Inbox now shows unread count badge in card header and message timestamps.",
+            "Section Pulse category bars now include category icon badges and glow effects.",
+            "Live Stream banner fully integrated and responsive."
+        ]
+    },
+    {
         "version": "2.1.16",
         "date": "2026-06-02",
         "changes": [
