@@ -46,6 +46,25 @@ $migrations = [
     ],
     5 => [
         "ALTER TABLE categories ADD COLUMN show_on_homepage TINYINT(1) DEFAULT 0 AFTER status"
+    ],
+    6 => [
+        "CREATE TABLE IF NOT EXISTS `ad_click_logs` (
+          `id`          INT(11)      NOT NULL AUTO_INCREMENT,
+          `ad_id`       INT(11)      DEFAULT NULL,
+          `post_id`     INT(11)      DEFAULT NULL,
+          `event_type`  ENUM('ad_click','sponsored_post_click') NOT NULL DEFAULT 'ad_click',
+          `ad_name`     VARCHAR(255) DEFAULT NULL,
+          `ad_location` VARCHAR(50)  DEFAULT NULL,
+          `ip_address`  VARCHAR(45)  NOT NULL DEFAULT '',
+          `user_agent`  TEXT         DEFAULT NULL,
+          `referer_url` VARCHAR(500) DEFAULT NULL,
+          `clicked_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (`id`),
+          KEY `idx_ad_id` (`ad_id`),
+          KEY `idx_clicked_at` (`clicked_at`),
+          KEY `idx_event_type` (`event_type`),
+          KEY `idx_ip_address` (`ip_address`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
     ]
 ];
 

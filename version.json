@@ -1,6 +1,6 @@
 {
-    "version": "2.1.15",
+    "version": "2.1.16",
     "db_version": 6,
     "last_updated": "2026-06-02",
-    "changelog": "v2.1.15: Added Ad Click History — tracks every ad click with date, time, IP address, location and event type. New admin page with filters, pagination and CSV export."
+    "changelog": "v2.1.16: Upgraded Ad Click History UI with premium design, IP geolocation (city, country, flag, ISP), unique visitor stat, colour-coded slot badges. Fixed system updater false Update Available by adding db_version 6 migration."
 }

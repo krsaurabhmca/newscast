@@ -1,5 +1,17 @@
 [
     {
+        "version": "2.1.16",
+        "date": "2026-06-02",
+        "changes": [
+            "Premium UI redesign of Ad Click History page — card-based layout, gradient stat icons, Inter font.",
+            "Added IP Geolocation — each click now shows City, Country (with flag emoji), and ISP via ip-api.com.",
+            "Added 'Unique Visitors' stat card (distinct IP count).",
+            "Colour-coded Ad Slot badges (header, sidebar, content top/bottom, sponsored post).",
+            "Fixed system updater showing false 'Update Available' — added db_version 6 migration to run_migrations.php so the settings table syncs correctly.",
+            "CSV export now includes City, Country, and ISP geolocation columns."
+        ]
+    },
+    {
         "version": "2.1.15",
         "date": "2026-06-02",
         "changes": [
