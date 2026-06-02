@@ -1,5 +1,20 @@
 [
     {
+        "version": "2.1.18",
+        "date": "2026-06-02",
+        "changes": [
+            "Complete admin sidebar redesign for improved usability.",
+            "Nav items now have icon-wrapped squares with coloured active state and left-border highlight.",
+            "Reorganised into 5 logical sections: Overview, Content, Advertising, Team, System.",
+            "Added 'New Article' quick-action button at top of sidebar.",
+            "Inbox unread count badge moved directly onto the Inbox nav item.",
+            "Version badge on System Update item shows current version.",
+            "Profile, Help and Logout pinned to bottom of sidebar for easy access.",
+            "Sidebar collapses to icon-only mode on narrow screens and remembers state.",
+            "Removed redundant ACCOUNT section — merged into bottom fixed area."
+        ]
+    },
+    {
         "version": "2.1.17",
         "date": "2026-06-02",
         "changes": [

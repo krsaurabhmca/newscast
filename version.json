@@ -1,6 +1,6 @@
 {
-    "version": "2.1.17",
+    "version": "2.1.18",
     "db_version": 6,
     "last_updated": "2026-06-02",
-    "changelog": "v2.1.17: Complete professional dashboard redesign — personalised greeting, 8 KPI cards, premium layout, colour-coded ranks, Quick Actions grid, Section Pulse bars, Feedback inbox with unread badge."
+    "changelog": "v2.1.18: Redesigned admin sidebar — icon-wrapped items, logical grouping (Overview/Content/Advertising/Team/System), active state indicator, Quick New Article button, collapsible support."
 }
