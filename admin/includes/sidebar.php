@@ -91,6 +91,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <i data-feather="target" style="width: 18px;"></i> Ad Campaigns
                 </a>
             </li>
+            <li>
+                <a href="ad_click_history.php" class="<?php echo $current_page == 'ad_click_history.php' ? 'active' : ''; ?>">
+                    <i data-feather="mouse-pointer" style="width: 18px;"></i> Click History
+                </a>
+            </li>
         </ul>
 
         <p style="font-size: 11px; font-weight: 800; color: #475569; letter-spacing: 1px; text-transform: uppercase; margin: 25px 0 10px 10px;">TEAM</p>

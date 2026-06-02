@@ -1,5 +1,18 @@
 [
     {
+        "version": "2.1.15",
+        "date": "2026-06-02",
+        "changes": [
+            "Added Ad Click History tracking system.",
+            "Every ad click now records date, time, IP address, ad location (header/sidebar/content), and event type (ad click vs sponsored post click).",
+            "New admin page: Ad Click History with stat cards (Today / 7-Day / 30-Day / All-Time).",
+            "Filterable log table by Ad, Event Type, Date Range, and IP Address.",
+            "Pagination (25 per page) and CSV Export for click logs.",
+            "Per-ad drill-down: View history button added to each ad row in Ad Campaigns.",
+            "Click History nav link added to admin sidebar under Growth & PR."
+        ]
+    },
+    {
         "version": "2.1.14",
         "date": "2026-05-26",
         "changes": [

@@ -176,11 +176,16 @@ endif; ?>
 </div>
 
 <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 12px;">
         <h3 style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b;">Ad Performance & Management</h3>
-        <div style="font-size: 13px; color: #64748b;">
-            <span style="display: inline-block; width: 10px; height: 10px; background: #22c55e; border-radius: 50%; margin-right: 5px;"></span> Active 
-            <span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-left: 15px; margin-right: 5px;"></span> Paused
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <div style="font-size: 13px; color: #64748b;">
+                <span style="display: inline-block; width: 10px; height: 10px; background: #22c55e; border-radius: 50%; margin-right: 5px;"></span> Active 
+                <span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-left: 15px; margin-right: 5px;"></span> Paused
+            </div>
+            <a href="ad_click_history.php" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 700;">
+                <i data-feather="mouse-pointer" style="width: 14px;"></i> View Click History
+            </a>
         </div>
     </div>
     
@@ -267,6 +272,9 @@ endif; ?>
                     </td>
                     <td style="padding: 15px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; border-radius: 0 8px 8px 0; text-align: right;">
                         <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                            <a href="ad_click_history.php?ad_id=<?php echo $ad['id']; ?>" title="View Click History" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #3b82f6; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                <i data-feather="mouse-pointer" style="width: 15px;"></i>
+                            </a>
                             <a href="?edit=<?php echo $ad['id']; ?>" class="action-btn edit" style="background: #fff; border: 1px solid #e2e8f0; color: #6366f1; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
                                 <i data-feather="edit-2" style="width: 16px;"></i>
                             </a>
