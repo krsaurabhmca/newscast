@@ -139,34 +139,6 @@ function sb_active(string $page, array|string $pages = []): string {
 /* ── Divider ── */
 .sb-divider { height: 1px; background: rgba(255,255,255,.04); margin: 6px 8px; }
 
-/* ── Bottom Area ── */
-.sb-bottom {
-    flex-shrink: 0; border-top: 1px solid rgba(255,255,255,.05);
-    padding: 10px 10px 12px;
-}
-.sb-bottom a {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 10px; border-radius: 9px;
-    color: #64748b; font-size: 13px; font-weight: 600;
-    text-decoration: none; transition: .15s; margin-bottom: 1px;
-}
-.sb-bottom a:hover { background: rgba(255,255,255,.06); color: #e2e8f0; }
-.sb-bottom a.active { background: rgba(99,102,241,.15); color: #a5b4fc; }
-.sb-bottom .sbi { width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.04); }
-.sb-bottom .sbi svg { width: 15px; height: 15px; }
-
-.sb-logout {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 10px; border-radius: 9px;
-    color: #f87171; font-size: 13px; font-weight: 600;
-    text-decoration: none; transition: .15s;
-    background: rgba(248,113,113,.05);
-    border: 1px solid rgba(248,113,113,.1);
-    margin-top: 6px;
-}
-.sb-logout:hover { background: rgba(248,113,113,.12); }
-.sb-logout .sbi { background: rgba(248,113,113,.1); }
-
 /* ── Version pill ── */
 .sb-version {
     text-align: center; padding: 8px;
@@ -181,13 +153,9 @@ function sb_active(string $page, array|string $pages = []): string {
 .sidebar-collapsed .sb-nav ul li a span,
 .sidebar-collapsed .sb-badge,
 .sidebar-collapsed .sb-badge-new,
-.sidebar-collapsed .sb-bottom a span,
-.sidebar-collapsed .sb-logout span,
 .sidebar-collapsed .sb-version { display: none; }
 .sidebar-collapsed .sb-new-btn { padding: 10px; justify-content: center; }
 .sidebar-collapsed .sb-nav ul li a { justify-content: center; padding: 9px 0; }
-.sidebar-collapsed .sb-bottom a { justify-content: center; }
-.sidebar-collapsed .sb-logout { justify-content: center; }
 .sidebar-collapsed .sb-nav ul li a::before { display: none; }
 
 /* Tooltip on collapsed */
@@ -364,21 +332,7 @@ function sb_active(string $page, array|string $pages = []): string {
 
     </nav><!-- /sb-nav -->
 
-    <!-- Bottom: Profile + Help + Logout -->
-    <div class="sb-bottom">
-        <a href="profile.php" class="<?php echo sb_active('profile.php'); ?>">
-            <span class="sbi"><i data-feather="user"></i></span>
-            <span>My Profile</span>
-        </a>
-        <a href="help.php" class="<?php echo sb_active('help.php'); ?>">
-            <span class="sbi"><i data-feather="help-circle"></i></span>
-            <span>Help &amp; Docs</span>
-        </a>
-        <a href="<?php echo BASE_URL; ?>logout.php" class="sb-logout">
-            <span class="sbi"><i data-feather="log-out"></i></span>
-            <span>Logout</span>
-        </a>
-    </div>
+
 
     <div class="sb-version">v<?php echo $app_v; ?></div>
 

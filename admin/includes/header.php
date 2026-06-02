@@ -75,24 +75,44 @@ if (!is_logged_in()) {
                         <i data-feather="refresh-cw" style="width: 18px; height: 18px;"></i>
                     </a>
 
-                    <a href="<?php echo BASE_URL; ?>logout.php" class="desktop-only" style="color: #ef4444; padding: 8px 10px; border-radius: 8px; background: #fef2f2; transition: .2s; display: flex; align-items: center; justify-content: center;" title="Logout">
-                        <i data-feather="log-out" style="width: 18px; height: 18px;"></i>
-                    </a>
-                    
-                    <div style="width: 1px; height: 25px; background: #e2e8f0; margin: 0 5px;" class="desktop-only"></div>
-
-                    <a href="profile.php" class="user-meta" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; transition: .2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                        <div style="text-align: right;" class="desktop-only">
-                            <div style="font-size: 14px; font-weight: 700; color: #0f172a;"><?php echo $_SESSION['username']; ?></div>
-                            <div style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;"><?php echo $_SESSION['role'] === 'admin' ? 'Administrator' : 'Editor / Team'; ?></div>
+                    <!-- Profile Dropdown -->
+                    <style>
+                        .h-prof-drop { position: relative; }
+                        .h-prof-menu { position: absolute; right: 0; top: 100%; margin-top: 10px; background: #fff; width: 200px; border-radius: 12px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; padding: 8px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all .2s cubic-bezier(.4,0,.2,1); z-index: 1000; }
+                        .h-prof-drop:hover .h-prof-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+                        .h-prof-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; border-radius: 8px; transition: .15s; }
+                        .h-prof-item:hover { background: #f8fafc; color: #0f172a; }
+                        .h-prof-item i { transition: transform .2s; }
+                        .h-prof-item:hover i { transform: scale(1.1); }
+                        .h-prof-logout { color: #ef4444; }
+                        .h-prof-logout:hover { background: #fef2f2; color: #dc2626; }
+                    </style>
+                    <div class="h-prof-drop">
+                        <div class="user-meta" style="display: flex; align-items: center; gap: 12px; cursor: pointer; transition: .2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                            <div style="text-align: right;" class="desktop-only">
+                                <div style="font-size: 14px; font-weight: 700; color: #0f172a;"><?php echo htmlspecialchars($_SESSION['username']); ?></div>
+                                <div style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;"><?php echo $_SESSION['role'] === 'admin' ? 'Administrator' : 'Editor / Team'; ?></div>
+                            </div>
+                            <div class="profile-trigger" style="position: relative;">
+                                <img src="<?php echo get_profile_image($_SESSION['profile_image'] ?? ''); ?>"
+                                     alt="Profile"
+                                     onerror="this.onerror=null;this.src='<?php echo BASE_URL; ?>assets/images/default-avatar.svg';"
+                                     style="width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 2px solid #f1f5f9;">
+                            </div>
                         </div>
-                        <div class="profile-trigger" style="position: relative; cursor: pointer;">
-                            <img src="<?php echo get_profile_image($_SESSION['profile_image'] ?? ''); ?>"
-                                 alt="Profile"
-                                 onerror="this.onerror=null;this.src='<?php echo BASE_URL; ?>assets/images/default-avatar.svg';"
-                                 style="width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 2px solid #f1f5f9;">
+                        <div class="h-prof-menu">
+                            <a href="profile.php" class="h-prof-item">
+                                <i data-feather="user" style="width: 16px;"></i> My Profile
+                            </a>
+                            <a href="help.php" class="h-prof-item">
+                                <i data-feather="help-circle" style="width: 16px;"></i> Help &amp; Docs
+                            </a>
+                            <div style="height: 1px; background: #f1f5f9; margin: 6px 0;"></div>
+                            <a href="<?php echo BASE_URL; ?>logout.php" class="h-prof-item h-prof-logout">
+                                <i data-feather="log-out" style="width: 16px;"></i> Logout
+                            </a>
                         </div>
-                    </a>
+                    </div>
                 </div>
             </header>
 
