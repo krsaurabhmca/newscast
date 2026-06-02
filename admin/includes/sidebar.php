@@ -314,12 +314,7 @@ function sb_active(string $page, array|string $pages = []): string {
                     <span>About Page</span>
                 </a>
             </li>
-            <li>
-                <a href="change_password.php" class="<?php echo sb_active('change_password.php'); ?>">
-                    <span class="sbi"><i data-feather="shield"></i></span>
-                    <span>Security</span>
-                </a>
-            </li>
+
             <li>
                 <a href="system_update.php" class="<?php echo sb_active('system_update.php'); ?>">
                     <span class="sbi" style="background:rgba(59,130,246,.15);"><i data-feather="download-cloud" style="color:#3b82f6;"></i></span>

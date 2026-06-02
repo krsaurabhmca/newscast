@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.22",
+        "date": "2026-06-02",
+        "changes": [
+            "Removed Security link from the main sidebar menu.",
+            "Added Security link into the top-bar profile hover dropdown menu."
+        ]
+    },
+    {
         "version": "2.1.21",
         "date": "2026-06-02",
         "changes": [

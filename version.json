@@ -1,6 +1,6 @@
 {
-    "version": "2.1.21",
+    "version": "2.1.22",
     "db_version": 6,
     "last_updated": "2026-06-02",
-    "changelog": "v2.1.21: Moved Profile, Help & Docs, and Logout from sidebar to a top-bar profile dropdown menu."
+    "changelog": "v2.1.22: Moved Security (Change Password) link from the sidebar into the top-bar profile dropdown menu."
 }

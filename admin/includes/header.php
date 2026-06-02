@@ -104,6 +104,9 @@ if (!is_logged_in()) {
                             <a href="profile.php" class="h-prof-item">
                                 <i data-feather="user" style="width: 16px;"></i> My Profile
                             </a>
+                            <a href="change_password.php" class="h-prof-item">
+                                <i data-feather="shield" style="width: 16px;"></i> Security
+                            </a>
                             <a href="help.php" class="h-prof-item">
                                 <i data-feather="help-circle" style="width: 16px;"></i> Help &amp; Docs
                             </a>
