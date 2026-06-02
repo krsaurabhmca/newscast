@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.19",
+        "date": "2026-06-02",
+        "changes": [
+            "Fixed CSS layout bug causing a white gap between the new sidebar and the main content area.",
+            "Removed obsolete legacy CSS styles that conflicted with the redesigned sidebar."
+        ]
+    },
+    {
         "version": "2.1.18",
         "date": "2026-06-02",
         "changes": [

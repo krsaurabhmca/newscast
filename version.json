@@ -1,6 +1,6 @@
 {
-    "version": "2.1.18",
+    "version": "2.1.19",
     "db_version": 6,
     "last_updated": "2026-06-02",
-    "changelog": "v2.1.18: Redesigned admin sidebar — icon-wrapped items, logical grouping (Overview/Content/Advertising/Team/System), active state indicator, Quick New Article button, collapsible support."
+    "changelog": "v2.1.19: Fixed layout gap between the redesigned admin sidebar and main content area."
 }
