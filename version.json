@@ -1,6 +1,6 @@
 {
-    "version": "2.1.23",
+    "version": "2.1.24",
     "db_version": 6,
-    "last_updated": "2026-06-15",
-    "changelog": "v2.1.23: UI enhancements (smooth animations, theme colors, sidebar follow section, global ad labels)."
+    "last_updated": "2026-06-16",
+    "changelog": "v2.1.24: Improved Desktop/Mobile navigation menus with colored icons, active state styling, and updated Admin Sidebar to dynamically respect the site's primary theme color."
 }
