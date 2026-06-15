@@ -227,11 +227,15 @@
             <!-- ── Bottom Bar ── -->
             <div class="footer-bottom" style="border-top: 1px solid #e2e8f0; padding: 20px 0 10px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                 <p style="color: #64748b; font-size: 13px; margin: 0;">© <?php echo date('Y'); ?> <strong style="color: #0f172a; font-weight: 800;"><?php echo SITE_NAME_DYNAMIC; ?></strong>. All rights reserved.</p>
+                
+                <p style="color: #64748b; font-size: 13px; margin: 0; display: flex; align-items: center; gap: 4px;">
+                    Planted by <a href="https://offerplant.com" target="_blank" style="color: var(--primary); font-weight: 800; text-decoration: none; letter-spacing: 0.5px; transition: 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">OfferPlant</a>
+                </p>
+
                 <div class="footer-bottom-links" style="display: flex; gap: 20px;">
                     <a href="<?php echo BASE_URL; ?>" class="footer-link">Home</a>
                     <a href="<?php echo BASE_URL; ?>privacy-policy.php" class="footer-link">Privacy</a>
                     <a href="<?php echo BASE_URL; ?>terms.php" class="footer-link">Terms</a>
-                    <a href="<?php echo BASE_URL; ?>sitemap.php" class="footer-link">Sitemap</a>
                 </div>
             </div>
         </div>
