@@ -595,6 +595,14 @@ a {
     font-size: 16px;
     font-weight: 600;
     color: #333;
+    border-left: 4px solid transparent;
+}
+
+.mobile-nav-body li a.active {
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+    color: var(--primary);
+    font-weight: 800;
+    border-left-color: var(--primary);
 }
 
 .mobile-nav-body li.divider {

@@ -308,29 +308,29 @@ endif; ?>
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <ul class="top-menu">
                         <li>
-                            <a href="<?php echo BASE_URL; ?>" class="active">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                            <a href="<?php echo BASE_URL; ?>" class="<?php echo ($current_file == 'index.php') ? 'active' : ''; ?>">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary); margin-bottom: 5px;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                                 Home
                             </a>
                         </li>
                         <li>
-                            <a href="<?php echo BASE_URL; ?>category/video">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                            <a href="<?php echo BASE_URL; ?>category/video" class="<?php echo ($current_file == 'category.php' && $current_slug == 'video') ? 'active' : ''; ?>">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ef4444; margin-bottom: 5px;"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
                                 Video
                             </a>
                         </li>
                         <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
                         <?php if($latest_poll_header): ?>
                         <li>
-                            <a href="<?php echo $poll_header_url; ?>">
-                                <i data-feather="pie-chart" style="width: 20px; height: 20px;"></i>
+                            <a href="<?php echo $poll_header_url; ?>" class="<?php echo ($current_file == 'poll.php' && isset($_GET['id']) && $_GET['id'] == $latest_poll_header['id']) ? 'active' : ''; ?>">
+                                <i data-feather="pie-chart" style="color: #9333ea; width: 20px; height: 20px; margin-bottom: 5px;"></i>
                                 Poll
                             </a>
                         </li>
                         <?php endif; ?>
                         <li>
-                            <a href="<?php echo BASE_URL; ?>magazine">
-                                <i data-feather="book-open" style="width: 20px; height: 20px;"></i>
+                            <a href="<?php echo BASE_URL; ?>magazine" class="<?php echo ($current_file == 'magazine.php' || $current_file == 'magazine_view.php') ? 'active' : ''; ?>">
+                                <i data-feather="book-open" style="color: #f59e0b; width: 20px; height: 20px; margin-bottom: 5px;"></i>
                                 Magazine
                             </a>
                         </li>
@@ -410,40 +410,39 @@ endif; ?>
             <!-- Mobile Sidebar Overlay -->
             <div id="mobileMenu" class="mobile-menu-overlay" onclick="toggleMobileMenu()">
                 <div class="mobile-menu-content" onclick="event.stopPropagation()">
-                    <div class="mobile-menu-header">
-                        <span style="font-weight: 800; color: var(--primary);">MENU</span>
-                        <button onclick="toggleMobileMenu()" style="background: none; border: none; cursor: pointer; color: #666;">
-                            <i data-feather="x"></i>
+                    <div class="mobile-menu-header" style="background: var(--primary); border-bottom: none; color: #fff;">
+                        <span style="font-weight: 900; color: #fff; letter-spacing: 1px;">MENU</span>
+                        <button onclick="toggleMobileMenu()" style="background: rgba(255,255,255,0.2); border: none; cursor: pointer; color: #fff; border-radius: 4px; padding: 5px; display: flex; align-items: center; justify-content: center;">
+                            <i data-feather="x" style="width: 18px; height: 18px;"></i>
                         </button>
                     </div>
                     
                     <form action="<?php echo BASE_URL; ?>search.php" method="GET" style="padding: 15px; margin-bottom: 10px;">
                         <div style="background: #f1f5f9; border-radius: 8px; padding: 8px 15px; display: flex; align-items: center;">
                             <input type="text" name="q" placeholder="Search news..." style="border: none; background: transparent; width: 100%; outline: none; font-size: 15px;">
-                            <button type="submit" style="background: none; border: none;"><i data-feather="search" style="width: 18px;"></i></button>
+                            <button type="submit" style="background: none; border: none; color: #64748b;"><i data-feather="search" style="width: 18px;"></i></button>
                         </div>
                     </form>
 
                     <nav class="mobile-nav-body">
                         <ul>
-                            <li><a href="<?php echo BASE_URL; ?>"><i data-feather="home"></i> Home</a></li>
-                            <li><a href="<?php echo BASE_URL; ?>category/video"><i data-feather="video"></i> Video</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>" class="<?php echo ($current_file == 'index.php') ? 'active' : ''; ?>"><i data-feather="home" style="color: var(--primary);"></i> Home</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>category/video" class="<?php echo ($current_file == 'category.php' && $current_slug == 'video') ? 'active' : ''; ?>"><i data-feather="video" style="color: #ef4444;"></i> Video</a></li>
                             <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
                             <?php if($latest_poll_header): ?>
-                            <li><a href="<?php echo $poll_header_url; ?>"><i data-feather="pie-chart"></i> Poll</a></li>
+                            <li><a href="<?php echo $poll_header_url; ?>" class="<?php echo ($current_file == 'poll.php' && isset($_GET['id']) && $_GET['id'] == $latest_poll_header['id']) ? 'active' : ''; ?>"><i data-feather="pie-chart" style="color: #9333ea;"></i> Poll</a></li>
                             <?php endif; ?>
-                            <li><a href="<?php echo BASE_URL; ?>magazine"><i data-feather="book-open"></i> Magazine</a></li>
+                            <li><a href="<?php echo BASE_URL; ?>magazine" class="<?php echo ($current_file == 'magazine.php' || $current_file == 'magazine_view.php') ? 'active' : ''; ?>"><i data-feather="book-open" style="color: #f59e0b;"></i> Magazine</a></li>
                             <?php endif; ?>
                             <li class="divider">Sections</li>
                             <?php foreach ($nav_categories as $cat): ?>
                             <li>
-                                <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>">
-                                    <span class="dot" style="background: <?php echo $cat['color']; ?>;"></span>
+                                <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>" class="<?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'active' : ''; ?>">
+                                    <i data-feather="<?php echo $cat['icon']; ?>" style="color: <?php echo $cat['color']; ?>; width: 20px; height: 20px;"></i>
                                     <?php echo $cat['name']; ?>
                                 </a>
                             </li>
-                            <?php
-endforeach; ?>
+                            <?php endforeach; ?>
                         </ul>
                     </nav>
                 </div>
