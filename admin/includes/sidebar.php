@@ -40,10 +40,10 @@ function sb_active(string $page, array|string $pages = []): string {
 }
 .sb-logo-mark {
     width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
-    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, black));
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-weight: 900; font-size: 15px;
-    box-shadow: 0 4px 12px rgba(99,102,241,.4);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 40%, transparent);
 }
 .sb-logo-text .sb-site-name { font-size: 16px; font-weight: 800; color: #f8fafc; letter-spacing: -.2px; line-height: 1; }
 .sb-logo-text .sb-tag       { font-size: 9px; font-weight: 700; color: #475569; letter-spacing: 1.5px; text-transform: uppercase; }
@@ -53,13 +53,13 @@ function sb_active(string $page, array|string $pages = []): string {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     margin: 14px 14px 8px;
     padding: 10px;
-    background: linear-gradient(135deg,#6366f1,#8b5cf6);
+    background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, black));
     color: #fff; border-radius: 10px; text-decoration: none;
     font-size: 13px; font-weight: 700;
-    box-shadow: 0 4px 14px rgba(99,102,241,.35);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 35%, transparent);
     transition: .2s; flex-shrink: 0;
 }
-.sb-new-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(99,102,241,.45); }
+.sb-new-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 45%, transparent); }
 .sb-new-btn i { width: 16px; height: 16px; }
 
 /* ── Nav Scroll Area ── */
@@ -98,15 +98,15 @@ function sb_active(string $page, array|string $pages = []): string {
     color: #e2e8f0;
 }
 .sb-nav ul li a.active {
-    background: rgba(99,102,241,.18);
-    color: #a5b4fc;
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    color: color-mix(in srgb, var(--primary) 30%, white);
     font-weight: 700;
 }
 .sb-nav ul li a.active::before {
     content: '';
     position: absolute; left: 0; top: 20%; bottom: 20%;
     width: 3px; border-radius: 0 3px 3px 0;
-    background: #6366f1;
+    background: var(--primary);
 }
 
 /* Icon wrapper */
@@ -117,7 +117,7 @@ function sb_active(string $page, array|string $pages = []): string {
     transition: .15s;
 }
 .sb-nav ul li a:hover .sbi { background: rgba(255,255,255,.08); }
-.sb-nav ul li a.active .sbi { background: rgba(99,102,241,.25); }
+.sb-nav ul li a.active .sbi { background: color-mix(in srgb, var(--primary) 25%, transparent); }
 .sb-nav ul li a .sbi svg { width: 15px; height: 15px; }
 
 /* Badges */
