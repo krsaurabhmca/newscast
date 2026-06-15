@@ -1,6 +1,6 @@
 {
-    "version": "2.1.24",
+    "version": "2.1.25",
     "db_version": 6,
     "last_updated": "2026-06-16",
-    "changelog": "v2.1.24: Improved Desktop/Mobile navigation menus with colored icons, active state styling, and updated Admin Sidebar to dynamically respect the site's primary theme color."
+    "changelog": "v2.1.25: Refined footer bottom layout by replacing sitemap with an integrated developer credit line."
 }
