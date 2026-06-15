@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'og_image_url' => clean($_POST['og_image_url']),
         'twitter_handle' => clean($_POST['twitter_handle']),
         'google_analytics_id' => clean($_POST['google_analytics_id']),
+        'google_adsense_pub_id' => clean($_POST['google_adsense_pub_id'] ?? ''),
         'google_site_verify' => clean($_POST['google_site_verify']),
         'bing_site_verify' => clean($_POST['bing_site_verify']),
         'schema_type' => clean($_POST['schema_type']),
@@ -819,6 +820,15 @@ endforeach; ?>
                                 placeholder="G-XXXXXXXXXX" value="<?php echo get_setting('google_analytics_id'); ?>">
                         </div>
                         <span class="field-hint">Found in Google Analytics &rarr; Admin &rarr; Data Streams. Starts with G-.</span>
+                    </div>
+                    <div>
+                        <label class="field-label">Google AdSense Publisher ID</label>
+                        <div class="social-input-group">
+                            <i data-feather="dollar-sign" class="social-icon" style="width:16px; color: #16a34a;"></i>
+                            <input type="text" name="google_adsense_pub_id" class="form-control"
+                                placeholder="ca-pub-XXXXXXXXXXXXXXXX" value="<?php echo htmlspecialchars(get_setting('google_adsense_pub_id')); ?>">
+                        </div>
+                        <span class="field-hint">Your AdSense ID. Enables Auto Ads on your site.</span>
                     </div>
                     <div>
                         <label class="field-label">Google Search Console Verify</label>

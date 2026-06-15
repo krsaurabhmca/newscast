@@ -156,6 +156,7 @@ function display_ad($location, $pdo)
     $pdo->prepare("UPDATE ads SET impressions = impressions + 1 WHERE id = ?")->execute([$ad['id']]);
 
     $html = '<div class="ad-container ad-' . $location . '" style="margin: 20px 0; text-align: center;">';
+    $html .= '<span style="display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Advertisement</span>';
 
     if ($ad['type'] == 'image') {
         // Construct the click tracking URL

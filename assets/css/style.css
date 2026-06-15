@@ -68,11 +68,20 @@ a {
     font-weight: 600;
     color: #555;
     font-size: 16px;
+    border-right: 4px solid transparent;
+    transition: all 0.2s ease;
 }
 
 .side-nav li a:hover {
-    background: #fff8f0;
+    background: color-mix(in srgb, var(--primary) 5%, transparent);
     color: var(--primary);
+}
+
+.side-nav li a.active {
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
+    font-weight: 800;
+    border-right-color: var(--primary);
 }
 
 .side-nav li .icon {

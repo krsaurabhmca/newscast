@@ -154,6 +154,12 @@ endif; ?>
     </script>
     <?php endif; ?>
 
+    <?php if ($adsense_pub_id = get_setting('google_adsense_pub_id')): ?>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?php echo htmlspecialchars($adsense_pub_id); ?>"
+     crossorigin="anonymous"></script>
+    <?php endif; ?>
+
     <?php
     $onesignal_app_id = get_setting('onesignal_app_id', '');
     $onesignal_safari_web_id = get_setting('onesignal_safari_web_id', '');
@@ -183,12 +189,16 @@ endif; ?>
 </head>
 <body>
     <div class="app-container">
+        <?php 
+        $current_file = basename($_SERVER['PHP_SELF']); 
+        $current_slug = $_GET['slug'] ?? '';
+        ?>
         <!-- Vertical Sidebar -->
         <aside class="side-nav">
             <ul>
                 <li>
-                    <a href="<?php echo BASE_URL; ?>">
-                        <div class="icon" style="color: #ff3c00;">
+                    <a href="<?php echo BASE_URL; ?>" class="<?php echo ($current_file == 'index.php') ? 'active' : ''; ?>">
+                        <div class="icon" style="color: <?php echo ($current_file == 'index.php') ? 'var(--primary)' : '#ff3c00'; ?>;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                         </div>
                         Top News
@@ -196,8 +206,8 @@ endif; ?>
                 </li>
                 <?php if($latest_poll_header): ?>
                 <li>
-                    <a href="<?php echo $poll_header_url; ?>">
-                        <div class="icon" style="color: #9333ea;">
+                    <a href="<?php echo $poll_header_url; ?>" class="<?php echo ($current_file == 'poll.php' && isset($_GET['id']) && $_GET['id'] == $latest_poll_header['id']) ? 'active' : ''; ?>">
+                        <div class="icon" style="color: <?php echo ($current_file == 'poll.php' && isset($_GET['id']) && $_GET['id'] == $latest_poll_header['id']) ? 'var(--primary)' : '#9333ea'; ?>;">
                             <i data-feather="pie-chart" style="width: 18px; height: 18px;"></i>
                         </div>
                         Poll
@@ -206,16 +216,57 @@ endif; ?>
                 <?php endif; ?>
                 <?php foreach ($nav_categories as $cat): ?>
                 <li>
-                    <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>">
-                        <div class="icon" style="color: <?php echo $cat['color']; ?>;">
+                    <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>" class="<?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'active' : ''; ?>">
+                        <div class="icon" style="color: <?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'var(--primary)' : $cat['color']; ?>;">
                              <i data-feather="<?php echo $cat['icon']; ?>" style="width: 18px; height: 18px;"></i>
                         </div>
                         <?php echo $cat['name']; ?>
                     </a>
                 </li>
-                <?php
-endforeach; ?>
+                <?php endforeach; ?>
             </ul>
+
+            <!-- Follow Section -->
+            <?php 
+            $fb_url = get_setting('facebook_url');
+            $tw_url = get_setting('twitter_url');
+            $ig_url = get_setting('instagram_url');
+            $yt_url = get_setting('youtube_url');
+            if ($fb_url || $tw_url || $ig_url || $yt_url): 
+            ?>
+            <div style="padding: 20px 25px; margin-top: 10px; border-top: 1px solid #f1f5f9;">
+                <span style="font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 15px;">Follow Us</span>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <?php if ($fb_url): ?>
+                    <a href="<?php echo htmlspecialchars($fb_url); ?>" target="_blank" style="color: #1877F2; background: rgba(24, 119, 242, 0.1); padding: 8px; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#1877F2'; this.style.color='#fff';" onmouseout="this.style.background='rgba(24, 119, 242, 0.1)'; this.style.color='#1877F2';">
+                        <i data-feather="facebook" style="width: 16px; height: 16px;"></i>
+                    </a>
+                    <?php endif; ?>
+                    <?php if ($tw_url): ?>
+                    <a href="<?php echo htmlspecialchars($tw_url); ?>" target="_blank" style="color: #0f1419; background: rgba(15, 20, 25, 0.1); padding: 8px; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#0f1419'; this.style.color='#fff';" onmouseout="this.style.background='rgba(15, 20, 25, 0.1)'; this.style.color='#0f1419';">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                        </svg>
+                    </a>
+                    <?php endif; ?>
+                    <?php if ($ig_url): ?>
+                    <a href="<?php echo htmlspecialchars($ig_url); ?>" target="_blank" style="color: #E1306C; background: rgba(225, 48, 108, 0.1); padding: 8px; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#E1306C'; this.style.color='#fff';" onmouseout="this.style.background='rgba(225, 48, 108, 0.1)'; this.style.color='#E1306C';">
+                        <i data-feather="instagram" style="width: 16px; height: 16px;"></i>
+                    </a>
+                    <?php endif; ?>
+                    <?php if ($yt_url): ?>
+                    <a href="<?php echo htmlspecialchars($yt_url); ?>" target="_blank" style="color: #FF0000; background: rgba(255, 0, 0, 0.1); padding: 8px; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#FF0000'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255, 0, 0, 0.1)'; this.style.color='#FF0000';">
+                        <i data-feather="youtube" style="width: 16px; height: 16px;"></i>
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Sidebar Ad -->
+            <div style="padding: 0 20px; margin-top: 10px;">
+                <?php echo display_ad('sidebar', $pdo); ?>
+            </div>
         </aside>
 
         <!-- Main Wrapper -->

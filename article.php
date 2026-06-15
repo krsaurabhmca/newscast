@@ -187,8 +187,8 @@ endforeach; ?>
                         </span>
                     </div>
                     
-                    <div class="share-buttons-container" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                        <span style="font-size: 13px; color: #888; margin-right: 15px;"><?php echo $post['views']; ?> views</span>
+                    <div class="share-buttons-container" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <span style="font-size: 13px; font-weight: 700; color: #64748b; margin-right: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Share:</span>
                         
                         <?php
 $current_url = urlencode((isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
@@ -196,54 +196,87 @@ $share_title = urlencode($post['title']);
 ?>
                         
                         <!-- Share Buttons -->
-                        <a href="https://api.whatsapp.com/send?text=<?php echo $share_title; ?>%20<?php echo $current_url; ?>" target="_blank" style="color: #25d366;" title="Share on WhatsApp">
-                            <i data-feather="message-circle" style="width: 20px;"></i>
+                        <a href="https://api.whatsapp.com/send?text=<?php echo $share_title; ?>%20<?php echo $current_url; ?>" target="_blank" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(37, 211, 102, 0.1); color: #25d366; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.background='#25d366'; this.style.color='#fff'; this.style.transform='scale(1.1) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(37,211,102,0.3)';" onmouseout="this.style.background='rgba(37, 211, 102, 0.1)'; this.style.color='#25d366'; this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='none';" title="Share on WhatsApp">
+                            <i data-feather="message-circle" style="width: 16px; height: 16px;"></i>
                         </a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $current_url; ?>" target="_blank" style="color: #1877f2;" title="Share on Facebook">
-                            <i data-feather="facebook" style="width: 20px;"></i>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $current_url; ?>" target="_blank" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(24, 119, 242, 0.1); color: #1877f2; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.background='#1877f2'; this.style.color='#fff'; this.style.transform='scale(1.1) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(24,119,242,0.3)';" onmouseout="this.style.background='rgba(24, 119, 242, 0.1)'; this.style.color='#1877f2'; this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='none';" title="Share on Facebook">
+                            <i data-feather="facebook" style="width: 16px; height: 16px;"></i>
                         </a>
-                        <a href="https://twitter.com/intent/tweet?text=<?php echo $share_title; ?>&url=<?php echo $current_url; ?>" target="_blank" style="color: #000;" title="Share on X">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;">
+                        <a href="https://twitter.com/intent/tweet?text=<?php echo $share_title; ?>&url=<?php echo $current_url; ?>" target="_blank" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(15, 20, 25, 0.1); color: #0f1419; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.background='#0f1419'; this.style.color='#fff'; this.style.transform='scale(1.1) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(15,20,25,0.3)';" onmouseout="this.style.background='rgba(15, 20, 25, 0.1)'; this.style.color='#0f1419'; this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='none';" title="Share on X">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;">
                                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
                             </svg>
                         </a>
-                        <a href="javascript:void(0)" onclick="navigator.share({title: '<?php echo addslashes($post['title']); ?>', url: window.location.href})" style="color: #6366f1;" title="More Share Options">
-                            <i data-feather="share-2" style="width: 20px;"></i>
+                        <a href="javascript:void(0)" onclick="navigator.share({title: '<?php echo addslashes($post['title']); ?>', url: window.location.href})" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(99, 102, 241, 0.1); color: #6366f1; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.background='#6366f1'; this.style.color='#fff'; this.style.transform='scale(1.1) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(99,102,241,0.3)';" onmouseout="this.style.background='rgba(99, 102, 241, 0.1)'; this.style.color='#6366f1'; this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='none';" title="More Share Options">
+                            <i data-feather="share-2" style="width: 16px; height: 16px;"></i>
                         </a>
 
-                        <a href="javascript:void(0)" onclick="downloadEPaper()" style="color: #0f172a;" title="Download as E-Paper (Image)">
-                            <i data-feather="download-cloud" style="width: 20px;"></i>
+                        <div style="width: 1px; height: 20px; background: #e2e8f0; margin: 0 5px;"></div>
+
+                        <a href="javascript:void(0)" onclick="downloadEPaper()" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(15, 23, 42, 0.1); color: #0f172a; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.background='#0f172a'; this.style.color='#fff'; this.style.transform='scale(1.1) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(15,23,42,0.3)';" onmouseout="this.style.background='rgba(15, 23, 42, 0.1)'; this.style.color='#0f172a'; this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='none';" title="Download as E-Paper (Image)">
+                            <i data-feather="download-cloud" style="width: 16px; height: 16px;"></i>
                         </a>
                     </div>
                 </div>
 
                 <!-- Accessibility & Utility Tools -->
-                <?php if (get_setting('tts_enabled', 'yes') == 'yes' || get_setting('translation_enabled', 'no') == 'yes'): ?>
-                <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px; background: #f8fafc; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                    <?php if (get_setting('tts_enabled', 'yes') == 'yes'): ?>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <button id="tts-btn" onclick="toggleVoice()" class="btn" style="padding: 5px 12px; font-size: 12px; background: #fff; border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 6px; font-weight: 700; color: #1e293b;">
-                            <i data-feather="play" id="tts-icon" style="width: 14px;"></i> <span id="tts-text">Listen</span>
-                        </button>
-                    </div>
-                    <?php
-    endif; ?>
-                    
-                    <?php if (get_setting('tts_enabled', 'yes') == 'yes' && get_setting('translation_enabled', 'no') == 'yes'): ?>
-                        <div style="border-left: 1px solid #cbd5e1; height: 15px;"></div>
-                    <?php
-    endif; ?>
+                <div class="utility-card" style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; background: var(--primary); padding: 15px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 25px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)';">
+                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <?php if (get_setting('tts_enabled', 'yes') == 'yes'): ?>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button id="tts-btn" onclick="toggleVoice()" class="btn" style="padding: 6px 14px; font-size: 13px; background: #ffffff; border: none; display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--primary); border-radius: 8px; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                                <i data-feather="play" id="tts-icon" style="width: 14px;"></i> <span id="tts-text">Listen Article</span>
+                            </button>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <?php if (get_setting('tts_enabled', 'yes') == 'yes' && get_setting('translation_enabled', 'no') == 'yes'): ?>
+                            <div style="border-left: 2px solid rgba(255,255,255,0.3); height: 20px; border-radius: 2px;"></div>
+                        <?php endif; ?>
 
-                    <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
-                        <div id="google_translate_element"></div>
-                        <button onclick="resetLanguage()" title="Reset to Original Language" style="padding: 5px 10px; font-size: 12px; font-weight: 700; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; color: #475569; display: flex; align-items: center; gap: 5px;">
-                            <i data-feather="refresh-ccw" style="width: 12px;"></i> Reset
-                        </button>
-                    <?php
-    endif; ?>
+                        <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
+                            <div id="google_translate_element"></div>
+                            <button onclick="resetLanguage()" title="Reset to Original Language" style="padding: 6px 12px; font-size: 13px; font-weight: 800; background: #ffffff; border: none; border-radius: 8px; cursor: pointer; color: var(--primary); display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                                <i data-feather="refresh-ccw" style="width: 13px;"></i> Reset
+                            </button>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Better Follow Section -->
+                    <?php 
+                        $fb_url = get_setting('facebook_url');
+                        $tw_url = get_setting('twitter_url');
+                        $ig_url = get_setting('instagram_url');
+                        $yt_url = get_setting('youtube_url');
+                        if ($fb_url || $tw_url || $ig_url || $yt_url): 
+                    ?>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 13px; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px;">Follow:</span>
+                        <?php if ($fb_url): ?>
+                        <a href="<?php echo htmlspecialchars($fb_url); ?>" target="_blank" style="color: #1877F2; background: #ffffff; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='scale(1.15) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';" title="Follow on Facebook">
+                            <i data-feather="facebook" style="width: 16px; height: 16px;"></i>
+                        </a>
+                        <?php endif; ?>
+                        <?php if ($tw_url): ?>
+                        <a href="<?php echo htmlspecialchars($tw_url); ?>" target="_blank" style="color: #0f1419; background: #ffffff; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='scale(1.15) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';" title="Follow on X">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                            </svg>
+                        </a>
+                        <?php endif; ?>
+                        <?php if ($ig_url): ?>
+                        <a href="<?php echo htmlspecialchars($ig_url); ?>" target="_blank" style="color: #E1306C; background: #ffffff; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='scale(1.15) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';" title="Follow on Instagram">
+                            <i data-feather="instagram" style="width: 16px; height: 16px;"></i>
+                        </a>
+                        <?php endif; ?>
+                        <?php if ($yt_url): ?>
+                        <a href="<?php echo htmlspecialchars($yt_url); ?>" target="_blank" style="color: #FF0000; background: #ffffff; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);" onmouseover="this.style.transform='scale(1.15) translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';" title="Subscribe on YouTube">
+                            <i data-feather="youtube" style="width: 16px; height: 16px;"></i>
+                        </a>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php
-endif; ?>
             </div>
 
             <?php if ($post['video_url']): ?>
