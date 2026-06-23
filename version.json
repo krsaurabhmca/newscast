@@ -1,6 +1,6 @@
 {
-    "version": "2.1.26",
+    "version": "2.1.27",
     "db_version": 6,
     "last_updated": "2026-06-23",
-    "changelog": "v2.1.26: Implemented background auto-save for drafts, restructured Voice & Translate settings, unified sidebar menu items, and fixed mobile header viewport responsive layout."
+    "changelog": "v2.1.27: Implemented auto-optimization, compression, WebP conversion, and dynamic website URL watermark stamping on featured image uploads."
 }

@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.27",
+        "date": "2026-06-23",
+        "changes": [
+            "Implemented auto-optimization, resizing, and WebP conversion for all uploaded post featured images.",
+            "Added automatic watermarking to stamp the website URL (cleaned domain and path) in the bottom-right corner of featured image uploads using a custom semi-transparent badge overlay."
+        ]
+    },
+    {
         "version": "2.1.26",
         "date": "2026-06-23",
         "changes": [

@@ -311,6 +311,36 @@ function upload_and_optimize_image($file_array, $upload_dir, $prefix = 'img_', $
             imagedestroy($image);
             $image = $tmp;
 
+            // Add Website URL as watermark stamp for post images
+            if (defined('BASE_URL') && (strpos($prefix, 'post') === 0 || strpos($upload_dir, 'posts') !== false)) {
+                $stamp_text = preg_replace('/^https?:\/\/(www\.)?/', '', rtrim(BASE_URL, '/'));
+                if (!empty($stamp_text)) {
+                    // Enable alpha blending to support semi-transparent watermark background
+                    imagealphablending($image, true);
+                    
+                    $font_size = 5;
+                    $char_width = 9;
+                    $char_height = 15;
+                    $text_width = strlen($stamp_text) * $char_width;
+                    
+                    $margin = 15;
+                    // Position bottom-right
+                    $x = $new_width - $text_width - $margin;
+                    $y = $new_height - $char_height - $margin;
+                    
+                    // Only apply if the image is large enough
+                    if ($new_width > ($text_width + $margin * 2) && $new_height > ($char_height + $margin * 2)) {
+                        // Draw semi-transparent background badge (black with ~40% opacity)
+                        $bg_color = imagecolorallocatealpha($image, 0, 0, 0, 50);
+                        imagefilledrectangle($image, $x - 8, $y - 6, $x + $text_width + 8, $y + $char_height + 6, $bg_color);
+                        
+                        // Draw white text
+                        $text_color = imagecolorallocate($image, 255, 255, 255);
+                        imagestring($image, $font_size, $x, $y, $stamp_text, $text_color);
+                    }
+                }
+            }
+
             $new_filename = uniqid($prefix) . '_' . time() . '.webp';
             $destination = rtrim($upload_dir, '/') . '/' . $new_filename;
 
