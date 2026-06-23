@@ -1,6 +1,6 @@
 {
-    "version": "2.1.29",
+    "version": "2.1.30",
     "db_version": 6,
     "last_updated": "2026-06-23",
-    "changelog": "v2.1.29: Updated public contact page (contact.php) to display the dynamic headquarters address from settings instead of a hardcoded value."
+    "changelog": "v2.1.30: Updated public category-related queries to filter out disabled/inactive categories on category pages, search results, tags, post list details, and homepage layouts."
 }

@@ -82,7 +82,7 @@ function get_category_name($pdo, $id)
  */
 function get_post_categories($pdo, $post_id)
 {
-    $stmt = $pdo->prepare("SELECT c.* FROM categories c JOIN post_categories pc ON c.id = pc.category_id WHERE pc.post_id = ?");
+    $stmt = $pdo->prepare("SELECT c.* FROM categories c JOIN post_categories pc ON c.id = pc.category_id WHERE pc.post_id = ? AND c.status = 'active'");
     $stmt->execute([$post_id]);
     return $stmt->fetchAll();
 }

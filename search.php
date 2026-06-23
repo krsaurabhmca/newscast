@@ -7,7 +7,7 @@ if ($query) {
     $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
                            FROM posts p 
                            JOIN post_categories pc ON p.id = pc.post_id
-                           JOIN categories c ON pc.category_id = c.id 
+                           JOIN categories c ON pc.category_id = c.id AND c.status = 'active' 
                            WHERE p.status = 'published' AND p.published_at <= NOW()
                            AND (p.title LIKE ? OR p.content LIKE ?) 
                            GROUP BY p.id

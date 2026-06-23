@@ -18,7 +18,7 @@ function yt_id($url)
 $stmt = $pdo->query("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors, GROUP_CONCAT(c.slug) as cat_slugs 
                      FROM posts p 
                      JOIN post_categories pc ON p.id = pc.post_id 
-                     JOIN categories c ON pc.category_id = c.id 
+                     JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
                      WHERE p.status = 'published' AND p.is_featured = 1 AND p.published_at <= NOW()
                      GROUP BY p.id ORDER BY p.published_at DESC LIMIT 4");
 $featured_posts = $stmt->fetchAll();
@@ -27,7 +27,7 @@ if (count($featured_posts) == 0) {
     $stmt = $pdo->query("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors, GROUP_CONCAT(c.slug) as cat_slugs 
                          FROM posts p 
                          JOIN post_categories pc ON p.id = pc.post_id 
-                         JOIN categories c ON pc.category_id = c.id 
+                         JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
                          WHERE p.status = 'published' AND p.published_at <= NOW()
                          GROUP BY p.id ORDER BY p.published_at DESC LIMIT 4");
     $featured_posts = $stmt->fetchAll();
@@ -40,7 +40,7 @@ $featured_id = $featured_ids[0] ?? 0; // fallback for other queries if needed
 $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
                         FROM posts p 
                         JOIN post_categories pc ON p.id = pc.post_id 
-                        JOIN categories c ON pc.category_id = c.id 
+                        JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
                         WHERE p.status = 'published' AND p.id != ? AND p.published_at <= NOW()
                         GROUP BY p.id ORDER BY p.views DESC LIMIT 10");
 $stmt->execute([$featured_id]);
@@ -50,7 +50,7 @@ $top_10 = $stmt->fetchAll();
 $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
                         FROM posts p 
                         JOIN post_categories pc ON p.id = pc.post_id 
-                        JOIN categories c ON pc.category_id = c.id 
+                        JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
                         WHERE p.status = 'published' AND p.id != ? AND p.published_at <= NOW()
                         GROUP BY p.id ORDER BY p.published_at DESC LIMIT 4");
 $stmt->execute([$featured_id]);
@@ -72,7 +72,7 @@ $placeholders = $exclude_ids ? str_repeat('?,', count($exclude_ids) - 1) . '?' :
 $sql = "SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
         FROM posts p 
         JOIN post_categories pc ON p.id = pc.post_id 
-        JOIN categories c ON pc.category_id = c.id 
+        JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
         WHERE p.status = 'published' " . ($exclude_ids ? "AND p.id NOT IN ($placeholders)" : "") . " AND p.published_at <= NOW()
         GROUP BY p.id ORDER BY p.published_at DESC LIMIT 12";
 
@@ -282,7 +282,7 @@ if ($active_poll) {
             $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
                                    FROM posts p 
                                    JOIN post_categories pc ON p.id = pc.post_id 
-                                   JOIN categories c ON pc.category_id = c.id 
+                                   JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
                                    WHERE p.status = 'published' AND p.published_at <= NOW() AND pc.category_id = ?
                                    GROUP BY p.id ORDER BY p.published_at DESC LIMIT 3");
             $stmt->execute([$fcat['id']]);

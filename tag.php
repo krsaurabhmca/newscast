@@ -25,7 +25,7 @@ $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(DISTINCT c.name) as cat_names, G
                         FROM posts p 
                         JOIN post_tags pt ON p.id = pt.post_id
                         JOIN post_categories pc ON p.id = pc.post_id 
-                        JOIN categories c ON pc.category_id = c.id
+                        JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
                         WHERE pt.tag_id = ? AND p.status = 'published' AND p.published_at <= NOW()
                         GROUP BY p.id
                         ORDER BY p.published_at DESC");

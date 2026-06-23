@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.1.30",
+        "date": "2026-06-23",
+        "changes": [
+            "Filtered out disabled/inactive categories from all public website queries including category detail page, search queries, tag queries, post details, and homepage sections."
+        ]
+    },
+    {
         "version": "2.1.29",
         "date": "2026-06-23",
         "changes": [
