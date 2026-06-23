@@ -42,7 +42,7 @@ include 'includes/public_header.php';
                     </div>
                     <div>
                         <h4 style="margin: 0; font-size: 16px; color: #1e293b;">Headquarters</h4>
-                        <p style="margin: 5px 0 0 0; color: #475569; font-weight: 600;">Digital News Tower, Main Street, India</p>
+                        <p style="margin: 5px 0 0 0; color: #475569; font-weight: 600; line-height: 1.5;"><?php echo nl2br(htmlspecialchars(get_setting('address', 'Digital News Tower, Main Street, India'))); ?></p>
                     </div>
                 </div>
             </div>

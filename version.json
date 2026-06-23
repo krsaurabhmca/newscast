@@ -1,6 +1,6 @@
 {
-    "version": "2.1.28",
+    "version": "2.1.29",
     "db_version": 6,
     "last_updated": "2026-06-23",
-    "changelog": "v2.1.28: Updated admin sidebar top branding to display dynamic settings-driven Site Name and initials instead of hardcoded 'NewsCast'."
+    "changelog": "v2.1.29: Updated public contact page (contact.php) to display the dynamic headquarters address from settings instead of a hardcoded value."
 }

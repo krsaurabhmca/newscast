@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.1.29",
+        "date": "2026-06-23",
+        "changes": [
+            "Fixed contact page (contact.php) headquarters address to load dynamically from admin settings."
+        ]
+    },
+    {
         "version": "2.1.28",
         "date": "2026-06-23",
         "changes": [
