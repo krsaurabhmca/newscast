@@ -23,11 +23,9 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
         $external_label = 'Ad';
         if (filter_var($external_link, FILTER_VALIDATE_URL)) {
             $external_type = 'url';
-        }
-        elseif (preg_match('/^[0-9+\(\)#\s-]+$/', $external_link)) {
+        } elseif (preg_match('/^[0-9+\(\)#\s-]+$/', $external_link)) {
             $external_type = 'call';
-        }
-        else {
+        } else {
             $external_type = 'url';
         }
     }
@@ -60,17 +58,19 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
     }
 
     $content_clean = trim(strip_tags($content, '<img><iframe>'));
-    
+
     $errors = [];
-    if (empty($title)) $errors[] = "Title";
-    if (empty($content_clean)) $errors[] = "Content";
-    if (empty($category_ids)) $errors[] = "at least one Category";
+    if (empty($title))
+        $errors[] = "Title";
+    if (empty($content_clean))
+        $errors[] = "Content";
+    if (empty($category_ids))
+        $errors[] = "at least one Category";
 
     if (!empty($errors)) {
         $_SESSION['flash_msg'] = "The following fields are required: " . implode(', ', $errors) . ".";
         $_SESSION['flash_type'] = "danger";
-    }
-    else {
+    } else {
         try {
             $pdo->beginTransaction();
             $stmt = $pdo->prepare("INSERT INTO posts (user_id, title, slug, content, excerpt, featured_image, video_url, external_link, external_type, external_label, status, is_featured, meta_description, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -108,8 +108,7 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
 
             $pdo->commit();
             redirect('admin/posts.php', 'Post created successfully!');
-        }
-        catch (PDOException $e) {
+        } catch (PDOException $e) {
             if ($pdo->inTransaction()) {
                 try {
                     $pdo->rollBack();
@@ -145,146 +144,187 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
 ?>
 
 <form action="" method="POST" enctype="multipart/form-data" id="postForm">
-<div class="admin-grid">
-    
-    <!-- MAIN AREA -->
-    <div class="admin-main-col">
-        <div class="stat-card" style="margin-bottom: 25px;">
-            <div class="form-group">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <label style="margin: 0;">Title <span style="color:var(--danger);">*</span></label>
-                    <a href="ai_news.php" style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
-                        <i data-feather="cpu" style="width: 12px;"></i> Auto-Draft with AI
-                    </a>
+    <div class="admin-grid">
+
+        <!-- MAIN AREA -->
+        <div class="admin-main-col">
+            <div class="stat-card" style="margin-bottom: 25px;">
+                <div class="form-group">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="margin: 0;">Title <span style="color:var(--danger);">*</span></label>
+                        <a href="javascript:void(0)" onclick="toggleAIChat()"
+                            style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                            <i data-feather="cpu" style="width: 12px;"></i> Auto-Draft with AI
+                        </a>
+                    </div>
+                    <input type="text" name="title" class="form-control" placeholder="Enter article title..."
+                        style="font-size: 1.25rem; font-weight: 700; height: 55px;"
+                        value="<?php echo $prefill_title; ?>" required>
                 </div>
-                <input type="text" name="title" class="form-control" placeholder="Enter article title..." style="font-size: 1.25rem; font-weight: 700; height: 55px;" value="<?php echo $prefill_title; ?>" required>
+
+                <div class="form-group">
+                    <label>Body Content <span style="color:var(--danger);">*</span></label>
+                    <div id="editor-container">
+                        <div id="editor" style="height: 400px; font-size: 15px;"><?php echo $prefill_content; ?></div>
+                    </div>
+                    <input type="hidden" name="content" id="quill-content">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Short Summary / Excerpt</label>
+                    <textarea name="excerpt" class="form-control" rows="3"
+                        placeholder="Briefly describe the article..."><?php echo $prefill_excerpt; ?></textarea>
+                    <p class="field-hint">Appears on listing pages and search results.</p>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Body Content <span style="color:var(--danger);">*</span></label>
-                <div id="editor-container">
-                    <div id="editor" style="height: 400px; font-size: 15px;"><?php echo $prefill_content; ?></div>
+            <!-- Configuration -->
+            <div class="stat-card">
+                <h3
+                    style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i data-feather="settings" style="width: 18px; color: var(--primary);"></i>
+                    Advanced Configuration
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>URL Slug (Optional)</label>
+                        <input type="text" name="slug" class="form-control" placeholder="auto-generated-if-blank"
+                            value="<?php echo $prefill_slug; ?>">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Direct Ad Link (Optional)</label>
+                        <input type="text" name="external_link" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>YouTube Video Link</label>
+                        <input type="url" name="video_url" class="form-control"
+                            placeholder="https://youtube.com/watch?v=...">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Meta Description</label>
+                        <input type="text" name="meta_description" class="form-control" maxlength="160"
+                            placeholder="SEO summary...">
+                    </div>
                 </div>
-                <input type="hidden" name="content" id="quill-content">
-            </div>
-
-            <div class="form-group" style="margin-bottom: 0;">
-                <label>Short Summary / Excerpt</label>
-                <textarea name="excerpt" class="form-control" rows="3" placeholder="Briefly describe the article..."><?php echo $prefill_excerpt; ?></textarea>
-                <p class="field-hint">Appears on listing pages and search results.</p>
             </div>
         </div>
 
-        <!-- Configuration -->
-        <div class="stat-card">
-            <h3 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                <i data-feather="settings" style="width: 18px; color: var(--primary);"></i>
-                Advanced Configuration
-            </h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label>URL Slug (Optional)</label>
-                    <input type="text" name="slug" class="form-control" placeholder="auto-generated-if-blank" value="<?php echo $prefill_slug; ?>">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label>Direct Ad Link (Optional)</label>
-                    <input type="text" name="external_link" class="form-control" placeholder="https://...">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label>YouTube Video Link</label>
-                    <input type="url" name="video_url" class="form-control" placeholder="https://youtube.com/watch?v=...">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label>Meta Description</label>
-                    <input type="text" name="meta_description" class="form-control" maxlength="160" placeholder="SEO summary...">
-                </div>
-            </div>
-        </div>
-    </div>
+        <!-- SIDEBAR -->
+        <div class="admin-sidebar-col" style="display: flex; flex-direction: column; gap: 25px;">
 
-    <!-- SIDEBAR -->
-    <div class="admin-sidebar-col" style="display: flex; flex-direction: column; gap: 25px;">
-        
-        <!-- Actions -->
-        <div class="stat-card" style="background: #0f172a; color: white; border: none;">
-            <div class="form-group">
-                <label style="color: #94a3b8; font-size: 12px;">Publish Schedule</label>
-                <input type="datetime-local" name="published_at" class="form-control" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;">
-                <p style="color: #64748b; font-size: 10px; margin-top: 5px;">Leave blank for instant publish.</p>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button type="submit" name="publish_post" class="btn btn-primary" style="width: 100%; justify-content: center; height: 50px; font-size: 15px;">
-                    <i data-feather="zap" style="width: 18px;"></i> Publish Now
-                </button>
-                <button type="submit" name="save_draft" class="btn" style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
-                    <i data-feather="edit-3" style="width: 16px;"></i> Save as Draft
-                </button>
-            </div>
-            <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; color: #cbd5e1;">
-                    <input type="checkbox" name="is_featured" style="width: 18px; height: 18px; accent-color: var(--primary);">
-                    Featured on Homepage
-                </label>
-            </div>
-        </div>
-
-        <!-- Categories -->
-        <div class="stat-card">
-            <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                <i data-feather="layers" style="width: 16px; color: var(--primary);"></i>
-                Categories <span style="color:var(--danger);">*</span>
-            </h3>
-            <div style="max-height: 220px; overflow-y: auto; padding-right: 5px; margin-right: -5px;">
-                <?php foreach ($categories as $cat): ?>
-                    <label style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; font-size: 13px; border-radius: 8px; transition: background .2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <input type="checkbox" name="category_ids[]" value="<?php echo $cat['id']; ?>" <?php echo (strtolower(trim($prefill_category)) == strtolower(trim($cat['name']))) ? 'checked' : ''; ?> style="accent-color: var(--primary);">
-                        <span style="color: var(--text-main); font-weight: 500;"><?php echo $cat['name']; ?></span>
+            <!-- Actions -->
+            <div class="stat-card" style="background: #0f172a; color: white; border: none;">
+                <div class="form-group">
+                    <label style="color: #94a3b8; font-size: 12px;">Publish Schedule</label>
+                    <input type="datetime-local" name="published_at" value="<?php echo date('Y-m-d\TH:i'); ?>"
+                        class="form-control"
+                        style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;">
+                    <p style="color: #64748b; font-size: 10px; margin-top: 5px;">Leave blank for instant publish.</p>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button type="submit" name="publish_post" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; height: 50px; font-size: 15px;">
+                        <i data-feather="zap" style="width: 18px;"></i> Publish Now
+                    </button>
+                    <button type="submit" name="save_draft" class="btn"
+                        style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+                        <i data-feather="edit-3" style="width: 16px;"></i> Save as Draft
+                    </button>
+                </div>
+                <div style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    <label
+                        style="display: flex; align-items: center; gap: 10px; font-size: 13px; cursor: pointer; color: #cbd5e1;">
+                        <input type="checkbox" name="is_featured"
+                            style="width: 18px; height: 18px; accent-color: var(--primary);">
+                        Featured on Homepage
                     </label>
-                <?php endforeach; ?>
-            </div>
-        </div>
-
-        <!-- Tags -->
-        <div class="stat-card">
-            <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                <i data-feather="tag" style="width: 16px; color: var(--primary);"></i>
-                Keyword Tags
-            </h3>
-            <div style="position: relative;" id="tag-container">
-                <input type="text" name="tags" id="tag-input" class="form-control" placeholder="news, update, world..." autocomplete="off">
-                <div id="tag-suggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 50; display: none; max-height: 200px; overflow-y: auto; margin-top: 8px;"></div>
-            </div>
-            <p class="field-hint" style="margin-top: 10px;">Separate with commas. Suggestions appear as you type.</p>
-        </div>
-
-        <!-- Image -->
-        <div class="stat-card">
-            <h3 style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
-                <span style="display: flex; align-items: center; gap: 8px;">
-                    <i data-feather="image" style="width: 16px; color: var(--primary);"></i> Featured Image
-                </span>
-                <button type="button" id="btn-generate-ai" style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                    <i data-feather="cpu" style="width: 12px;"></i> AI Generate
-                </button>
-            </h3>
-            <div id="previewBox" style="width: 100%; height: 180px; background: #f8fafc; border: 2px dashed var(--border); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.3s ease;">
-                <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
-                <div id="imgLoader" style="display: none; flex-direction: column; align-items: center; gap: 10px; color: var(--primary);">
-                    <i data-feather="loader" style="width: 24px; height: 24px; animation: spin 1s linear infinite;"></i>
-                    <span style="font-size: 12px; font-weight: 600;">Generating...</span>
                 </div>
-                <i data-feather="upload-cloud" id="imgPlaceholder" style="color: #cbd5e1; width: 40px; height: 40px;"></i>
-                <img id="imgPreview" src="" referrerpolicy="no-referrer" style="width: 100%; height: 100%; object-fit: cover; display: none;">
             </div>
-            <input type="file" name="image" id="imgInput" class="form-control" style="margin-top: 15px; font-size: 12px;" accept="image/*">
-            <input type="hidden" name="ai_image_url" id="ai_image_url" value="">
+
+            <!-- Categories -->
+            <div class="stat-card">
+                <h3
+                    style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i data-feather="layers" style="width: 16px; color: var(--primary);"></i>
+                    Categories <span style="color:var(--danger);">*</span>
+                </h3>
+                <div style="max-height: 220px; overflow-y: auto; padding-right: 5px; margin-right: -5px;">
+                    <?php foreach ($categories as $cat): ?>
+                        <label
+                            style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; font-size: 13px; border-radius: 8px; transition: background .2s;"
+                            onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                            <input type="checkbox" name="category_ids[]" value="<?php echo $cat['id']; ?>" <?php echo (strtolower(trim($prefill_category)) == strtolower(trim($cat['name']))) ? 'checked' : ''; ?>
+                                style="accent-color: var(--primary);">
+                            <span style="color: var(--text-main); font-weight: 500;"><?php echo $cat['name']; ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="stat-card">
+                <h3
+                    style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                    <i data-feather="tag" style="width: 16px; color: var(--primary);"></i>
+                    Keyword Tags
+                </h3>
+                <div style="position: relative;" id="tag-container">
+                    <input type="text" name="tags" id="tag-input" class="form-control"
+                        placeholder="news, update, world..." autocomplete="off">
+                    <div id="tag-suggestions"
+                        style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 50; display: none; max-height: 200px; overflow-y: auto; margin-top: 8px;">
+                    </div>
+                </div>
+                <p class="field-hint" style="margin-top: 10px;">Separate with commas. Suggestions appear as you type.
+                </p>
+            </div>
+
+            <!-- Image -->
+            <div class="stat-card">
+                <h3
+                    style="font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <i data-feather="image" style="width: 16px; color: var(--primary);"></i> Featured Image
+                    </span>
+                    <button type="button" id="btn-generate-ai"
+                        style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <i data-feather="cpu" style="width: 12px;"></i> AI Generate
+                    </button>
+                </h3>
+                <div id="previewBox"
+                    style="width: 100%; height: 180px; background: #f8fafc; border: 2px dashed var(--border); border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.3s ease;">
+                    <style>
+                        @keyframes spin {
+                            100% {
+                                transform: rotate(360deg);
+                            }
+                        }
+                    </style>
+                    <div id="imgLoader"
+                        style="display: none; flex-direction: column; align-items: center; gap: 10px; color: var(--primary);">
+                        <i data-feather="loader"
+                            style="width: 24px; height: 24px; animation: spin 1s linear infinite;"></i>
+                        <span style="font-size: 12px; font-weight: 600;">Generating...</span>
+                    </div>
+                    <i data-feather="upload-cloud" id="imgPlaceholder"
+                        style="color: #cbd5e1; width: 40px; height: 40px;"></i>
+                    <img id="imgPreview" src="" referrerpolicy="no-referrer"
+                        style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                </div>
+                <input type="file" name="image" id="imgInput" class="form-control"
+                    style="margin-top: 15px; font-size: 12px;" accept="image/*">
+                <p class="field-hint" style="margin-top: 5px;font-size:10px;">You can also paste an image directly using
+                    <strong>Ctrl+V</strong>.
+                </p>
+                <input type="hidden" name="ai_image_url" id="ai_image_url" value="">
+            </div>
         </div>
     </div>
-</div>
 </form>
 
 <script>
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
         if (typeof Quill !== 'undefined') {
             const quill = new Quill('#editor', {
                 theme: 'snow',
@@ -294,10 +334,10 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                         [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }],
                         ['bold', 'italic', 'underline', 'strike'],
                         [{ 'color': [] }, { 'background': [] }],
-                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'script': 'sub' }, { 'script': 'super' }],
                         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],
                         [{ 'align': [] }],
                         ['blockquote', 'code-block'],
                         ['link', 'image', 'video'],
@@ -312,7 +352,18 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
             const form = document.getElementById('postForm');
             const hiddenContent = document.getElementById('quill-content');
 
-            form.onsubmit = function() {
+            let clickedButton = 'save_draft';
+            const publishBtn = form.querySelector('button[name="publish_post"]');
+            const draftBtn = form.querySelector('button[name="save_draft"]');
+            
+            if (publishBtn) {
+                publishBtn.addEventListener('click', () => { clickedButton = 'publish_post'; });
+            }
+            if (draftBtn) {
+                draftBtn.addEventListener('click', () => { clickedButton = 'save_draft'; });
+            }
+
+            form.onsubmit = function () {
                 try {
                     const html = quill.root.innerHTML;
                     const text = quill.getText().trim();
@@ -330,6 +381,18 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                         alert('Please select at least one category.');
                         return false;
                     }
+
+                    // Dynamically set hidden status parameter for post_edit.php transition compatibility
+                    let statusInput = document.getElementById('submit-status');
+                    if (!statusInput) {
+                        statusInput = document.createElement('input');
+                        statusInput.type = 'hidden';
+                        statusInput.name = 'status';
+                        statusInput.id = 'submit-status';
+                        form.appendChild(statusInput);
+                    }
+                    statusInput.value = (clickedButton === 'publish_post') ? 'published' : 'draft';
+
                     return true;
                 } catch (e) {
                     console.error("Validation error:", e);
@@ -352,7 +415,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
         const tagInput = document.getElementById('tag-input');
         const suggestionsBox = document.getElementById('tag-suggestions');
 
-        tagInput.addEventListener('input', async function() {
+        tagInput.addEventListener('input', async function () {
             const val = this.value;
             const lastTag = val.split(',').pop().trim();
 
@@ -375,7 +438,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
 
                     // Handle suggestion click
                     document.querySelectorAll('.suggestion-item').forEach(item => {
-                        item.onclick = function() {
+                        item.onclick = function () {
                             const currentVal = tagInput.value;
                             const parts = currentVal.split(',');
                             parts.pop(); // Remove the partial tag
@@ -401,10 +464,10 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
         });
 
         // AI Image Generation Logic
-        document.getElementById('btn-generate-ai').addEventListener('click', async function() {
+        document.getElementById('btn-generate-ai').addEventListener('click', async function () {
             const title = document.querySelector('input[name="title"]').value;
             const content = typeof quill !== 'undefined' ? quill.getText().trim() : '';
-            
+
             if (!title && !content) {
                 alert('Please enter a title or write some content first so the AI knows what to draw.');
                 return;
@@ -415,7 +478,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
             const preview = document.getElementById('imgPreview');
             const imgInput = document.getElementById('imgInput');
             const aiInput = document.getElementById('ai_image_url');
-            
+
             loader.style.display = 'flex';
             placeholder.style.display = 'none';
             preview.style.display = 'none';
@@ -429,19 +492,19 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const prompt = encodeURIComponent(data.prompt);
                     const randomSeed = Math.floor(Math.random() * 1000000);
                     const imageUrl = `https://image.pollinations.ai/prompt/${prompt}?width=1200&height=800&nologo=true&seed=${randomSeed}`;
-                    
+
                     preview.src = imageUrl;
                     aiInput.value = imageUrl;
                     imgInput.value = ''; // clear file input
-                    
-                    preview.onload = function() {
+
+                    preview.onload = function () {
                         loader.style.display = 'none';
                         preview.style.display = 'block';
                         document.getElementById('previewBox').style.borderStyle = 'solid';
@@ -459,9 +522,223 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
             }
         });
 
+        // Paste image handler for clipboard
+        document.addEventListener('paste', function (e) {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
+                    const blob = item.getAsFile();
+                    const file = new File([blob], "pasted_image.png", { type: blob.type });
+
+                    const imgInput = document.getElementById('imgInput');
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    imgInput.files = dataTransfer.files;
+
+                    const preview = document.getElementById('imgPreview');
+                    const placeholder = document.getElementById('imgPlaceholder');
+                    const previewBox = document.getElementById('previewBox');
+
+                    preview.src = URL.createObjectURL(file);
+                    preview.style.display = 'block';
+                    if (placeholder) placeholder.style.display = 'none';
+                    if (previewBox) previewBox.style.borderStyle = 'solid';
+
+                    const aiInput = document.getElementById('ai_image_url');
+                    if (aiInput) aiInput.value = '';
+                    break;
+                }
+            }
+        });
+
+        // URL Slug Auto-generation logic
+        const titleInput = document.querySelector('input[name="title"]');
+        const slugInput = document.querySelector('input[name="slug"]');
+
+        if (titleInput && slugInput) {
+            function generateSlug(text) {
+                return text
+                    .toString()
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')                     // Replace spaces with -
+                    .replace(/[^a-z0-9\-]/g, '')              // Remove non-alphanumeric except -
+                    .replace(/\-\-+/g, '-')                   // Replace multiple - with single -
+                    .replace(/^-+/, '')                       // Trim - from start
+                    .replace(/-+$/, '');                      // Trim - from end
+            }
+
+            let isSlugManual = slugInput.value.trim() !== "";
+
+            slugInput.addEventListener('input', function () {
+                isSlugManual = true;
+                if (slugInput.value.trim() === "") {
+                    isSlugManual = false;
+                    slugInput.value = generateSlug(titleInput.value);
+                }
+            });
+
+            titleInput.addEventListener('input', function () {
+                if (!isSlugManual) {
+                    slugInput.value = generateSlug(titleInput.value);
+                }
+            });
+
+            if (!isSlugManual && titleInput.value.trim() !== "") {
+                slugInput.value = generateSlug(titleInput.value);
+            }
+        }
+
+        // Auto Save Logic
+        let lastTitle = "";
+        let lastContent = "";
+        let lastExcerpt = "";
+        let autoSavePostId = 0;
+        
+        function getAutoSaveData() {
+            const title = document.querySelector('input[name="title"]').value;
+            const content = typeof quill !== 'undefined' ? quill.root.innerHTML : '';
+            const excerpt = document.querySelector('textarea[name="excerpt"]').value;
+            const slug = document.querySelector('input[name="slug"]').value;
+            const videoUrl = document.querySelector('input[name="video_url"]').value;
+            const externalLink = document.querySelector('input[name="external_link"]').value;
+            const metaDescription = document.querySelector('input[name="meta_description"]').value;
+            const publishedAt = document.querySelector('input[name="published_at"]').value;
+            const isFeatured = document.querySelector('input[name="is_featured"]').checked;
+            const tags = document.querySelector('input[name="tags"]').value;
+            const aiImageUrl = document.querySelector('input[name="ai_image_url"]').value;
+            
+            const categoryIds = [];
+            document.querySelectorAll('input[name="category_ids[]"]:checked').forEach(cb => {
+                categoryIds.push(cb.value);
+            });
+            
+            return {
+                post_id: autoSavePostId,
+                title: title,
+                content: content,
+                excerpt: excerpt,
+                slug: slug,
+                video_url: videoUrl,
+                external_link: externalLink,
+                meta_description: metaDescription,
+                published_at: publishedAt,
+                is_featured: isFeatured,
+                tags: tags,
+                ai_image_url: aiImageUrl,
+                category_ids: categoryIds
+            };
+        }
+
+        async function triggerAutoSave() {
+            const data = getAutoSaveData();
+            
+            // Check if title or content has actually changed and is not empty
+            const contentText = typeof quill !== 'undefined' ? quill.getText().trim() : '';
+            if (!data.title && !contentText) {
+                return; // Nothing to save yet
+            }
+            
+            if (data.title === lastTitle && data.content === lastContent && data.excerpt === lastExcerpt) {
+                return; // No new changes
+            }
+            
+            showAutoSaveIndicator("Saving draft...");
+
+            try {
+                const response = await fetch('ajax_auto_save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    autoSavePostId = result.post_id;
+                    lastTitle = data.title;
+                    lastContent = data.content;
+                    lastExcerpt = data.excerpt;
+                    showAutoSaveIndicator("Draft saved automatically.", true);
+                    
+                    // If we are on post_add.php and we just saved a new draft, update URL history to post_edit.php?id=NEW_ID
+                    if (window.location.pathname.endsWith('post_add.php')) {
+                        const newUrl = `post_edit.php?id=${autoSavePostId}`;
+                        window.history.replaceState({ id: autoSavePostId }, '', newUrl);
+                        
+                        const form = document.getElementById('postForm');
+                        if (form) {
+                            form.action = `post_edit.php?id=${autoSavePostId}`;
+                            const publishBtn = form.querySelector('button[name="publish_post"]');
+                            if (publishBtn) {
+                                publishBtn.name = 'update_post';
+                            }
+                            const draftBtn = form.querySelector('button[name="save_draft"]');
+                            if (draftBtn) {
+                                draftBtn.name = 'update_post';
+                            }
+                        }
+                    }
+                } else {
+                    showAutoSaveIndicator("Auto-save failed: " + result.message, false, true);
+                }
+            } catch (err) {
+                console.error("Auto-save error:", err);
+                showAutoSaveIndicator("Auto-save failed (network error)", false, true);
+            }
+        }
+
+        function showAutoSaveIndicator(text, success = false, error = false) {
+            let indicator = document.getElementById('autosave-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'autosave-indicator';
+                indicator.style.position = 'fixed';
+                indicator.style.bottom = '20px';
+                indicator.style.left = '20px';
+                indicator.style.padding = '8px 16px';
+                indicator.style.borderRadius = '20px';
+                indicator.style.fontSize = '12px';
+                indicator.style.fontWeight = '700';
+                indicator.style.zIndex = '9999';
+                indicator.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                indicator.style.transition = 'all 0.3s ease';
+                document.body.appendChild(indicator);
+            }
+            
+            indicator.innerText = text;
+            indicator.style.display = 'block';
+            indicator.style.opacity = '1';
+            
+            if (error) {
+                indicator.style.background = '#fef2f2';
+                indicator.style.color = '#ef4444';
+                indicator.style.border = '1px solid #fecaca';
+            } else if (success) {
+                indicator.style.background = '#ecfdf5';
+                indicator.style.color = '#10b981';
+                indicator.style.border = '1px solid #a7f3d0';
+                setTimeout(() => {
+                    indicator.style.opacity = '0';
+                    setTimeout(() => { indicator.style.display = 'none'; }, 300);
+                }, 3000);
+            } else {
+                indicator.style.background = '#eff6ff';
+                indicator.style.color = '#3b82f6';
+                indicator.style.border = '1px solid #bfdbfe';
+            }
+        }
+
+        // Initialize state and trigger interval every 30 seconds
+        setTimeout(() => {
+            const initialData = getAutoSaveData();
+            lastTitle = initialData.title;
+            lastContent = initialData.content;
+            lastExcerpt = initialData.excerpt;
+            
+            setInterval(triggerAutoSave, 30000); // 30 seconds
+        }, 2000);
+
         feather.replace();
     });
-</script>
 </script>
 
 <?php include 'includes/footer.php'; ?>

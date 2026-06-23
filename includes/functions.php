@@ -409,4 +409,27 @@ function compress_image($source, $destination, $quality = 60)
     imagedestroy($image);
     return true;
 }
+
+/**
+ * Ensure wp_sources table exists in the database.
+ */
+function ensure_wp_sources_table($pdo) {
+    try {
+        $pdo->query("SELECT 1 FROM wp_sources LIMIT 1");
+    } catch (PDOException $e) {
+        try {
+            $pdo->exec("CREATE TABLE IF NOT EXISTS wp_sources (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                site_name VARCHAR(255) NOT NULL,
+                feed_url VARCHAR(500) NOT NULL,
+                category_id INT NOT NULL,
+                status ENUM('active', 'inactive') DEFAULT 'active',
+                last_checked DATETIME NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (PDOException $ex) {
+            error_log("Failed to auto-create wp_sources table: " . $ex->getMessage());
+        }
+    }
+}
 ?>

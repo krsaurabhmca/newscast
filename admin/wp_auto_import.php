@@ -3,6 +3,8 @@ $page_title = "WP Auto Importer";
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
 
+ensure_wp_sources_table($pdo);
+
 if (!is_admin()) {
     redirect('admin/dashboard.php', 'Access denied.', 'danger');
 }

@@ -150,7 +150,7 @@ function sb_active(string $page, array|string $pages = []): string {
 .sidebar-collapsed .sb-logo-text,
 .sidebar-collapsed .sb-new-btn span,
 .sidebar-collapsed .sb-section-label,
-.sidebar-collapsed .sb-nav ul li a span,
+.sidebar-collapsed .sb-nav ul li a span:not(.sbi),
 .sidebar-collapsed .sb-badge,
 .sidebar-collapsed .sb-badge-new,
 .sidebar-collapsed .sb-version { display: none; }
@@ -190,21 +190,6 @@ function sb_active(string $page, array|string $pages = []): string {
                 <a href="dashboard.php" class="<?php echo sb_active('dashboard.php'); ?>">
                     <span class="sbi"><i data-feather="grid"></i></span>
                     <span>Dashboard</span>
-                </a>
-            </li>
-            <li>
-                <a href="feedback.php" class="<?php echo sb_active('feedback.php'); ?>">
-                    <span class="sbi"><i data-feather="mail"></i></span>
-                    <span>Inbox</span>
-                    <?php if ($unread_count > 0): ?>
-                        <span class="sb-badge"><?php echo $unread_count; ?></span>
-                    <?php endif; ?>
-                </a>
-            </li>
-            <li>
-                <a href="timeline.php" class="<?php echo sb_active('timeline.php'); ?>">
-                    <span class="sbi"><i data-feather="calendar"></i></span>
-                    <span>Event Timeline</span>
                 </a>
             </li>
         </ul>
@@ -248,6 +233,21 @@ function sb_active(string $page, array|string $pages = []): string {
                 <a href="wp_auto_import.php" class="<?php echo sb_active('wp_auto_import.php'); ?>">
                     <span class="sbi"><i data-feather="download-cloud"></i></span>
                     <span>WP Import</span>
+                </a>
+            </li>
+            <li>
+                <a href="feedback.php" class="<?php echo sb_active('feedback.php'); ?>">
+                    <span class="sbi"><i data-feather="mail"></i></span>
+                    <span>Inbox</span>
+                    <?php if ($unread_count > 0): ?>
+                        <span class="sb-badge"><?php echo $unread_count; ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
+            <li>
+                <a href="timeline.php" class="<?php echo sb_active('timeline.php'); ?>">
+                    <span class="sbi"><i data-feather="calendar"></i></span>
+                    <span>Event Timeline</span>
                 </a>
             </li>
         </ul>

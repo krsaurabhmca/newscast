@@ -19,6 +19,7 @@ if (!is_logged_in()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title . " | NewsPro Admin" : "NewsPro Admin"; ?></title>
     <link rel="stylesheet" href="../assets/css/admin.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/admin.css'); ?>">
+    <link rel="stylesheet" href="../assets/css/admin_responsive.css?v=<?php echo filemtime(__DIR__ . '/../../assets/css/admin_responsive.css'); ?>">
     <!-- Rich Text Editor - Quill -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>

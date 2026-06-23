@@ -178,7 +178,7 @@ try {
             <div class="form-group">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <label style="margin: 0;">Title <span style="color:var(--danger);">*</span></label>
-                    <a href="ai_news.php" style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                    <a href="javascript:void(0)" onclick="toggleAIChat()" style="font-size: 11px; background: #f3e8ff; color: #9333ea; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
                         <i data-feather="cpu" style="width: 12px;"></i> Auto-Draft with AI
                     </a>
                 </div>
@@ -305,6 +305,7 @@ try {
                 </div>
             </div>
             <input type="file" name="image" id="imgInput" class="form-control" style="margin-top: 15px; font-size: 12px;" accept="image/*">
+            <p class="field-hint" style="margin-top: 5px;">You can also paste an image directly using <strong>Ctrl+V</strong>.</p>
             <input type="hidden" name="ai_image_url" id="ai_image_url" value="">
         </div>
     </div>
@@ -486,9 +487,203 @@ try {
             }
         });
 
+        // Paste image handler for clipboard
+        document.addEventListener('paste', function(e) {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
+                    const blob = item.getAsFile();
+                    const file = new File([blob], "pasted_image.png", {type: blob.type});
+                    
+                    const imgInput = document.getElementById('imgInput');
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    imgInput.files = dataTransfer.files;
+                    
+                    const preview = document.getElementById('imgPreview');
+                    const previewBox = document.getElementById('previewBox');
+                    
+                    preview.src = URL.createObjectURL(file);
+                    preview.style.display = 'block';
+                    preview.style.opacity = '1';
+                    if (previewBox) previewBox.style.borderStyle = 'solid';
+                    
+                    const aiInput = document.getElementById('ai_image_url');
+                    if (aiInput) aiInput.value = '';
+                    break;
+                }
+            }
+        });
+
+        // URL Slug Auto-generation logic
+        const titleInput = document.querySelector('input[name="title"]');
+        const slugInput = document.querySelector('input[name="slug"]');
+
+        if (titleInput && slugInput) {
+            function generateSlug(text) {
+                return text
+                    .toString()
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')                     // Replace spaces with -
+                    .replace(/[^a-z0-9\-]/g, '')              // Remove non-alphanumeric except -
+                    .replace(/\-\-+/g, '-')                   // Replace multiple - with single -
+                    .replace(/^-+/, '')                       // Trim - from start
+                    .replace(/-+$/, '');                      // Trim - from end
+            }
+
+            let isSlugManual = slugInput.value.trim() !== "";
+
+            slugInput.addEventListener('input', function() {
+                isSlugManual = true;
+                if (slugInput.value.trim() === "") {
+                    isSlugManual = false;
+                    slugInput.value = generateSlug(titleInput.value);
+                }
+            });
+
+            titleInput.addEventListener('input', function() {
+                if (!isSlugManual) {
+                    slugInput.value = generateSlug(titleInput.value);
+                }
+            });
+
+            if (!isSlugManual && titleInput.value.trim() !== "") {
+                slugInput.value = generateSlug(titleInput.value);
+            }
+        }
+
+        // Auto Save Logic
+        let lastTitle = "";
+        let lastContent = "";
+        let lastExcerpt = "";
+        let autoSavePostId = <?php echo (int)$id; ?>;
+        
+        function getAutoSaveData() {
+            const title = document.querySelector('input[name="title"]').value;
+            const content = typeof quill !== 'undefined' ? quill.root.innerHTML : '';
+            const excerpt = document.querySelector('textarea[name="excerpt"]').value;
+            const slug = document.querySelector('input[name="slug"]').value;
+            const videoUrl = document.querySelector('input[name="video_url"]').value;
+            const externalLink = document.querySelector('input[name="external_link"]').value;
+            const metaDescription = document.querySelector('input[name="meta_description"]').value;
+            const publishedAt = document.querySelector('input[name="published_at"]').value;
+            const isFeatured = document.querySelector('input[name="is_featured"]').checked;
+            const tags = document.querySelector('input[name="tags"]').value;
+            const aiImageUrl = document.querySelector('input[name="ai_image_url"]').value;
+            
+            const categoryIds = [];
+            document.querySelectorAll('input[name="category_ids[]"]:checked').forEach(cb => {
+                categoryIds.push(cb.value);
+            });
+            
+            return {
+                post_id: autoSavePostId,
+                title: title,
+                content: content,
+                excerpt: excerpt,
+                slug: slug,
+                video_url: videoUrl,
+                external_link: externalLink,
+                meta_description: metaDescription,
+                published_at: publishedAt,
+                is_featured: isFeatured,
+                tags: tags,
+                ai_image_url: aiImageUrl,
+                category_ids: categoryIds
+            };
+        }
+
+        async function triggerAutoSave() {
+            const data = getAutoSaveData();
+            
+            // Check if title or content has actually changed and is not empty
+            const contentText = typeof quill !== 'undefined' ? quill.getText().trim() : '';
+            if (!data.title && !contentText) {
+                return; // Nothing to save yet
+            }
+            
+            if (data.title === lastTitle && data.content === lastContent && data.excerpt === lastExcerpt) {
+                return; // No new changes
+            }
+            
+            showAutoSaveIndicator("Saving draft...");
+
+            try {
+                const response = await fetch('ajax_auto_save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    autoSavePostId = result.post_id;
+                    lastTitle = data.title;
+                    lastContent = data.content;
+                    lastExcerpt = data.excerpt;
+                    showAutoSaveIndicator("Draft saved automatically.", true);
+                } else {
+                    showAutoSaveIndicator("Auto-save failed: " + result.message, false, true);
+                }
+            } catch (err) {
+                console.error("Auto-save error:", err);
+                showAutoSaveIndicator("Auto-save failed (network error)", false, true);
+            }
+        }
+
+        function showAutoSaveIndicator(text, success = false, error = false) {
+            let indicator = document.getElementById('autosave-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'autosave-indicator';
+                indicator.style.position = 'fixed';
+                indicator.style.bottom = '20px';
+                indicator.style.left = '20px';
+                indicator.style.padding = '8px 16px';
+                indicator.style.borderRadius = '20px';
+                indicator.style.fontSize = '12px';
+                indicator.style.fontWeight = '700';
+                indicator.style.zIndex = '9999';
+                indicator.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                indicator.style.transition = 'all 0.3s ease';
+                document.body.appendChild(indicator);
+            }
+            
+            indicator.innerText = text;
+            indicator.style.display = 'block';
+            indicator.style.opacity = '1';
+            
+            if (error) {
+                indicator.style.background = '#fef2f2';
+                indicator.style.color = '#ef4444';
+                indicator.style.border = '1px solid #fecaca';
+            } else if (success) {
+                indicator.style.background = '#ecfdf5';
+                indicator.style.color = '#10b981';
+                indicator.style.border = '1px solid #a7f3d0';
+                setTimeout(() => {
+                    indicator.style.opacity = '0';
+                    setTimeout(() => { indicator.style.display = 'none'; }, 300);
+                }, 3000);
+            } else {
+                indicator.style.background = '#eff6ff';
+                indicator.style.color = '#3b82f6';
+                indicator.style.border = '1px solid #bfdbfe';
+            }
+        }
+
+        // Initialize state and trigger interval every 30 seconds
+        setTimeout(() => {
+            const initialData = getAutoSaveData();
+            lastTitle = initialData.title;
+            lastContent = initialData.content;
+            lastExcerpt = initialData.excerpt;
+            
+            setInterval(triggerAutoSave, 30000); // 30 seconds
+        }, 2000);
+
         feather.replace();
     });
-</script>
 </script>
 
 <?php include 'includes/footer.php'; ?>

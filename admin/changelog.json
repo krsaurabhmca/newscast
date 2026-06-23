@@ -1,5 +1,20 @@
 [
     {
+        "version": "2.1.26",
+        "date": "2026-06-23",
+        "changes": [
+            "Implemented background auto-save (every 30s) for drafts on both new article creation and editing screens.",
+            "Restructured settings page to move Google Translate and Voice Reader (TTS) controls into a dedicated 'Voice & Translate' settings tab.",
+            "Unified the admin sidebar menu by placing Inbox and Event Timeline under Content section, removing the redundant Activity & Inbox header.",
+            "Fixed header overlapping and mobile viewport layout breaks by properly linking the responsive stylesheet 'admin_responsive.css' in the admin header.",
+            "Fixed broken 'Auto Draft with AI' link to open the GenAI News Generator side drawer natively.",
+            "Defaulted the Publish Schedule input field to the current local date and time.",
+            "Enabled Ctrl+V clipboard pasting of featured photos with automatic UI preview.",
+            "Enabled on-the-fly slug auto-generation from article titles.",
+            "Implemented automated database table creation for WP Sources to prevent fatal database query errors."
+        ]
+    },
+    {
         "version": "2.1.22",
         "date": "2026-06-02",
         "changes": [

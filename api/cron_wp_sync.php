@@ -12,6 +12,8 @@ ignore_user_abort(true); // Don't stop if the user closes the connection
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
+ensure_wp_sources_table($pdo);
+
 // Check if we should run (only every 30 minutes to save API costs and prevent spam)
 $last_run = get_setting('last_wp_cron_run');
 if ($last_run) {

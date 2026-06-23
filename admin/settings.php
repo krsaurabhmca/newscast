@@ -61,6 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'live_stream_sound' => clean($_POST['live_stream_sound'] ?? '0'),
         'translation_enabled' => clean($_POST['translation_enabled'] ?? 'no'),
         'tts_enabled' => clean($_POST['tts_enabled'] ?? 'no'),
+        'tts_lang' => clean($_POST['tts_lang'] ?? 'hi-IN'),
+        'tts_voice_keyword' => clean($_POST['tts_voice_keyword'] ?? ''),
+        'tts_rate' => (float)($_POST['tts_rate'] ?? 0.95),
+        'tts_pitch' => (float)($_POST['tts_pitch'] ?? 1.0),
         'smtp_host' => clean($_POST['smtp_host'] ?? ''),
         'smtp_user' => clean($_POST['smtp_user'] ?? ''),
         'smtp_pass' => $_POST['smtp_pass'] ?? '',
@@ -290,6 +294,9 @@ include 'includes/header.php';
         </button>
         <button type="button" onclick="showTab('appearance')" id="tab-appearance">
             <i data-feather="sliders" style="width:15px;"></i> Appearance
+        </button>
+        <button type="button" onclick="showTab('accessibility')" id="tab-accessibility">
+            <i data-feather="headphones" style="width:15px;"></i> Voice &amp; Translate
         </button>
         <button type="button" onclick="showTab('seo')" id="tab-seo">
             <i data-feather="search" style="width:15px;"></i> SEO &amp; Analytics
@@ -584,41 +591,7 @@ endforeach; ?>
                         </div>
                     </div>
 
-                    <!-- Box 5 -->
-                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Google Translate</div>
-                            <div style="font-size: 12px; color: #94a3b8;">Language switch button</div>
-                        </div>
-                        <div class="toggle-group" style="width: 130px; margin: 0;">
-                            <div class="toggle-opt">
-                                <input type="radio" name="translation_enabled" id="tr_yes" value="yes" <?php echo get_setting('translation_enabled') == 'yes' ? 'checked' : ''; ?>>
-                                <label for="tr_yes" style="padding: 6px; font-size: 12px;">On</label>
-                            </div>
-                            <div class="toggle-opt">
-                                <input type="radio" name="translation_enabled" id="tr_no" value="no" <?php echo get_setting('translation_enabled', 'no') == 'no' ? 'checked' : ''; ?>>
-                                <label for="tr_no" style="padding: 6px; font-size: 12px;">Off</label>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Box 6 -->
-                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Voice Reader</div>
-                            <div style="font-size: 12px; color: #94a3b8;">Text-to-speech option</div>
-                        </div>
-                        <div class="toggle-group" style="width: 130px; margin: 0;">
-                            <div class="toggle-opt">
-                                <input type="radio" name="tts_enabled" id="tts_yes" value="yes" <?php echo get_setting('tts_enabled', 'yes') == 'yes' ? 'checked' : ''; ?>>
-                                <label for="tts_yes" style="padding: 6px; font-size: 12px;">On</label>
-                            </div>
-                            <div class="toggle-opt">
-                                <input type="radio" name="tts_enabled" id="tts_no" value="no" <?php echo get_setting('tts_enabled') == 'no' ? 'checked' : ''; ?>>
-                                <label for="tts_no" style="padding: 6px; font-size: 12px;">Off</label>
-                            </div>
-                        </div>
-                    </div>
                     
                     <!-- Box 7 -->
                     <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
@@ -689,6 +662,97 @@ endforeach; ?>
                                 <input type="radio" name="hide_contact_details" id="hc_no" value="no" <?php echo get_setting('hide_contact_details', 'no') == 'no' ? 'checked' : ''; ?>>
                                 <label for="hc_no" style="padding: 6px; font-size: 12px;">Show</label>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ VOICE & TRANSLATE ══════════ -->
+    <div class="settings-panel" id="panel-accessibility">
+        <div class="settings-card">
+            <div class="settings-card-header" style="padding: 20px 25px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="icon" style="background:#eef2ff; color: var(--primary);">
+                        <i data-feather="headphones" style="width:18px;"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">Voice &amp; Translate</h3>
+                        <p style="margin: 3px 0 0; font-size: 13px; color: #64748b;">Configure automatic translation and text-to-speech audio reader</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-card-body" style="background: #f8fafc; border-top: 1px solid #f1f5f9;">
+                <!-- Features Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                    
+                    <!-- Google Translate toggle -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Google Translate</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Language switch button</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="translation_enabled" id="tr_yes" value="yes" <?php echo get_setting('translation_enabled') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="tr_yes" style="padding: 6px; font-size: 12px;">On</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="translation_enabled" id="tr_no" value="no" <?php echo get_setting('translation_enabled', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="tr_no" style="padding: 6px; font-size: 12px;">Off</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voice Reader toggle -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Voice Reader</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Text-to-speech option</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="tts_enabled" id="tts_yes" value="yes" <?php echo get_setting('tts_enabled', 'yes') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="tts_yes" style="padding: 6px; font-size: 12px;">On</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="tts_enabled" id="tts_no" value="no" <?php echo get_setting('tts_enabled') == 'no' ? 'checked' : ''; ?>>
+                                <label for="tts_no" style="padding: 6px; font-size: 12px;">Off</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Voice Reader (TTS) Settings -->
+                <div style="padding: 25px; background: white; border: 1px solid #e2e8f0; border-radius: 12px;" id="tts-settings-container">
+                    <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <i data-feather="headphones" style="width: 18px; color: var(--primary);"></i>
+                        Voice Reader (TTS) Settings
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                        <div>
+                            <label class="field-label" style="font-weight: 700; font-size: 13px; color: #1e293b; display: block; margin-bottom: 8px;">TTS Voice Language</label>
+                            <input type="text" name="tts_lang" class="form-control" placeholder="e.g. hi-IN" value="<?php echo get_setting('tts_lang', 'hi-IN'); ?>">
+                            <span class="field-hint" style="font-size: 11px; color: #94a3b8; display: block; margin-top: 5px;">Language code (e.g., hi-IN for Hindi, en-US for English).</span>
+                        </div>
+                        <div>
+                            <label class="field-label" style="font-weight: 700; font-size: 13px; color: #1e293b; display: block; margin-bottom: 8px;">Preferred Voice Keyword</label>
+                            <input type="text" name="tts_voice_keyword" class="form-control" placeholder="e.g. female, Kalpana, Heera" value="<?php echo get_setting('tts_voice_keyword', 'female'); ?>">
+                            <span class="field-hint" style="font-size: 11px; color: #94a3b8; display: block; margin-top: 5px;">Filter voice name (e.g., Kalpana, Heera, Female). Leave blank for default.</span>
+                        </div>
+                        <div>
+                            <label class="field-label" style="font-weight: 700; font-size: 13px; color: #1e293b; display: block; margin-bottom: 8px;">Speech Speed (Rate)</label>
+                            <input type="number" name="tts_rate" class="form-control" step="0.05" min="0.5" max="2.0" value="<?php echo get_setting('tts_rate', '0.95'); ?>">
+                            <span class="field-hint" style="font-size: 11px; color: #94a3b8; display: block; margin-top: 5px;">Speed multiplier (Default: 0.95, range: 0.5 to 2.0).</span>
+                        </div>
+                        <div>
+                            <label class="field-label" style="font-weight: 700; font-size: 13px; color: #1e293b; display: block; margin-bottom: 8px;">Speech Pitch</label>
+                            <input type="number" name="tts_pitch" class="form-control" step="0.1" min="0.5" max="2.0" value="<?php echo get_setting('tts_pitch', '1.0'); ?>">
+                            <span class="field-hint" style="font-size: 11px; color: #94a3b8; display: block; margin-top: 5px;">Voice pitch tone (Default: 1.0, range: 0.5 to 2.0).</span>
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 {
-    "version": "2.1.25",
+    "version": "2.1.26",
     "db_version": 6,
-    "last_updated": "2026-06-16",
-    "changelog": "v2.1.25: Refined footer bottom layout by replacing sitemap with an integrated developer credit line."
+    "last_updated": "2026-06-23",
+    "changelog": "v2.1.26: Implemented background auto-save for drafts, restructured Voice & Translate settings, unified sidebar menu items, and fixed mobile header viewport responsive layout."
 }

@@ -524,7 +524,12 @@ endforeach; ?>
 <?php include 'includes/public_footer.php'; ?>
 
 <script>
-    // 🎤 Text-to-Speech (Voice Reader)
+    // 🎤 Text-to-Speech (Voice Reader) Settings
+    const ttsLang = <?php echo json_encode(get_setting('tts_lang', 'hi-IN')); ?>;
+    const ttsVoiceKeyword = <?php echo json_encode(get_setting('tts_voice_keyword', 'female')); ?>;
+    const ttsRate = parseFloat(<?php echo json_encode(get_setting('tts_rate', '0.95')); ?>);
+    const ttsPitch = parseFloat(<?php echo json_encode(get_setting('tts_pitch', '1.0')); ?>);
+
     let synth = window.speechSynthesis;
     let utterance = null;
     let isSpeaking = false;
@@ -534,27 +539,28 @@ endforeach; ?>
             const bodyText = document.querySelector('.article-body').innerText;
             utterance = new SpeechSynthesisUtterance(bodyText);
             
-            // 🎙️ Priority: Search for Female Hindi (India) voices
+            // Search for voice based on settings
             let voices = synth.getVoices();
+            let preferredVoice = null;
+            if (ttsVoiceKeyword.trim() !== "") {
+                const keyword = ttsVoiceKeyword.toLowerCase();
+                preferredVoice = voices.find(v => 
+                    (v.lang === ttsLang || v.lang.startsWith(ttsLang.split('-')[0])) && 
+                    v.name.toLowerCase().includes(keyword)
+                );
+            }
             
-            // Names usually associated with Female Hindi voices on Windows/Android/Chrome
-            let femaleHindiVoice = voices.find(v => 
-                (v.lang === 'hi-IN' || v.lang.startsWith('hi')) && 
-                (v.name.includes('Kalpana') || v.name.includes('Heera') || v.name.includes('Female') || v.name.includes('Google हिन्दी'))
-            );
+            // Fallback to language matching voice
+            let fallbackVoice = voices.find(v => v.lang === ttsLang || v.lang.startsWith(ttsLang.split('-')[0]));
             
-            // Fallback to any Hindi voice
-            let anyHindiVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi'));
-            
-            let selectedVoice = femaleHindiVoice || anyHindiVoice;
-            
+            let selectedVoice = preferredVoice || fallbackVoice;
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
             }
             
-            utterance.lang = 'hi-IN';
-            utterance.rate = 0.95; // Slightly slower for 'cold' clarity
-            utterance.pitch = 1.0; // Neutral pitch
+            utterance.lang = ttsLang;
+            utterance.rate = ttsRate;
+            utterance.pitch = ttsPitch;
             
             utterance.onend = () => {
                 isSpeaking = false;
