@@ -167,9 +167,19 @@ function sb_active(string $page, array|string $pages = []): string {
 
     <!-- Logo -->
     <a href="<?php echo BASE_URL; ?>admin/dashboard.php" class="sb-logo">
-        <div class="sb-logo-mark">NC</div>
+        <?php 
+        $site_name_val = get_setting('site_name', SITE_NAME); 
+        $words = explode(' ', trim($site_name_val));
+        $initials = '';
+        if (count($words) >= 2) {
+            $initials = strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
+        } else {
+            $initials = strtoupper(substr($site_name_val, 0, 2));
+        }
+        ?>
+        <div class="sb-logo-mark"><?php echo htmlspecialchars($initials); ?></div>
         <div class="sb-logo-text">
-            <div class="sb-site-name">NewsCast</div>
+            <div class="sb-site-name"><?php echo htmlspecialchars($site_name_val); ?></div>
             <div class="sb-tag">Admin Panel</div>
         </div>
     </a>
