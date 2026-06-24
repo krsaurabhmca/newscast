@@ -1,6 +1,6 @@
 {
-    "version": "2.1.33",
+    "version": "2.1.34",
     "db_version": 7,
     "last_updated": "2026-06-24",
-    "changelog": "v2.1.33: Added automatic database migration trigger on admin dashboard/header load and fixed settings page panel nesting bug."
+    "changelog": "v2.1.34: Fixed unclosed div container under AI settings block which nested the save button and interactions panel."
 }

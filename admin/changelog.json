@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.1.34",
+        "date": "2026-06-24",
+        "changes": [
+            "Fixed the remaining unclosed div container bug under the AI settings panel to ensure that the settings form save button and other subsequent tabs display correctly across all settings tabs."
+        ]
+    },
+    {
         "version": "2.1.33",
         "date": "2026-06-24",
         "changes": [
