@@ -1,6 +1,6 @@
 {
-    "version": "2.2.1",
+    "version": "2.2.2",
     "db_version": 7,
     "last_updated": "2026-06-24",
-    "changelog": "v2.2.1: Fixed Theme 2 submenu appearing behind the breaking news ticker by raising nav z-index to 500 and submenu to 9999. Fixed duplicate breaking ticker on category pages by suppressing the global ticker whenever category.php renders its own."
+    "changelog": "v2.2.2: Theme 2 is now 100% responsive across all devices. Added mobile app-like bottom navigation bar (Home/Search/Magazine/Poll/Menu) fixed at bottom on screens ≤1024px with safe-area-inset support for notched phones. Bento Hero Grid stacks vertically on tablet/mobile. Split category sections, main content+sidebar grid, and latest news horizontal cards all collapse correctly. Fixed missing @keyframes ticker animation in Theme 2 (was suppressed with global ticker). Added fluid clamp() padding on content container. Added hover micro-animations for bento cards, split items, and Top 10 cards."
 }

@@ -151,8 +151,14 @@ endif; ?>
         }
         .content-container {
             max-width: 100% !important;
-            padding-left: 40px !important;
-            padding-right: 40px !important;
+            padding-left: clamp(15px, 4vw, 40px) !important;
+            padding-right: clamp(15px, 4vw, 40px) !important;
+        }
+        /* Body padding-bottom for mobile bottom nav */
+        @media (max-width: 1024px) {
+            body.theme2-body {
+                padding-bottom: 65px;
+            }
         }
         /* Top Horizontal Category Navigation */
         .theme2-nav {
@@ -251,6 +257,43 @@ endif; ?>
         @media (max-width: 1024px) {
             .theme2-nav { display: none !important; }
         }
+        /* Ticker animation for Theme 2 breaking bar */
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .ticker-wrapper:hover .ticker-content {
+            animation-play-state: paused;
+        }
+        /* Theme 2 card image hover */
+        .t2-bento-card:hover .t2-card-img,
+        .t2-img-hover:hover,
+        a:hover .t2-img-hover {
+            transform: scale(1.04);
+        }
+        /* Theme 2 split lead hover */
+        .t2-split-lead:hover {
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+            transform: translateY(-3px);
+        }
+        .t2-split-item:hover {
+            background: #f1f5f9 !important;
+            border-color: #e2e8f0 !important;
+            transform: translateX(4px);
+        }
+        /* Top 10 hover */
+        .t2-top-10-card:hover h4,
+        .t2-popular-card:hover h5 {
+            color: var(--primary) !important;
+        }
+        /* Breaking ticker: reduce font on very small screens */
+        @media (max-width: 400px) {
+            .t2-breaking-ticker span:first-child {
+                padding: 0 12px !important;
+                font-size: 10px !important;
+                letter-spacing: 0.5px !important;
+            }
+        }
     </style>
     <?php endif; ?>
 
@@ -318,7 +361,7 @@ endif; ?>
     </script>
     <?php endif; ?>
 </head>
-<body>
+<body<?php if (get_setting('homepage_theme', 'theme1') === 'theme2') echo ' class="theme2-body"'; ?>>
     <div class="app-container">
         <?php 
         $current_file = basename($_SERVER['PHP_SELF']); 

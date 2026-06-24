@@ -121,7 +121,7 @@ if ($active_poll) {
          THEME 2: 100% Width Modern Bento Showcase
          ============================================== -->
     <main class="content-container t2-theme-main"
-        style="max-width: 100%; margin: 0 auto; padding: 30px 40px; background-color: #f8fafc;">
+        style="max-width: 100%; margin: 0 auto; background-color: #f8fafc;">
 
         <!-- Theme 2 Ticker -->
         <?php if (!empty($breaking_news_latest)): ?>
@@ -1411,6 +1411,130 @@ if ($active_poll) {
             grid-template-columns: 1fr !important;
         }
     }
+
+    /* ══ THEME 2 RESPONSIVE RULES ═══════════════════════════════════ */
+
+    /* Theme 2 main container: reduce padding on small screens */
+    .t2-theme-main {
+        padding: clamp(15px, 4vw, 40px) !important;
+    }
+
+    /* ── Bento Hero Grid ── */
+    @media (max-width: 900px) {
+        .t2-bento-grid {
+            grid-template-columns: 1fr !important;
+            min-height: auto !important;
+        }
+        /* Make the left big card a fixed height on tablet */
+        .t2-bento-grid > a.t2-bento-card {
+            height: 380px !important;
+        }
+        /* Right stacked column: horizontal row */
+        .t2-bento-grid > div {
+            flex-direction: row !important;
+        }
+        .t2-bento-grid > div > a.t2-bento-card {
+            min-height: 220px !important;
+        }
+    }
+
+    @media (max-width: 600px) {
+        /* Stack everything vertically */
+        .t2-bento-grid > div {
+            flex-direction: column !important;
+        }
+        .t2-bento-grid > a.t2-bento-card {
+            height: 280px !important;
+        }
+        .t2-bento-grid > div > a.t2-bento-card {
+            min-height: 180px !important;
+        }
+        /* Reduce hero text size on mobile */
+        .t2-bento-grid > a.t2-bento-card h2 {
+            font-size: 20px !important;
+        }
+        .t2-bento-grid > a.t2-bento-card > div {
+            padding: 20px !important;
+        }
+    }
+
+    /* ── Top 10 Stories — Theme 2 ── */
+    .t2-top-10-scroll {
+        scroll-snap-type: x mandatory;
+    }
+    @media (max-width: 768px) {
+        .t2-top-10-scroll {
+            grid-template-columns: repeat(5, 1fr) !important;
+        }
+        .t2-top-10-scroll > div {
+            min-width: 160px !important;
+        }
+    }
+    @media (max-width: 520px) {
+        .t2-top-10-scroll {
+            grid-template-columns: repeat(10, 1fr) !important;
+        }
+        .t2-top-10-scroll > div {
+            min-width: 140px !important;
+        }
+    }
+
+    /* ── Split Category Row — Theme 2 ── */
+    @media (max-width: 900px) {
+        .t2-split-row {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    /* ── Main Grid (Latest News + Sidebar) — Theme 2 ── */
+    @media (max-width: 1024px) {
+        .t2-main-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .t2-main-grid > aside {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 20px;
+        }
+    }
+    @media (max-width: 640px) {
+        .t2-main-grid > aside {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    /* ── Latest News Horizontal Card — Theme 2 ── */
+    @media (max-width: 640px) {
+        .t2-horizontal-flex {
+            flex-direction: column !important;
+        }
+        .t2-horizontal-flex > div:first-child {
+            width: 100% !important;
+            aspect-ratio: 16/9;
+        }
+        .t2-latest-horizontal-card {
+            padding: 12px !important;
+        }
+    }
+
+    /* ── Category Section Heading on small screens ── */
+    @media (max-width: 480px) {
+        .t2-split-row .t2-split-item {
+            flex-direction: column;
+        }
+        .t2-split-row .t2-split-item img {
+            width: 100% !important;
+            height: 140px !important;
+        }
+    }
+
+    /* ── Sidebar widget: fix on mobile ── */
+    @media (max-width: 640px) {
+        .t2-sidebar-widget {
+            padding: 18px !important;
+        }
+    }
+
 </style>
 
 <script>

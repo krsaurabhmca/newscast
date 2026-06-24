@@ -397,5 +397,98 @@
         fetch('<?php echo BASE_URL; ?>api/cron_wp_sync.php').catch(()=>{});
     </script>
     <?php endif; ?>
+
+    <?php if (get_setting('homepage_theme', 'theme1') === 'theme2'): ?>
+    <!-- Theme 2: Mobile App-like Bottom Navigation Bar -->
+    <nav class="t2-mobile-bottom-nav" id="t2BottomNav">
+        <a href="<?php echo BASE_URL; ?>" class="t2-bottom-nav-item <?php echo ($current_file == 'index.php') ? 'active' : ''; ?>" id="t2-bn-home">
+            <i data-feather="home"></i>
+            <span>Home</span>
+        </a>
+        <a href="<?php echo BASE_URL; ?>search.php" class="t2-bottom-nav-item <?php echo ($current_file == 'search.php') ? 'active' : ''; ?>" id="t2-bn-search">
+            <i data-feather="search"></i>
+            <span>Search</span>
+        </a>
+        <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
+        <a href="<?php echo BASE_URL; ?>magazine" class="t2-bottom-nav-item <?php echo ($current_file == 'magazine.php' || $current_file == 'magazine_view.php') ? 'active' : ''; ?>" id="t2-bn-magazine">
+            <i data-feather="book-open"></i>
+            <span>Magazine</span>
+        </a>
+        <?php endif; ?>
+        <?php if ($latest_poll_header): ?>
+        <a href="<?php echo $poll_header_url; ?>" class="t2-bottom-nav-item <?php echo ($current_file == 'poll.php') ? 'active' : ''; ?>" id="t2-bn-poll">
+            <i data-feather="pie-chart"></i>
+            <span>Poll</span>
+        </a>
+        <?php endif; ?>
+        <button class="t2-bottom-nav-item" onclick="toggleMobileMenu()" id="t2-bn-menu" style="background:none;border:none;cursor:pointer;">
+            <i data-feather="menu"></i>
+            <span>Menu</span>
+        </button>
+    </nav>
+    <style>
+        /* ── Theme 2 Mobile Bottom Navigation ───────────────────────── */
+        .t2-mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #fff;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            z-index: 1500;
+            align-items: stretch;
+            justify-content: space-around;
+            padding: 0;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        @media (max-width: 1024px) {
+            .t2-mobile-bottom-nav { display: flex; }
+        }
+        .t2-bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            flex: 1;
+            padding: 8px 5px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
+            position: relative;
+            font-family: 'Mukta', 'Outfit', sans-serif;
+        }
+        .t2-bottom-nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+        }
+        .t2-bottom-nav-item.active {
+            color: var(--primary);
+        }
+        .t2-bottom-nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 0 0 3px 3px;
+        }
+        .t2-bottom-nav-item:hover {
+            color: var(--primary);
+            background: rgba(0,0,0,0.02);
+        }
+    </style>
+    <?php endif; ?>
+
 </body>
 </html>
