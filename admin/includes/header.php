@@ -13,6 +13,11 @@ if (!is_logged_in()) {
     header("Location: " . BASE_URL . "login.php");
     exit();
 }
+
+// Check for system updates periodically
+if (is_admin()) {
+    check_system_updates_cached($pdo);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -74,8 +79,11 @@ if (!is_logged_in()) {
                         <i data-feather="plus" style="width: 18px; height: 18px;"></i>
                     </a>
                     
-                    <a href="system_update.php" class="desktop-only" style="color: #475569; padding: 8px 10px; border-radius: 8px; background: #f1f5f9; transition: .2s; display: flex; align-items: center; justify-content: center;" title="Check System Update">
+                    <a href="system_update.php" class="desktop-only" style="color: #475569; padding: 8px 10px; border-radius: 8px; background: #f1f5f9; transition: .2s; display: flex; align-items: center; justify-content: center; position: relative;" title="Check System Update">
                         <i data-feather="refresh-cw" style="width: 18px; height: 18px;"></i>
+                        <?php if (get_setting('update_available', 'no') === 'yes'): ?>
+                            <span style="position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 1.5px solid #fff;"></span>
+                        <?php endif; ?>
                     </a>
 
                     <!-- Profile Dropdown -->
@@ -94,7 +102,15 @@ if (!is_logged_in()) {
                         <div class="user-meta" style="display: flex; align-items: center; gap: 12px; cursor: pointer; transition: .2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                             <div style="text-align: right;" class="desktop-only">
                                 <div style="font-size: 14px; font-weight: 700; color: #0f172a;"><?php echo htmlspecialchars($_SESSION['username']); ?></div>
-                                <div style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;"><?php echo $_SESSION['role'] === 'admin' ? 'Administrator' : 'Editor / Team'; ?></div>
+                                <div style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;">
+                                    <?php 
+                                    if ($_SESSION['role'] === 'dev') echo 'Developer';
+                                    elseif ($_SESSION['role'] === 'admin') echo 'Administrator';
+                                    elseif ($_SESSION['role'] === 'editor') echo 'Editor';
+                                    elseif ($_SESSION['role'] === 'reporter') echo 'Reporter';
+                                    else echo 'Staff Member';
+                                    ?>
+                                </div>
                             </div>
                             <div class="profile-trigger" style="position: relative;">
                                 <img src="<?php echo get_profile_image($_SESSION['profile_image'] ?? ''); ?>"

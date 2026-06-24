@@ -1,7 +1,7 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
 $unread_count = 0;
-try { $unread_count = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status='new'")->fetchColumn(); } catch(Exception $e){}
+try { $unread_count = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status='pending'")->fetchColumn(); } catch(Exception $e){}
 $pending_comments_count = 0;
 try { $pending_comments_count = $pdo->query("SELECT COUNT(*) FROM comments WHERE status='pending'")->fetchColumn(); } catch(Exception $e){}
 $v_json = @json_decode(@file_get_contents(__DIR__ . '/../../version.json'), true);
@@ -249,8 +249,8 @@ function sb_active(string $page, array|string $pages = []): string {
             </li>
             <li>
                 <a href="feedback.php" class="<?php echo sb_active('feedback.php'); ?>">
-                    <span class="sbi"><i data-feather="mail"></i></span>
-                    <span>Inbox</span>
+                    <span class="sbi"><i data-feather="upload-cloud"></i></span>
+                    <span>Submissions</span>
                     <?php if ($unread_count > 0): ?>
                         <span class="sb-badge"><?php echo $unread_count; ?></span>
                     <?php endif; ?>
@@ -340,7 +340,11 @@ function sb_active(string $page, array|string $pages = []): string {
                 <a href="system_update.php" class="<?php echo sb_active('system_update.php'); ?>">
                     <span class="sbi" style="background:rgba(59,130,246,.15);"><i data-feather="download-cloud" style="color:#3b82f6;"></i></span>
                     <span style="color:#60a5fa;font-weight:700;">System Update</span>
-                    <span class="sb-badge-new">v<?php echo $app_v; ?></span>
+                    <?php if (get_setting('update_available', 'no') === 'yes'): ?>
+                        <span class="sb-badge" style="background: #ef4444;">Update</span>
+                    <?php else: ?>
+                        <span class="sb-badge-new">v<?php echo $app_v; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
         </ul>

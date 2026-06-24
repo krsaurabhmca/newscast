@@ -82,6 +82,13 @@ $migrations = [
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    ],
+    8 => [
+        "ALTER TABLE users MODIFY COLUMN role ENUM('dev', 'admin', 'editor', 'reporter') DEFAULT 'editor'",
+        "ALTER TABLE feedback ADD COLUMN category_id INT DEFAULT NULL AFTER phone",
+        "ALTER TABLE feedback ADD COLUMN featured_image VARCHAR(255) DEFAULT NULL AFTER message",
+        "ALTER TABLE feedback MODIFY COLUMN status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending'",
+        "ALTER TABLE feedback ADD CONSTRAINT fk_feedback_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL"
     ]
 ];
 

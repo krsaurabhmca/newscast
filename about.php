@@ -52,6 +52,15 @@ include 'includes/public_header.php';
             <?php echo htmlspecialchars($page_title); ?>
         </h1>
         
+        <?php 
+        $about_img = get_setting('about_page_image');
+        if ($about_img): 
+        ?>
+            <div style="width: 100%; height: 350px; border-radius: 12px; overflow: hidden; margin-bottom: 30px; border: 1px solid #e2e8f0;">
+                <img src="<?php echo BASE_URL; ?>assets/images/<?php echo $about_img; ?>" style="width: 100%; height: 100%; object-fit: cover;" alt="<?php echo htmlspecialchars($page_title); ?>">
+            </div>
+        <?php endif; ?>
+        
         <div class="rtf-content" style="color: #334155; line-height: 1.8; font-size: 16px;">
             <?php echo $page_content; ?>
         </div>

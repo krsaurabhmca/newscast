@@ -1,5 +1,21 @@
 [
     {
+        "version": "2.1.35",
+        "date": "2026-06-24",
+        "changes": [
+            "Complete redesign of the public category page: hero banner with category color, subcategory pills, breadcrumb, and post count stats.",
+            "Added category-specific breaking news ticker on the category page showing latest posts from that category.",
+            "Added featured lead post hero card (460px height) with dark gradient overlay, view count, and featured badge.",
+            "Article grid uses 2-column layout with image zoom, hover lift, and category badge overlay on thumbnail.",
+            "Category sidebar added: Most Read (top 5 by views with rank highlights), Sub-Topics quick nav, and Subscribe CTA widget.",
+            "Full pagination added to category page (12 posts per page).",
+            "Theme 2 horizontal navigation now uses Feather icons from each category's icon setting instead of colored dots.",
+            "Theme 2 navigation is now non-sticky (position: relative) — scrolls away with page as requested.",
+            "Fixed breaking news bar showing twice on the Theme 2 homepage by suppressing the global breaking bar when Theme 2 is active on index.php.",
+            "Removed AI Chat floating button and Feedback drawer from the Settings page to keep it focused on configuration."
+        ]
+    },
+    {
         "version": "2.1.34",
         "date": "2026-06-24",
         "changes": [

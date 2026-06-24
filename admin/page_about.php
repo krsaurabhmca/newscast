@@ -19,8 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_about'])) {
 
     // Save content
     $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('about_page_content', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-    // we use $_POST direct for rich text
     $stmt->execute([$_POST['about_content'], $_POST['about_content']]);
+
+    // Save image if uploaded
+    if (isset($_FILES['about_image']) && $_FILES['about_image']['error'] === 0) {
+        $uploaded_file = upload_and_optimize_image($_FILES['about_image'], "../assets/images/", "about_cover_", 1200, 85);
+        if ($uploaded_file) {
+            $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('about_page_image', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            $stmt->execute([$uploaded_file, $uploaded_file]);
+        }
+    }
 
     $_SESSION['flash_msg'] = "About page updated successfully!";
     $_SESSION['flash_type'] = "success";
@@ -72,7 +80,7 @@ if($about_content_val === false) {
 include 'includes/header.php';
 ?>
 
-<form action="" method="POST" id="aboutForm" style="margin-bottom: 50px;">
+<form action="" method="POST" id="aboutForm" enctype="multipart/form-data" style="margin-bottom: 50px;">
     <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; width: 100%; max-width: 900px;">
         
         <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 25px; display:flex; align-items:center; gap: 8px;">
@@ -82,6 +90,24 @@ include 'includes/header.php';
         <div class="form-group" style="margin-bottom: 25px;">
             <label style="font-weight: 700; color: #1e293b; font-size: 14px; margin-bottom: 8px; display: block;">Page Heading Title (H1) <span style="color:red;">*</span></label>
             <input type="text" name="about_title" class="form-control" style="font-size: 16px; font-weight: 600; padding: 12px;" value="<?php echo htmlspecialchars($about_title_val); ?>" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label style="font-weight: 700; color: #1e293b; font-size: 14px; margin-bottom: 8px; display: block;">Cover Photo / Header Image</label>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 20px;">
+                <?php 
+                $about_image_val = get_setting('about_page_image');
+                if ($about_image_val): 
+                ?>
+                    <img src="<?php echo BASE_URL; ?>assets/images/<?php echo $about_image_val; ?>" style="width: 120px; height: 70px; border-radius: 8px; object-fit: cover; border: 1px solid #cbd5e1;">
+                <?php else: ?>
+                    <div style="width: 120px; height: 70px; border-radius: 8px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #94a3b8; font-weight: 700;">No Cover</div>
+                <?php endif; ?>
+                <div>
+                    <input type="file" name="about_image" accept="image/*" style="font-size: 13px;">
+                    <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Upload a landscape photo to showcase at the top of the About page.</div>
+                </div>
+            </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 25px;">

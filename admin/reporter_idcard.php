@@ -143,7 +143,13 @@ endif; ?>
   endif; ?>
           <div class="idc-name"><?php echo htmlspecialchars($selected_user['username']); ?></div>
           <span class="idc-role" style="background:<?php echo $theme_color; ?>20;color:<?php echo $theme_color; ?>;">
-            <?php echo $selected_user['role'] === 'admin' ? 'Administrator' : 'Reporter / Editor'; ?>
+            <?php 
+            if ($selected_user['role'] === 'dev') echo 'Developer';
+            elseif ($selected_user['role'] === 'admin') echo 'Administrator';
+            elseif ($selected_user['role'] === 'editor') echo 'Editor';
+            elseif ($selected_user['role'] === 'reporter') echo 'Reporter';
+            else echo 'Staff Member';
+            ?>
           </span>
           <div class="idc-id">ID: <?php echo $id_number; ?></div>
         </div>

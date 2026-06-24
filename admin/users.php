@@ -105,8 +105,10 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
       <div class="sb"><i data-feather="search"></i><input type="text" name="s" class="form-control" placeholder="Search name or email..." value="<?=htmlspecialchars($search)?>"></div>
       <select name="role" class="fsel" onchange="this.form.submit()">
         <option value="">All Roles</option>
+        <option value="dev"    <?=$role_f=='dev'?'selected':''?>>Dev</option>
         <option value="admin"  <?=$role_f=='admin'?'selected':''?>>Admin</option>
         <option value="editor" <?=$role_f=='editor'?'selected':''?>>Editor</option>
+        <option value="reporter" <?=$role_f=='reporter'?'selected':''?>>Reporter</option>
       </select>
       <select name="sort" class="fsel" onchange="this.form.submit()">
         <option value="newest" <?=$sort=='newest'?'selected':''?>>Newest</option>
@@ -127,7 +129,28 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
         <tbody>
         <?php if(empty($users)): ?>
           <tr><td colspan="5"><div class="empty-st"><strong>No members found</strong><p>Adjust search or add someone above.</p></div></td></tr>
-        <?php else: foreach($users as $u): ?>
+        <?php else: foreach($users as $u): 
+            $role_badge_bg = '#eff6ff';
+            $role_badge_fg = '#1e40af';
+            $role_label = 'Editor';
+            if ($u['role'] === 'dev') {
+                $role_badge_bg = '#faf5ff';
+                $role_badge_fg = '#6b21a8';
+                $role_label = 'Dev';
+            } elseif ($u['role'] === 'admin') {
+                $role_badge_bg = '#fee2e2';
+                $role_badge_fg = '#991b1b';
+                $role_label = 'Admin';
+            } elseif ($u['role'] === 'editor') {
+                $role_badge_bg = '#eff6ff';
+                $role_badge_fg = '#1e40af';
+                $role_label = 'Editor';
+            } elseif ($u['role'] === 'reporter') {
+                $role_badge_bg = '#fef3c7';
+                $role_badge_fg = '#92400e';
+                $role_label = 'Reporter';
+            }
+        ?>
           <tr>
             <td><div style="display:flex;align-items:center;gap:9px;">
               <?php
@@ -138,15 +161,15 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
                      onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';"
                      style="width:34px;height:34px;border-radius:9px;object-fit:cover;border:1.5px solid #e2e8f0;flex-shrink:0;"
                      alt="<?php echo htmlspecialchars($u['username']); ?>">
-                <div style="width:34px;height:34px;border-radius:9px;background:<?=$u['role']==='admin'?'#fee2e2':'#eff6ff'?>;display:none;align-items:center;justify-content:center;font-weight:800;color:<?=$u['role']==='admin'?'#dc2626':'#2563eb'?>;flex-shrink:0;"><?=strtoupper(substr($u['username'],0,1))?></div>
+                <div style="width:34px;height:34px;border-radius:9px;background:<?=$role_badge_bg?>;display:none;align-items:center;justify-content:center;font-weight:800;color:<?=$role_badge_fg?>;flex-shrink:0;"><?=strtoupper(substr($u['username'],0,1))?></div>
               <?php else: ?>
-                <div style="width:34px;height:34px;border-radius:9px;background:<?=$u['role']==='admin'?'#fee2e2':'#eff6ff'?>;display:flex;align-items:center;justify-content:center;font-weight:800;color:<?=$u['role']==='admin'?'#dc2626':'#2563eb'?>;flex-shrink:0;"><?=strtoupper(substr($u['username'],0,1))?></div>
+                <div style="width:34px;height:34px;border-radius:9px;background:<?=$role_badge_bg?>;display:flex;align-items:center;justify-content:center;font-weight:800;color:<?=$role_badge_fg?>;flex-shrink:0;"><?=strtoupper(substr($u['username'],0,1))?></div>
               <?php endif; ?>
               <strong><?=htmlspecialchars($u['username'])?></strong>
               <?php if((int)$u['id']===(int)$_SESSION['user_id']): ?><span class="badge" style="background:#ecfdf5;color:#065f46;font-size:9px;">You</span><?php endif; ?>
             </div></td>
             <td style="font-size:13px;color:#475569;"><?=htmlspecialchars($u['email'])?></td>
-            <td><span class="badge" style="background:<?=$u['role']==='admin'?'#fee2e2':'#eff6ff'?>;color:<?=$u['role']==='admin'?'#991b1b':'#1e40af'?>;"><?=$u['role']==='admin'?'Admin':'Editor'?></span></td>
+            <td><span class="badge" style="background:<?=$role_badge_bg?>;color:<?=$role_badge_fg?>;"><?=$role_label?></span></td>
             <td style="font-size:13px;color:#64748b;white-space:nowrap;"><?=format_date($u['created_at'])?></td>
             <td><?php if((int)$u['id']!==(int)$_SESSION['user_id']): ?>
               <div style="display:flex;gap:5px;">
@@ -207,8 +230,10 @@ function u_url(array $ov=[]): string { $b=array_merge($_GET,$ov); return '?'.htt
         <div class="form-group">
           <label class="field-label">Role</label>
           <select name="role" class="form-control">
-            <option value="editor" <?=($form_values['role']??'editor')==='editor'?'selected':''?>>Editor / Journalist</option>
+            <option value="dev"    <?=($form_values['role']??'')==='dev'?'selected':''?>>Developer</option>
             <option value="admin"  <?=($form_values['role']??'')==='admin'?'selected':''?>>Administrator</option>
+            <option value="editor" <?=($form_values['role']??'editor')==='editor'?'selected':''?>>Editor</option>
+            <option value="reporter" <?=($form_values['role']??'')==='reporter'?'selected':''?>>Reporter</option>
           </select>
         </div>
         <div style="display:flex;gap:10px;margin-top:25px;">

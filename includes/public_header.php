@@ -138,6 +138,116 @@ endif; ?>
             --primary: <?php echo get_setting('theme_color', '#ff3c00'); ?>;
         }
     </style>
+    
+    <?php if (get_setting('homepage_theme', 'theme1') === 'theme2'): ?>
+    <style>
+        /* Theme 2 Layout Overrides */
+        .side-nav {
+            display: none !important;
+        }
+        .main-wrapper {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+        .content-container {
+            max-width: 100% !important;
+            padding-left: 40px !important;
+            padding-right: 40px !important;
+        }
+        /* Top Horizontal Category Navigation */
+        .theme2-nav {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            position: relative !important; /* Non Sticky */
+            z-index: 98;
+        }
+        .t2-nav-link {
+            display: flex !important;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 20px !important;
+            font-weight: 700;
+            font-size: 14px;
+            color: #475569 !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            text-decoration: none;
+            border-bottom: 3px solid transparent !important;
+        }
+        .t2-nav-link:hover {
+            color: var(--primary) !important;
+        }
+        .t2-nav-link.active {
+            color: var(--primary) !important;
+            border-bottom-color: var(--primary) !important;
+        }
+        .t2-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-50%);
+        }
+        .t2-nav-link:hover::after {
+            width: 80%;
+        }
+        .t2-nav-link.active::after {
+            width: 100%;
+        }
+        .t2-submenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            min-width: 220px;
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            list-style: none;
+            padding: 10px 0;
+            margin: 0;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .t2-has-sub:hover .t2-submenu {
+            display: block !important;
+            animation: fadeInSub 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes fadeInSub {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .t2-submenu li a {
+            display: flex !important;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            color: #475569 !important;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .t2-submenu li a:hover {
+            background: #f8fafc !important;
+            color: var(--primary) !important;
+            padding-left: 24px !important;
+        }
+        /* Hide scrollbar on the nav ul */
+        .theme2-nav ul::-webkit-scrollbar { display: none; }
+        .theme2-nav ul { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Hide horizontal nav on mobile — mobile drawer handles navigation */
+        @media (max-width: 1024px) {
+            .theme2-nav { display: none !important; }
+        }
+    </style>
+    <?php endif; ?>
 
     <!-- Verification Codes -->
     <?php if ($gsc = get_setting('google_site_verify')): ?>
@@ -427,7 +537,60 @@ endif; ?>
                 </div>
             </header>
 
-            <?php if (get_setting('breaking_news_enabled') == 'yes'):
+            <?php if (get_setting('homepage_theme', 'theme1') === 'theme2'): ?>
+            <nav class="theme2-nav">
+                <div style="max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
+                    <ul style="display: flex; list-style: none; gap: 0; margin: 0; padding: 0; align-items: center; overflow-x: auto; scrollbar-width: none; width: 100%;">
+                        <li>
+                            <a href="<?php echo BASE_URL; ?>" class="t2-nav-link <?php echo ($current_file == 'index.php') ? 'active' : ''; ?>">
+                                <i data-feather="home" style="width: 15px; height: 15px;"></i> Home
+                            </a>
+                        </li>
+                        <?php foreach ($categories_tree as $cat): ?>
+                            <?php 
+                            $cat_url = !empty($cat['custom_url']) ? $cat['custom_url'] : BASE_URL . 'category/' . $cat['slug'];
+                            $cat_target = !empty($cat['custom_url']) ? 'target="_blank"' : '';
+                            $is_active = ($current_file == 'category.php' && $current_slug == $cat['slug']);
+                            $cat_icon = htmlspecialchars($cat['icon'] ?: 'folder');
+                            
+                            if (empty($cat['children'])): 
+                            ?>
+                                <li>
+                                    <a href="<?php echo $cat_url; ?>" <?php echo $cat_target; ?> class="t2-nav-link <?php echo $is_active ? 'active' : ''; ?>">
+                                        <i data-feather="<?php echo $cat_icon; ?>" style="width: 15px; height: 15px; color: <?php echo $cat['color']; ?>;"></i>
+                                        <?php echo $cat['name']; ?>
+                                    </a>
+                                </li>
+                            <?php else: ?>
+                                <li class="t2-has-sub" style="position: relative;">
+                                    <a href="<?php echo $cat_url; ?>" class="t2-nav-link <?php echo $is_active ? 'active' : ''; ?>">
+                                        <i data-feather="<?php echo $cat_icon; ?>" style="width: 15px; height: 15px; color: <?php echo $cat['color']; ?>;"></i>
+                                        <?php echo $cat['name']; ?>
+                                        <i data-feather="chevron-down" style="width: 12px; height: 12px; margin-left: 2px;"></i>
+                                    </a>
+                                    <ul class="t2-submenu">
+                                        <?php foreach ($cat['children'] as $child): 
+                                            $child_url = !empty($child['custom_url']) ? $child['custom_url'] : BASE_URL . 'category/' . $child['slug'];
+                                            $child_target = !empty($child['custom_url']) ? 'target="_blank"' : '';
+                                            $child_icon = htmlspecialchars($child['icon'] ?: 'folder');
+                                        ?>
+                                            <li>
+                                                <a href="<?php echo $child_url; ?>" <?php echo $child_target; ?>>
+                                                    <i data-feather="<?php echo $child_icon; ?>" style="width: 14px; height: 14px; color: <?php echo $child['color']; ?>;"></i>
+                                                    <?php echo $child['name']; ?>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </li>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </nav>
+            <?php endif; ?>
+
+            <?php if (get_setting('breaking_news_enabled') == 'yes' && !(get_setting('homepage_theme', 'theme1') === 'theme2' && $current_file == 'index.php')):
     $breaking_stmt = $pdo->query("SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 4");
     $breaking_news = $breaking_stmt->fetchAll();
     if ($breaking_news):

@@ -42,7 +42,7 @@ function is_logged_in()
  */
 function is_admin()
 {
-    return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+    return isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'dev');
 }
 
 /**
@@ -459,7 +459,77 @@ function ensure_wp_sources_table($pdo) {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
         } catch (PDOException $ex) {
             error_log("Failed to auto-create wp_sources table: " . $ex->getMessage());
-        }
+                }
     }
+}
+
+/**
+ * Cached check for system updates (runs once every 4 hours max to avoid rate limits)
+ * @return bool True if update is available, false otherwise
+ */
+function check_system_updates_cached($pdo) {
+    $last_check = (int)get_setting('last_update_check', 0);
+    $now = time();
+    
+    // Check every 4 hours (14400 seconds)
+    if ($now - $last_check > 14400) {
+        $api_version_url = 'https://api.github.com/repos/krsaurabhmca/newscast/contents/version.json';
+        $local_version_file = __DIR__ . '/../version.json';
+        $local_info = ['version' => '1.0.0', 'db_version' => 1];
+        if (file_exists($local_version_file)) {
+            $content = @file_get_contents($local_version_file);
+            $local_info = json_decode($content, true) ?: $local_info;
+        }
+
+        // Get actual db_version from setting
+        try {
+            $stmt_db = $pdo->query("SELECT setting_value FROM settings WHERE setting_key = 'db_version'");
+            $actual_db_version = $stmt_db->fetchColumn();
+            if ($actual_db_version !== false) {
+                $local_info['db_version'] = (int)$actual_db_version;
+            }
+        } catch (Exception $e) {}
+
+        // Perform curl
+        $ch = curl_init($api_version_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 2); // 2 second timeout to prevent blocking page rendering
+        curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $update_available = 'no';
+        if ($http_code == 200 && $response) {
+            $api_data = json_decode($response, true);
+            if (isset($api_data['content'])) {
+                $decoded_json = base64_decode($api_data['content']);
+                $remote_info = json_decode($decoded_json, true);
+                if ($remote_info) {
+                    if (version_compare($remote_info['version'], $local_info['version'], '>') || (int)$remote_info['db_version'] > (int)$local_info['db_version']) {
+                        $update_available = 'yes';
+                    }
+                }
+            }
+        }
+
+        // Save back to DB settings
+        try {
+            $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('update_available', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            $stmt->execute([$update_available, $update_available]);
+
+            $stmt_time = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('last_update_check', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            $stmt_time->execute([$now, $now]);
+            
+            // Update global settings array so it's active immediately
+            global $settings;
+            $settings['update_available'] = $update_available;
+            $settings['last_update_check'] = $now;
+        } catch (Exception $e) {}
+    }
+
+    return get_setting('update_available', 'no') === 'yes';
 }
 ?>

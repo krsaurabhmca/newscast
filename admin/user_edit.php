@@ -104,8 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group" style="margin-bottom:20px;">
                 <label style="font-size:13px; font-weight:700; color:#475569; display:block; margin-bottom:8px;">User Role</label>
                 <select name="role" class="form-control">
-                    <option value="editor" <?= $user['role']=='editor'?'selected':'' ?>>Editor</option>
+                    <option value="dev" <?= $user['role']=='dev'?'selected':'' ?>>Developer</option>
                     <option value="admin" <?= $user['role']=='admin'?'selected':'' ?>>Administrator</option>
+                    <option value="editor" <?= $user['role']=='editor'?'selected':'' ?>>Editor</option>
+                    <option value="reporter" <?= $user['role']=='reporter'?'selected':'' ?>>Reporter</option>
                 </select>
             </div>
 
