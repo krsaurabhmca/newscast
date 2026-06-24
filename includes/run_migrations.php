@@ -65,6 +65,23 @@ $migrations = [
           KEY `idx_event_type` (`event_type`),
           KEY `idx_ip_address` (`ip_address`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
+    ],
+    7 => [
+        "ALTER TABLE categories ADD COLUMN parent_id INT DEFAULT NULL AFTER id",
+        "ALTER TABLE categories ADD FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL",
+        "ALTER TABLE categories ADD COLUMN custom_url VARCHAR(500) DEFAULT NULL AFTER slug",
+        "ALTER TABLE posts ADD COLUMN likes_count INT DEFAULT 0",
+        "ALTER TABLE posts ADD COLUMN dislikes_count INT DEFAULT 0",
+        "CREATE TABLE IF NOT EXISTS comments (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            post_id INT NOT NULL,
+            user_name VARCHAR(100) NOT NULL,
+            user_email VARCHAR(100) NOT NULL,
+            comment_text TEXT NOT NULL,
+            status ENUM('pending', 'approved', 'spam') DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     ]
 ];
 

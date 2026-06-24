@@ -16,8 +16,10 @@ if (isset($_POST['add_category'])) {
         $_SESSION['flash_type'] = "danger";
     } else {
         try {
-            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, icon, color, status, show_on_homepage) VALUES (?, ?, ?, ?, ?, 'active', ?)");
-            $stmt->execute([$name, $slug, $description, $icon, $color, $show_on_homepage]);
+            $parent_id = empty($_POST['parent_id']) ? null : (int)$_POST['parent_id'];
+            $custom_url = clean($_POST['custom_url'] ?? '');
+            $stmt = $pdo->prepare("INSERT INTO categories (name, slug, description, icon, color, status, show_on_homepage, parent_id, custom_url) VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?)");
+            $stmt->execute([$name, $slug, $description, $icon, $color, $show_on_homepage, $parent_id, $custom_url]);
             redirect('admin/categories.php', 'Category added successfully!');
         } catch (PDOException $e) {
             $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
@@ -37,8 +39,10 @@ if (isset($_POST['update_category'])) {
     $show_on_homepage = isset($_POST['show_on_homepage']) ? 1 : 0;
 
     try {
-        $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ?, icon = ?, color = ?, show_on_homepage = ? WHERE id = ?");
-        $stmt->execute([$name, $slug, $description, $icon, $color, $show_on_homepage, $id]);
+        $parent_id = empty($_POST['parent_id']) ? null : (int)$_POST['parent_id'];
+        $custom_url = clean($_POST['custom_url'] ?? '');
+        $stmt = $pdo->prepare("UPDATE categories SET name = ?, slug = ?, description = ?, icon = ?, color = ?, show_on_homepage = ?, parent_id = ?, custom_url = ? WHERE id = ?");
+        $stmt->execute([$name, $slug, $description, $icon, $color, $show_on_homepage, $parent_id, $custom_url, $id]);
         redirect('admin/categories.php', 'Category updated successfully!');
     } catch (PDOException $e) {
         $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
@@ -93,12 +97,19 @@ if (isset($_GET['edit'])) {
 // Fetch All Categories
 $search = trim($_GET['s'] ?? '');
 if ($search !== '') {
-    $stmt = $pdo->prepare("SELECT * FROM categories WHERE name LIKE ? ORDER BY created_at DESC");
+    $stmt = $pdo->prepare("SELECT c.*, p.name as parent_name FROM categories c LEFT JOIN categories p ON c.parent_id = p.id WHERE c.name LIKE ? ORDER BY c.created_at DESC");
     $stmt->execute(["%$search%"]);
     $categories = $stmt->fetchAll();
 } else {
-    $categories = $pdo->query("SELECT * FROM categories ORDER BY created_at DESC")->fetchAll();
+    $categories = $pdo->query("SELECT c.*, p.name as parent_name FROM categories c LEFT JOIN categories p ON c.parent_id = p.id ORDER BY c.created_at DESC")->fetchAll();
 }
+
+// Fetch Parent Category options (only top-level active categories, except the edited one itself)
+$parent_opt_query = "SELECT id, name FROM categories WHERE parent_id IS NULL AND status = 'active'";
+if ($edit_cat) {
+    $parent_opt_query .= " AND id != " . (int)$edit_cat['id'];
+}
+$parent_categories = $pdo->query($parent_opt_query . " ORDER BY name ASC")->fetchAll();
 ?>
 
 <!-- Categories List -->
@@ -121,6 +132,8 @@ if ($search !== '') {
                 <tr>
                     <th>Icon</th>
                     <th>Name</th>
+                    <th>Parent Category</th>
+                    <th>Direct Link</th>
                     <th>Status & Visibility</th>
                     <th>Posts</th>
                     <th>Actions</th>
@@ -139,6 +152,8 @@ if ($search !== '') {
                         </div>
                     </td>
                     <td><strong><?php echo $cat['name']; ?></strong></td>
+                    <td><?php echo !empty($cat['parent_name']) ? htmlspecialchars($cat['parent_name']) : '<span style="color:#94a3b8; font-style:italic;">None</span>'; ?></td>
+                    <td><?php echo !empty($cat['custom_url']) ? '<a href="' . htmlspecialchars($cat['custom_url']) . '" target="_blank" style="color:var(--primary); font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i data-feather="external-link" style="width:12px;"></i> Link</a>' : '<span style="color:#94a3b8;">-</span>'; ?></td>
                     <td>
                         <div style="display: flex; gap: 15px; align-items: center;">
                             <a href="?toggle=<?php echo $cat['id']; ?>" style="text-decoration: none; display: flex; align-items: center; gap: 6px;" title="Toggle Active Status">
@@ -196,6 +211,22 @@ if ($search !== '') {
                 <div class="form-group">
                     <label>Category Name</label>
                     <input type="text" name="name" class="form-control" required placeholder="e.g. Technology" value="<?php echo $edit_cat ? $edit_cat['name'] : ''; ?>">
+                </div>
+
+                <div class="form-group">
+                    <label>Parent Category (Optional)</label>
+                    <select name="parent_id" class="form-control" style="border: 1px solid #cbd5e1; height: 40px; outline: none; background: #fff; padding: 0 10px; border-radius: 8px;">
+                        <option value="">-- None (Top Level) --</option>
+                        <?php foreach ($parent_categories as $pcat): ?>
+                            <option value="<?php echo $pcat['id']; ?>" <?php echo ($edit_cat && $edit_cat['parent_id'] == $pcat['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($pcat['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Direct Link/URL (Optional)</label>
+                    <input type="url" name="custom_url" class="form-control" placeholder="https://example.com/custom-page" value="<?php echo $edit_cat ? htmlspecialchars($edit_cat['custom_url']) : ''; ?>">
+                    <span class="field-hint">If set, clicking this category will open this URL directly.</span>
                 </div>
 
                 <div class="form-group">
@@ -263,7 +294,7 @@ if ($search !== '') {
         </div>
         <div class="icon-grid">
             <?php 
-            $icons = ['flag', 'briefcase', 'cpu', 'film', 'activity', 'heart', 'zap', 'coffee', 'book', 'cloud', 'message-circle', 'globe', 'map-pin', 'shield', 'trending-up', 'camera', 'music', 'shopping-bag', 'award', 'anchor', 'bell', 'battery', 'bluetooth'];
+            $icons = ['flag', 'briefcase', 'cpu', 'film', 'activity', 'heart', 'zap', 'coffee', 'book', 'book-open', 'cloud', 'message-square', 'message-circle', 'globe', 'map', 'map-pin', 'shield', 'trending-up', 'camera', 'music', 'shopping-bag', 'shopping-cart', 'award', 'anchor', 'bell', 'battery', 'bluetooth', 'tv', 'users', 'home', 'calendar', 'file-text', 'thumbs-up', 'video', 'image', 'dollar-sign', 'info', 'help-circle', 'mail'];
             foreach($icons as $icon): ?>
                 <div class="icon-item" onclick="selectIcon('<?php echo $icon; ?>')">
                     <i data-feather="<?php echo $icon; ?>"></i>

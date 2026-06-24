@@ -11,6 +11,22 @@ require_once __DIR__ . '/functions.php';
 $stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC");
 $nav_categories = $stmt->fetchAll();
 
+$categories_tree = [];
+$sub_categories = [];
+foreach ($nav_categories as $cat) {
+    if (empty($cat['parent_id'])) {
+        $categories_tree[$cat['id']] = $cat;
+        $categories_tree[$cat['id']]['children'] = [];
+    } else {
+        $sub_categories[] = $cat;
+    }
+}
+foreach ($sub_categories as $sub) {
+    if (isset($categories_tree[$sub['parent_id']])) {
+        $categories_tree[$sub['parent_id']]['children'][] = $sub;
+    }
+}
+
 // Fetch latest active poll
 $latest_poll_stmt = $pdo->query("SELECT id FROM polls WHERE status = 'active' AND (starts_at IS NULL OR starts_at <= NOW()) AND (expires_at IS NULL OR expires_at >= NOW()) ORDER BY created_at DESC LIMIT 1");
 $latest_poll_header = $latest_poll_stmt->fetch();
@@ -214,15 +230,54 @@ endif; ?>
                     </a>
                 </li>
                 <?php endif; ?>
-                <?php foreach ($nav_categories as $cat): ?>
-                <li>
-                    <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>" class="<?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'active' : ''; ?>">
-                        <div class="icon" style="color: <?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'var(--primary)' : $cat['color']; ?>;">
-                             <i data-feather="<?php echo $cat['icon']; ?>" style="width: 18px; height: 18px;"></i>
-                        </div>
-                        <?php echo $cat['name']; ?>
-                    </a>
-                </li>
+                <?php foreach ($categories_tree as $cat): ?>
+                    <?php 
+                    $cat_url = !empty($cat['custom_url']) ? $cat['custom_url'] : BASE_URL . 'category/' . $cat['slug'];
+                    $cat_target = !empty($cat['custom_url']) ? 'target="_blank"' : '';
+                    
+                    if (empty($cat['children'])): 
+                    ?>
+                        <li>
+                            <a href="<?php echo $cat_url; ?>" <?php echo $cat_target; ?> class="<?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'active' : ''; ?>">
+                                <div class="icon" style="color: <?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'var(--primary)' : $cat['color']; ?>;">
+                                     <i data-feather="<?php echo $cat['icon']; ?>" style="width: 18px; height: 18px;"></i>
+                                </div>
+                                <?php echo $cat['name']; ?>
+                            </a>
+                        </li>
+                    <?php else: ?>
+                        <!-- Parent Category with Subcategories -->
+                        <li class="has-sub">
+                            <a href="javascript:void(0)" class="submenu-toggle-btn" onclick="toggleSubmenu(this)" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="icon" style="color: <?php echo $cat['color']; ?>;">
+                                         <i data-feather="<?php echo $cat['icon']; ?>" style="width: 18px; height: 18px;"></i>
+                                    </div>
+                                    <span><?php echo $cat['name']; ?></span>
+                                </div>
+                                <i data-feather="chevron-down" class="chevron-icon" style="width: 14px; height: 14px; transition: transform 0.2s;"></i>
+                            </a>
+                            <ul class="submenu-list" style="display: none; list-style: none; padding-left: 20px; margin: 5px 0 10px 0; border-left: 2px solid #e2e8f0;">
+                                <li>
+                                    <a href="<?php echo $cat_url; ?>" <?php echo $cat_target; ?> style="font-size: 13px; padding: 6px 10px; color:#475569; display:flex; align-items:center; gap:8px;">
+                                        <span style="width:4px; height:4px; border-radius:50%; background:#94a3b8;"></span>
+                                        All <?php echo $cat['name']; ?>
+                                    </a>
+                                </li>
+                                <?php foreach ($cat['children'] as $child): 
+                                    $child_url = !empty($child['custom_url']) ? $child['custom_url'] : BASE_URL . 'category/' . $child['slug'];
+                                    $child_target = !empty($child['custom_url']) ? 'target="_blank"' : '';
+                                ?>
+                                    <li>
+                                        <a href="<?php echo $child_url; ?>" <?php echo $child_target; ?> class="<?php echo ($current_file == 'category.php' && $current_slug == $child['slug']) ? 'active' : ''; ?>" style="font-size: 13px; padding: 6px 10px; color:#475569; display:flex; align-items:center; gap:8px;">
+                                            <span style="width:4px; height:4px; border-radius:50%; background:<?php echo $child['color']; ?>;"></span>
+                                            <?php echo $child['name']; ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </ul>
 
@@ -290,19 +345,24 @@ endif; ?>
 endif; ?>
 
                 <a href="<?php echo BASE_URL; ?>" class="logo-bhaskar <?php echo get_setting('site_logo') ? 'logo-has-image' : ''; ?>">
-                    <?php if (get_setting('site_logo')): ?>
-                        <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="height: 45px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
-                    <?php
-else: ?>
-                        <div style="background: var(--primary); color: #fff; padding: 5px 10px; border-radius: 4px; font-weight: 900; letter-spacing: -1px;">DB</div>
-                    <?php
-endif; ?>
+                    <?php 
+                    $brand_display = get_setting('header_brand_display', 'both');
+                    $has_logo = get_setting('site_logo');
                     
-                    <div class="logo-text-group" style="display: flex; flex-direction: column; line-height: 1.2;">
-                        <span style="font-size: 18px; letter-spacing: 1px; color: #1a1a1b; font-weight: 800;"><?php echo strtoupper(SITE_NAME_DYNAMIC); ?></span>
-                        <?php $tagline = get_setting('site_tagline', 'DIGITAL NEWS'); ?>
-                        <span style="font-size: 11px; font-weight: 600; color: #888; letter-spacing: .5px; text-transform: uppercase;"><?php echo htmlspecialchars($tagline); ?></span>
-                    </div>
+                    if (($brand_display == 'both' || $brand_display == 'logo') && $has_logo): 
+                    ?>
+                        <img src="<?php echo BASE_URL . 'assets/images/' . $has_logo; ?>" style="height: 45px;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
+                    <?php elseif (($brand_display == 'both' || $brand_display == 'logo') && !$has_logo): ?>
+                        <div style="background: var(--primary); color: #fff; padding: 5px 10px; border-radius: 4px; font-weight: 900; letter-spacing: -1px;">DB</div>
+                    <?php endif; ?>
+                    
+                    <?php if ($brand_display == 'both' || $brand_display == 'name'): ?>
+                        <div class="logo-text-group" style="display: flex; flex-direction: column; line-height: 1.2;">
+                            <span style="font-size: 18px; letter-spacing: 1px; color: #1a1a1b; font-weight: 800;"><?php echo strtoupper(SITE_NAME_DYNAMIC); ?></span>
+                            <?php $tagline = get_setting('site_tagline', 'DIGITAL NEWS'); ?>
+                            <span style="font-size: 11px; font-weight: 600; color: #888; letter-spacing: .5px; text-transform: uppercase;"><?php echo htmlspecialchars($tagline); ?></span>
+                        </div>
+                    <?php endif; ?>
                 </a>
 
                 <div style="display: flex; align-items: center; gap: 15px;">
@@ -435,13 +495,49 @@ endif; ?>
                             <li><a href="<?php echo BASE_URL; ?>magazine" class="<?php echo ($current_file == 'magazine.php' || $current_file == 'magazine_view.php') ? 'active' : ''; ?>"><i data-feather="book-open" style="color: #f59e0b;"></i> Magazine</a></li>
                             <?php endif; ?>
                             <li class="divider">Sections</li>
-                            <?php foreach ($nav_categories as $cat): ?>
-                            <li>
-                                <a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>" class="<?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'active' : ''; ?>">
-                                    <i data-feather="<?php echo $cat['icon']; ?>" style="color: <?php echo $cat['color']; ?>; width: 20px; height: 20px;"></i>
-                                    <?php echo $cat['name']; ?>
-                                </a>
-                            </li>
+                            <?php foreach ($categories_tree as $cat): ?>
+                                <?php 
+                                $cat_url = !empty($cat['custom_url']) ? $cat['custom_url'] : BASE_URL . 'category/' . $cat['slug'];
+                                $cat_target = !empty($cat['custom_url']) ? 'target="_blank"' : '';
+                                
+                                if (empty($cat['children'])): 
+                                ?>
+                                    <li>
+                                        <a href="<?php echo $cat_url; ?>" <?php echo $cat_target; ?> class="<?php echo ($current_file == 'category.php' && $current_slug == $cat['slug']) ? 'active' : ''; ?>">
+                                            <i data-feather="<?php echo $cat['icon']; ?>" style="color: <?php echo $cat['color']; ?>; width: 20px; height: 20px;"></i>
+                                            <?php echo $cat['name']; ?>
+                                        </a>
+                                    </li>
+                                <?php else: ?>
+                                    <li class="has-sub">
+                                        <a href="javascript:void(0)" onclick="toggleSubmenu(this)" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                            <span style="display: flex; align-items: center; gap: 10px;">
+                                                <i data-feather="<?php echo $cat['icon']; ?>" style="color: <?php echo $cat['color']; ?>; width: 20px; height: 20px;"></i>
+                                                <?php echo $cat['name']; ?>
+                                            </span>
+                                            <i data-feather="chevron-down" class="chevron-icon" style="width: 14px; height: 14px; transition: transform 0.2s;"></i>
+                                        </a>
+                                        <ul class="submenu-list" style="display: none; list-style: none; padding-left: 20px; margin: 5px 0 10px 0; border-left: 2px solid #e2e8f0;">
+                                            <li>
+                                                <a href="<?php echo $cat_url; ?>" <?php echo $cat_target; ?> style="font-size: 14px; padding: 8px 10px; color:#475569; display:flex; align-items:center; gap:8px;">
+                                                    <span style="width:4px; height:4px; border-radius:50%; background:#94a3b8;"></span>
+                                                    All <?php echo $cat['name']; ?>
+                                                </a>
+                                            </li>
+                                            <?php foreach ($cat['children'] as $child): 
+                                                $child_url = !empty($child['custom_url']) ? $child['custom_url'] : BASE_URL . 'category/' . $child['slug'];
+                                                $child_target = !empty($child['custom_url']) ? 'target="_blank"' : '';
+                                            ?>
+                                                <li>
+                                                    <a href="<?php echo $child_url; ?>" <?php echo $child_target; ?> class="<?php echo ($current_file == 'category.php' && $current_slug == $child['slug']) ? 'active' : ''; ?>" style="font-size: 14px; padding: 8px 10px; color:#475569; display:flex; align-items:center; gap:8px;">
+                                                        <span style="width:4px; height:4px; border-radius:50%; background:<?php echo $child['color']; ?>;"></span>
+                                                        <?php echo $child['name']; ?>
+                                                    </a>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </li>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         </ul>
                     </nav>
@@ -453,6 +549,19 @@ endif; ?>
                     const menu = document.getElementById('mobileMenu');
                     menu.classList.toggle('active');
                     document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+                }
+                function toggleSubmenu(btn) {
+                    const parent = btn.closest('.has-sub');
+                    const submenu = parent.querySelector('.submenu-list');
+                    const chevron = parent.querySelector('.chevron-icon');
+                    
+                    if (submenu.style.display === 'none' || !submenu.style.display) {
+                        submenu.style.display = 'block';
+                        if (chevron) chevron.style.transform = 'rotate(180deg)';
+                    } else {
+                        submenu.style.display = 'none';
+                        if (chevron) chevron.style.transform = 'rotate(0deg)';
+                    }
                 }
             </script>
 

@@ -186,8 +186,11 @@
                 <div class="footer-col links-col">
                     <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">Categories</h4>
                     <ul style="list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <?php foreach($nav_categories as $cat): ?>
-                            <li><a href="<?php echo BASE_URL; ?>category/<?php echo $cat['slug']; ?>" class="footer-link"><?php echo $cat['name']; ?></a></li>
+                        <?php foreach($nav_categories as $cat): 
+                            $cat_url = !empty($cat['custom_url']) ? $cat['custom_url'] : BASE_URL . 'category/' . $cat['slug'];
+                            $cat_target = !empty($cat['custom_url']) ? 'target="_blank"' : '';
+                        ?>
+                            <li><a href="<?php echo $cat_url; ?>" <?php echo $cat_target; ?> class="footer-link"><?php echo $cat['name']; ?></a></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>

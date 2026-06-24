@@ -1,6 +1,6 @@
 {
-    "version": "2.1.30",
-    "db_version": 6,
-    "last_updated": "2026-06-23",
-    "changelog": "v2.1.30: Updated public category-related queries to filter out disabled/inactive categories on category pages, search results, tags, post list details, and homepage layouts."
+    "version": "2.1.31",
+    "db_version": 7,
+    "last_updated": "2026-06-24",
+    "changelog": "v2.1.31: Implemented subcategory hierarchy, custom URLs/redirects for categories, comment moderation dashboard, article likes/dislikes with toggle settings, expanded category icon library, login logo display, and header brand visibility configuration."
 }

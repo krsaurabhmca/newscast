@@ -306,7 +306,89 @@ endif; ?>
                 <?php echo $post['content']; ?>
             </div>
 
+             <?php if (get_setting('likes_dislikes_enabled', 'no') == 'yes'): ?>
+                <!-- Like / Dislike Section -->
+                <div class="ratings-container" style="display: flex; align-items: center; gap: 20px; margin-top: 30px; padding: 15px 25px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; max-width: max-content;">
+                    <span style="font-size: 14px; font-weight: 700; color: #475569;">Rate this article:</span>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="rating-btn like-btn" onclick="rateArticle(<?php echo $post['id']; ?>, 'like')" style="display: flex; align-items: center; gap: 8px; border: 1px solid #cbd5e1; background: white; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 700; color: #1e293b; cursor: pointer; transition: 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='#cbd5e1'">
+                            <i data-feather="thumbs-up" style="width: 16px; height: 16px; color: #10b981;"></i>
+                            <span id="like-count"><?php echo $post['likes_count'] ?? 0; ?></span>
+                        </button>
+                        <button type="button" class="rating-btn dislike-btn" onclick="rateArticle(<?php echo $post['id']; ?>, 'dislike')" style="display: flex; align-items: center; gap: 8px; border: 1px solid #cbd5e1; background: white; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 700; color: #1e293b; cursor: pointer; transition: 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='#cbd5e1'">
+                            <i data-feather="thumbs-down" style="width: 16px; height: 16px; color: #ef4444;"></i>
+                            <span id="dislike-count"><?php echo $post['dislikes_count'] ?? 0; ?></span>
+                        </button>
+                    </div>
+                    <span id="rating-status" style="font-size: 13px; font-weight: 600; color: #64748b; display: none;"></span>
+                </div>
+            <?php endif; ?>
+
             <?php echo display_ad('content_bottom', $pdo); ?>
+
+            <?php if (get_setting('comments_enabled', 'no') == 'yes'): 
+                // Fetch approved comments for this post
+                $comment_stmt = $pdo->prepare("SELECT * FROM comments WHERE post_id = ? AND status = 'approved' ORDER BY created_at DESC");
+                $comment_stmt->execute([$post['id']]);
+                $post_comments = $comment_stmt->fetchAll();
+            ?>
+                <!-- Comments Section -->
+                <div class="comments-section" style="margin-top: 50px; border-top: 2px solid #e2e8f0; padding-top: 40px;">
+                    <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 25px; color: var(--primary); text-transform: uppercase; letter-spacing: .06em; display:flex; align-items:center; gap:8px;">
+                        <span style="display:inline-block;width:3px;height:18px;background:var(--primary);border-radius:2px;"></span>
+                        Comments (<?php echo count($post_comments); ?>)
+                    </h3>
+
+                    <!-- Comment Submission Form -->
+                    <div style="background: white; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 35px;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #0f172a; margin-top:0; margin-bottom:15px;">Leave a Comment</h4>
+                        <form id="comment-form" onsubmit="submitComment(event, <?php echo $post['id']; ?>)">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                <div>
+                                    <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px;">Your Name</label>
+                                    <input type="text" name="name" required placeholder="John Doe" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; border-color:#cbd5e1;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#cbd5e1'">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px;">Email Address</label>
+                                    <input type="email" name="email" required placeholder="john@example.com" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; border-color:#cbd5e1;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#cbd5e1'">
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px;">Comment</label>
+                                <textarea name="comment" rows="4" required placeholder="Share your thoughts..." style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; font-family:inherit; resize: vertical; border-color:#cbd5e1;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#cbd5e1'"></textarea>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                                <button type="submit" style="background: var(--primary); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Post Comment</button>
+                                <span id="comment-status" style="font-size: 13px; font-weight: 600; color: #10b981; display:none;"></span>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Comments List -->
+                    <div class="comments-list" style="display: flex; flex-direction: column; gap: 20px;">
+                        <?php if (empty($post_comments)): ?>
+                            <div style="text-align: center; padding: 30px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; color: #64748b; font-weight: 500;">
+                                No comments yet. Be the first to share your thoughts!
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($post_comments as $cmt): ?>
+                                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; display:flex; gap:15px;">
+                                    <div style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0;">
+                                        <?php echo strtoupper(substr($cmt['user_name'], 0, 1)); ?>
+                                    </div>
+                                    <div>
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                            <span style="font-weight: 700; color: #1e293b; font-size: 14px;"><?php echo htmlspecialchars($cmt['user_name']); ?></span>
+                                            <span style="font-size: 12px; color: #94a3b8; font-weight: 500;"><?php echo format_date($cmt['created_at']); ?></span>
+                                        </div>
+                                        <p style="margin: 0; color: #475569; font-size: 14px; line-height: 1.6; font-weight: 500;"><?php echo nl2br(htmlspecialchars($cmt['comment_text'])); ?></p>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
             
             <div style="margin-top: 60px; padding-top: 40px; border-top: 2px solid #e2e8f0;">
                 <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 20px; color: var(--primary); text-transform: uppercase; letter-spacing: .06em; display:flex; align-items:center; gap:8px;">
@@ -682,6 +764,89 @@ endif; ?>
             alert('An error occurred. Please try again.');
             btn.disabled = false;
             btn.innerHTML = 'Vote Now';
+        });
+    }
+
+    function rateArticle(postId, ratingType) {
+        const statusEl = document.getElementById('rating-status');
+        const likeCountEl = document.getElementById('like-count');
+        const dislikeCountEl = document.getElementById('dislike-count');
+        
+        statusEl.style.display = 'inline';
+        statusEl.style.color = '#64748b';
+        statusEl.innerText = 'Submitting...';
+        
+        fetch('<?php echo BASE_URL; ?>ajax_interactions.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `post_id=${postId}&action=rate&type=${ratingType}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                statusEl.style.color = '#10b981';
+                statusEl.innerText = 'Rating saved!';
+                if (ratingType === 'like') {
+                    likeCountEl.innerText = data.count;
+                } else {
+                    dislikeCountEl.innerText = data.count;
+                }
+            } else {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = data.message || 'Error occurred.';
+            }
+            setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+        })
+        .catch(err => {
+            statusEl.style.color = '#ef4444';
+            statusEl.innerText = 'Failed to save rating.';
+            setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+        });
+    }
+
+    function submitComment(e, postId) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const statusEl = document.getElementById('comment-status');
+        
+        const name = form.name.value;
+        const email = form.email.value;
+        const comment = form.comment.value;
+        
+        submitBtn.disabled = true;
+        statusEl.style.display = 'inline';
+        statusEl.style.color = '#64748b';
+        statusEl.innerText = 'Submitting comment...';
+        
+        fetch('<?php echo BASE_URL; ?>ajax_interactions.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `post_id=${postId}&action=comment&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&comment=${encodeURIComponent(comment)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            if (data.success) {
+                statusEl.style.color = '#10b981';
+                statusEl.innerText = data.message;
+                form.reset();
+                if (data.auto_approved) {
+                    setTimeout(() => { location.reload(); }, 1500);
+                }
+            } else {
+                statusEl.style.color = '#ef4444';
+                statusEl.innerText = data.message || 'Error submitting comment.';
+            }
+        })
+        .catch(err => {
+            submitBtn.disabled = false;
+            statusEl.style.color = '#ef4444';
+            statusEl.innerText = 'Failed to submit comment.';
         });
     }
 </script>

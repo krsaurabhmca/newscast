@@ -188,6 +188,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-card">
         <div class="portal-logo">
+            <?php if (get_setting('site_logo')): ?>
+                <img src="<?php echo BASE_URL . 'assets/images/' . get_setting('site_logo'); ?>" style="max-height: 60px; max-width: 100%; object-fit: contain; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto;" alt="<?php echo SITE_NAME_DYNAMIC; ?>">
+            <?php endif; ?>
             <div><?php echo strtoupper(SITE_NAME_DYNAMIC); ?></div>
         </div>
         

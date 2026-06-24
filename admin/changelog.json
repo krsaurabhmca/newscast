@@ -1,5 +1,20 @@
 [
     {
+        "version": "2.1.31",
+        "date": "2026-06-24",
+        "changes": [
+            "Implemented hierarchical subcategory management support allowing parent-child associations for categories.",
+            "Added support for custom redirect/external URLs for category sidebar navigation links.",
+            "Integrated user engagement elements: post commenting and post likes/dislikes rating widgets with cookie-based double-voting protection.",
+            "Created a centralized admin Comments Moderation Dashboard for approving, deleting, or flagging user comments as spam.",
+            "Added global toggle settings for comments and likes/dislikes under the admin Settings tab.",
+            "Expanded category icon list with additional options during category creation/editing.",
+            "Added configuration settings for website header branding: show logo only, name only, or both logo and name.",
+            "Updated the login screen to dynamically display the custom website logo from settings.",
+            "Added a dynamic pending comments counter and badge to the admin sidebar."
+        ]
+    },
+    {
         "version": "2.1.30",
         "date": "2026-06-23",
         "changes": [

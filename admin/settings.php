@@ -78,6 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'groq_api_key' => clean($_POST['groq_api_key'] ?? ''),
         'whatsapp_floating_btn' => clean($_POST['whatsapp_floating_btn'] ?? 'no'),
         'hide_contact_details' => clean($_POST['hide_contact_details'] ?? 'no'),
+        'header_brand_display' => clean($_POST['header_brand_display'] ?? 'both'),
+        'comments_enabled' => clean($_POST['comments_enabled'] ?? 'no'),
+        'comments_moderation_enabled' => clean($_POST['comments_moderation_enabled'] ?? 'yes'),
+        'likes_dislikes_enabled' => clean($_POST['likes_dislikes_enabled'] ?? 'no'),
     ];
 
     try {
@@ -312,6 +316,9 @@ include 'includes/header.php';
         </button>
         <button type="button" onclick="showTab('ai')" id="tab-ai">
             <i data-feather="cpu" style="width:15px;"></i> AI Integration
+        </button>
+        <button type="button" onclick="showTab('interactions')" id="tab-interactions">
+            <i data-feather="message-square" style="width:15px;"></i> Interactions
         </button>
     </div>
 
@@ -662,6 +669,21 @@ endforeach; ?>
                                 <input type="radio" name="hide_contact_details" id="hc_no" value="no" <?php echo get_setting('hide_contact_details', 'no') == 'no' ? 'checked' : ''; ?>>
                                 <label for="hc_no" style="padding: 6px; font-size: 12px;">Show</label>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 11: Header Brand Display -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Header Brand Display</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Choose logo/name display style</div>
+                        </div>
+                        <div style="width: 130px; display: flex; gap: 5px;">
+                            <select name="header_brand_display" class="form-control" style="padding: 6px 10px; font-size: 12px; border-radius: 8px; width: 100%; border: 1px solid #cbd5e1; height: 35px; outline: none; background: #fff;">
+                                <option value="both" <?php echo get_setting('header_brand_display', 'both') == 'both' ? 'selected' : ''; ?>>Both</option>
+                                <option value="logo" <?php echo get_setting('header_brand_display') == 'logo' ? 'selected' : ''; ?>>Logo Only</option>
+                                <option value="name" <?php echo get_setting('header_brand_display') == 'name' ? 'selected' : ''; ?>>Name Only</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -1129,6 +1151,80 @@ endforeach; ?>
                         </div>
                         <span class="field-hint">Required for the AI News module. Get your free key at <a href="https://console.groq.com/" target="_blank" style="color:var(--primary); font-weight: 600;">console.groq.com</a></span>
                     </div>
+                </div>
+            </div>
+    <!-- ══════════ INTERACTIONS & COMMENTS ══════════ -->
+    <div class="settings-panel" id="panel-interactions">
+        <div class="settings-card">
+            <div class="settings-card-header" style="padding: 20px 25px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="icon" style="background:#ecfeff; color: #0891b2;">
+                        <i data-feather="message-square" style="width:18px;"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">Interactions & Comments</h3>
+                        <p style="margin: 3px 0 0; font-size: 13px; color: #64748b;">Manage article commenting, moderation, and user reactions</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-card-body" style="background: #f8fafc; border-top: 1px solid #f1f5f9; padding: 25px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                    
+                    <!-- Option 1: Comments Enabled -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Enable Comments</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Allow users to comment on articles</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="comments_enabled" id="ce_yes" value="yes" <?php echo get_setting('comments_enabled', 'no') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="ce_yes" style="padding: 6px; font-size: 12px;">Yes</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="comments_enabled" id="ce_no" value="no" <?php echo get_setting('comments_enabled', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="ce_no" style="padding: 6px; font-size: 12px;">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Option 2: Comments Moderation -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Comment Moderation</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Must be approved by admin</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="comments_moderation_enabled" id="cm_yes" value="yes" <?php echo get_setting('comments_moderation_enabled', 'yes') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="cm_yes" style="padding: 6px; font-size: 12px;">Yes</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="comments_moderation_enabled" id="cm_no" value="no" <?php echo get_setting('comments_moderation_enabled') == 'no' ? 'checked' : ''; ?>>
+                                <label for="cm_no" style="padding: 6px; font-size: 12px;">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Option 3: Likes/Dislikes -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Article Ratings</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Show Like and Dislike options</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="likes_dislikes_enabled" id="ld_yes" value="yes" <?php echo get_setting('likes_dislikes_enabled', 'no') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="ld_yes" style="padding: 6px; font-size: 12px;">Yes</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="likes_dislikes_enabled" id="ld_no" value="no" <?php echo get_setting('likes_dislikes_enabled', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="ld_no" style="padding: 6px; font-size: 12px;">No</label>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

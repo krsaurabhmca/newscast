@@ -2,6 +2,8 @@
 $current_page = basename($_SERVER['PHP_SELF']);
 $unread_count = 0;
 try { $unread_count = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status='new'")->fetchColumn(); } catch(Exception $e){}
+$pending_comments_count = 0;
+try { $pending_comments_count = $pdo->query("SELECT COUNT(*) FROM comments WHERE status='pending'")->fetchColumn(); } catch(Exception $e){}
 $v_json = @json_decode(@file_get_contents(__DIR__ . '/../../version.json'), true);
 $app_v  = $v_json['version'] ?? '1.0.0';
 
@@ -258,6 +260,15 @@ function sb_active(string $page, array|string $pages = []): string {
                 <a href="timeline.php" class="<?php echo sb_active('timeline.php'); ?>">
                     <span class="sbi"><i data-feather="calendar"></i></span>
                     <span>Event Timeline</span>
+                </a>
+            </li>
+            <li>
+                <a href="comments.php" class="<?php echo sb_active('comments.php'); ?>">
+                    <span class="sbi"><i data-feather="message-square"></i></span>
+                    <span>Comments</span>
+                    <?php if ($pending_comments_count > 0): ?>
+                        <span class="sb-badge"><?php echo $pending_comments_count; ?></span>
+                    <?php endif; ?>
                 </a>
             </li>
         </ul>
