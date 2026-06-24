@@ -1,5 +1,21 @@
 [
     {
+        "version": "2.2.0",
+        "date": "2026-06-24",
+        "changes": [
+            "MAJOR: Version milestone bump to v2.2 — Major Dashboard overhaul and new homepage Theme 2 option.",
+            "Dashboard: Completely redesigned for better usability — tighter layout, improved typography, and consistent Inter font.",
+            "Dashboard: Added 'What's New' panel that dynamically reads from changelog.json and displays last 3 version updates with all change notes.",
+            "Dashboard: KPI cards are now clickable links that navigate directly to the related admin section.",
+            "Dashboard: Added dedicated 'Themes' quick action button linking to Settings > Appearance.",
+            "Dashboard: Added 'Comments' quick action with live pending-count badge.",
+            "Dashboard: Added 'Check Updates' and 'Open Website' shortcut buttons below the Quick Actions grid.",
+            "Dashboard: Recent Posts now shows article thumbnail instead of a color dot for faster visual recognition.",
+            "Dashboard: Version badge shown inline in the greeting banner.",
+            "Dashboard: Overall spacing, border radii, and shadow hierarchy refined for a more premium feel."
+        ]
+    },
+    {
         "version": "2.1.35",
         "date": "2026-06-24",
         "changes": [
