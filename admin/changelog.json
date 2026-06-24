@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.1.33",
+        "date": "2026-06-24",
+        "changes": [
+            "Added automatic database migration executor on admin panel page load so that database updates are applied instantly without manual intervention.",
+            "Fixed HTML container nesting bugs under the AI settings panel to ensure all settings panels and the main settings form save button render properly."
+        ]
+    },
+    {
         "version": "2.1.32",
         "date": "2026-06-24",
         "changes": [

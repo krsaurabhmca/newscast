@@ -1152,8 +1152,8 @@ endforeach; ?>
                         <span class="field-hint">Required for the AI News module. Get your free key at <a href="https://console.groq.com/" target="_blank" style="color:var(--primary); font-weight: 600;">console.groq.com</a></span>
                     </div>
                 </div>
-            </div>
         </div>
+    </div>
     <!-- ══════════ INTERACTIONS & COMMENTS ══════════ -->
     <div class="settings-panel" id="panel-interactions">
         <div class="settings-card">

@@ -1,6 +1,6 @@
 {
-    "version": "2.1.32",
+    "version": "2.1.33",
     "db_version": 7,
     "last_updated": "2026-06-24",
-    "changelog": "v2.1.32: Fixed settings panel HTML container nesting bug that prevented the Interactions & Comments panel from displaying."
+    "changelog": "v2.1.33: Added automatic database migration trigger on admin dashboard/header load and fixed settings page panel nesting bug."
 }
