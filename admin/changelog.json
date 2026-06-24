@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.1.32",
+        "date": "2026-06-24",
+        "changes": [
+            "Fixed an HTML tag nesting bug in admin/settings.php that caused the Interactions settings tab content to remain hidden under the AI settings container."
+        ]
+    },
+    {
         "version": "2.1.31",
         "date": "2026-06-24",
         "changes": [

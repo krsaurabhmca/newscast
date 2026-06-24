@@ -1153,6 +1153,7 @@ endforeach; ?>
                     </div>
                 </div>
             </div>
+        </div>
     <!-- ══════════ INTERACTIONS & COMMENTS ══════════ -->
     <div class="settings-panel" id="panel-interactions">
         <div class="settings-card">

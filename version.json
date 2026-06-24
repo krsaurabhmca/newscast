@@ -1,6 +1,6 @@
 {
-    "version": "2.1.31",
+    "version": "2.1.32",
     "db_version": 7,
     "last_updated": "2026-06-24",
-    "changelog": "v2.1.31: Implemented subcategory hierarchy, custom URLs/redirects for categories, comment moderation dashboard, article likes/dislikes with toggle settings, expanded category icon library, login logo display, and header brand visibility configuration."
+    "changelog": "v2.1.32: Fixed settings panel HTML container nesting bug that prevented the Interactions & Comments panel from displaying."
 }
