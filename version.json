@@ -1,6 +1,6 @@
 {
-    "version": "2.2.0",
+    "version": "2.2.1",
     "db_version": 7,
     "last_updated": "2026-06-24",
-    "changelog": "v2.2.0: Major dashboard overhaul — What's New panel, improved KPI layout, better quick actions with theme switcher, and cleaner UI. Version milestone bump to 2.2."
+    "changelog": "v2.2.1: Fixed Theme 2 submenu appearing behind the breaking news ticker by raising nav z-index to 500 and submenu to 9999. Fixed duplicate breaking ticker on category pages by suppressing the global ticker whenever category.php renders its own."
 }

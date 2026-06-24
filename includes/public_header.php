@@ -160,7 +160,12 @@ endif; ?>
             border-bottom: 1px solid var(--border);
             padding: 0 40px;
             position: relative !important; /* Non Sticky */
-            z-index: 98;
+            z-index: 500; /* Must be above breaking ticker so submenus render on top */
+        }
+        /* Nav items that have submenus need their own stacking context */
+        .t2-has-sub {
+            position: relative;
+            overflow: visible !important; /* Never clip the dropdown */
         }
         .t2-nav-link {
             display: flex !important;
@@ -206,13 +211,13 @@ endif; ?>
             left: 0;
             background: #fff;
             min-width: 220px;
-            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0,0,0,0.04);
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             list-style: none;
             padding: 10px 0;
             margin: 0;
-            z-index: 1000;
+            z-index: 9999; /* Must exceed everything — nav bar, ticker, header */
             overflow: hidden;
         }
         .t2-has-sub:hover .t2-submenu {
@@ -590,7 +595,13 @@ endif; ?>
             </nav>
             <?php endif; ?>
 
-            <?php if (get_setting('breaking_news_enabled') == 'yes' && !(get_setting('homepage_theme', 'theme1') === 'theme2' && $current_file == 'index.php')):
+            <?php
+            // Suppress global breaking ticker on pages that render their own (category page has its own ticker)
+            $suppress_global_ticker = (
+                (get_setting('homepage_theme', 'theme1') === 'theme2' && $current_file == 'index.php') ||
+                $current_file == 'category.php'
+            );
+            if (get_setting('breaking_news_enabled') == 'yes' && !$suppress_global_ticker):
     $breaking_stmt = $pdo->query("SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 4");
     $breaking_news = $breaking_stmt->fetchAll();
     if ($breaking_news):

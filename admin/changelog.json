@@ -1,5 +1,15 @@
 [
     {
+        "version": "2.2.1",
+        "date": "2026-06-24",
+        "changes": [
+            "Fixed: Theme 2 horizontal nav submenu dropdowns were rendering behind the breaking news ticker bar. Raised nav z-index to 500 and submenu z-index to 9999 to guarantee submenus always appear on top of everything.",
+            "Fixed: Added explicit overflow:visible on .t2-has-sub so the parent list item never clips its own dropdown.",
+            "Fixed: Breaking news ticker appearing twice on category pages. The global ticker is now suppressed whenever category.php is loaded, since the category page renders its own dedicated category-specific ticker.",
+            "Improved submenu box-shadow for a more polished look."
+        ]
+    },
+    {
         "version": "2.2.0",
         "date": "2026-06-24",
         "changes": [
