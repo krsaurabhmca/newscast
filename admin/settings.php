@@ -86,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'photo_of_day_title' => clean($_POST['photo_of_day_title'] ?? ''),
         'photo_of_day_caption' => clean($_POST['photo_of_day_caption'] ?? ''),
         'homepage_theme' => clean($_POST['homepage_theme'] ?? 'theme1'),
+        'apni_baat_label' => clean($_POST['apni_baat_label'] ?? 'Apni Baat'),
     ];
 
     try {
@@ -709,11 +710,26 @@ endforeach; ?>
                             </select>
                         </div>
                     </div>
+
+                    <!-- Apni Baat / Public Submissions Label -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1.5px solid #6366f115; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to right, #f8fafc, #fff);">
+                        <div>
+                            <div style="font-weight: 700; color: #1e293b; font-size: 14px; display:flex; align-items:center; gap:8px;">
+                                <span style="background:#eef2ff; color:#6366f1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:800; letter-spacing:.5px;">DYNAMIC</span>
+                                Public Submissions Button Label
+                            </div>
+                            <div style="font-size: 12px; color: #94a3b8; margin-top:3px;">Label shown on the floating article submission button (e.g. "Apni Baat", "अपनी बात", "Share Story")</div>
+                        </div>
+                        <div style="width: 180px;">
+                            <input type="text" name="apni_baat_label" class="form-control" value="<?php echo htmlspecialchars(get_setting('apni_baat_label', 'Apni Baat')); ?>" placeholder="Apni Baat" style="padding: 8px 12px; font-size: 13px; border-radius: 8px; width: 100%; border: 2px solid #6366f130; outline: none; text-align: center; font-weight: 700; color: #4f46e5; background: #f5f3ff;">
+                        </div>
+                    </div>
                 </div>
 
             </div>
         </div>
     </div>
+
 
     <!-- ══════════ VOICE & TRANSLATE ══════════ -->
     <div class="settings-panel" id="panel-accessibility">

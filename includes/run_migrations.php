@@ -89,6 +89,19 @@ $migrations = [
         "ALTER TABLE feedback ADD COLUMN featured_image VARCHAR(255) DEFAULT NULL AFTER message",
         "ALTER TABLE feedback MODIFY COLUMN status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending'",
         "ALTER TABLE feedback ADD CONSTRAINT fk_feedback_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL"
+    ],
+    9 => [
+        "CREATE TABLE IF NOT EXISTS media_library (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            filename VARCHAR(255) NOT NULL,
+            original_name VARCHAR(255),
+            file_size INT DEFAULT 0,
+            width INT DEFAULT 0,
+            height INT DEFAULT 0,
+            uploaded_by INT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
     ]
 ];
 

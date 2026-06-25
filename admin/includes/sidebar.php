@@ -217,8 +217,14 @@ function sb_active(string $page, array|string $pages = []): string {
             </li>
             <li>
                 <a href="categories.php" class="<?php echo sb_active('categories.php'); ?>">
-                    <span class="sbi"><i data-feather="layers"></i></span>
+                    <span class="sbi"><i data-feather="folder"></i></span>
                     <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="media.php" class="<?php echo sb_active('media.php'); ?>">
+                    <span class="sbi"><i data-feather="image"></i></span>
+                    <span>Media Library</span>
                 </a>
             </li>
             <li>
@@ -250,7 +256,7 @@ function sb_active(string $page, array|string $pages = []): string {
             <li>
                 <a href="feedback.php" class="<?php echo sb_active('feedback.php'); ?>">
                     <span class="sbi"><i data-feather="upload-cloud"></i></span>
-                    <span>Submissions</span>
+                    <span><?php echo htmlspecialchars(get_setting('apni_baat_label', 'Apni Baat')); ?></span>
                     <?php if ($unread_count > 0): ?>
                         <span class="sb-badge"><?php echo $unread_count; ?></span>
                     <?php endif; ?>

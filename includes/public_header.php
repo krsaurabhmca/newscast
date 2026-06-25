@@ -166,12 +166,17 @@ endif; ?>
             border-bottom: 1px solid var(--border);
             padding: 0 40px;
             position: relative !important; /* Non Sticky */
-            z-index: 500; /* Must be above breaking ticker so submenus render on top */
+            z-index: 600; /* Must be above breaking ticker so submenus render on top */
+            overflow: visible !important; /* Allow dropdown to extend outside nav bar */
         }
         /* Nav items that have submenus need their own stacking context */
         .t2-has-sub {
             position: relative;
             overflow: visible !important; /* Never clip the dropdown */
+        }
+        /* The nav ul must also allow overflow so dropdown can extend */
+        .theme2-nav > div > ul {
+            overflow: visible !important;
         }
         .t2-nav-link {
             display: flex !important;
@@ -223,7 +228,7 @@ endif; ?>
             list-style: none;
             padding: 10px 0;
             margin: 0;
-            z-index: 9999; /* Must exceed everything — nav bar, ticker, header */
+            z-index: 99999; /* Highest — must exceed nav, ticker, header, and page content */
             overflow: hidden;
         }
         .t2-has-sub:hover .t2-submenu {

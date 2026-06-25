@@ -1,5 +1,18 @@
 [
     {
+        "version": "2.3.0",
+        "date": "2026-06-25",
+        "changes": [
+            "MAJOR: Integrated a Centralized Media Library. All newly uploaded images are now saved to the server and referenced via URLs, drastically reducing article size and preventing database bloat caused by base64 images.",
+            "Media Library: Added an Admin Media Manager page to upload, view, search, and delete images.",
+            "Media Library: Editor (Quill) and Featured Image tools now use a Media Picker Modal instead of direct uploads, allowing you to reuse existing images.",
+            "Dashboard: Redesigned the 'What's New' panel into a compact, single-row horizontal strip to save vertical space.",
+            "Categories: Improved Breadcrumbs UI to automatically fetch and display the full parent-child subcategory hierarchy (Home → Parent → Subcategory).",
+            "Categories: Parent categories now automatically include and display posts from all their nested subcategories.",
+            "Feedback: Converted 'Feedback' label into a dynamic 'Apni Baat' configuration to collect user articles for public review."
+        ]
+    },
+    {
         "version": "2.2.1",
         "date": "2026-06-24",
         "changes": [

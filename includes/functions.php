@@ -105,6 +105,11 @@ function get_post_thumbnail($image)
         return $image;
     }
 
+    // If it's a library media image
+    if (strpos($image, 'media/') === 0) {
+        return BASE_URL . 'assets/images/' . $image;
+    }
+
     // Build full URL from filename — do NOT check file_exists (breaks on remote/live server)
     return BASE_URL . 'assets/images/posts/' . $image;
 }

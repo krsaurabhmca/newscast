@@ -1,6 +1,6 @@
 {
-    "version": "2.2.2",
-    "db_version": 7,
-    "last_updated": "2026-06-24",
-    "changelog": "v2.2.2: Theme 2 is now 100% responsive across all devices. Added mobile app-like bottom navigation bar (Home/Search/Magazine/Poll/Menu) fixed at bottom on screens ≤1024px with safe-area-inset support for notched phones. Bento Hero Grid stacks vertically on tablet/mobile. Split category sections, main content+sidebar grid, and latest news horizontal cards all collapse correctly. Fixed missing @keyframes ticker animation in Theme 2 (was suppressed with global ticker). Added fluid clamp() padding on content container. Added hover micro-animations for bento cards, split items, and Top 10 cards."
+    "version": "2.3.0",
+    "db_version": 9,
+    "last_updated": "2026-06-25",
+    "changelog": "v2.3.0: Integrated Centralized Media Library. Added Media Manager page and Media Picker modal to reuse images, reducing DB bloat. Dashboard 'What's New' panel is now an ultra-compact horizontal strip. Improved Subcategory Breadcrumbs to show full parent hierarchy. Parent categories now display posts from all their subcategories. Feedback section labeled dynamically as 'Apni Baat' for public article submissions."
 }

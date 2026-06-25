@@ -205,32 +205,24 @@ $current_ver = $version_data['version'] ?? '2.2.0';
 .db-main { display:grid; grid-template-columns:1fr 310px; gap:20px; }
 @media(max-width:1100px){ .db-main{grid-template-columns:1fr;} }
 
-/* ── What's New Panel ── */
+/* ── What's New Panel — Compact Strip ── */
 .db-whats-new {
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    border-radius: var(--d-radius); padding: 20px 24px; margin-bottom: 20px;
+    background: linear-gradient(90deg, #0f172a 0%, #1e1b4b 100%);
+    border-radius: var(--d-radius); padding: 12px 20px;
     border: 1px solid rgba(99,102,241,.2); position:relative; overflow:hidden;
+    margin-bottom: 20px;
 }
-.db-whats-new::before {
-    content:''; position:absolute; top:-40px; right:-40px; width:180px; height:180px; border-radius:50%;
-    background: radial-gradient(circle, rgba(99,102,241,.2), transparent 70%); pointer-events:none;
-}
-.db-wn-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.db-wn-title { display:flex; align-items:center; gap:8px; }
-.db-wn-title span { font-size:14px; font-weight:800; color:#f8fafc; }
-.db-wn-badge { background:var(--d-primary); color:#fff; font-size:10px; font-weight:900; padding:3px 10px; border-radius:20px; letter-spacing:.5px; }
-.db-wn-link { font-size:12px; font-weight:700; color:#818cf8; text-decoration:none; display:flex; align-items:center; gap:4px; }
+.db-wn-inner { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.db-wn-left  { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.db-wn-title-txt { font-size:12px; font-weight:800; color:#f8fafc; white-space:nowrap; }
+.db-wn-badge { background:var(--d-primary); color:#fff; font-size:9px; font-weight:900; padding:2px 8px; border-radius:20px; letter-spacing:.5px; white-space:nowrap; }
+.db-wn-ver-latest { background:#22c55e; color:#fff; font-size:9px; font-weight:900; padding:2px 7px; border-radius:6px; letter-spacing:.5px; }
+.db-wn-divider { width:1px; height:20px; background:rgba(255,255,255,.1); flex-shrink:0; }
+.db-wn-bullets { display:flex; flex-wrap:wrap; gap:6px 16px; flex:1; }
+.db-wn-bullet { font-size:11px; color:#94a3b8; display:flex; align-items:center; gap:5px; line-height:1.4; }
+.db-wn-bullet::before { content:'→'; color:#6366f1; font-weight:900; font-size:10px; flex-shrink:0; }
+.db-wn-link { font-size:11px; font-weight:700; color:#818cf8; text-decoration:none; display:flex; align-items:center; gap:3px; flex-shrink:0; white-space:nowrap; margin-left:auto; }
 .db-wn-link:hover { color:#a5b4fc; }
-.db-wn-versions { display:flex; flex-direction:column; gap:0; }
-.db-wn-version { border-bottom: 1px solid rgba(255,255,255,.06); padding-bottom:10px; margin-bottom:10px; }
-.db-wn-version:last-child { border-bottom:none; padding-bottom:0; margin-bottom:0; }
-.db-wn-ver-head { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-.db-wn-ver-num { font-size:11px; font-weight:900; color:#a5b4fc; background:rgba(99,102,241,.2); padding:2px 9px; border-radius:6px; letter-spacing:.5px; }
-.db-wn-ver-date { font-size:11px; color:#475569; font-weight:600; }
-.db-wn-ver-latest { background:#22c55e; color:#fff; font-size:9px; font-weight:900; padding:2px 8px; border-radius:6px; letter-spacing:.5px; }
-.db-wn-changes { display:flex; flex-direction:column; gap:4px; }
-.db-wn-change { font-size:12px; color:#94a3b8; line-height:1.5; display:flex; align-items:flex-start; gap:6px; }
-.db-wn-change::before { content:'→'; color:#6366f1; font-weight:900; flex-shrink:0; margin-top:0px; font-size:11px; }
 
 /* ── Live Banner ── */
 .dash-live-banner {
@@ -557,41 +549,33 @@ $current_ver = $version_data['version'] ?? '2.2.0';
 </div>
 <?php endif; ?>
 
-<!-- ── What's New Panel ── -->
-<?php if (!empty($changelog_data)): ?>
+<!-- ── What's New — Compact Strip ── -->
+<?php if (!empty($changelog_data)): 
+    $latest = $changelog_data[0];
+    $bullets = array_slice($latest['changes'], 0, 3);
+?>
 <div class="db-whats-new">
-    <div class="db-wn-header">
-        <div class="db-wn-title">
-            <div style="width:28px;height:28px;background:rgba(99,102,241,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;">
-                <i data-feather="star" style="width:14px;color:#a5b4fc;"></i>
+    <div class="db-wn-inner">
+        <div class="db-wn-left">
+            <div style="width:24px;height:24px;background:rgba(99,102,241,.25);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-feather="star" style="width:12px;color:#a5b4fc;"></i>
             </div>
-            <span>What's New in NewsCast</span>
-            <span class="db-wn-badge">v<?php echo $current_ver; ?></span>
+            <span class="db-wn-title-txt">What's New</span>
+            <span class="db-wn-badge">v<?php echo htmlspecialchars($latest['version']); ?></span>
+            <span class="db-wn-ver-latest">LATEST</span>
+        </div>
+        <div class="db-wn-divider"></div>
+        <div class="db-wn-bullets">
+            <?php foreach ($bullets as $change): ?>
+            <span class="db-wn-bullet"><?php echo htmlspecialchars($change); ?></span>
+            <?php endforeach; ?>
+            <?php if (count($latest['changes']) > 3): ?>
+            <span class="db-wn-bullet" style="color:#6366f1;">+<?php echo count($latest['changes']) - 3; ?> more</span>
+            <?php endif; ?>
         </div>
         <a href="system_update.php" class="db-wn-link">
-            View Full Changelog <i data-feather="arrow-right" style="width:12px;"></i>
+            Full log <i data-feather="arrow-right" style="width:11px;"></i>
         </a>
-    </div>
-    <div class="db-wn-versions">
-        <?php foreach ($changelog_data as $idx => $entry): ?>
-        <div class="db-wn-version">
-            <div class="db-wn-ver-head">
-                <span class="db-wn-ver-num">v<?php echo htmlspecialchars($entry['version']); ?></span>
-                <span class="db-wn-ver-date"><?php echo date('M j, Y', strtotime($entry['date'])); ?></span>
-                <?php if ($idx === 0): ?>
-                <span class="db-wn-ver-latest">LATEST</span>
-                <?php endif; ?>
-            </div>
-            <div class="db-wn-changes">
-                <?php foreach (array_slice($entry['changes'], 0, 4) as $change): ?>
-                <div class="db-wn-change"><?php echo htmlspecialchars($change); ?></div>
-                <?php endforeach; ?>
-                <?php if (count($entry['changes']) > 4): ?>
-                <div class="db-wn-change" style="color:#6366f1;">+ <?php echo count($entry['changes']) - 4; ?> more improvements</div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php endforeach; ?>
     </div>
 </div>
 <?php endif; ?>

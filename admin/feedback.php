@@ -1,5 +1,7 @@
 <?php
-$page_title = "Public Article Submissions";
+require_once '../includes/config.php';
+require_once '../includes/functions.php';
+$page_title = htmlspecialchars(get_setting('apni_baat_label', 'Apni Baat')) . " — Submissions";
 include 'includes/header.php';
 
 // Handle delete
