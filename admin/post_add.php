@@ -917,7 +917,8 @@ window.selectMedia = function(url, filename) {
     } else if (currentPickerTarget === 'featured') {
         document.getElementById('imgPreview').src = url;
         document.getElementById('imgPreview').style.display = 'block';
-        document.getElementById('imgPlaceholder').style.display = 'none';
+        const placeholder = document.getElementById('imgPlaceholder');
+        if (placeholder) placeholder.style.display = 'none';
         document.getElementById('previewBox').style.borderStyle = 'solid';
         
         // Save the library filename
