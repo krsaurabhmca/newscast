@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.3.2",
+        "date": "2026-06-25",
+        "changes": [
+            "Fixed a JavaScript error that prevented selecting a featured image from the Media Library when editing an existing article."
+        ]
+    },
+    {
         "version": "2.3.1",
         "date": "2026-06-25",
         "changes": [

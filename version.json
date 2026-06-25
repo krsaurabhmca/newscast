@@ -1,6 +1,6 @@
 {
-    "version": "2.3.1",
+    "version": "2.3.2",
     "db_version": 9,
     "last_updated": "2026-06-25",
-    "changelog": "v2.3.1: Fixed a critical bug where the Quill rich text editor would fail to load on the Add Article page."
+    "changelog": "v2.3.2: Fixed an issue where selecting a featured photo from the Media Library modal would fail when editing an existing article."
 }
