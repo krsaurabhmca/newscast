@@ -2,7 +2,7 @@
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
 
-if (!is_logged_in()) {
+if (!is_logged_in() || !is_admin()) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }

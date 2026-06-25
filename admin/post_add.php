@@ -30,7 +30,11 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
         }
     }
 
-    $status = isset($_POST['publish_post']) ? 'published' : 'draft';
+    if (is_reporter()) {
+        $status = 'draft';
+    } else {
+        $status = isset($_POST['publish_post']) ? 'published' : 'draft';
+    }
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
     $user_id = $_SESSION['user_id'];
 
@@ -225,10 +229,12 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                     <p style="color: #64748b; font-size: 10px; margin-top: 5px;">Leave blank for instant publish.</p>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button type="submit" name="publish_post" class="btn btn-primary"
-                        style="width: 100%; justify-content: center; height: 50px; font-size: 15px;">
-                        <i data-feather="zap" style="width: 18px;"></i> Publish Now
-                    </button>
+                    <?php if (!is_reporter()): ?>
+                        <button type="submit" name="publish_post" class="btn btn-primary"
+                            style="width: 100%; justify-content: center; height: 50px; font-size: 15px;">
+                            <i data-feather="zap" style="width: 18px;"></i> Publish Now
+                        </button>
+                    <?php endif; ?>
                     <button type="submit" name="save_draft" class="btn"
                         style="width: 100%; justify-content: center; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
                         <i data-feather="edit-3" style="width: 16px;"></i> Save as Draft

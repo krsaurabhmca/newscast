@@ -17,6 +17,10 @@ if (!$post) {
     exit();
 }
 
+if (!can_edit_post($post)) {
+    redirect('admin/posts.php', 'Access denied. You do not have permission to edit this post.', 'danger');
+}
+
 // Fetch current categories for this post
 $current_categories = $pdo->prepare("SELECT category_id FROM post_categories WHERE post_id = ?");
 $current_categories->execute([$id]);
@@ -37,7 +41,11 @@ if (isset($_POST['update_post'])) {
     $meta_description = clean($_POST['meta_description']);
     $video_url = clean($_POST['video_url']);
     $external_link = clean($_POST['external_link']);
-    $status = $_POST['status'];
+    if (is_reporter()) {
+        $status = 'draft';
+    } else {
+        $status = $_POST['status'];
+    }
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
 
     // Scheduled Date
@@ -236,10 +244,15 @@ try {
         <div class="stat-card" style="background: #0f172a; color: white; border: none;">
             <div class="form-group">
                 <label style="color: #94a3b8; font-size: 12px;">Article Status</label>
-                <select name="status" class="form-control" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;">
-                    <option value="published" <?php echo $post['status'] == 'published' ? 'selected' : ''; ?> style="color: black;">Published</option>
-                    <option value="draft" <?php echo $post['status'] == 'draft' ? 'selected' : ''; ?> style="color: black;">Draft</option>
-                </select>
+                <?php if (is_reporter()): ?>
+                    <input type="text" class="form-control" value="Draft" disabled style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: #94a3b8;">
+                    <input type="hidden" name="status" value="draft">
+                <?php else: ?>
+                    <select name="status" class="form-control" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: white;">
+                        <option value="published" <?php echo $post['status'] == 'published' ? 'selected' : ''; ?> style="color: black;">Published</option>
+                        <option value="draft" <?php echo $post['status'] == 'draft' ? 'selected' : ''; ?> style="color: black;">Draft</option>
+                    </select>
+                <?php endif; ?>
             </div>
             <div class="form-group">
                 <label style="color: #94a3b8; font-size: 12px;">Publish Schedule</label>

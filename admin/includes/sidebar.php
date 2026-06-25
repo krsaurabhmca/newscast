@@ -215,30 +215,37 @@ function sb_active(string $page, array|string $pages = []): string {
                     <span>Articles</span>
                 </a>
             </li>
+            <?php if (is_admin()): ?>
             <li>
                 <a href="categories.php" class="<?php echo sb_active('categories.php'); ?>">
                     <span class="sbi"><i data-feather="folder"></i></span>
                     <span>Categories</span>
                 </a>
             </li>
+            <?php endif; ?>
             <li>
                 <a href="media.php" class="<?php echo sb_active('media.php'); ?>">
                     <span class="sbi"><i data-feather="image"></i></span>
                     <span>Media Library</span>
                 </a>
             </li>
+            <?php if (is_admin()): ?>
             <li>
                 <a href="tags.php" class="<?php echo sb_active('tags.php'); ?>">
                     <span class="sbi"><i data-feather="tag"></i></span>
                     <span>Tags</span>
                 </a>
             </li>
+            <?php endif; ?>
+            <?php if (is_admin() || is_editor()): ?>
             <li>
                 <a href="polls.php" class="<?php echo sb_active('polls.php'); ?>">
                     <span class="sbi"><i data-feather="pie-chart"></i></span>
                     <span>Polls</span>
                 </a>
             </li>
+            <?php endif; ?>
+            <?php if (is_admin()): ?>
             <?php if (get_setting('ebook_magazine_enabled', 'yes') == 'yes'): ?>
             <li>
                 <a href="magazines.php" class="<?php echo sb_active('magazines.php'); ?>">
@@ -253,6 +260,8 @@ function sb_active(string $page, array|string $pages = []): string {
                     <span>WP Import</span>
                 </a>
             </li>
+            <?php endif; ?>
+            <?php if (is_admin() || is_editor()): ?>
             <li>
                 <a href="feedback.php" class="<?php echo sb_active('feedback.php'); ?>">
                     <span class="sbi"><i data-feather="upload-cloud"></i></span>
@@ -277,6 +286,7 @@ function sb_active(string $page, array|string $pages = []): string {
                     <?php endif; ?>
                 </a>
             </li>
+            <?php endif; ?>
         </ul>
 
         <?php if (is_admin()): ?>

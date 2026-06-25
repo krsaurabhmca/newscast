@@ -4,8 +4,16 @@ require_once '../includes/functions.php';
 $page_title = htmlspecialchars(get_setting('apni_baat_label', 'Apni Baat')) . " — Submissions";
 include 'includes/header.php';
 
+if (!is_admin() && !is_editor()) {
+    redirect('admin/dashboard.php', 'Access denied.', 'danger');
+}
+
 // Handle delete
 if (isset($_GET['delete'])) {
+    if (!is_admin()) {
+        redirect('admin/feedback.php', 'Access denied. Only Admins can delete.', 'danger');
+        exit;
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
@@ -302,9 +310,11 @@ if (isset($_GET['view'])) {
                         Status: <?php echo ucfirst($view_sub['status']); ?>
                     </div>
                 <?php endif; ?>
+                <?php if (is_admin()): ?>
                 <a href="?delete=<?php echo $view_sub['id']; ?>" onclick="return confirm('Permanently delete this submission?')" style="padding: 12px 18px; background: #fef2f2; color: #ef4444; border-radius: 10px; font-weight: 700; text-decoration: none; display: flex; align-items: center;">
                     <i data-feather="trash-2" style="width: 16px;"></i>
                 </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

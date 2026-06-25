@@ -2,6 +2,10 @@
 $page_title = "Timeline Management";
 include 'includes/header.php';
 
+if (!is_admin() && !is_editor()) {
+    redirect('admin/dashboard.php', 'Access denied.', 'danger');
+}
+
 // Handle Add Item
 if (isset($_POST['add_timeline'])) {
     $event_name = clean($_POST['event_name']);
@@ -46,6 +50,10 @@ if (isset($_POST['update_timeline'])) {
 
 // Handle Delete Item
 if (isset($_GET['delete'])) {
+    if (!is_admin()) {
+        redirect('admin/timeline.php', 'Access denied. Only Admins can delete.', 'danger');
+        exit;
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
@@ -115,14 +123,16 @@ $timeline = $pdo->query("SELECT * FROM timeline ORDER BY created_at DESC")->fetc
                         <strong style="color: #0f172a; display: block; margin-bottom: 3px;"><?php echo htmlspecialchars($item['event_name']); ?></strong>
                         <?php echo htmlspecialchars($item['description']); ?>
                     </td>
-                    <td style="width: 140px;">
-                        <div style="display: flex; gap: 8px;">
+                    <td style="width: 140px; text-align:right;">
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
                             <a href="?edit=<?php echo $item['id']; ?>" class="btn" style="padding: 6px 12px; font-size: 12px; background: #f1f5f9; color: #444; display: flex; align-items: center; gap: 5px;">
                                 <i data-feather="edit-2" style="width: 12px;"></i> Edit
                             </a>
-                            <a href="?delete=<?php echo $item['id']; ?>" class="btn" style="padding: 6px 12px; font-size: 12px; background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; display: flex; align-items: center; gap: 5px;" onclick="return confirm('Delete this timeline update?')">
+                            <?php if (is_admin()): ?>
+                            <a href="?delete=<?php echo $item['id']; ?>" class="btn" style="padding: 6px 12px; font-size: 12px; background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; display: flex; align-items: center; gap: 5px;" onclick="return confirm('Delete this timeline event?')">
                                 <i data-feather="trash-2" style="width: 12px;"></i> Del
                             </a>
+                            <?php endif; ?>
                         </div>
                     </td>
                 </tr>

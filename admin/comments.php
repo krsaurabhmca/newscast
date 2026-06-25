@@ -2,6 +2,10 @@
 $page_title = "Comments Moderation";
 include 'includes/header.php';
 
+if (!is_admin() && !is_editor()) {
+    redirect('admin/dashboard.php', 'Access denied.', 'danger');
+}
+
 // Handle Action requests (Approve, Delete, Spam)
 if (isset($_GET['action']) && isset($_GET['id'])) {
     if (is_demo_account()) {
@@ -24,6 +28,10 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
             $_SESSION['flash_msg'] = "Comment marked as spam.";
             $_SESSION['flash_type'] = "warning";
         } elseif ($action === 'delete') {
+            if (!is_admin()) {
+                redirect('admin/comments.php', 'Access denied. Only Admins can delete comments.', 'danger');
+                exit;
+            }
             $stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
             $stmt->execute([$id]);
             $_SESSION['flash_msg'] = "Comment deleted permanently.";
@@ -132,10 +140,11 @@ $spam_count = $pdo->query("SELECT COUNT(*) FROM comments WHERE status = 'spam'")
                                             <i data-feather="slash" style="width: 14px;"></i>
                                         </a>
                                     <?php endif; ?>
-
+                                    <?php if (is_admin()): ?>
                                     <a href="?action=delete&id=<?php echo $cmt['id']; ?>" class="btn btn-danger" style="background: #fef2f2; color: #ef4444; border: 1px solid transparent; padding: 6px; border-radius: 6px; display: inline-flex; align-items: center;" onclick="return confirm('Permanently delete this comment?')" title="Delete">
                                         <i data-feather="trash-2" style="width: 14px;"></i>
                                     </a>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>

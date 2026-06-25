@@ -14,6 +14,18 @@ if (!is_logged_in()) {
     exit();
 }
 
+if (isset($_GET['revert_admin']) && isset($_SESSION['admin_user_id'])) {
+    $_SESSION['user_id'] = $_SESSION['admin_user_id'];
+    $_SESSION['username'] = $_SESSION['admin_username'];
+    $_SESSION['role'] = $_SESSION['admin_role'];
+    $_SESSION['profile_image'] = $_SESSION['admin_profile_image'];
+    
+    unset($_SESSION['admin_user_id'], $_SESSION['admin_username'], $_SESSION['admin_role'], $_SESSION['admin_profile_image']);
+    
+    header("Location: dashboard.php");
+    exit;
+}
+
 // Check for system updates periodically
 if (is_admin()) {
     check_system_updates_cached($pdo);
@@ -65,6 +77,12 @@ if (is_admin()) {
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 20px;">
+                    <?php if (isset($_SESSION['admin_user_id'])): ?>
+                    <a href="?revert_admin=1" class="desktop-only" style="color: white; padding: 6px 12px; border-radius: 8px; background: #ef4444; transition: .2s; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; font-size: 13px; text-decoration: none;" title="Back to Own Account">
+                        <i data-feather="corner-up-left" style="width: 16px; height: 16px;"></i> Return to Admin
+                    </a>
+                    <?php endif; ?>
+
                     <!-- Custom Language Switcher -->
                     <div class="lang-switch desktop-only" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; gap: 4px;">
                         <button onclick="setAdminLang('en')" id="btn-lang-en" style="border: none; background: transparent; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; color: #475569; transition: .2s;">EN</button>

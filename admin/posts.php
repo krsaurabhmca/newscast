@@ -4,6 +4,9 @@ include 'includes/header.php';
 
 // ── Delete ─────────────────────────────────────────────
 if (isset($_GET['delete'])) {
+    if (!is_admin()) {
+        redirect('admin/posts.php', 'Access denied. Only Admins can delete posts.', 'danger');
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
@@ -21,6 +24,9 @@ if (isset($_GET['delete'])) {
 
 // ── Bulk Delete ─────────────────────────────────────────────
 if (isset($_POST['bulk_delete']) && !empty($_POST['post_ids'])) {
+    if (!is_admin()) {
+        redirect('admin/posts.php', 'Access denied. Only Admins can delete posts.', 'danger');
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
@@ -516,8 +522,11 @@ function paginate_url(array $overrides = []): string
             <table class="modern-table">
                 <thead>
                     <tr>
-                        <th width="40px" style="padding-right: 0;"><input type="checkbox" id="selectAll"
-                                style="cursor: pointer;"></th>
+                        <th width="40px" style="padding-right: 0;">
+                            <?php if (is_admin()): ?>
+                                <input type="checkbox" id="selectAll" style="cursor: pointer;">
+                            <?php endif; ?>
+                        </th>
                         <th width="40%">Article Details</th>
                         <th>Category</th>
                         <th>Status</th>
@@ -554,8 +563,10 @@ function paginate_url(array $overrides = []): string
                         <?php foreach ($posts as $post): ?>
                             <tr>
                                 <td style="padding-right: 0;">
-                                    <input type="checkbox" name="post_ids[]" value="<?= $post['id'] ?>" class="post-checkbox"
-                                        style="cursor: pointer;">
+                                    <?php if (is_admin()): ?>
+                                        <input type="checkbox" name="post_ids[]" value="<?= $post['id'] ?>" class="post-checkbox"
+                                            style="cursor: pointer;">
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="post-title-cell">
@@ -606,14 +617,18 @@ function paginate_url(array $overrides = []): string
                                                 <i data-feather="external-link" style="width:15px;"></i>
                                             </a>
                                         <?php endif; ?>
-                                        <a href="post_edit.php?id=<?= $post['id'] ?>" class="action-btn" title="Edit Article">
-                                            <i data-feather="edit-2" style="width:15px;"></i>
-                                        </a>
-                                        <a href="?delete=<?= $post['id'] ?>&<?= http_build_query(array_filter(['s' => $search, 'st' => $status, 'cat' => $cat_id, 'sort' => $sort, 'page' => $page])) ?>"
-                                            class="action-btn delete" title="Delete Article"
-                                            onclick="return confirm('Delete this article permanently? This action cannot be undone.')">
-                                            <i data-feather="trash-2" style="width:15px;"></i>
-                                        </a>
+                                        <?php if (can_edit_post($post)): ?>
+                                            <a href="post_edit.php?id=<?= $post['id'] ?>" class="action-btn" title="Edit Article">
+                                                <i data-feather="edit-2" style="width:15px;"></i>
+                                            </a>
+                                        <?php endif; ?>
+                                        <?php if (is_admin()): ?>
+                                            <a href="?delete=<?= $post['id'] ?>&<?= http_build_query(array_filter(['s' => $search, 'st' => $status, 'cat' => $cat_id, 'sort' => $sort, 'page' => $page])) ?>"
+                                                class="action-btn delete" title="Delete Article"
+                                                onclick="return confirm('Delete this article permanently? This action cannot be undone.')">
+                                                <i data-feather="trash-2" style="width:15px;"></i>
+                                            </a>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

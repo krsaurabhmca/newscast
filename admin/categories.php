@@ -4,6 +4,9 @@ include 'includes/header.php';
 
 // Handle Add Category
 if (isset($_POST['add_category'])) {
+    if (!is_admin()) {
+        redirect('admin/categories.php', 'Access denied. Only Admins can add categories.', 'danger');
+    }
     $name = clean($_POST['name']);
     $slug = create_slug($name);
     $description = clean($_POST['description']);
@@ -30,6 +33,9 @@ if (isset($_POST['add_category'])) {
 
 // Handle Update Category
 if (isset($_POST['update_category'])) {
+    if (!is_admin()) {
+        redirect('admin/categories.php', 'Access denied. Only Admins can edit categories.', 'danger');
+    }
     $id = $_POST['id'];
     $name = clean($_POST['name']);
     $slug = create_slug($name);
@@ -52,6 +58,9 @@ if (isset($_POST['update_category'])) {
 
 // Handle Toggle Category Status
 if (isset($_GET['toggle'])) {
+    if (!is_admin()) {
+        redirect('admin/categories.php', 'Access denied.', 'danger');
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot modify data.', 'danger');
         exit;
@@ -64,6 +73,9 @@ if (isset($_GET['toggle'])) {
 
 // Handle Toggle Featured Status
 if (isset($_GET['toggle_featured'])) {
+    if (!is_admin()) {
+        redirect('admin/categories.php', 'Access denied.', 'danger');
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot modify data.', 'danger');
         exit;
@@ -76,6 +88,9 @@ if (isset($_GET['toggle_featured'])) {
 
 // Handle Delete Category
 if (isset($_GET['delete'])) {
+    if (!is_admin()) {
+        redirect('admin/categories.php', 'Access denied. Only Admins can delete categories.', 'danger');
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
@@ -124,7 +139,9 @@ $parent_categories = $pdo->query($parent_opt_query . " ORDER BY name ASC")->fetc
                     <a href="categories.php" class="btn" style="padding: 8px 15px; font-size: 13px; background: #f1f5f9; color: #475569;">Clear</a>
                 <?php endif; ?>
             </form>
-            <button onclick="openCategoryModal()" class="btn btn-primary"><i data-feather="plus" style="width: 16px;"></i> Add New Category</button>
+            <?php if (is_admin()): ?>
+                <button onclick="openCategoryModal()" class="btn btn-primary"><i data-feather="plus" style="width: 16px;"></i> Add New Category</button>
+            <?php endif; ?>
         </div>
     </div>
         <div class="table-responsive"><table class="content-table">
@@ -136,7 +153,9 @@ $parent_categories = $pdo->query($parent_opt_query . " ORDER BY name ASC")->fetc
                     <th>Direct Link</th>
                     <th>Status & Visibility</th>
                     <th>Posts</th>
-                    <th>Actions</th>
+                    <?php if (is_admin()): ?>
+                        <th>Actions</th>
+                    <?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -156,38 +175,56 @@ $parent_categories = $pdo->query($parent_opt_query . " ORDER BY name ASC")->fetc
                     <td><?php echo !empty($cat['custom_url']) ? '<a href="' . htmlspecialchars($cat['custom_url']) . '" target="_blank" style="color:var(--primary); font-size:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i data-feather="external-link" style="width:12px;"></i> Link</a>' : '<span style="color:#94a3b8;">-</span>'; ?></td>
                     <td>
                         <div style="display: flex; gap: 15px; align-items: center;">
-                            <a href="?toggle=<?php echo $cat['id']; ?>" style="text-decoration: none; display: flex; align-items: center; gap: 6px;" title="Toggle Active Status">
+                            <?php if (is_admin()): ?>
+                                <a href="?toggle=<?php echo $cat['id']; ?>" style="text-decoration: none; display: flex; align-items: center; gap: 6px;" title="Toggle Active Status">
+                            <?php else: ?>
+                                <div style="display: flex; align-items: center; gap: 6px;" title="Active Status">
+                            <?php endif; ?>
                                 <label class="switch" style="display: flex; align-items: center; cursor: pointer; pointer-events: none; margin: 0;">
                                     <div style="position: relative; width: 36px; height: 20px;">
                                         <input type="checkbox" <?php echo $cat['status'] == 'active' ? 'checked' : ''; ?> style="opacity: 0; width: 0; height: 0; position: absolute;">
                                         <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 20px;"></span>
                                     </div>
                                 </label>
-                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">Active</span>
-                            </a>
+                                </div>
+                            <?php if (is_admin()): ?>
+                                </a>
+                            <?php else: ?>
+                                </div>
+                            <?php endif; ?>
                             
-                            <a href="?toggle_featured=<?php echo $cat['id']; ?>" style="text-decoration: none; display: flex; align-items: center; gap: 6px;" title="Toggle Homepage Featured">
+                            <?php if (is_admin()): ?>
+                                <a href="?toggle_featured=<?php echo $cat['id']; ?>" style="text-decoration: none; display: flex; align-items: center; gap: 6px;" title="Toggle Homepage Featured">
+                            <?php else: ?>
+                                <div style="display: flex; align-items: center; gap: 6px;" title="Homepage Featured">
+                            <?php endif; ?>
                                 <label class="switch" style="display: flex; align-items: center; cursor: pointer; pointer-events: none; margin: 0;">
                                     <div style="position: relative; width: 36px; height: 20px;">
                                         <input type="checkbox" <?php echo !empty($cat['show_on_homepage']) ? 'checked' : ''; ?> style="opacity: 0; width: 0; height: 0; position: absolute;">
                                         <span class="slider slider-featured" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 20px;"></span>
                                     </div>
                                 </label>
-                                <span style="font-size: 11px; font-weight: 700; color: #64748b;">Featured</span>
-                            </a>
+                                </div>
+                            <?php if (is_admin()): ?>
+                                </a>
+                            <?php else: ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </td>
                     <td><?php echo $count; ?></td>
-                    <td>
-                        <div style="display: flex; gap: 5px;">
-                            <a href="?edit=<?php echo $cat['id']; ?>" class="btn" style="padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #f1f5f9; color: #475569;" title="Edit">
-                                <i data-feather="edit-2" style="width: 14px; margin: 0;"></i>
-                            </a>
-                            <a href="?delete=<?php echo $cat['id']; ?>" class="btn btn-danger" style="padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #fef2f2; color: #ef4444; border: 1px solid transparent;" onclick="return confirm('Delete this category?')" title="Delete">
-                                <i data-feather="trash-2" style="width: 14px; margin: 0;"></i>
-                            </a>
-                        </div>
-                    </td>
+                    <?php if (is_admin()): ?>
+                        <td>
+                            <div style="display: flex; gap: 5px;">
+                                <a href="?edit=<?php echo $cat['id']; ?>" class="btn" style="padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #f1f5f9; color: #475569;" title="Edit">
+                                    <i data-feather="edit-2" style="width: 14px; margin: 0;"></i>
+                                </a>
+                                <a href="?delete=<?php echo $cat['id']; ?>" class="btn btn-danger" style="padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #fef2f2; color: #ef4444; border: 1px solid transparent;" onclick="return confirm('Delete this category?')" title="Delete">
+                                    <i data-feather="trash-2" style="width: 14px; margin: 0;"></i>
+                                </a>
+                            </div>
+                        </td>
+                    <?php endif; ?>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

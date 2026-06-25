@@ -2,6 +2,10 @@
 $page_title = "Manage Polls";
 include 'includes/header.php';
 
+if (!is_admin() && !is_editor()) {
+    redirect('admin/dashboard.php', 'Access denied.', 'danger');
+}
+
 // Handle Add Poll
 if (isset($_POST['add_poll'])) {
     $question = clean($_POST['question']);
@@ -64,6 +68,10 @@ if (isset($_POST['update_status'])) {
 
 // Handle Delete Poll
 if (isset($_GET['delete'])) {
+    if (!is_admin()) {
+        redirect('admin/polls.php', 'Access denied. Only Admins can delete polls.', 'danger');
+        exit;
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
@@ -203,9 +211,11 @@ $polls = $pdo->query("SELECT * FROM polls ORDER BY created_at DESC")->fetchAll()
                             <a href="../poll.php?id=<?php echo $poll['id']; ?>" target="_blank" class="btn" style="padding: 6px; background: #eff6ff; color: #3b82f6; border-radius: 8px;" title="View Poll">
                                 <i data-feather="external-link" style="width: 14px; margin: 0;"></i>
                             </a>
+                            <?php if (is_admin()): ?>
                             <a href="?delete=<?php echo $poll['id']; ?>" class="btn btn-danger" style="padding: 6px; background: #fef2f2; color: #ef4444; border: 1px solid transparent; border-radius: 8px;" onclick="return confirm('Are you sure you want to delete this poll? All votes will be lost.')" title="Delete Poll">
                                 <i data-feather="trash-2" style="width: 14px; margin: 0;"></i>
                             </a>
+                            <?php endif; ?>
                         </div>
                         
                         <div style="background: white; border-radius: 8px; padding: 15px; border: 1px solid #e2e8f0;">

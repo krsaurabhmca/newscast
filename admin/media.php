@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadZone = document.getElementById('mediaUploadZone');
     const fileInput = document.getElementById('mediaFileInput');
     
+    const isAdmin = <?php echo is_admin() ? 'true' : 'false'; ?>;
     let currentPage = 1;
     let currentSearch = '';
 
@@ -204,9 +205,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button class="media-btn" title="Copy URL" onclick="copyToClipboard('${url}')">
                             <i data-feather="copy" style="width: 14px;"></i>
                         </button>
-                        <button class="media-btn delete-btn" title="Delete" onclick="deleteMedia(${item.id})">
+                        ${isAdmin ? `<button class="media-btn delete-btn" title="Delete" onclick="deleteMedia(${item.id})">
                             <i data-feather="trash-2" style="width: 14px;"></i>
-                        </button>
+                        </button>` : ''}
                     </div>
                 </div>
             `;

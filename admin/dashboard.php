@@ -3,14 +3,18 @@ $page_title = "Dashboard";
 include 'includes/header.php';
 
 // ── Core Stats ────────────────────────────────────────────────────────────
-$total_posts      = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
-$published_posts  = $pdo->query("SELECT COUNT(*) FROM posts WHERE status='published'")->fetchColumn();
-$draft_posts      = $pdo->query("SELECT COUNT(*) FROM posts WHERE status='draft'")->fetchColumn();
+$user_id = $_SESSION['user_id'] ?? 0;
+$post_condition_simple = is_reporter() ? "user_id = " . (int)$user_id : "1=1";
+$post_condition_join = is_reporter() ? "p.user_id = " . (int)$user_id : "1=1";
+
+$total_posts      = $pdo->query("SELECT COUNT(*) FROM posts WHERE $post_condition_simple")->fetchColumn();
+$published_posts  = $pdo->query("SELECT COUNT(*) FROM posts WHERE status='published' AND $post_condition_simple")->fetchColumn();
+$draft_posts      = $pdo->query("SELECT COUNT(*) FROM posts WHERE status='draft' AND $post_condition_simple")->fetchColumn();
 $total_categories = $pdo->query("SELECT COUNT(*) FROM categories WHERE status='active'")->fetchColumn();
-$total_views      = $pdo->query("SELECT COALESCE(SUM(views),0) FROM posts")->fetchColumn();
+$total_views      = $pdo->query("SELECT COALESCE(SUM(views),0) FROM posts WHERE $post_condition_simple")->fetchColumn();
 $total_users      = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $unread_msgs      = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status='new'")->fetchColumn();
-$today_posts      = $pdo->query("SELECT COUNT(*) FROM posts WHERE DATE(created_at)=CURDATE()")->fetchColumn();
+$today_posts      = $pdo->query("SELECT COUNT(*) FROM posts WHERE DATE(created_at)=CURDATE() AND $post_condition_simple")->fetchColumn();
 $active_polls     = $pdo->query("SELECT COUNT(*) FROM polls WHERE status='active'")->fetchColumn();
 
 // ── Pending comments ─────────────────────────────────────────────────────
@@ -35,7 +39,7 @@ $top_posts = $pdo->query("
     FROM posts p
     LEFT JOIN post_categories pc ON p.id=pc.post_id
     LEFT JOIN categories c ON pc.category_id=c.id
-    WHERE p.status='published'
+    WHERE p.status='published' AND $post_condition_join
     GROUP BY p.id ORDER BY p.views DESC LIMIT 5
 ")->fetchAll();
 
@@ -47,6 +51,7 @@ $recent_posts = $pdo->query("
     FROM posts p
     LEFT JOIN post_categories pc ON p.id=pc.post_id
     LEFT JOIN categories c ON pc.category_id=c.id
+    WHERE $post_condition_join
     GROUP BY p.id ORDER BY p.created_at DESC LIMIT 6
 ")->fetchAll();
 
@@ -169,12 +174,9 @@ $current_ver = $version_data['version'] ?? '2.2.0';
 /* ── KPI Grid ── */
 .db-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 14px; margin-bottom: 22px;
 }
-@media(max-width:1200px){.db-kpi-grid{grid-template-columns:repeat(4,1fr);}}
-@media(max-width:900px) {.db-kpi-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:480px) {.db-kpi-grid{grid-template-columns:1fr 1fr;}}
 
 .db-kpi {
     background: var(--d-surface); border-radius: var(--d-radius);
@@ -308,7 +310,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
 .badge-draft     { background:#fef3c7; color:#92400e; padding:2px 7px; border-radius:5px; font-size:9px; font-weight:800; text-transform:uppercase; }
 
 /* ── Quick Actions ── */
-.db-quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:14px; }
+.db-quick-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px; padding:14px; }
 .db-qa {
     display:flex; flex-direction:row; align-items:center; justify-content:flex-start;
     gap:10px; padding:12px 14px; border-radius:10px; text-decoration:none;
@@ -393,9 +395,11 @@ $current_ver = $version_data['version'] ?? '2.2.0';
         <a href="<?php echo BASE_URL; ?>" target="_blank" class="db-greet-btn db-greet-btn-ghost">
             <i data-feather="external-link" style="width:14px;"></i> View Site
         </a>
+        <?php if (is_admin()): ?>
         <a href="system_update.php" class="db-greet-btn db-greet-btn-ghost">
             <i data-feather="refresh-cw" style="width:14px;"></i> Updates
         </a>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -424,6 +428,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
         <div class="db-kpi-sub"><span class="up">↑ Growing</span></div>
     </a>
 
+    <?php if (is_admin()): ?>
     <a href="ads.php" class="db-kpi" style="--kpi-color:#f59e0b;--kpi-bg:#fef3c7;">
         <div class="db-kpi-top">
             <div>
@@ -435,7 +440,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
         <div class="db-kpi-sub"><?php echo number_format($total_ad_views); ?> impressions</div>
     </a>
 
-    <a href="feedback.php" class="db-kpi" style="--kpi-color:#f43f5e;--kpi-bg:#fff1f2;">
+    <a href="users.php" class="db-kpi" style="--kpi-color:#f43f5e;--kpi-bg:#fff1f2;">
         <div class="db-kpi-top">
             <div>
                 <div class="db-kpi-label">Inbox</div>
@@ -451,7 +456,9 @@ $current_ver = $version_data['version'] ?? '2.2.0';
             <?php endif; ?>
         </div>
     </a>
+    <?php endif; ?>
 
+    <?php if (!is_reporter()): ?>
     <a href="categories.php" class="db-kpi" style="--kpi-color:#8b5cf6;--kpi-bg:#ede9fe;">
         <div class="db-kpi-top">
             <div>
@@ -484,6 +491,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
         </div>
         <div class="db-kpi-sub">Staff members</div>
     </a>
+    <?php endif; ?>
 
     <?php if($pending_comments > 0): ?>
     <a href="comments.php" class="db-kpi" style="--kpi-color:#f43f5e;--kpi-bg:#fff1f2;">
@@ -512,7 +520,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
 </div>
 
 <!-- ── Live Stream Banner ── -->
-<?php if ($live_url): ?>
+<?php if (is_admin() && $live_url): ?>
 <div class="dash-live-banner <?php echo $live_enabled ? 'live-on' : 'live-off'; ?>" style="margin-bottom:20px;">
     <div class="dlb-info">
         <div class="dlb-badge-row">
@@ -550,7 +558,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
 <?php endif; ?>
 
 <!-- ── What's New — Compact Strip ── -->
-<?php if (!empty($changelog_data)): 
+<?php if (is_admin() && !empty($changelog_data)): 
     $latest = $changelog_data[0];
     $bullets = array_slice($latest['changes'], 0, 3);
 ?>
@@ -683,6 +691,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
                 </div>
             </div>
 
+            <?php if (is_admin()): ?>
             <!-- Ad Pulse -->
             <div class="db-card">
                 <div class="db-card-head">
@@ -715,6 +724,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
                 <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -734,6 +744,8 @@ $current_ver = $version_data['version'] ?? '2.2.0';
                     <div class="db-qa-icon" style="background:rgba(255,255,255,.2);"><i data-feather="plus" style="width:15px;"></i></div>
                     <span>New Article</span>
                 </a>
+                
+                <?php if (!is_reporter()): ?>
                 <a href="categories.php" class="db-qa db-qa-dark">
                     <div class="db-qa-icon" style="background:rgba(255,255,255,.1);"><i data-feather="layers" style="width:15px;"></i></div>
                     <span>Categories</span>
@@ -742,6 +754,9 @@ $current_ver = $version_data['version'] ?? '2.2.0';
                     <div class="db-qa-icon" style="background:rgba(16,185,129,.15);"><i data-feather="pie-chart" style="width:15px;"></i></div>
                     <span>Polls</span>
                 </a>
+                <?php endif; ?>
+
+                <?php if (is_admin()): ?>
                 <a href="ads.php" class="db-qa db-qa-amber">
                     <div class="db-qa-icon" style="background:rgba(245,158,11,.15);"><i data-feather="target" style="width:15px;"></i></div>
                     <span>Ads</span>
@@ -758,21 +773,28 @@ $current_ver = $version_data['version'] ?? '2.2.0';
                     <div class="db-qa-icon" style="background:rgba(139,92,246,.15);"><i data-feather="layout" style="width:15px;"></i></div>
                     <span>Themes</span>
                 </a>
+                <?php endif; ?>
+
+                <?php if (!is_reporter()): ?>
                 <a href="comments.php" class="db-qa db-qa-orange">
                     <div class="db-qa-icon" style="background:rgba(249,115,22,.15);"><i data-feather="message-square" style="width:15px;"></i></div>
                     <span>Comments<?php if($pending_comments>0): ?> <span style="background:#f43f5e;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:2px;"><?php echo $pending_comments; ?></span><?php endif; ?></span>
                 </a>
+                <?php endif; ?>
             </div>
             <div style="margin: 0 14px 14px; display:flex; gap:8px;">
                 <a href="<?php echo BASE_URL; ?>" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;transition:.2s;" onmouseover="this.style.background='#d1fae5'" onmouseout="this.style.background='#ecfdf5'">
                     <i data-feather="globe" style="width:15px;"></i> Open Website
                 </a>
+                <?php if (is_admin()): ?>
                 <a href="system_update.php" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;background:#eff6ff;color:#3b82f6;border:1px solid #bfdbfe;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;transition:.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
                     <i data-feather="refresh-cw" style="width:15px;"></i> Check Updates
                 </a>
+                <?php endif; ?>
             </div>
         </div>
 
+        <?php if (!is_reporter()): ?>
         <!-- Section Pulse -->
         <div class="db-card">
             <div class="db-card-head">
@@ -800,8 +822,11 @@ $current_ver = $version_data['version'] ?? '2.2.0';
             </div>
             <?php endforeach; ?>
             </div>
+            </div>
         </div>
+        <?php endif; ?>
 
+        <?php if (is_admin()): ?>
         <!-- Feedback Inbox -->
         <div class="db-card">
             <div class="db-card-head">
@@ -834,6 +859,7 @@ $current_ver = $version_data['version'] ?? '2.2.0';
             <?php endif; ?>
             </div>
         </div>
+        <?php endif; ?>
 
     </div><!-- right col -->
 </div><!-- db-main -->

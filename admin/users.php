@@ -41,6 +41,12 @@ if (isset($_GET['login_as'])) {
     $stmt->execute([$login_id]);
     $target_user = $stmt->fetch();
     if ($target_user) {
+        if (!isset($_SESSION['admin_user_id'])) {
+            $_SESSION['admin_user_id'] = $_SESSION['user_id'];
+            $_SESSION['admin_username'] = $_SESSION['username'];
+            $_SESSION['admin_role'] = $_SESSION['role'];
+            $_SESSION['admin_profile_image'] = $_SESSION['profile_image'];
+        }
         $_SESSION['user_id'] = $target_user['id'];
         $_SESSION['username'] = $target_user['username'];
         $_SESSION['role'] = $target_user['role'];

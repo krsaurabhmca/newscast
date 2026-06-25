@@ -4,6 +4,9 @@ include 'includes/header.php';
 
 // Handle Add Tag
 if (isset($_POST['add_tag'])) {
+    if (!is_admin()) {
+        redirect('admin/tags.php', 'Access denied. Only Admins can add tags.', 'danger');
+    }
     $name = clean($_POST['name']);
     $slug = !empty($_POST['slug']) ? create_slug($_POST['slug']) : create_slug($name);
 
@@ -24,6 +27,9 @@ if (isset($_POST['add_tag'])) {
 
 // Handle Update Tag
 if (isset($_POST['update_tag'])) {
+    if (!is_admin()) {
+        redirect('admin/tags.php', 'Access denied. Only Admins can edit tags.', 'danger');
+    }
     $id = $_POST['id'];
     $name = clean($_POST['name']);
     $slug = !empty($_POST['slug']) ? create_slug($_POST['slug']) : create_slug($name);
@@ -40,6 +46,9 @@ if (isset($_POST['update_tag'])) {
 
 // Handle Delete Tag
 if (isset($_GET['delete'])) {
+    if (!is_admin()) {
+        redirect('admin/tags.php', 'Access denied. Only Admins can delete tags.', 'danger');
+    }
     if (is_demo_account()) {
         redirect('admin/' . basename($_SERVER['PHP_SELF']), 'Action restricted: Demo accounts cannot delete data.', 'danger');
         exit;
@@ -66,7 +75,9 @@ $tags = $pdo->query("SELECT * FROM tags ORDER BY created_at DESC")->fetchAll();
 <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3 style="margin: 0;">All Tags</h3>
-        <button onclick="openModal()" class="btn btn-primary"><i data-feather="plus" style="width: 16px;"></i> Add New Tag</button>
+        <?php if (is_admin()): ?>
+            <button onclick="openModal()" class="btn btn-primary"><i data-feather="plus" style="width: 16px;"></i> Add New Tag</button>
+        <?php endif; ?>
     </div>
     
     <div class="table-responsive">
@@ -92,8 +103,10 @@ $tags = $pdo->query("SELECT * FROM tags ORDER BY created_at DESC")->fetchAll();
                     <td>
                         <div style="display: flex; gap: 8px;">
                             <a href="../tag/<?php echo $tag['slug']; ?>" target="_blank" title="View Tag" style="background: #fff; border: 1px solid #e2e8f0; color: #10b981; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#f0fdf4'; this.style.borderColor='#10b981';" onmouseout="this.style.background='#fff'; this.style.borderColor='#e2e8f0';"><i data-feather="external-link" style="width: 16px;"></i></a>
-                            <a href="?edit=<?php echo $tag['id']; ?>" title="Edit Tag" style="background: #fff; border: 1px solid #e2e8f0; color: #6366f1; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#eef2ff'; this.style.borderColor='#6366f1';" onmouseout="this.style.background='#fff'; this.style.borderColor='#e2e8f0';"><i data-feather="edit-2" style="width: 16px;"></i></a>
-                            <a href="?delete=<?php echo $tag['id']; ?>" onclick="return confirm('Delete this tag?')" title="Delete Tag" style="background: #fff; border: 1px solid #fecaca; color: #ef4444; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#fef2f2'; this.style.borderColor='#ef4444';" onmouseout="this.style.background='#fff'; this.style.borderColor='#fecaca';"><i data-feather="trash-2" style="width: 16px;"></i></a>
+                            <?php if (is_admin()): ?>
+                                <a href="?edit=<?php echo $tag['id']; ?>" title="Edit Tag" style="background: #fff; border: 1px solid #e2e8f0; color: #6366f1; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#eef2ff'; this.style.borderColor='#6366f1';" onmouseout="this.style.background='#fff'; this.style.borderColor='#e2e8f0';"><i data-feather="edit-2" style="width: 16px;"></i></a>
+                                <a href="?delete=<?php echo $tag['id']; ?>" onclick="return confirm('Delete this tag?')" title="Delete Tag" style="background: #fff; border: 1px solid #fecaca; color: #ef4444; width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#fef2f2'; this.style.borderColor='#ef4444';" onmouseout="this.style.background='#fff'; this.style.borderColor='#fecaca';"><i data-feather="trash-2" style="width: 16px;"></i></a>
+                            <?php endif; ?>
                         </div>
                     </td>
                 </tr>

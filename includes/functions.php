@@ -46,6 +46,38 @@ function is_admin()
 }
 
 /**
+ * Check if user is editor or higher
+ */
+function is_editor()
+{
+    return isset($_SESSION['role']) && in_array($_SESSION['role'], ['editor', 'admin', 'dev']);
+}
+
+/**
+ * Check if user is reporter
+ */
+function is_reporter()
+{
+    return isset($_SESSION['role']) && $_SESSION['role'] === 'reporter';
+}
+
+/**
+ * Check if current user can edit a specific post
+ */
+function can_edit_post($post)
+{
+    if (is_admin() || is_editor()) {
+        return true; // Admins and Editors can edit any post
+    }
+    if (is_reporter()) {
+        // Reporter can only edit their own draft posts
+        return (isset($post['status']) && $post['status'] === 'draft') && 
+               (isset($post['user_id']) && $post['user_id'] == $_SESSION['user_id']);
+    }
+    return false;
+}
+
+/**
  * Redirect with message
  */
 function redirect($path, $message = '', $type = 'success')

@@ -1,5 +1,18 @@
 [
     {
+        "version": "2.3.5",
+        "date": "2026-06-25",
+        "changes": [
+            "MAJOR: Overhauled Role-Based Access Control (RBAC) to enforce robust permissions for Admin, Editor, and Reporter roles across the entire platform.",
+            "Dashboard: Redesigned the Dashboard UI with adaptive fluid grid layouts for KPI cards and Quick Actions, dynamically optimizing space for all roles.",
+            "Dashboard: Modified Dashboard metrics, Top Articles, and Recent Posts to exclusively display an author's own statistics when logged in as a Reporter.",
+            "Dashboard: Restored Quick Actions for all users with smart filtering. Reporters and Editors now see shortcuts tailored to their specific access levels.",
+            "Users: Added a new 'Return to Admin' fast-switch button in the top navigation bar when an Admin uses the 'Login As' feature.",
+            "Permissions: Granted Editors explicit access to manage Event Timelines, Polls, Feedback (Apni Baat), and Comments without granting dangerous deletion rights.",
+            "Permissions: Strictly hidden administrative tools, settings, themes, and configuration panels from non-Admin users."
+        ]
+    },
+    {
         "version": "2.3.4",
         "date": "2026-06-25",
         "changes": [
@@ -35,7 +48,7 @@
             "Media Library: Added an Admin Media Manager page to upload, view, search, and delete images.",
             "Media Library: Editor (Quill) and Featured Image tools now use a Media Picker Modal instead of direct uploads, allowing you to reuse existing images.",
             "Dashboard: Redesigned the 'What's New' panel into a compact, single-row horizontal strip to save vertical space.",
-            "Categories: Improved Breadcrumbs UI to automatically fetch and display the full parent-child subcategory hierarchy (Home → Parent → Subcategory).",
+            "Categories: Improved Breadcrumbs UI to automatically fetch and display the full parent-child subcategory hierarchy (Home \u2192 Parent \u2192 Subcategory).",
             "Categories: Parent categories now automatically include and display posts from all their nested subcategories.",
             "Feedback: Converted 'Feedback' label into a dynamic 'Apni Baat' configuration to collect user articles for public review."
         ]
@@ -54,8 +67,8 @@
         "version": "2.2.0",
         "date": "2026-06-24",
         "changes": [
-            "MAJOR: Version milestone bump to v2.2 — Major Dashboard overhaul and new homepage Theme 2 option.",
-            "Dashboard: Completely redesigned for better usability — tighter layout, improved typography, and consistent Inter font.",
+            "MAJOR: Version milestone bump to v2.2 \u2014 Major Dashboard overhaul and new homepage Theme 2 option.",
+            "Dashboard: Completely redesigned for better usability \u2014 tighter layout, improved typography, and consistent Inter font.",
             "Dashboard: Added 'What's New' panel that dynamically reads from changelog.json and displays last 3 version updates with all change notes.",
             "Dashboard: KPI cards are now clickable links that navigate directly to the related admin section.",
             "Dashboard: Added dedicated 'Themes' quick action button linking to Settings > Appearance.",
@@ -77,7 +90,7 @@
             "Category sidebar added: Most Read (top 5 by views with rank highlights), Sub-Topics quick nav, and Subscribe CTA widget.",
             "Full pagination added to category page (12 posts per page).",
             "Theme 2 horizontal navigation now uses Feather icons from each category's icon setting instead of colored dots.",
-            "Theme 2 navigation is now non-sticky (position: relative) — scrolls away with page as requested.",
+            "Theme 2 navigation is now non-sticky (position: relative) \u2014 scrolls away with page as requested.",
             "Fixed breaking news bar showing twice on the Theme 2 homepage by suppressing the global breaking bar when Theme 2 is active on index.php.",
             "Removed AI Chat floating button and Feedback drawer from the Settings page to keep it focused on configuration."
         ]
@@ -207,7 +220,7 @@
             "Version badge on System Update item shows current version.",
             "Profile, Help and Logout pinned to bottom of sidebar for easy access.",
             "Sidebar collapses to icon-only mode on narrow screens and remembers state.",
-            "Removed redundant ACCOUNT section — merged into bottom fixed area."
+            "Removed redundant ACCOUNT section \u2014 merged into bottom fixed area."
         ]
     },
     {
@@ -230,11 +243,11 @@
         "version": "2.1.16",
         "date": "2026-06-02",
         "changes": [
-            "Premium UI redesign of Ad Click History page — card-based layout, gradient stat icons, Inter font.",
-            "Added IP Geolocation — each click now shows City, Country (with flag emoji), and ISP via ip-api.com.",
+            "Premium UI redesign of Ad Click History page \u2014 card-based layout, gradient stat icons, Inter font.",
+            "Added IP Geolocation \u2014 each click now shows City, Country (with flag emoji), and ISP via ip-api.com.",
             "Added 'Unique Visitors' stat card (distinct IP count).",
             "Colour-coded Ad Slot badges (header, sidebar, content top/bottom, sponsored post).",
-            "Fixed system updater showing false 'Update Available' — added db_version 6 migration to run_migrations.php so the settings table syncs correctly.",
+            "Fixed system updater showing false 'Update Available' \u2014 added db_version 6 migration to run_migrations.php so the settings table syncs correctly.",
             "CSV export now includes City, Country, and ISP geolocation columns."
         ]
     },

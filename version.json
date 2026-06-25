@@ -1,6 +1,6 @@
 {
-    "version": "2.3.4",
+    "version": "2.3.5",
     "db_version": 9,
     "last_updated": "2026-06-25",
-    "changelog": "v2.3.4: Fixed a critical bug where the automated background WP Sync script would lock the PHP session, causing the Home Page and overall website to hang/timeout for users."
+    "changelog": "v2.3.5: Comprehensive RBAC overhaul, responsive dashboard redesign, customized role workflows, and secure session management."
 }
