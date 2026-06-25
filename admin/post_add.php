@@ -360,6 +360,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                         }
                     }
                 }
+            });
             window.quill = quill;
 
             // Tooltips are handled globally in footer.php
