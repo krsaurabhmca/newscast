@@ -1,6 +1,6 @@
 {
-    "version": "2.3.0",
+    "version": "2.3.1",
     "db_version": 9,
     "last_updated": "2026-06-25",
-    "changelog": "v2.3.0: Integrated Centralized Media Library. Added Media Manager page and Media Picker modal to reuse images, reducing DB bloat. Dashboard 'What's New' panel is now an ultra-compact horizontal strip. Improved Subcategory Breadcrumbs to show full parent hierarchy. Parent categories now display posts from all their subcategories. Feedback section labeled dynamically as 'Apni Baat' for public article submissions."
+    "changelog": "v2.3.1: Fixed a critical bug where the Quill rich text editor would fail to load on the Add Article page."
 }

@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.3.1",
+        "date": "2026-06-25",
+        "changes": [
+            "Fixed a critical bug where the Quill rich text editor would fail to load on the Add Article page due to a syntax error."
+        ]
+    },
+    {
         "version": "2.3.0",
         "date": "2026-06-25",
         "changes": [
