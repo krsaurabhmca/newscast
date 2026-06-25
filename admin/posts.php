@@ -560,7 +560,7 @@ function paginate_url(array $overrides = []): string
                                 <td>
                                     <div class="post-title-cell">
                                         <?php if ($post['featured_image']): ?>
-                                            <img src="../assets/images/posts/<?= htmlspecialchars($post['featured_image']) ?>"
+                                            <img src="<?= htmlspecialchars(get_post_thumbnail($post['featured_image'])) ?>"
                                                 class="post-thumb">
                                         <?php else: ?>
                                             <div class="post-thumb-fallback">

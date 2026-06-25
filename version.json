@@ -1,6 +1,6 @@
 {
-    "version": "2.3.2",
+    "version": "2.3.3",
     "db_version": 9,
     "last_updated": "2026-06-25",
-    "changelog": "v2.3.2: Fixed an issue where selecting a featured photo from the Media Library modal would fail when editing an existing article."
+    "changelog": "v2.3.3: Fixed an issue where the featured image thumbnail was broken in the Manage Posts list for images selected from the Media Library."
 }

@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.3.3",
+        "date": "2026-06-25",
+        "changes": [
+            "Fixed a display bug in the Manage Posts table where thumbnails for images selected from the Media Library were showing up as broken links."
+        ]
+    },
+    {
         "version": "2.3.2",
         "date": "2026-06-25",
         "changes": [
