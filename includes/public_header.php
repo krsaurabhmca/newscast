@@ -174,9 +174,22 @@ endif; ?>
             position: relative;
             overflow: visible !important; /* Never clip the dropdown */
         }
-        /* The nav ul must also allow overflow so dropdown can extend */
+        /* The nav ul uses the padding-bottom hack to allow horizontal scrolling while preserving vertical dropdown visibility */
         .theme2-nav > div > ul {
-            overflow: visible !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            flex-wrap: nowrap !important;
+            padding-bottom: 500px !important;
+            margin-bottom: -500px !important;
+            pointer-events: none; /* Prevent invisible padded area from blocking clicks below */
+            -ms-overflow-style: none; /* IE/Edge ghost scrollbar */
+            scrollbar-width: none; /* Firefox ghost scrollbar */
+        }
+        .theme2-nav > div > ul::-webkit-scrollbar {
+            display: none; /* Chrome/Safari ghost scrollbar */
+        }
+        .theme2-nav > div > ul > li {
+            pointer-events: auto; /* Restore clicks on menu items */
         }
         .t2-nav-link {
             display: flex !important;

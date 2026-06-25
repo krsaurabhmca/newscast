@@ -1,6 +1,6 @@
 {
-    "version": "2.3.5",
+    "version": "2.3.6",
     "db_version": 9,
     "last_updated": "2026-06-25",
-    "changelog": "v2.3.5: Comprehensive RBAC overhaul, responsive dashboard redesign, customized role workflows, and secure session management."
+    "changelog": "v2.3.6: Fixed Theme 2 navigation scrolling issues and streamlined the public footer design."
 }

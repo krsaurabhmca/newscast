@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.3.6",
+        "date": "2026-06-25",
+        "changes": [
+            "Frontend: Fixed Theme 2 navigation menu causing horizontal website scrolling. The category menu now features a clean, single-line horizontal scroll with a hidden \"ghost\" scrollbar.",
+            "Frontend: Fixed Theme 2 dropdown submenus getting cut off by the navigation bar's horizontal scroll container.",
+            "Frontend: Redesigned the public footer to be significantly more concise by removing the oversized vector graphic banner."
+        ]
+    },
+    {
         "version": "2.3.5",
         "date": "2026-06-25",
         "changes": [
