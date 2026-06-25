@@ -1,6 +1,6 @@
 {
-    "version": "2.3.3",
+    "version": "2.3.4",
     "db_version": 9,
     "last_updated": "2026-06-25",
-    "changelog": "v2.3.3: Fixed an issue where the featured image thumbnail was broken in the Manage Posts list for images selected from the Media Library."
+    "changelog": "v2.3.4: Fixed a critical bug where the automated background WP Sync script would lock the PHP session, causing the Home Page and overall website to hang/timeout for users."
 }

@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.3.4",
+        "date": "2026-06-25",
+        "changes": [
+            "Fixed a critical performance issue where the background WP Auto-Sync cron script would lock the user's PHP session, causing the Home Page and the rest of the website to hang and occasionally throw 408 Request Time-out errors."
+        ]
+    },
+    {
         "version": "2.3.3",
         "date": "2026-06-25",
         "changes": [

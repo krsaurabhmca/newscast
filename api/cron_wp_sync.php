@@ -12,6 +12,9 @@ ignore_user_abort(true); // Don't stop if the user closes the connection
 require_once dirname(__DIR__) . '/includes/config.php';
 require_once dirname(__DIR__) . '/includes/functions.php';
 
+// Release session lock immediately so the frontend UI doesn't hang while this long script runs
+session_write_close();
+
 ensure_wp_sources_table($pdo);
 
 // Check if we should run (only every 30 minutes to save API costs and prevent spam)
