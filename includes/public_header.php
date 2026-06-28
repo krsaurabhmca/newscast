@@ -56,8 +56,15 @@ $bing_verify = get_setting('bing_site_verify', '');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Primary Meta Tags -->
-    <title><?php echo htmlspecialchars($page_title ?? $site_title); ?> | <?php echo SITE_NAME; ?></title>
+    <title><?php 
+        $dynamic_site_name = get_setting('site_name', 'NewsCast');
+        if (isset($page_title) && !empty($page_title)) {
+            echo htmlspecialchars($page_title) . ' | ' . htmlspecialchars($dynamic_site_name);
+        } else {
+            $dynamic_site_tagline = get_setting('site_tagline', 'Digital News Portal');
+            echo htmlspecialchars($dynamic_site_name . ' - ' . $dynamic_site_tagline);
+        }
+    ?></title>
     <meta name="description" content="<?php echo htmlspecialchars(isset($meta_description) ? $meta_description : $meta_desc); ?>">
 
     <!-- SEO -->
