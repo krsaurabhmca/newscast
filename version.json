@@ -1,6 +1,6 @@
 {
-    "version": "2.5.2",
+    "version": "2.5.3",
     "db_version": 10,
     "last_updated": "2026-06-28",
-    "changelog": "v2.5.2: Added option to upload HTML verification files for Google Search Console in settings, automatically storing them in the root directory."
+    "changelog": "v2.5.3: Fixed sitemap generation query to fetch published_at column instead of non-existent updated_at column, and automated creation on settings load and save."
 }

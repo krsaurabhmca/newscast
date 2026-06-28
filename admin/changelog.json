@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.5.3",
+        "date": "2026-06-28",
+        "changes": [
+            "SEO: Fixed sitemap generation query exception caused by requesting non-existent updated_at column.",
+            "SEO: Automated fallback sitemap generation on settings page load.",
+            "SEO: Configured sitemap auto-regeneration when settings are saved."
+        ]
+    },
+    {
         "version": "2.5.2",
         "date": "2026-06-28",
         "changes": [
