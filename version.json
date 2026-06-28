@@ -1,6 +1,6 @@
 {
-    "version": "2.5.1",
+    "version": "2.5.2",
     "db_version": 10,
     "last_updated": "2026-06-28",
-    "changelog": "v2.5.1: Switched Google Auto Submit to a simplified XML Sitemap generation and auto-ping framework to eliminate complex Cloud Console IAM/OAuth credentials."
+    "changelog": "v2.5.2: Added option to upload HTML verification files for Google Search Console in settings, automatically storing them in the root directory."
 }

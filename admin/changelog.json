@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.5.2",
+        "date": "2026-06-28",
+        "changes": [
+            "SEO: Added file upload option for Google Search Console HTML verification file.",
+            "SEO: Automatic validation of Google verification filename pattern during upload.",
+            "SEO: Uploaded verification files are automatically stored in the root directory for direct Google Crawler retrieval."
+        ]
+    },
+    {
         "version": "2.5.1",
         "date": "2026-06-28",
         "changes": [

@@ -104,6 +104,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
                 }
             }
         }
+
+        // Handle Google Site Verification HTML File Upload
+        if (isset($_FILES['google_verification_file']) && $_FILES['google_verification_file']['error'] === 0) {
+            $file_name = basename($_FILES['google_verification_file']['name']);
+            // Google verification files typically look like google123456789.html
+            if (preg_match('/^google[a-zA-Z0-9_-]+\.html$/i', $file_name)) {
+                $target_path = dirname(__DIR__) . '/' . $file_name;
+                if (move_uploaded_file($_FILES['google_verification_file']['tmp_name'], $target_path)) {
+                    // Save the filename in settings so we can display/track it
+                    $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?")
+                        ->execute(['google_verification_filename', $file_name, $file_name]);
+                }
+            } else {
+                throw new Exception("Invalid Google verification filename. It must start with 'google' and end with '.html' (e.g., google1a2b3c4d5e6f7g8h.html).");
+            }
+        }
+
         $pdo->commit();
         redirect('admin/settings.php', 'Settings updated successfully!');
     }
@@ -952,13 +969,27 @@ endforeach; ?>
                         <span class="field-hint">Your AdSense ID. Enables Auto Ads on your site.</span>
                     </div>
                     <div>
-                        <label class="field-label">Google Search Console Verify</label>
+                        <label class="field-label">Google Search Console Verify (Meta Tag)</label>
                         <div class="social-input-group">
                             <i data-feather="check-circle" class="social-icon" style="width:16px;"></i>
                             <input type="text" name="google_site_verify" class="form-control"
                                 placeholder="Verification meta content value" value="<?php echo get_setting('google_site_verify'); ?>">
                         </div>
-                        <span class="field-hint">Paste only the content value from the meta tag Google provides.</span>
+                        <span class="field-hint">Option A: Paste only the content value from the meta tag Google provides.</span>
+                    </div>
+                    <div>
+                        <label class="field-label">Google Site Verification File (.html)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="file" name="google_verification_file" class="form-control" style="font-size: 11px;" accept=".html">
+                            <?php 
+                            $existing_file = get_setting('google_verification_filename');
+                            if ($existing_file && file_exists(dirname(__DIR__) . '/' . $existing_file)): ?>
+                                <span style="font-size: 11.5px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 6px; color: #16a34a; white-space: nowrap; font-weight: 700;">
+                                    ✓ <?php echo htmlspecialchars($existing_file); ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        <span class="field-hint">Option B: Upload the Google HTML verification file directly to root directory.</span>
                     </div>
                     <div>
                         <label class="field-label">Bing Webmaster Verify</label>
