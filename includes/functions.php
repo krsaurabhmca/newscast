@@ -644,7 +644,7 @@ function trigger_auto_share($pdo, $post_id)
 
 function generate_sitemap($pdo) {
     try {
-        $stmt = $pdo->query("SELECT slug, updated_at FROM posts WHERE status = 'published' AND external_type = 'none' ORDER BY published_at DESC LIMIT 1000");
+        $stmt = $pdo->query("SELECT slug, published_at FROM posts WHERE status = 'published' AND external_type = 'none' ORDER BY published_at DESC LIMIT 1000");
         $posts = $stmt->fetchAll();
         
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -659,7 +659,7 @@ function generate_sitemap($pdo) {
         
         // Posts
         foreach ($posts as $post) {
-            $lastmod = date('c', strtotime($post['updated_at'] ?? 'now'));
+            $lastmod = date('c', strtotime($post['published_at'] ?? 'now'));
             $xml .= '  <url>' . "\n";
             $xml .= '    <loc>' . BASE_URL . 'article/' . $post['slug'] . '</loc>' . "\n";
             $xml .= '    <lastmod>' . $lastmod . '</lastmod>' . "\n";

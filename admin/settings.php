@@ -8,6 +8,10 @@ if (!is_admin()) {
     redirect('admin/dashboard.php', 'Access denied.', 'danger');
 }
 
+if (!file_exists(dirname(__DIR__) . '/sitemap.xml')) {
+    generate_sitemap($pdo);
+}
+
 // Helper: extract YouTube video ID from any YT URL format
 function getYoutubeId($url)
 {
@@ -122,6 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         }
 
         $pdo->commit();
+        trigger_sitemap_update($pdo);
         redirect('admin/settings.php', 'Settings updated successfully!');
     }
     catch (Exception $e) {
