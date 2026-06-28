@@ -673,7 +673,23 @@ function generate_sitemap($pdo) {
         // Write to root sitemap.xml
         $root_path = dirname(__DIR__) . '/sitemap.xml';
         @file_put_contents($root_path, $xml);
+        
+        // Also auto-generate/update robots.txt
+        generate_robots_txt();
     } catch (Exception $e) {}
+}
+
+function generate_robots_txt() {
+    $sitemap_url = BASE_URL . 'sitemap.xml';
+    $content = "User-agent: *\n";
+    $content .= "Allow: /\n\n";
+    $content .= "Disallow: /admin/\n";
+    $content .= "Disallow: /includes/\n";
+    $content .= "Disallow: /api/\n\n";
+    $content .= "Sitemap: " . $sitemap_url . "\n";
+    
+    $root_path = dirname(__DIR__) . '/robots.txt';
+    @file_put_contents($root_path, $content);
 }
 
 function trigger_sitemap_update($pdo) {

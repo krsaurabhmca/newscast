@@ -1,6 +1,6 @@
 {
-    "version": "2.5.3",
+    "version": "2.5.4",
     "db_version": 10,
     "last_updated": "2026-06-28",
-    "changelog": "v2.5.3: Fixed sitemap generation query to fetch published_at column instead of non-existent updated_at column, and automated creation on settings load and save."
+    "changelog": "v2.5.4: Added automated robots.txt generation to root directory, pointing to the XML sitemap and blocking indexing of sensitive paths."
 }

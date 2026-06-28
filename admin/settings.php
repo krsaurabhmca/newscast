@@ -12,6 +12,10 @@ if (!file_exists(dirname(__DIR__) . '/sitemap.xml')) {
     generate_sitemap($pdo);
 }
 
+if (!file_exists(dirname(__DIR__) . '/robots.txt')) {
+    generate_robots_txt();
+}
+
 // Helper: extract YouTube video ID from any YT URL format
 function getYoutubeId($url)
 {

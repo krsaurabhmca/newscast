@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.5.4",
+        "date": "2026-06-28",
+        "changes": [
+            "SEO: Added automated generation of robots.txt inside the root directory.",
+            "SEO: Configured robots.txt rules to index public pages, link the sitemap.xml, and exclude backend/admin paths from Google indexing.",
+            "SEO: Added automated generation triggers for robots.txt on settings load and sitemap update events."
+        ]
+    },
+    {
         "version": "2.5.3",
         "date": "2026-06-28",
         "changes": [
