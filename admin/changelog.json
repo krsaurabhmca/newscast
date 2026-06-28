@@ -1,5 +1,15 @@
 [
     {
+        "version": "2.4.1",
+        "date": "2026-06-28",
+        "changes": [
+            "Frontend: Relocated submitPoll JS globally to fix Theme 2 homepage poll vote option failure.",
+            "Frontend: Dynamic site name and tagline rendering in the browser title bar on homepage.",
+            "Dashboard: Implemented Title-based direct AI image generation using the free Pollinations API.",
+            "Dashboard: Added visual loader disabling states, preventing double overlays and stuck loading UI on image load or error."
+        ]
+    },
+    {
         "version": "2.4.0",
         "date": "2026-06-28",
         "changes": [

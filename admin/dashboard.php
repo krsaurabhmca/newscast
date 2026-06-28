@@ -1458,7 +1458,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
                 </div>
                 <h2 class="dlb-title"><?php echo htmlspecialchars($live_title); ?></h2>
                 <p class="dlb-url">
-                    <?php echo htmlspecialchars(substr($live_url, 0, 55)) . (strlen($live_url) > 55 ? '…' : ''); ?></p>
+                    <?php echo htmlspecialchars(substr($live_url, 0, 55)) . (strlen($live_url) > 55 ? '…' : ''); ?>
+                </p>
                 <div class="dlb-actions">
                     <?php if ($live_enabled): ?>
                         <a href="?live_toggle=off" class="dlb-btn dlb-btn-off"><i data-feather="stop-circle"
@@ -2145,8 +2146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
                             </div>
 
                             <button type="submit" name="save_photo_of_day" class="btn btn-primary"
-                                style="width: 100%; padding: 8px; font-size: 12px; font-weight: 800; border-radius: 6px; background: #6366f1; border: none; color: white; cursor: pointer; transition: background 0.2s;">
-                                Update Photo of the Day
+                                style="width: 100%; padding: 8px; font-size: 12px; font-weight: 800; border-radius: 6px; cursor: pointer;">
+                                Upload Image and Save
                             </button>
                         </div>
                     </form>
