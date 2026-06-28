@@ -157,6 +157,46 @@ if ($active_poll) {
             </div>
         <?php endif; ?>
 
+        <!-- Web Push Subscription Banner (Theme 2) -->
+        <?php
+        $onesignal_app_identifier = get_setting('onesignal_app_id', '');
+        if (!empty($onesignal_app_identifier)):
+            ?>
+            <section id="push-subscription-banner"
+                style="display: none; background: linear-gradient(135deg, var(--primary), #4338ca); color: #fff; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(99,102,241,0.15); position: relative; overflow: hidden;">
+                <div
+                    style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 10.01%); background-size: 20px 20px; opacity: 0.5; pointer-events: none;">
+                </div>
+                <div
+                    style="position: relative; z-index: 1; padding: 25px 35px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                    <div style="display: flex; align-items: center; gap: 20px; flex: 1; min-width: 300px;">
+                        <div
+                            style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                            <i data-feather="bell" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div>
+                            <h3
+                                style="font-size: 20px; font-weight: 800; margin: 0 0 5px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                Never Miss Breaking News!</h3>
+                            <p style="font-size: 14px; opacity: 0.9; margin: 0; line-height: 1.4;">Subscribe to our push
+                                notifications for top stories and exclusive updates.</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <button onclick="subscribeToWebPush()" class="btn-subscribe"
+                            style="background: #fff; color: var(--primary); border: none; padding: 12px 24px; font-size: 14px; font-weight: 800; border-radius: 30px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; white-space: nowrap;">
+                            <i data-feather="zap" style="width: 14px;"></i>
+                            Subscribe Now
+                        </button>
+                        <button onclick="dismissWebPushBanner()" class="btn-dismiss-push"
+                            style="background: transparent; border: 2px solid rgba(255,255,255,0.4); color: #fff; padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: all 0.3s; white-space: nowrap;">
+                            Later
+                        </button>
+                    </div>
+                </div>
+            </section>
+        <?php endif; ?>
+
         <!-- Theme 2 Bento Hero Grid -->
         <?php if (!empty($featured_posts)):
             $f_count = count($featured_posts);
@@ -447,6 +487,41 @@ if ($active_poll) {
             <!-- Right Sidebar: Widgets -->
             <aside style="display: flex; flex-direction: column; gap: 30px;">
 
+                <!-- Photo of the Day Widget -->
+                <?php if (get_setting('photo_of_day_image')): ?>
+                    <div class="t2-sidebar-widget"
+                        style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.01);">
+                        <h4
+                            style="border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 18px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                            <div
+                                style="background: rgba(249, 115, 22, 0.1); padding: 5px; border-radius: 6px; color: #f97316; display:flex;">
+                                <i data-feather="image" style="width: 14px; height: 14px;"></i>
+                            </div>
+                            Photo of the Day
+                        </h4>
+
+                        <div
+                            style="border-radius: 12px; overflow: hidden; margin-bottom: 12px; border: 1px solid #e2e8f0; position: relative; cursor: pointer;">
+                            <img src="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('photo_of_day_image'); ?>"
+                                alt="<?php echo htmlspecialchars(get_setting('photo_of_day_title', 'Photo of the Day')); ?>"
+                                style="width: 100%; height: auto; max-height: 220px; object-fit: cover; transition: transform 0.3s ease; display: block;"
+                                class="t2-img-hover">
+                        </div>
+
+                        <?php if (get_setting('photo_of_day_title')): ?>
+                            <h5 style="margin: 0 0 6px; font-size: 14px; font-weight: 800; color: #1e293b; line-height: 1.4;">
+                                <?php echo htmlspecialchars(get_setting('photo_of_day_title')); ?>
+                            </h5>
+                        <?php endif; ?>
+
+                        <?php if (get_setting('photo_of_day_caption')): ?>
+                            <p style="margin: 0; font-size: 12.5px; color: #64748b; line-height: 1.5; font-weight: 500;">
+                                <?php echo nl2br(htmlspecialchars(get_setting('photo_of_day_caption'))); ?>
+                            </p>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
                 <!-- Live Stream Widget (Theme 2 Only) -->
                 <?php if ($live_enabled && $live_vid_id):
                     $stream_sound = get_setting('live_stream_sound', '0') === '1' ? '0' : '1';
@@ -534,41 +609,6 @@ if ($active_poll) {
                                 </form>
                             <?php endif; ?>
                         </div>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Photo of the Day Widget -->
-                <?php if (get_setting('photo_of_day_image')): ?>
-                    <div class="t2-sidebar-widget"
-                        style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.01);">
-                        <h4
-                            style="border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 18px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                            <div
-                                style="background: rgba(249, 115, 22, 0.1); padding: 5px; border-radius: 6px; color: #f97316; display:flex;">
-                                <i data-feather="image" style="width: 14px; height: 14px;"></i>
-                            </div>
-                            Photo of the Day
-                        </h4>
-
-                        <div
-                            style="border-radius: 12px; overflow: hidden; margin-bottom: 12px; border: 1px solid #e2e8f0; position: relative; cursor: pointer;">
-                            <img src="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('photo_of_day_image'); ?>"
-                                alt="<?php echo htmlspecialchars(get_setting('photo_of_day_title', 'Photo of the Day')); ?>"
-                                style="width: 100%; height: auto; max-height: 220px; object-fit: cover; transition: transform 0.3s ease; display: block;"
-                                class="t2-img-hover">
-                        </div>
-
-                        <?php if (get_setting('photo_of_day_title')): ?>
-                            <h5 style="margin: 0 0 6px; font-size: 14px; font-weight: 800; color: #1e293b; line-height: 1.4;">
-                                <?php echo htmlspecialchars(get_setting('photo_of_day_title')); ?>
-                            </h5>
-                        <?php endif; ?>
-
-                        <?php if (get_setting('photo_of_day_caption')): ?>
-                            <p style="margin: 0; font-size: 12.5px; color: #64748b; line-height: 1.5; font-weight: 500;">
-                                <?php echo nl2br(htmlspecialchars(get_setting('photo_of_day_caption'))); ?>
-                            </p>
-                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
@@ -1077,7 +1117,7 @@ if ($active_poll) {
                     <script>
                         function submitPoll(e, pollId) {
                             e.preventDefault();
-                            const form = document.getElementById('poll-form-' + pollId);
+                            const form = e.target;
                             const formData = new FormData(form);
                             const optionId = formData.get('poll_option');
                             if (!optionId) return;

@@ -31,6 +31,13 @@ $update->execute([$post['id']]);
 $user_id = $_SESSION['user_id'] ?? null;
 log_activity($pdo, $user_id, $post['id'], 'view');
 
+// Log view to post_views_logs
+try {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent) VALUES (?, ?, ?)")->execute([$post['id'], $ip, $ua]);
+} catch (Exception $e) {}
+
 // Check if bookmarked
 $is_bookmarked = false;
 if ($user_id) {
@@ -736,7 +743,7 @@ endif; ?>
 <script>
     function submitPoll(e, pollId) {
         e.preventDefault();
-        const form = document.getElementById('poll-form-' + pollId);
+        const form = e.target;
         const formData = new FormData(form);
         const optionId = formData.get('poll_option');
         if (!optionId) return;

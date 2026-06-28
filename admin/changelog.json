@@ -1,5 +1,18 @@
 [
     {
+        "version": "2.4.0",
+        "date": "2026-06-28",
+        "changes": [
+            "Dashboard: Added traffic & engagement trend charts with customizable timeframes (Today, 7 days, 30 days, 90 days).",
+            "Dashboard: Repositioned Section Pulse to sit side-by-side with Traffic Trends in a single responsive row.",
+            "Dashboard: Moved Photo of the Day settings to a convenient upload card directly on the dashboard.",
+            "Media Library: Integrated a modern glassmorphic modal preview window for full-size image inspections.",
+            "Integrations: Fixed theme2 poll voting by dynamically capturing form submit targets.",
+            "Integrations: Configured OneSignal notification subscription banner support inside theme2.",
+            "Integrations: Moved Facebook & Instagram sharing logic to global utilities and automated post sharing upon publication."
+        ]
+    },
+    {
         "version": "2.3.6",
         "date": "2026-06-25",
         "changes": [

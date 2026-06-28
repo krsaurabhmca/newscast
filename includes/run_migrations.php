@@ -102,6 +102,18 @@ $migrations = [
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+    ],
+    10 => [
+        "CREATE TABLE IF NOT EXISTS `post_views_logs` (
+            `id`          INT(11)      NOT NULL AUTO_INCREMENT,
+            `post_id`     INT(11)      NOT NULL,
+            `ip_address`  VARCHAR(45)  NOT NULL DEFAULT '',
+            `user_agent`  TEXT         DEFAULT NULL,
+            `viewed_at`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_post_id` (`post_id`),
+            KEY `idx_viewed_at` (`viewed_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
     ]
 ];
 
@@ -122,6 +134,39 @@ foreach ($migrations as $version => $queries) {
             $latest_version = $version;
         }
     }
+}
+
+// Seed mock data for views and clicks if they are empty
+try {
+    $views_count = $pdo->query("SELECT COUNT(*) FROM post_views_logs")->fetchColumn();
+    if ($views_count == 0) {
+        $post_ids = $pdo->query("SELECT id FROM posts")->fetchAll(PDO::FETCH_COLUMN);
+        if (!empty($post_ids)) {
+            $stmt = $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent, viewed_at) VALUES (?, ?, ?, ?)");
+            for ($i = 0; $i < 90; $i++) {
+                $date_str = date('Y-m-d H:i:s', strtotime("-$i days"));
+                $num_views = rand(30, 120);
+                for ($j = 0; $j < $num_views; $j++) {
+                    $pid = $post_ids[array_rand($post_ids)];
+                    $stmt->execute([$pid, '127.0.0.1', 'Mozilla/5.0 Mock', $date_str]);
+                }
+            }
+        }
+    }
+    
+    $clicks_count = $pdo->query("SELECT COUNT(*) FROM ad_click_logs")->fetchColumn();
+    if ($clicks_count == 0) {
+        $stmt_click = $pdo->prepare("INSERT INTO ad_click_logs (ad_id, post_id, event_type, ad_name, ad_location, ip_address, user_agent, clicked_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        for ($i = 0; $i < 90; $i++) {
+            $date_str = date('Y-m-d H:i:s', strtotime("-$i days"));
+            $num_clicks = rand(5, 25);
+            for ($j = 0; $j < $num_clicks; $j++) {
+                $stmt_click->execute([1, null, 'ad_click', 'Sample Banner Ad', 'sidebar', '127.0.0.1', 'Mozilla/5.0 Mock', $date_str]);
+            }
+        }
+    }
+} catch (Exception $e) {
+    error_log("Seeding views/clicks stats failed: " . $e->getMessage());
 }
 
 // Update the version in the database

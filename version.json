@@ -1,6 +1,6 @@
 {
-    "version": "2.3.6",
-    "db_version": 9,
-    "last_updated": "2026-06-25",
-    "changelog": "v2.3.6: Fixed Theme 2 navigation scrolling issues and streamlined the public footer design."
+    "version": "2.4.0",
+    "db_version": 10,
+    "last_updated": "2026-06-28",
+    "changelog": "v2.4.0: Added Traffic & Engagement Trends charts, integrated Section Pulse on dashboard, added media preview modal, moved Photo of the Day to dashboard, fixed Theme 2 poll voting, and enabled OneSignal push notifications in Theme 2."
 }

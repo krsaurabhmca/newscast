@@ -569,4 +569,76 @@ function check_system_updates_cached($pdo) {
 
     return get_setting('update_available', 'no') === 'yes';
 }
+
+function share_to_facebook($url, $title)
+{
+    $page_id = get_setting('fb_page_id', '');
+    $access_token = get_setting('fb_page_access_token', '');
+    if (!$page_id || !$access_token)
+        return ['ok' => false, 'msg' => 'Not configured. Add Page ID and Access Token in Configuration tab.'];
+    $api_url = "https://graph.facebook.com/v22.0/{$page_id}/feed";
+    $data = ['message' => $title . "\n\nRead more: " . $url, 'link' => $url, 'access_token' => $access_token];
+    $ch = curl_init($api_url);
+    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => http_build_query($data), CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_TIMEOUT => 15]);
+    $resp = curl_exec($ch);
+    curl_close($ch);
+    $json = json_decode($resp, true);
+    if (isset($json['id']))
+        return ['ok' => true, 'msg' => 'Posted! Post ID: ' . $json['id']];
+    return ['ok' => false, 'msg' => $json['error']['message'] ?? 'Unknown error'];
+}
+
+function share_to_instagram($url, $title, $image_url = '')
+{
+    $ig_id = get_setting('ig_business_account_id', '');
+    $access_token = get_setting('ig_access_token', '');
+    if (!$ig_id || !$access_token)
+        return ['ok' => false, 'msg' => 'Instagram not configured. Add Business Account ID and Access Token.'];
+    if (!$image_url)
+        return ['ok' => false, 'msg' => 'Instagram requires a featured image on the article.'];
+    $caption = $title . "\n\n" . $url . "\n\n#news #breakingnews #media";
+    $ch = curl_init("https://graph.facebook.com/v22.0/{$ig_id}/media");
+    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => http_build_query(['image_url' => $image_url, 'caption' => $caption, 'access_token' => $access_token]), CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false]);
+    $r = json_decode(curl_exec($ch), true);
+    curl_close($ch);
+    if (!isset($r['id']))
+        return ['ok' => false, 'msg' => 'Container failed: ' . ($r['error']['message'] ?? 'Unknown')];
+    $ch2 = curl_init("https://graph.facebook.com/v22.0/{$ig_id}/media_publish");
+    curl_setopt_array($ch2, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => http_build_query(['creation_id' => $r['id'], 'access_token' => $access_token]), CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false]);
+    $r2 = json_decode(curl_exec($ch2), true);
+    curl_close($ch2);
+    if (isset($r2['id']))
+        return ['ok' => true, 'msg' => 'Posted to Instagram! ID: ' . $r2['id']];
+    return ['ok' => false, 'msg' => $r2['error']['message'] ?? 'Publish failed'];
+}
+
+function trigger_auto_share($pdo, $post_id)
+{
+    if (get_setting('auto_share_on_publish', 'yes') !== 'yes') {
+        return;
+    }
+    
+    // Fetch post details
+    $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
+    $stmt->execute([$post_id]);
+    $post = $stmt->fetch();
+    
+    if (!$post || $post['status'] !== 'published') {
+        return;
+    }
+    
+    $post_url = BASE_URL . 'article/' . $post['slug'];
+    $post_title = $post['title'];
+    $post_image = !empty($post['featured_image']) ? BASE_URL . 'assets/images/posts/' . $post['featured_image'] : '';
+    
+    // Auto Share to Facebook
+    if (get_setting('auto_share_facebook', 'no') === 'yes') {
+        share_to_facebook($post_url, $post_title);
+    }
+    
+    // Auto Share to Instagram
+    if (get_setting('auto_share_instagram', 'no') === 'yes') {
+        share_to_instagram($post_url, $post_title, $post_image);
+    }
+}
 ?>

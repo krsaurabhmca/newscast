@@ -113,6 +113,7 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
             }
 
             $pdo->commit();
+            trigger_auto_share($pdo, $post_id);
             redirect('admin/posts.php', 'Post created successfully!');
         } catch (PDOException $e) {
             if ($pdo->inTransaction()) {

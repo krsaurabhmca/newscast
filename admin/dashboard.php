@@ -109,6 +109,104 @@ if (file_exists($changelog_path)) {
 // ── Current version ───────────────────────────────────────────────────────
 $version_data = json_decode(file_get_contents(dirname(__DIR__) . '/version.json'), true);
 $current_ver = $version_data['version'] ?? '2.2.0';
+// ── Views & Clicks Trends Data ───────────────────────────────────────────
+$trends_data = [
+    'today' => ['labels' => [], 'views' => [], 'clicks' => []],
+    '7days' => ['labels' => [], 'views' => [], 'clicks' => []],
+    '30days' => ['labels' => [], 'views' => [], 'clicks' => []],
+    '90days' => ['labels' => [], 'views' => [], 'clicks' => []]
+];
+
+// Today: hourly views & clicks
+for ($h = 0; $h < 24; $h++) {
+    $hour_str = sprintf('%02d:00', $h);
+    $trends_data['today']['labels'][] = $hour_str;
+    $trends_data['today']['views'][] = 0;
+    $trends_data['today']['clicks'][] = 0;
+}
+try {
+    $today_views = $pdo->query("SELECT HOUR(viewed_at) as hr, COUNT(*) as cnt FROM post_views_logs WHERE DATE(viewed_at) = CURDATE() GROUP BY HOUR(viewed_at)")->fetchAll();
+    foreach ($today_views as $v) {
+        $trends_data['today']['views'][$v['hr']] = (int)$v['cnt'];
+    }
+    $today_clicks = $pdo->query("SELECT HOUR(clicked_at) as hr, COUNT(*) as cnt FROM ad_click_logs WHERE DATE(clicked_at) = CURDATE() GROUP BY HOUR(clicked_at)")->fetchAll();
+    foreach ($today_clicks as $c) {
+        $trends_data['today']['clicks'][$c['hr']] = (int)$c['cnt'];
+    }
+} catch (Exception $e) {}
+
+// Helper for days trend
+function get_days_trend($pdo, $days) {
+    $labels = [];
+    $views = [];
+    $clicks = [];
+    for ($i = $days - 1; $i >= 0; $i--) {
+        $d = date('Y-m-d', strtotime("-$i days"));
+        $lbl = date('M d', strtotime("-$i days"));
+        $labels[] = $lbl;
+        $views[$d] = 0;
+        $clicks[$d] = 0;
+    }
+    
+    try {
+        $v_data = $pdo->query("SELECT DATE(viewed_at) as dt, COUNT(*) as cnt FROM post_views_logs WHERE viewed_at >= DATE_SUB(CURDATE(), INTERVAL $days DAY) GROUP BY DATE(viewed_at)")->fetchAll();
+        foreach ($v_data as $row) {
+            if (isset($views[$row['dt']])) $views[$row['dt']] = (int)$row['cnt'];
+        }
+        $c_data = $pdo->query("SELECT DATE(clicked_at) as dt, COUNT(*) as cnt FROM ad_click_logs WHERE clicked_at >= DATE_SUB(CURDATE(), INTERVAL $days DAY) GROUP BY DATE(clicked_at)")->fetchAll();
+        foreach ($c_data as $row) {
+            if (isset($clicks[$row['dt']])) $clicks[$row['dt']] = (int)$row['cnt'];
+        }
+    } catch (Exception $e) {}
+    
+    return [
+        'labels' => $labels,
+        'views' => array_values($views),
+        'clicks' => array_values($clicks)
+    ];
+}
+
+$trends_data['7days'] = get_days_trend($pdo, 7);
+$trends_data['30days'] = get_days_trend($pdo, 30);
+$trends_data['90days'] = get_days_trend($pdo, 90);
+
+// ── Save Photo of the Day from Dashboard ──────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day'])) {
+    if (is_demo_account()) {
+        redirect('admin/dashboard.php', 'Action restricted: Demo accounts cannot save settings.', 'danger');
+        exit;
+    }
+    
+    $title = clean($_POST['photo_of_day_title'] ?? '');
+    $caption = clean($_POST['photo_of_day_caption'] ?? '');
+    
+    try {
+        $pdo->beginTransaction();
+        
+        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('photo_of_day_title', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt->execute([$title, $title]);
+        
+        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('photo_of_day_caption', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt->execute([$caption, $caption]);
+        
+        if (isset($_FILES['photo_of_day_image']) && $_FILES['photo_of_day_image']['error'] === 0) {
+            $uploaded_file = upload_and_optimize_image($_FILES['photo_of_day_image'], "../assets/images/", "photo_of_day_", 1000, 90);
+            if ($uploaded_file) {
+                $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('photo_of_day_image', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$uploaded_file, $uploaded_file]);
+            }
+        }
+        
+        $pdo->commit();
+        redirect('admin/dashboard.php', 'Photo of the Day updated successfully!');
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            try { $pdo->rollBack(); } catch (Exception $rb_e) {}
+        }
+        $_SESSION['flash_msg'] = "Error: " . $e->getMessage();
+        $_SESSION['flash_type'] = "danger";
+        redirect('admin/dashboard.php');
+    }
+}
 ?>
 
 <style>
@@ -440,22 +538,6 @@ $current_ver = $version_data['version'] ?? '2.2.0';
         <div class="db-kpi-sub"><?php echo number_format($total_ad_views); ?> impressions</div>
     </a>
 
-    <a href="users.php" class="db-kpi" style="--kpi-color:#f43f5e;--kpi-bg:#fff1f2;">
-        <div class="db-kpi-top">
-            <div>
-                <div class="db-kpi-label">Inbox</div>
-                <div class="db-kpi-val"><?php echo number_format($unread_msgs); ?></div>
-            </div>
-            <div class="db-kpi-icon"><i data-feather="mail" style="width:20px;"></i></div>
-        </div>
-        <div class="db-kpi-sub">
-            <?php if($unread_msgs > 0): ?>
-                <span class="down"><i data-feather="alert-circle" style="width:11px;"></i> <?php echo $unread_msgs; ?> unread</span>
-            <?php else: ?>
-                <span>✅ All clear</span>
-            <?php endif; ?>
-        </div>
-    </a>
     <?php endif; ?>
 
     <?php if (!is_reporter()): ?>
@@ -587,6 +669,192 @@ $current_ver = $version_data['version'] ?? '2.2.0';
     </div>
 </div>
 <?php endif; ?>
+
+<!-- ── Trends & Section Pulse Row ── -->
+<?php
+$trends_grid_cols = !is_reporter() ? 'grid-template-columns: 2fr 1fr;' : 'grid-template-columns: 1fr;';
+?>
+<div class="db-trends-pulse-row" style="display: grid; <?php echo $trends_grid_cols; ?> gap: 20px; margin-bottom: 24px;">
+    
+    <!-- LEFT: Trends Chart -->
+    <div class="db-card" style="padding: 25px; border-radius: var(--d-radius); background: var(--d-surface); box-shadow: var(--d-shadow); margin-bottom: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: var(--d-text); display: flex; align-items: center; gap: 8px;">
+                    <i data-feather="activity" style="color: var(--d-primary); width: 18px; height: 18px;"></i>
+                    Traffic & Engagement Trends
+                </h3>
+                <p style="margin: 4px 0 0; font-size: 13px; color: var(--d-subtle);">Monitor real-time page views and ad clicks over time</p>
+            </div>
+            <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; gap: 4px;">
+                <button onclick="switchTrendTimeframe('today')" id="btn-trend-today" class="trend-timeframe-btn">Today</button>
+                <button onclick="switchTrendTimeframe('7days')" id="btn-trend-7days" class="trend-timeframe-btn active">7 Days</button>
+                <button onclick="switchTrendTimeframe('30days')" id="btn-trend-30days" class="trend-timeframe-btn">30 Days</button>
+                <button onclick="switchTrendTimeframe('90days')" id="btn-trend-90days" class="trend-timeframe-btn">90 Days</button>
+            </div>
+        </div>
+        
+        <div style="position: relative; height: 320px; width: 100%;">
+            <canvas id="trendsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- RIGHT: Section Pulse -->
+    <?php if (!is_reporter()): ?>
+    <div class="db-card" style="padding: 25px; border-radius: var(--d-radius); background: var(--d-surface); box-shadow: var(--d-shadow); margin-bottom: 0; display: flex; flex-direction: column;">
+        <div class="db-card-head" style="margin-bottom: 20px;">
+            <h3>
+                <span class="hic" style="background:#ede9fe;color:#7c3aed;"><i data-feather="bar-chart-2" style="width:14px;"></i></span>
+                Section Pulse
+            </h3>
+            <a href="categories.php" class="db-card-link">Manage</a>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
+        <?php foreach ($cat_stats as $cat): ?>
+        <div class="db-cat-row" style="margin-bottom: 0;">
+            <div class="db-cat-top">
+                <div class="db-cat-name">
+                    <div class="db-cat-icon" style="background:<?php echo $cat['color']; ?>18;">
+                        <i data-feather="<?php echo $cat['icon']; ?>" style="width:13px;color:<?php echo $cat['color']; ?>;"></i>
+                    </div>
+                    <?php echo htmlspecialchars($cat['name']); ?>
+                </div>
+                <span class="db-cat-cnt"><?php echo $cat['cnt']; ?></span>
+            </div>
+            <div class="db-cat-track">
+                <div class="db-cat-fill" style="width:<?php echo $max_cnt>0?round(($cat['cnt']/$max_cnt)*100):0; ?>%;background:<?php echo $cat['color']; ?>;box-shadow:0 0 6px <?php echo $cat['color']; ?>44;"></div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+</div>
+
+<style>
+.trend-timeframe-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--d-subtle);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.trend-timeframe-btn:hover {
+    color: var(--d-text);
+}
+.trend-timeframe-btn.active {
+    background: white;
+    color: var(--d-primary);
+    box-shadow: var(--d-shadow-sm);
+}
+@media(max-width: 1024px) {
+    .db-trends-pulse-row { grid-template-columns: 1fr !important; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const trendsData = <?php echo json_encode($trends_data); ?>;
+let trendsChart = null;
+
+function renderTrendsChart(timeframe) {
+    const ctx = document.getElementById('trendsChart').getContext('2d');
+    const dataObj = trendsData[timeframe];
+    
+    if (trendsChart) {
+        trendsChart.destroy();
+    }
+    
+    trendsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dataObj.labels,
+            datasets: [
+                {
+                    label: 'Page Views',
+                    data: dataObj.views,
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.05)',
+                    borderWidth: 3,
+                    tension: 0.35,
+                    fill: true,
+                    pointBackgroundColor: '#6366f1',
+                    pointHoverRadius: 7
+                },
+                {
+                    label: 'Ad Clicks',
+                    data: dataObj.clicks,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                    borderWidth: 3,
+                    tension: 0.35,
+                    fill: true,
+                    pointBackgroundColor: '#10b981',
+                    pointHoverRadius: 7
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: {
+                            family: 'Inter, sans-serif',
+                            weight: '600',
+                            size: 12
+                        },
+                        boxWidth: 15,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    padding: 12,
+                    bodyFont: { family: 'Inter, sans-serif', size: 13 },
+                    titleFont: { family: 'Inter, sans-serif', weight: '700', size: 13 },
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { family: 'Inter, sans-serif', weight: '500', size: 11 },
+                        color: '#64748b'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#f1f5f9' },
+                    ticks: {
+                        font: { family: 'Inter, sans-serif', weight: '500', size: 11 },
+                        color: '#64748b',
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+}
+
+function switchTrendTimeframe(timeframe) {
+    document.querySelectorAll('.trend-timeframe-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('btn-trend-' + timeframe).classList.add('active');
+    renderTrendsChart(timeframe);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    renderTrendsChart('7days'); // Default to 7 days view
+    switchTrendTimeframe('7days');
+});
+</script>
 
 <!-- ── Main 2-Column Layout ── -->
 <div class="db-main">
@@ -794,72 +1062,49 @@ $current_ver = $version_data['version'] ?? '2.2.0';
             </div>
         </div>
 
-        <?php if (!is_reporter()): ?>
-        <!-- Section Pulse -->
-        <div class="db-card">
-            <div class="db-card-head">
-                <h3>
-                    <span class="hic" style="background:#ede9fe;color:#7c3aed;"><i data-feather="bar-chart-2" style="width:14px;"></i></span>
-                    Section Pulse
+        <!-- Photo of the Day Management Card -->
+        <?php if (is_admin()): ?>
+        <div class="db-card" style="padding: 20px; margin-bottom: 20px;">
+            <div class="db-card-head" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 15px;">
+                <h3 style="font-size: 14.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <span class="hic" style="background:#fff7ed;color:#ea580c;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i data-feather="image" style="width:13px;height:13px;"></i></span>
+                    Photo of the Day
                 </h3>
-                <a href="categories.php" class="db-card-link">Manage</a>
             </div>
-            <div style="padding:16px 18px;">
-            <?php foreach ($cat_stats as $cat): ?>
-            <div class="db-cat-row">
-                <div class="db-cat-top">
-                    <div class="db-cat-name">
-                        <div class="db-cat-icon" style="background:<?php echo $cat['color']; ?>18;">
-                            <i data-feather="<?php echo $cat['icon']; ?>" style="width:13px;color:<?php echo $cat['color']; ?>;"></i>
-                        </div>
-                        <?php echo htmlspecialchars($cat['name']); ?>
+            
+            <form action="" method="POST" enctype="multipart/form-data">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="font-size: 11px; font-weight: 800; color: #475569; display: block; margin-bottom: 5px; text-transform: uppercase;">Photo Title</label>
+                        <input type="text" name="photo_of_day_title" class="form-control" style="width:100%; font-size:12px; padding: 6px 10px; border-radius:6px; border:1px solid #cbd5e1;" placeholder="e.g. Panchayat Sunset" value="<?php echo htmlspecialchars(get_setting('photo_of_day_title')); ?>">
                     </div>
-                    <span class="db-cat-cnt"><?php echo $cat['cnt']; ?></span>
+                    
+                    <div>
+                        <label style="font-size: 11px; font-weight: 800; color: #475569; display: block; margin-bottom: 5px; text-transform: uppercase;">Caption / Story</label>
+                        <textarea name="photo_of_day_caption" class="form-control" rows="2" style="width:100%; font-size:12px; padding: 6px 10px; border-radius:6px; border:1px solid #cbd5e1; resize:none;" placeholder="Write a short description..."><?php echo htmlspecialchars(get_setting('photo_of_day_caption')); ?></textarea>
+                    </div>
+                    
+                    <div>
+                        <label style="font-size: 11px; font-weight: 800; color: #475569; display: block; margin-bottom: 5px; text-transform: uppercase;">Upload Image</label>
+                        <?php if (get_setting('photo_of_day_image')): ?>
+                            <div style="position: relative; margin-bottom: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; height: 100px;">
+                                <img src="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('photo_of_day_image'); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        <?php endif; ?>
+                        <input type="file" name="photo_of_day_image" accept="image/*" style="font-size: 11px; width: 100%;">
+                    </div>
+                    
+                    <button type="submit" name="save_photo_of_day" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 12px; font-weight: 800; border-radius: 6px; background: #6366f1; border: none; color: white; cursor: pointer; transition: background 0.2s;">
+                        Update Photo of the Day
+                    </button>
                 </div>
-                <div class="db-cat-track">
-                    <div class="db-cat-fill" style="width:<?php echo $max_cnt>0?round(($cat['cnt']/$max_cnt)*100):0; ?>%;background:<?php echo $cat['color']; ?>;box-shadow:0 0 6px <?php echo $cat['color']; ?>44;"></div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-            </div>
-            </div>
+            </form>
         </div>
         <?php endif; ?>
 
-        <?php if (is_admin()): ?>
-        <!-- Feedback Inbox -->
-        <div class="db-card">
-            <div class="db-card-head">
-                <h3>
-                    <span class="hic" style="background:#fff1f2;color:#f43f5e;"><i data-feather="message-circle" style="width:14px;"></i></span>
-                    Feedback Inbox
-                    <?php if ($unread_msgs > 0): ?>
-                        <span style="background:#f43f5e;color:#fff;font-size:9px;font-weight:900;padding:2px 7px;border-radius:20px;margin-left:4px;"><?php echo $unread_msgs; ?></span>
-                    <?php endif; ?>
-                </h3>
-                <a href="feedback.php" class="db-card-link">Open All</a>
-            </div>
-            <div>
-            <?php if (empty($recent_feedback)): ?>
-                <p style="text-align:center;padding:35px 20px;color:var(--d-muted);font-size:12px;">✅ Clean inbox! No messages.</p>
-            <?php else: ?>
-            <?php foreach ($recent_feedback as $msg): ?>
-            <a href="feedback.php?view=<?php echo $msg['id']; ?>" class="db-msg-row">
-                <div class="db-msg-avatar"><?php echo strtoupper(substr($msg['name']??'?',0,1)); ?></div>
-                <div style="min-width:0;">
-                    <div class="db-msg-name">
-                        <?php echo htmlspecialchars($msg['name']); ?>
-                        <?php if ($msg['status']==='new'): ?><span class="db-msg-new"></span><?php endif; ?>
-                    </div>
-                    <div class="db-msg-preview"><?php echo htmlspecialchars(substr($msg['message']??'',0,50)); ?>…</div>
-                    <div style="font-size:10px;color:var(--d-muted);margin-top:1px;"><?php echo date('M j, g:i A', strtotime($msg['created_at'])); ?></div>
-                </div>
-            </a>
-            <?php endforeach; ?>
-            <?php endif; ?>
-            </div>
-        </div>
-        <?php endif; ?>
+
+
+
 
     </div><!-- right col -->
 </div><!-- db-main -->

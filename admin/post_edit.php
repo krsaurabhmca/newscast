@@ -149,6 +149,7 @@ if (isset($_POST['update_post'])) {
             }
 
             $pdo->commit();
+            trigger_auto_share($pdo, $id);
             redirect('admin/posts.php', 'Post updated successfully!');
         }
         catch (PDOException $e) {

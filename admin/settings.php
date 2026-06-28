@@ -83,8 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'comments_enabled' => clean($_POST['comments_enabled'] ?? 'no'),
         'comments_moderation_enabled' => clean($_POST['comments_moderation_enabled'] ?? 'yes'),
         'likes_dislikes_enabled' => clean($_POST['likes_dislikes_enabled'] ?? 'no'),
-        'photo_of_day_title' => clean($_POST['photo_of_day_title'] ?? ''),
-        'photo_of_day_caption' => clean($_POST['photo_of_day_caption'] ?? ''),
         'homepage_theme' => clean($_POST['homepage_theme'] ?? 'theme1'),
         'apni_baat_label' => clean($_POST['apni_baat_label'] ?? 'Apni Baat'),
     ];
@@ -95,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
             $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
             $stmt->execute([$key, $value, $value]);
         }
-        $images = ['site_logo' => 'logo', 'site_favicon' => 'favicon', 'photo_of_day_image' => 'photo_of_day'];
+        $images = ['site_logo' => 'logo', 'site_favicon' => 'favicon'];
         foreach ($images as $field => $prefix) {
             if (isset($_FILES[$field]) && $_FILES[$field]['error'] === 0) {
                 $max_w = ($field === 'site_favicon') ? 256 : 1000;
@@ -324,9 +322,6 @@ include 'includes/header.php';
         </button>
         <button type="button" onclick="showTab('interactions')" id="tab-interactions">
             <i data-feather="message-square" style="width:15px;"></i> Interactions
-        </button>
-        <button type="button" onclick="showTab('photoofday')" id="tab-photoofday">
-            <i data-feather="image" style="width:15px;"></i> Photo of the Day
         </button>
     </div>
 
@@ -1270,53 +1265,7 @@ endforeach; ?>
             </div>
         </div>
     </div>
-    <!-- ══════════ PHOTO OF THE DAY ══════════ -->
-    <div class="settings-panel" id="panel-photoofday">
-        <div class="settings-card">
-            <div class="settings-card-header" style="padding: 20px 25px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="icon" style="background:#fff7ed; color: #ea580c;">
-                        <i data-feather="image" style="width:18px;"></i>
-                    </div>
-                    <div>
-                        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">Photo of the Day</h3>
-                        <p style="margin: 3px 0 0; font-size: 13px; color: #64748b;">Configure the featured Photo of the Day widget on the home page</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="settings-card-body" style="background: #f8fafc; border-top: 1px solid #f1f5f9; padding: 25px;">
-                <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
-                    
-                    <!-- Title -->
-                    <div>
-                        <label class="field-label">Photo Title</label>
-                        <input type="text" name="photo_of_day_title" class="form-control" placeholder="e.g. Scenic Sunset over Panchayat" value="<?php echo htmlspecialchars(get_setting('photo_of_day_title')); ?>">
-                    </div>
 
-                    <!-- Caption -->
-                    <div>
-                        <label class="field-label">Photo Caption / Description</label>
-                        <textarea name="photo_of_day_caption" class="form-control" rows="3" placeholder="Write a short description or story behind this photo..."><?php echo htmlspecialchars(get_setting('photo_of_day_caption')); ?></textarea>
-                    </div>
-
-                    <!-- Image Upload -->
-                    <div>
-                        <label class="field-label">Upload Photo</label>
-                        <div class="logo-preview" style="align-items: flex-start; flex-direction: column; gap: 10px;">
-                            <?php if (get_setting('photo_of_day_image')): ?>
-                                <img src="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('photo_of_day_image'); ?>" style="max-height: 180px; max-width: 100%; border-radius: 8px; object-fit: contain;">
-                            <?php else: ?>
-                                <div style="color: #94a3b8; font-size: 13px; font-weight: 600;">No photo uploaded yet.</div>
-                            <?php endif; ?>
-                            <input type="file" name="photo_of_day_image" accept="image/*" style="margin-top: 10px;">
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="save-bar">
         <span style="font-size: 13px; color: #64748b;">All changes apply across the entire site instantly.</span>

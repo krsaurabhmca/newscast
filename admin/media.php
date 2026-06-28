@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const url = `../assets/images/media/${item.filename}`;
             return `
                 <div class="media-item">
-                    <div class="media-thumb-container">
+                    <div class="media-thumb-container" onclick="previewImage('${url}', '${item.original_name}')" style="cursor: pointer;">
                         <img src="${url}" alt="${item.original_name}" loading="lazy">
                     </div>
                     <div class="media-info">
@@ -383,6 +383,96 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial Load
     loadMedia();
 });
+</script>
+
+<!-- Preview Modal -->
+<div id="mediaPreviewModal" class="media-preview-modal" onclick="closePreviewModal()">
+    <span class="preview-modal-close" onclick="closePreviewModal()">&times;</span>
+    <div class="preview-modal-content-wrapper" onclick="event.stopPropagation()">
+        <img class="preview-modal-content" id="previewImg">
+        <div id="previewCaption" class="preview-modal-caption"></div>
+    </div>
+</div>
+
+<style>
+/* Glassmorphic Modal Styles */
+.media-preview-modal {
+    display: none;
+    position: fixed;
+    z-index: 99999;
+    padding-top: 50px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease;
+}
+.preview-modal-content-wrapper {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 900px;
+    position: relative;
+    background: #fff;
+    padding: 10px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    animation: zoom 0.3s ease;
+}
+.preview-modal-content {
+    display: block;
+    width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 8px;
+}
+.preview-modal-caption {
+    padding: 15px 10px 5px;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+}
+.preview-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f5f9;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+}
+.preview-modal-close:hover,
+.preview-modal-close:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+@keyframes zoom {
+    from {transform:scale(0.9); opacity:0;}
+    to {transform:scale(1); opacity:1;}
+}
+</style>
+
+<script>
+window.previewImage = function(url, name) {
+    const modal = document.getElementById('mediaPreviewModal');
+    const modalImg = document.getElementById('previewImg');
+    const captionText = document.getElementById('previewCaption');
+    
+    modal.style.display = "block";
+    modalImg.src = url;
+    captionText.innerHTML = name;
+};
+
+window.closePreviewModal = function() {
+    document.getElementById('mediaPreviewModal').style.display = "none";
+};
 </script>
 
 <?php include 'includes/footer.php'; ?>
