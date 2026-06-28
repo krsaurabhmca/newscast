@@ -891,64 +891,50 @@ function clearPhotoOfDayAiInput() {
 }
 
 async function generatePhotoOfDayAI() {
-    const topic = prompt("Enter a topic or description for the Photo of the Day:");
-    if (!topic) return;
+    const titleInput = document.querySelector('input[name="photo_of_day_title"]');
+    const titleVal = titleInput ? titleInput.value.trim() : '';
+
+    if (!titleVal) {
+        alert("Please write a Photo Title first. It will be used as the prompt to generate the AI image.");
+        if (titleInput) titleInput.focus();
+        return;
+    }
 
     const loader = document.getElementById('photoOfDayAiLoader');
     const previewImg = document.getElementById('photoOfDayPreviewImg');
     const placeholder = document.getElementById('photoOfDayPlaceholder');
-    const titleInput = document.querySelector('input[name="photo_of_day_title"]');
-    const captionTextarea = document.querySelector('textarea[name="photo_of_day_caption"]');
     const aiUrlInput = document.getElementById('photo_of_day_ai_url');
 
     if (loader) loader.style.display = 'flex';
     
     try {
-        const formData = new FormData();
-        formData.append('topic', topic);
+        const promptEncoded = encodeURIComponent(titleVal);
+        const randomSeed = Math.floor(Math.random() * 1000000);
+        const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=1000&height=650&nologo=true&seed=${randomSeed}`;
 
-        const response = await fetch('../api/api_ai_photo_of_day.php', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            titleInput.value = data.title;
-            captionTextarea.value = data.caption;
-
-            const promptEncoded = encodeURIComponent(data.image_prompt);
-            const randomSeed = Math.floor(Math.random() * 1000000);
-            const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=1000&height=650&nologo=true&seed=${randomSeed}`;
-
-            let imgEl = document.getElementById('photoOfDayPreviewImg');
-            if (imgEl) {
-                imgEl.src = imageUrl;
-                imgEl.style.display = 'block';
-            } else {
-                imgEl = document.createElement('img');
-                imgEl.id = 'photoOfDayPreviewImg';
-                imgEl.src = imageUrl;
-                imgEl.style.width = '100%';
-                imgEl.style.height = '100%';
-                imgEl.style.objectFit = 'cover';
-                const container = document.getElementById('photoOfDayPreviewContainer');
-                container.innerHTML = '';
-                container.appendChild(imgEl);
-                container.appendChild(loader);
-            }
-            if (placeholder) placeholder.style.display = 'none';
-
-            aiUrlInput.value = imageUrl;
-            
-            imgEl.onload = function() {
-                if (loader) loader.style.display = 'none';
-            };
+        let imgEl = document.getElementById('photoOfDayPreviewImg');
+        if (imgEl) {
+            imgEl.src = imageUrl;
+            imgEl.style.display = 'block';
         } else {
-            alert('AI Generation Error: ' + data.message);
-            if (loader) loader.style.display = 'none';
+            imgEl = document.createElement('img');
+            imgEl.id = 'photoOfDayPreviewImg';
+            imgEl.src = imageUrl;
+            imgEl.style.width = '100%';
+            imgEl.style.height = '100%';
+            imgEl.style.objectFit = 'cover';
+            const container = document.getElementById('photoOfDayPreviewContainer');
+            container.innerHTML = '';
+            container.appendChild(imgEl);
+            container.appendChild(loader);
         }
+        if (placeholder) placeholder.style.display = 'none';
+
+        aiUrlInput.value = imageUrl;
+        
+        imgEl.onload = function() {
+            if (loader) loader.style.display = 'none';
+        };
     } catch (err) {
         console.error(err);
         alert('Failed to generate AI Photo of the Day.');
