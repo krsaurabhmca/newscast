@@ -1,5 +1,15 @@
 [
     {
+        "version": "2.5.1",
+        "date": "2026-06-28",
+        "changes": [
+            "SEO: Switched Google Auto Submit to a simplified XML Sitemap generation & ping framework.",
+            "SEO: Removed Google Cloud IAM credentials complexity, making it zero-configuration.",
+            "SEO: Added automated XML Sitemap generator that runs on post creation, update, and deletion.",
+            "SEO: Added automated Google crawl update pinging upon sitemap refresh."
+        ]
+    },
+    {
         "version": "2.5.0",
         "date": "2026-06-28",
         "changes": [

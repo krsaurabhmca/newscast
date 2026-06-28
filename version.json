@@ -1,6 +1,6 @@
 {
-    "version": "2.5.0",
+    "version": "2.5.1",
     "db_version": 10,
     "last_updated": "2026-06-28",
-    "changelog": "v2.5.0: Integrated Google Indexing API support for automatic search crawl submissions when publishing or editing posts, and created an indexing settings configuration panel with setup guides."
+    "changelog": "v2.5.1: Switched Google Auto Submit to a simplified XML Sitemap generation and auto-ping framework to eliminate complex Cloud Console IAM/OAuth credentials."
 }

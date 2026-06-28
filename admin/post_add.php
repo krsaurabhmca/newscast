@@ -114,7 +114,7 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
 
             $pdo->commit();
             trigger_auto_share($pdo, $post_id);
-            trigger_google_indexing($pdo, $post_id, 'URL_UPDATED');
+            trigger_sitemap_update($pdo);
             redirect('admin/posts.php', 'Post created successfully!');
         } catch (PDOException $e) {
             if ($pdo->inTransaction()) {
