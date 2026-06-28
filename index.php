@@ -1114,40 +1114,6 @@ if ($active_poll) {
                         </div>
                     </div>
 
-                    <script>
-                        function submitPoll(e, pollId) {
-                            e.preventDefault();
-                            const form = e.target;
-                            const formData = new FormData(form);
-                            const optionId = formData.get('poll_option');
-                            if (!optionId) return;
-
-                            const btn = form.querySelector('button');
-                            btn.disabled = true;
-                            btn.innerHTML = 'Voting...';
-
-                            fetch('<?php echo BASE_URL; ?>api/api_poll_vote.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                                body: 'poll_id=' + pollId + '&option_id=' + optionId
-                            })
-                                .then(r => r.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        window.location.reload(); // Quickest way to show updated results
-                                    } else {
-                                        alert(data.message);
-                                        btn.disabled = false;
-                                        btn.innerHTML = 'Vote Now';
-                                    }
-                                })
-                                .catch(err => {
-                                    alert('An error occurred. Please try again.');
-                                    btn.disabled = false;
-                                    btn.innerHTML = 'Vote Now';
-                                });
-                        }
-                    </script>
                 <?php endif; ?>
 
                 <!-- Photo of the Day Widget -->
@@ -1640,6 +1606,39 @@ if ($active_poll) {
     function dismissWebPushBanner() {
         localStorage.setItem('webPushDismissed', 'true');
         document.getElementById('push-subscription-banner').style.display = 'none';
+    }
+
+    function submitPoll(e, pollId) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const optionId = formData.get('poll_option');
+        if (!optionId) return;
+
+        const btn = form.querySelector('button');
+        btn.disabled = true;
+        btn.innerHTML = 'Voting...';
+
+        fetch('<?php echo BASE_URL; ?>api/api_poll_vote.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'poll_id=' + pollId + '&option_id=' + optionId
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload(); // Quickest way to show updated results
+                } else {
+                    alert(data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = 'Vote Now';
+                }
+            })
+            .catch(err => {
+                alert('An error occurred. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = 'Vote Now';
+            });
     }
 </script>
 

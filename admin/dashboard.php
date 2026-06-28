@@ -194,6 +194,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
             if ($uploaded_file) {
                 $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('photo_of_day_image', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$uploaded_file, $uploaded_file]);
             }
+        } elseif (!empty($_POST['photo_of_day_ai_url'])) {
+            $ai_url = $_POST['photo_of_day_ai_url'];
+            $image_data = @file_get_contents($ai_url);
+            if ($image_data) {
+                $new_filename = uniqid("photo_of_day_ai_") . '_' . time() . '.jpg';
+                $destination = "../assets/images/" . $new_filename;
+                if (file_put_contents($destination, $image_data)) {
+                    $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('photo_of_day_image', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$new_filename, $new_filename]);
+                }
+            }
         }
         
         $pdo->commit();
@@ -854,6 +864,97 @@ document.addEventListener('DOMContentLoaded', function() {
     renderTrendsChart('7days'); // Default to 7 days view
     switchTrendTimeframe('7days');
 });
+
+function clearPhotoOfDayAiInput() {
+    document.getElementById('photo_of_day_ai_url').value = '';
+    const file = document.getElementById('photo_of_day_file').files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            let img = document.getElementById('photoOfDayPreviewImg');
+            if (!img) {
+                img = document.createElement('img');
+                img.id = 'photoOfDayPreviewImg';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                const container = document.getElementById('photoOfDayPreviewContainer');
+                container.innerHTML = '';
+                container.appendChild(img);
+            }
+            img.src = e.target.result;
+            const placeholder = document.getElementById('photoOfDayPlaceholder');
+            if (placeholder) placeholder.style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+async function generatePhotoOfDayAI() {
+    const topic = prompt("Enter a topic or description for the Photo of the Day:");
+    if (!topic) return;
+
+    const loader = document.getElementById('photoOfDayAiLoader');
+    const previewImg = document.getElementById('photoOfDayPreviewImg');
+    const placeholder = document.getElementById('photoOfDayPlaceholder');
+    const titleInput = document.querySelector('input[name="photo_of_day_title"]');
+    const captionTextarea = document.querySelector('textarea[name="photo_of_day_caption"]');
+    const aiUrlInput = document.getElementById('photo_of_day_ai_url');
+
+    if (loader) loader.style.display = 'flex';
+    
+    try {
+        const formData = new FormData();
+        formData.append('topic', topic);
+
+        const response = await fetch('../api/api_ai_photo_of_day.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            titleInput.value = data.title;
+            captionTextarea.value = data.caption;
+
+            const promptEncoded = encodeURIComponent(data.image_prompt);
+            const randomSeed = Math.floor(Math.random() * 1000000);
+            const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=1000&height=650&nologo=true&seed=${randomSeed}`;
+
+            let imgEl = document.getElementById('photoOfDayPreviewImg');
+            if (imgEl) {
+                imgEl.src = imageUrl;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl = document.createElement('img');
+                imgEl.id = 'photoOfDayPreviewImg';
+                imgEl.src = imageUrl;
+                imgEl.style.width = '100%';
+                imgEl.style.height = '100%';
+                imgEl.style.objectFit = 'cover';
+                const container = document.getElementById('photoOfDayPreviewContainer');
+                container.innerHTML = '';
+                container.appendChild(imgEl);
+                container.appendChild(loader);
+            }
+            if (placeholder) placeholder.style.display = 'none';
+
+            aiUrlInput.value = imageUrl;
+            
+            imgEl.onload = function() {
+                if (loader) loader.style.display = 'none';
+            };
+        } else {
+            alert('AI Generation Error: ' + data.message);
+            if (loader) loader.style.display = 'none';
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Failed to generate AI Photo of the Day.');
+        if (loader) loader.style.display = 'none';
+    }
+}
 </script>
 
 <!-- ── Main 2-Column Layout ── -->
@@ -1065,14 +1166,18 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- Photo of the Day Management Card -->
         <?php if (is_admin()): ?>
         <div class="db-card" style="padding: 20px; margin-bottom: 20px;">
-            <div class="db-card-head" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 15px;">
+            <div class="db-card-head" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="font-size: 14.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin: 0;">
                     <span class="hic" style="background:#fff7ed;color:#ea580c;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i data-feather="image" style="width:13px;height:13px;"></i></span>
                     Photo of the Day
                 </h3>
+                <button type="button" onclick="generatePhotoOfDayAI()" style="background: #eef2ff; color: #6366f1; border: none; padding: 6px 10px; font-size: 11px; font-weight: 800; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                    <i data-feather="cpu" style="width: 11px; height: 11px;"></i> AI Generate
+                </button>
             </div>
             
             <form action="" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="photo_of_day_ai_url" id="photo_of_day_ai_url">
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <div>
                         <label style="font-size: 11px; font-weight: 800; color: #475569; display: block; margin-bottom: 5px; text-transform: uppercase;">Photo Title</label>
@@ -1085,13 +1190,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     
                     <div>
-                        <label style="font-size: 11px; font-weight: 800; color: #475569; display: block; margin-bottom: 5px; text-transform: uppercase;">Upload Image</label>
-                        <?php if (get_setting('photo_of_day_image')): ?>
-                            <div style="position: relative; margin-bottom: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; height: 100px;">
-                                <img src="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('photo_of_day_image'); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                        <label style="font-size: 11px; font-weight: 800; color: #475569; display: block; margin-bottom: 5px; text-transform: uppercase;">Image Preview & Upload</label>
+                        <div id="photoOfDayPreviewContainer" style="position: relative; margin-bottom: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; height: 120px; background: #f8fafc; display: flex; align-items: center; justify-content: center;">
+                            <?php if (get_setting('photo_of_day_image')): ?>
+                                <img id="photoOfDayPreviewImg" src="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('photo_of_day_image'); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                            <?php else: ?>
+                                <span id="photoOfDayPlaceholder" style="font-size: 11px; color: #94a3b8; font-weight: 600;">No photo uploaded yet.</span>
+                            <?php endif; ?>
+                            <div id="photoOfDayAiLoader" style="display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 800; color: #6366f1; z-index: 10;">
+                                <i data-feather="loader" style="animation: spin 1s linear infinite; width: 18px; height: 18px;"></i>
+                                Generating with AI...
                             </div>
-                        <?php endif; ?>
-                        <input type="file" name="photo_of_day_image" accept="image/*" style="font-size: 11px; width: 100%;">
+                        </div>
+                        <input type="file" name="photo_of_day_image" id="photo_of_day_file" accept="image/*" style="font-size: 11px; width: 100%;" onchange="clearPhotoOfDayAiInput()">
                     </div>
                     
                     <button type="submit" name="save_photo_of_day" class="btn btn-primary" style="width: 100%; padding: 8px; font-size: 12px; font-weight: 800; border-radius: 6px; background: #6366f1; border: none; color: white; cursor: pointer; transition: background 0.2s;">
