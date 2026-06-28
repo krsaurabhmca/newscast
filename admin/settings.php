@@ -85,6 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'likes_dislikes_enabled' => clean($_POST['likes_dislikes_enabled'] ?? 'no'),
         'homepage_theme' => clean($_POST['homepage_theme'] ?? 'theme1'),
         'apni_baat_label' => clean($_POST['apni_baat_label'] ?? 'Apni Baat'),
+        'google_indexing_enabled' => clean($_POST['google_indexing_enabled'] ?? 'no'),
+        'google_indexing_credentials' => $_POST['google_indexing_credentials'] ?? '',
     ];
 
     try {
@@ -976,6 +978,59 @@ endforeach; ?>
                     <div style="font-size:13px; color:#475569; line-height:1.7;">
                         <strong>How it works:</strong> After saving, the Google Analytics tracking code is automatically injected into every page's <code>&lt;head&gt;</code>.
                         The verification meta tags are also auto-added so you don't need to edit any code files manually.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Instant Indexing API Settings -->
+        <div class="settings-card" style="margin-top: 20px;">
+            <div class="settings-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="icon" style="background:#eff6ff; color:#3b82f6;">
+                        <i data-feather="zap" style="width:18px;"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin:0; font-size:16px;">Google Indexing API (Auto Submit News)</h3>
+                        <p style="margin:3px 0 0; font-size:13px; color:#64748b;">Automatically request Google to crawl/index new articles instantly</p>
+                    </div>
+                </div>
+                <!-- Master Toggle -->
+                <div class="toggle-group" style="width: 140px;">
+                    <div class="toggle-opt">
+                        <input type="radio" name="google_indexing_enabled" id="idx_on" value="yes" <?php echo get_setting('google_indexing_enabled', 'no') === 'yes' ? 'checked' : ''; ?>>
+                        <label for="idx_on" style="padding: 8px;">Active</label>
+                    </div>
+                    <div class="toggle-opt">
+                        <input type="radio" name="google_indexing_enabled" id="idx_off" value="no" <?php echo get_setting('google_indexing_enabled', 'no') !== 'yes' ? 'checked' : ''; ?>>
+                        <label for="idx_off" style="padding: 8px;">Disabled</label>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-card-body">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <label class="field-label">Service Account JSON Key Credentials</label>
+                        <textarea name="google_indexing_credentials" class="form-control" rows="8" style="font-family: monospace; font-size: 12px; background: #f8fafc;" placeholder='{ "type": "service_account", "project_id": ... }'><?php echo htmlspecialchars(get_setting('google_indexing_credentials')); ?></textarea>
+                        <span class="field-hint">Paste the entire raw contents of the JSON credentials key file downloaded from Google Cloud Console.</span>
+                    </div>
+
+                    <!-- Setup Help Guide -->
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; font-family: 'Inter', sans-serif;">
+                        <h4 style="margin: 0 0 10px 0; color: #16a34a; font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+                            <i data-feather="help-circle" style="width: 16px;"></i> Step-by-Step Setup Guide
+                        </h4>
+                        <ol style="margin: 0; padding-left: 20px; font-size: 12.5px; color: #1e293b; line-height: 1.8;">
+                            <li>Go to the <a href="https://console.cloud.google.com/" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Google Cloud Console</a> and create or select a project.</li>
+                            <li>Navigate to the **APIs & Services Library** and search for **Indexing API**, then click **Enable**.</li>
+                            <li>Go to **IAM & Admin -> Service Accounts** and click **Create Service Account**. Give it any name, click create, and set the role to **Owner** (or leave default).</li>
+                            <li>Select the created Service Account, click the **Keys** tab, click **Add Key -> Create New Key**, select **JSON** format, and download the key file.</li>
+                            <li>Open that downloaded key file, copy its entire contents, and paste it into the **JSON Key Credentials** field above.</li>
+                            <li>Copy the service account's **Email address** (e.g. <code>my-service-account@...gserviceaccount.com</code>).</li>
+                            <li>Go to your <a href="https://search.google.com/search-console" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Google Search Console</a> dashboard, choose your property, and go to **Settings -> Users and permissions**.</li>
+                            <li>Click **Add User**, paste the Service Account Email address, and grant them **Owner** permissions. (Owner status is required by Google to allow instant indexing indexing request submissions).</li>
+                            <li>Activate the setting and save! Your published/updated articles will now auto-ping Google to index immediately.</li>
+                        </ol>
                     </div>
                 </div>
             </div>

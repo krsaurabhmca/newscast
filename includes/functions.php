@@ -641,4 +641,97 @@ function trigger_auto_share($pdo, $post_id)
         share_to_instagram($post_url, $post_title, $post_image);
     }
 }
+
+function get_google_indexing_token($json_creds_string) {
+    $creds = json_decode($json_creds_string, true);
+    if (!$creds || !isset($creds['private_key']) || !isset($creds['client_email'])) {
+        return null;
+    }
+    
+    $header = json_encode(['alg' => 'RS256', 'typ' => 'JWT']);
+    $now = time();
+    $payload = json_encode([
+        'iss' => $creds['client_email'],
+        'scope' => 'https://www.googleapis.com/auth/indexing',
+        'aud' => 'https://oauth2.googleapis.com/token',
+        'exp' => $now + 3600,
+        'iat' => $now
+    ]);
+    
+    $base64UrlHeader = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
+    $base64UrlPayload = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($payload));
+    
+    $signature_input = $base64UrlHeader . "." . $base64UrlPayload;
+    $private_key = $creds['private_key'];
+    
+    $signature = '';
+    if (!openssl_sign($signature_input, $signature, $private_key, OPENSSL_ALGO_SHA256)) {
+        return null;
+    }
+    
+    $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+    $jwt = $signature_input . "." . $base64UrlSignature;
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://oauth2.googleapis.com/token');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+        'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'assertion' => $jwt
+    ]));
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $res_json = json_decode($response, true);
+    return $res_json['access_token'] ?? null;
+}
+
+function submit_to_google_indexing($url, $action = 'URL_UPDATED') {
+    $enabled = get_setting('google_indexing_enabled', 'no');
+    if ($enabled !== 'yes') return false;
+    
+    $creds = get_setting('google_indexing_credentials', '');
+    if (empty($creds)) return false;
+    
+    $token = get_google_indexing_token($creds);
+    if (!$token) return false;
+    
+    $body = json_encode([
+        'url' => $url,
+        'type' => $action
+    ]);
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://indexing.googleapis.com/v3/urlNotifications:publish');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $token
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    return $response;
+}
+
+function trigger_google_indexing($pdo, $post_id, $action = 'URL_UPDATED')
+{
+    $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
+    $stmt->execute([$post_id]);
+    $post = $stmt->fetch();
+    if (!$post) return;
+    
+    // For external link types, indexing is usually not done
+    if ($post['external_type'] !== 'none') return;
+    
+    $post_url = BASE_URL . 'article/' . $post['slug'];
+    submit_to_google_indexing($post_url, $action);
+}
 ?>

@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.5.0",
+        "date": "2026-06-28",
+        "changes": [
+            "SEO: Integrated Google Indexing API support for automatic crawl submissions.",
+            "SEO: Added private key token signing and OAuth2 assertion flow directly in PHP without heavy external vendor packages.",
+            "SEO: Designed a step-by-step credentials and permissions setup guide in the SEO & Analytics tab."
+        ]
+    },
+    {
         "version": "2.4.1",
         "date": "2026-06-28",
         "changes": [
