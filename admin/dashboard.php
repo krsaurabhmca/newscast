@@ -1457,7 +1457,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
                     <?php endif; ?>
                 </div>
                 <h2 class="dlb-title"><?php echo htmlspecialchars($live_title); ?></h2>
-                <p class="dlb-url"><?php echo htmlspecialchars(substr($live_url, 0, 55)) . (strlen($live_url) > 55 ? '…' : ''); ?></p>
+                <p class="dlb-url">
+                    <?php echo htmlspecialchars(substr($live_url, 0, 55)) . (strlen($live_url) > 55 ? '…' : ''); ?></p>
                 <div class="dlb-actions">
                     <?php if ($live_enabled): ?>
                         <a href="?live_toggle=off" class="dlb-btn dlb-btn-off"><i data-feather="stop-circle"
@@ -1763,8 +1764,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
             const previewImg = document.getElementById('photoOfDayPreviewImg');
             const placeholder = document.getElementById('photoOfDayPlaceholder');
             const aiUrlInput = document.getElementById('photo_of_day_ai_url');
+            const aiBtn = document.getElementById('photoOfDayAiBtn');
 
             if (loader) loader.style.display = 'flex';
+            if (aiBtn) {
+                aiBtn.disabled = true;
+                aiBtn.innerHTML = '<i data-feather="loader" style="animation: spin 1s linear infinite; width: 11px; height: 11px;"></i> Generating...';
+                feather.replace();
+            }
 
             try {
                 const promptEncoded = encodeURIComponent(titleVal);
@@ -1789,9 +1796,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
 
                 imgEl.onload = function () {
                     if (loader) loader.style.display = 'none';
+                    if (aiBtn) {
+                        aiBtn.disabled = false;
+                        aiBtn.innerHTML = '<i data-feather="cpu" style="width: 11px; height: 11px;"></i> Use AI';
+                        feather.replace();
+                    }
                 };
                 imgEl.onerror = function () {
                     if (loader) loader.style.display = 'none';
+                    if (aiBtn) {
+                        aiBtn.disabled = false;
+                        aiBtn.innerHTML = '<i data-feather="cpu" style="width: 11px; height: 11px;"></i> Use AI';
+                        feather.replace();
+                    }
                     alert('Failed to load generated image.');
                 };
 
@@ -1801,6 +1818,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
                 console.error(err);
                 alert('Failed to generate AI Photo of the Day.');
                 if (loader) loader.style.display = 'none';
+                if (aiBtn) {
+                    aiBtn.disabled = false;
+                    aiBtn.innerHTML = '<i data-feather="cpu" style="width: 11px; height: 11px;"></i> Use AI';
+                    feather.replace();
+                }
             }
         }
     </script>
@@ -1950,10 +1972,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
                                             <?php echo htmlspecialchars($ad['name']); ?>
                                         </div>
                                         <div style="font-size:10px;color:var(--d-muted);font-weight:700;margin-top:1px;">
-                                            <?php echo str_replace('_', ' ', $ad['location']); ?></div>
+                                            <?php echo str_replace('_', ' ', $ad['location']); ?>
+                                        </div>
                                         <div style="font-size:10px;color:var(--d-subtle);margin-top:2px;">
                                             <?php echo number_format($ad['clicks']); ?> clicks ·
-                                            <?php echo number_format($ad['impressions']); ?> views</div>
+                                            <?php echo number_format($ad['impressions']); ?> views
+                                        </div>
                                     </div>
                                     <div style="text-align:center;flex-shrink:0;">
                                         <div style="font-size:14px;font-weight:900;color:var(--d-text);"><?php echo $ctr; ?>%
@@ -2066,7 +2090,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
                                     data-feather="image" style="width:13px;height:13px;"></i></span>
                             Photo of the Day
                         </h3>
-                        <button type="button" onclick="generatePhotoOfDayAI()"
+                        <button type="button" id="photoOfDayAiBtn" onclick="generatePhotoOfDayAI()"
                             style="background: #eef2ff; color: #6366f1; border: none; padding: 6px 10px; font-size: 11px; font-weight: 800; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
                             <i data-feather="cpu" style="width: 11px; height: 11px;"></i> Use AI
                         </button>
@@ -2110,7 +2134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
                                             yet.</span>
                                     <?php endif; ?>
                                     <div id="photoOfDayAiLoader"
-                                        style="display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 800; color: #6366f1; z-index: 10;">
+                                        style="display: none; position: absolute; inset: 0; background: rgba(255,255,255,0.85); flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 800; color: #6366f1; z-index: 10;">
                                         <i data-feather="loader"
                                             style="animation: spin 1s linear infinite; width: 18px; height: 18px;"></i>
                                         Generating with AI...
