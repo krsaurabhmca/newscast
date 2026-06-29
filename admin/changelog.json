@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.6.1",
+        "date": "2026-06-29",
+        "changes": [
+            "UI: Premium redesign of the Category Management page (admin/categories.php) featuring card layouts, translucent icon badges, and glassmorphism overlay modals.",
+            "Video: Added transparent absolute overlay on live broadcast widgets to prevent website visitors from controlling or pausing the streams."
+        ]
+    },
+    {
         "version": "2.6.0",
         "date": "2026-06-29",
         "changes": [

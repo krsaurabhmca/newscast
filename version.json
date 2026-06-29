@@ -1,6 +1,6 @@
 {
-    "version": "2.6.0",
+    "version": "2.6.1",
     "db_version": 10,
     "last_updated": "2026-06-29",
-    "changelog": "v2.6.0: Integrated Image Cropping tool in Media Library, added standard XML RSS Feed, fixed inactive category filtering on post forms and website frontend, and cleaned up dashboard timeframe filters."
+    "changelog": "v2.6.1: Redesigned the Category Management dashboard UI and added a transparent overlay to homepage live broadcast widgets to prevent visitor control."
 }
