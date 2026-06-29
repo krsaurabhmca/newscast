@@ -2,6 +2,9 @@
 $page_title = "Media Library";
 include 'includes/header.php';
 ?>
+<!-- Cropper.js CSS & JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
 <div class="admin-main-col" style="max-width: 1200px; margin: 0 auto; width: 100%;">
     <div class="stat-card" style="margin-bottom: 25px;">
@@ -170,6 +173,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    window.refreshMedia = function() {
+        loadMedia(currentPage, currentSearch);
+    };
+
     function formatBytes(bytes, decimals = 1) {
         if (!+bytes) return '0 Bytes';
         const k = 1024, dm = decimals < 0 ? 0 : decimals, sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -191,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const url = `../assets/images/media/${item.filename}`;
             return `
                 <div class="media-item">
-                    <div class="media-thumb-container" onclick="previewImage('${url}', '${item.original_name}')" style="cursor: pointer;">
+                    <div class="media-thumb-container" onclick="previewImage('${url}', '${item.original_name}', ${item.id})" style="cursor: pointer;">
                         <img src="${url}" alt="${item.original_name}" loading="lazy">
                     </div>
                     <div class="media-info">
@@ -204,6 +211,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="media-actions">
                         <button class="media-btn" title="Copy URL" onclick="copyToClipboard('${url}')">
                             <i data-feather="copy" style="width: 14px;"></i>
+                        </button>
+                        <button class="media-btn" title="Crop Image" onclick="openCropModal('${url}', '${item.original_name}', ${item.id})">
+                            <i data-feather="crop" style="width: 14px;"></i>
                         </button>
                         ${isAdmin ? `<button class="media-btn delete-btn" title="Delete" onclick="deleteMedia(${item.id})">
                             <i data-feather="trash-2" style="width: 14px;"></i>
@@ -391,6 +401,14 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="preview-modal-content-wrapper" onclick="event.stopPropagation()">
         <img class="preview-modal-content" id="previewImg">
         <div id="previewCaption" class="preview-modal-caption"></div>
+        <div style="display: flex; justify-content: center; gap: 15px; margin-top: 10px; margin-bottom: 15px;">
+            <button class="btn btn-primary" id="btnPreviewCrop" style="display: flex; align-items: center; gap: 8px;">
+                <i data-feather="crop" style="width: 16px;"></i> Crop Image
+            </button>
+            <button class="btn" id="btnPreviewCopy" style="display: flex; align-items: center; gap: 8px; background: #f1f5f9; color: #475569;">
+                <i data-feather="copy" style="width: 16px;"></i> Copy URL
+            </button>
+        </div>
     </div>
 </div>
 
@@ -459,8 +477,40 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 </style>
 
+<!-- Crop Modal -->
+<div id="mediaCropModal" class="media-preview-modal" style="display: none;">
+    <span class="preview-modal-close" onclick="closeCropModal()">&times;</span>
+    <div class="preview-modal-content-wrapper" onclick="event.stopPropagation()" style="max-width: 800px; padding: 20px;">
+        <h3 style="margin-top: 0; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; color: var(--text-main);">
+            <i data-feather="crop" style="color: var(--primary);"></i> Crop Image: <span id="cropFilename" style="font-weight: normal; font-size: 14px; color: var(--muted);"></span>
+        </h3>
+        
+        <div style="max-height: 50vh; overflow: hidden; background: #000; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <img id="cropImg" style="max-width: 100%; max-height: 50vh; display: block;">
+        </div>
+        
+        <!-- Cropping Toolbar -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 20px; gap: 15px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">Aspect Ratio:</span>
+                <button class="btn btn-sm btn-ratio active" onclick="setCropRatio(NaN, this)" style="background: var(--primary); color: #fff; padding: 6px 12px; font-size: 12px; border: none; border-radius: 6px;">Free</button>
+                <button class="btn btn-sm btn-ratio" onclick="setCropRatio(1, this)" style="background: #f1f5f9; color: #475569; padding: 6px 12px; font-size: 12px; border: none; border-radius: 6px;">1:1</button>
+                <button class="btn btn-sm btn-ratio" onclick="setCropRatio(4/3, this)" style="background: #f1f5f9; color: #475569; padding: 6px 12px; font-size: 12px; border: none; border-radius: 6px;">4:3</button>
+                <button class="btn btn-sm btn-ratio" onclick="setCropRatio(16/9, this)" style="background: #f1f5f9; color: #475569; padding: 6px 12px; font-size: 12px; border: none; border-radius: 6px;">16:9</button>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="saveCrop()" style="display: flex; align-items: center; gap: 6px;">
+                    <i data-feather="check" style="width: 16px;"></i> Save Crop
+                </button>
+                <button class="btn" onclick="closeCropModal()" style="background: #f1f5f9; color: #475569;">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-window.previewImage = function(url, name) {
+window.previewImage = function(url, name, id) {
     const modal = document.getElementById('mediaPreviewModal');
     const modalImg = document.getElementById('previewImg');
     const captionText = document.getElementById('previewCaption');
@@ -468,10 +518,111 @@ window.previewImage = function(url, name) {
     modal.style.display = "block";
     modalImg.src = url;
     captionText.innerHTML = name;
+
+    const filename = url.split('/').pop();
+    document.getElementById('btnPreviewCrop').onclick = () => {
+        closePreviewModal();
+        openCropModal(url, filename, id);
+    };
+    document.getElementById('btnPreviewCopy').onclick = () => {
+        copyToClipboard(url);
+    };
+    feather.replace();
 };
 
 window.closePreviewModal = function() {
     document.getElementById('mediaPreviewModal').style.display = "none";
+};
+
+let cropper = null;
+let currentCropMediaId = null;
+let currentCropFilename = null;
+
+window.openCropModal = function(url, filename, id) {
+    currentCropMediaId = id;
+    currentCropFilename = filename;
+    
+    document.getElementById('cropFilename').innerText = filename;
+    const cropImg = document.getElementById('cropImg');
+    
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    
+    cropImg.src = url;
+    document.getElementById('mediaCropModal').style.display = 'block';
+    
+    cropImg.onload = function() {
+        cropper = new Cropper(cropImg, {
+            viewMode: 1,
+            autoCropArea: 1,
+            responsive: true,
+            restore: false,
+            checkCrossOrigin: false
+        });
+        cropImg.onload = null;
+        feather.replace();
+    };
+};
+
+window.closeCropModal = function() {
+    document.getElementById('mediaCropModal').style.display = 'none';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+};
+
+window.setCropRatio = function(ratio, btn) {
+    if (!cropper) return;
+    cropper.setAspectRatio(ratio);
+    
+    document.querySelectorAll('.btn-ratio').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = '#f1f5f9';
+        b.style.color = '#475569';
+    });
+    btn.classList.add('active');
+    btn.style.background = 'var(--primary)';
+    btn.style.color = '#fff';
+};
+
+window.saveCrop = function() {
+    if (!cropper) return;
+    
+    const canvas = cropper.getCroppedCanvas({
+        maxWidth: 1920,
+        maxHeight: 1080
+    });
+    
+    canvas.toBlob(async function(blob) {
+        const formData = new FormData();
+        formData.append('cropped_image', blob, 'cropped_' + currentCropFilename);
+        formData.append('original_id', currentCropMediaId);
+        
+        try {
+            const response = await fetch('ajax_media_crop.php', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                closeCropModal();
+                if (window.refreshMedia) {
+                    window.refreshMedia();
+                } else {
+                    window.location.reload();
+                }
+            } else {
+                alert(data.message || 'Failed to save cropped image.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('An error occurred while saving the cropped image.');
+        }
+    }, 'image/webp', 0.9);
 };
 </script>
 

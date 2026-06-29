@@ -10,7 +10,12 @@ if (!isset($_GET['slug'])) {
 $slug = $_GET['slug'];
 $stmt = $pdo->prepare("SELECT p.*, u.username FROM posts p 
                        JOIN users u ON p.user_id = u.id 
-                       WHERE p.slug = ? AND p.status = 'published' AND p.published_at <= NOW()");
+                       WHERE p.slug = ? AND p.status = 'published' AND p.published_at <= NOW()
+                       AND EXISTS (
+                           SELECT 1 FROM post_categories pc
+                           JOIN categories c ON pc.category_id = c.id
+                           WHERE pc.post_id = p.id AND c.status = 'active'
+                       )");
 $stmt->execute([$slug]);
 $post = $stmt->fetch();
 

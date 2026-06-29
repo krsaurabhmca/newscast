@@ -175,7 +175,7 @@ if (isset($_POST['update_post'])) {
 }
 
 try {
-    $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
+    $categories = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC")->fetchAll();
 } catch (PDOException $e) {
     $categories = [];
 }

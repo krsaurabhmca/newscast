@@ -138,7 +138,7 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
 }
 
 try {
-    $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
+    $categories = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC")->fetchAll();
 } catch (PDOException $e) {
     $categories = [];
 }

@@ -71,6 +71,7 @@ $bing_verify = get_setting('bing_site_verify', '');
     <meta name="robots" content="<?php echo $meta_robots; ?>">
     <meta name="keywords" content="<?php echo htmlspecialchars($meta_keywords); ?>">
     <link rel="canonical" href="<?php echo $current_url; ?>">
+    <link rel="alternate" type="application/rss+xml" title="<?php echo htmlspecialchars(get_setting('site_name', 'NewsCast')); ?> RSS Feed" href="<?php echo BASE_URL; ?>feed.php">
 
     <!-- Open Graph (WhatsApp/Facebook) -->
     <?php

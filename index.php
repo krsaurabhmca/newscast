@@ -57,7 +57,10 @@ $stmt->execute([$featured_id]);
 $breaking_news_latest = $stmt->fetchAll();
 
 // 4. Fetch Latest News for main grid
-$total_posts_stmt = $pdo->query("SELECT COUNT(*) FROM posts WHERE status = 'published' AND published_at <= NOW()");
+$total_posts_stmt = $pdo->query("SELECT COUNT(DISTINCT p.id) FROM posts p 
+                                  JOIN post_categories pc ON p.id = pc.post_id 
+                                  JOIN categories c ON pc.category_id = c.id 
+                                  WHERE p.status = 'published' AND p.published_at <= NOW() AND c.status = 'active'");
 $total_posts = $total_posts_stmt->fetchColumn();
 
 if ($total_posts > 20) {

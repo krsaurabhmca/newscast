@@ -1,5 +1,16 @@
 [
     {
+        "version": "2.6.0",
+        "date": "2026-06-29",
+        "changes": [
+            "Media: Integrated Cropper.js into the Media Library for inline image cropping with multiple aspect ratios.",
+            "Feeds: Created standard XML RSS feed (feed.php) and added auto-discovery link in public header.",
+            "Categories: Fixed issue where inactive categories showed up in post creation and editing pages.",
+            "Categories: Restricted viewing or counting of posts belonging solely to inactive categories on the website frontend.",
+            "Dashboard: Cleaned up Traffic & Engagement Trends chart timeframe filters by removing the 90 days option."
+        ]
+    },
+    {
         "version": "2.5.4",
         "date": "2026-06-28",
         "changes": [

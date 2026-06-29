@@ -1550,8 +1550,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
                         class="trend-timeframe-btn active">7 Days</button>
                     <button onclick="switchTrendTimeframe('30days')" id="btn-trend-30days"
                         class="trend-timeframe-btn">30 Days</button>
-                    <button onclick="switchTrendTimeframe('90days')" id="btn-trend-90days"
-                        class="trend-timeframe-btn">90 Days</button>
                 </div>
             </div>
 

@@ -1,6 +1,6 @@
 {
-    "version": "2.5.4",
+    "version": "2.6.0",
     "db_version": 10,
-    "last_updated": "2026-06-28",
-    "changelog": "v2.5.4: Added automated robots.txt generation to root directory, pointing to the XML sitemap and blocking indexing of sensitive paths."
+    "last_updated": "2026-06-29",
+    "changelog": "v2.6.0: Integrated Image Cropping tool in Media Library, added standard XML RSS Feed, fixed inactive category filtering on post forms and website frontend, and cleaned up dashboard timeframe filters."
 }
