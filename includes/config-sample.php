@@ -61,26 +61,28 @@ if (session_status() === PHP_SESSION_NONE) {
 // ══════════════════════════════════════════════════════════════
 //  Site Settings (from DB)
 // ══════════════════════════════════════════════════════════════
-function get_cached_query($pdo, $sql, $params = [], $ttl = 300) {
-    $cache_dir = __DIR__ . '/../cache';
-    if (!is_dir($cache_dir)) {
-        @mkdir($cache_dir, 0777, true);
+if (!function_exists('get_cached_query')) {
+    function get_cached_query($pdo, $sql, $params = [], $ttl = 300) {
+        $cache_dir = __DIR__ . '/../cache';
+        if (!is_dir($cache_dir)) {
+            @mkdir($cache_dir, 0777, true);
+        }
+        
+        $cache_key = md5($sql . serialize($params));
+        $cache_file = $cache_dir . '/' . $cache_key . '.json';
+        
+        if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $ttl) {
+            $data = json_decode(file_get_contents($cache_file), true);
+            if (is_array($data)) return $data;
+        }
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        @file_put_contents($cache_file, json_encode($data));
+        return $data;
     }
-    
-    $cache_key = md5($sql . serialize($params));
-    $cache_file = $cache_dir . '/' . $cache_key . '.json';
-    
-    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $ttl) {
-        $data = json_decode(file_get_contents($cache_file), true);
-        if (is_array($data)) return $data;
-    }
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    @file_put_contents($cache_file, json_encode($data));
-    return $data;
 }
 
 $settings = [];
