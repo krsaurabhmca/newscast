@@ -8,7 +8,8 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/functions.php';
 
 // Fetch categories for menu
-$nav_categories = get_cached_query($pdo, "SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC", [], 300);
+$stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC");
+$nav_categories = $stmt->fetchAll();
 
 $categories_tree = [];
 $sub_categories = [];
@@ -27,8 +28,8 @@ foreach ($sub_categories as $sub) {
 }
 
 // Fetch latest active poll
-$cached_polls = get_cached_query($pdo, "SELECT id FROM polls WHERE status = 'active' AND (starts_at IS NULL OR starts_at <= NOW()) AND (expires_at IS NULL OR expires_at >= NOW()) ORDER BY created_at DESC LIMIT 1", [], 300);
-$latest_poll_header = !empty($cached_polls) ? $cached_polls[0] : false;
+$latest_poll_stmt = $pdo->query("SELECT id FROM polls WHERE status = 'active' AND (starts_at IS NULL OR starts_at <= NOW()) AND (expires_at IS NULL OR expires_at >= NOW()) ORDER BY created_at DESC LIMIT 1");
+$latest_poll_header = $latest_poll_stmt->fetch();
 $poll_header_url = $latest_poll_header ? BASE_URL . "poll.php?id=" . $latest_poll_header['id'] : '#';
 
 // Default SEO — fallback to settings, then hardcoded
@@ -670,7 +671,8 @@ endif; ?>
                 $current_file == 'category.php'
             );
             if (get_setting('breaking_news_enabled') == 'yes' && !$suppress_global_ticker):
-    $breaking_news = get_cached_query($pdo, "SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 4", [], 300);
+    $breaking_stmt = $pdo->query("SELECT title, slug FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 4");
+    $breaking_news = $breaking_stmt->fetchAll();
     if ($breaking_news):
 ?>
             <div class="breaking-news-box" style="background: #000; color: #fff; height: 35px; display: flex; align-items: center; overflow: hidden; font-size: 13px;">
