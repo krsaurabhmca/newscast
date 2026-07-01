@@ -8,11 +8,14 @@ $site_tagline = get_setting('site_tagline', 'Digital News Portal');
 $meta_desc = get_setting('meta_description', 'Your ultimate destination for the latest news and insights.');
 
 // Fetch latest published posts with at least one active category
-$stmt = $pdo->query("SELECT DISTINCT p.*, u.username FROM posts p
+$stmt = $pdo->query("SELECT p.*, u.username FROM posts p
                      JOIN users u ON p.user_id = u.id
-                     JOIN post_categories pc ON p.id = pc.post_id
-                     JOIN categories c ON pc.category_id = c.id
-                     WHERE p.status = 'published' AND p.published_at <= NOW() AND c.status = 'active'
+                     WHERE p.status = 'published' AND p.published_at <= NOW() 
+                     AND EXISTS (
+                         SELECT 1 FROM post_categories pc
+                         JOIN categories c ON pc.category_id = c.id
+                         WHERE pc.post_id = p.id AND c.status = 'active'
+                     )
                      ORDER BY p.published_at DESC LIMIT 30");
 $posts = $stmt->fetchAll();
 

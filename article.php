@@ -93,11 +93,14 @@ include 'includes/public_header.php';
 // Fetch Related Posts (sharing any category with current post)
 $cat_ids = array_column($post_categories, 'id');
 $placeholders = count($cat_ids) > 0 ? str_repeat('?,', count($cat_ids) - 1) . '?' : '0';
-$stmt = $pdo->prepare("SELECT DISTINCT p.* FROM posts p 
-                       JOIN post_categories pc ON p.id = pc.post_id 
-                       WHERE pc.category_id IN ($placeholders) AND p.id != ? AND p.status = 'published' AND p.published_at <= NOW()
+$stmt = $pdo->prepare("SELECT p.* FROM posts p 
+                       WHERE p.id != ? AND p.status = 'published' AND p.published_at <= NOW()
+                       AND EXISTS (
+                           SELECT 1 FROM post_categories pc 
+                           WHERE pc.post_id = p.id AND pc.category_id IN ($placeholders)
+                       )
                        LIMIT 3");
-$stmt->execute(array_merge($cat_ids, [$post['id']]));
+$stmt->execute(array_merge([$post['id']], $cat_ids));
 $related = $stmt->fetchAll();
 
 // Fetch Latest Active Poll

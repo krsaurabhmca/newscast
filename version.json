@@ -1,6 +1,6 @@
 {
-    "version": "2.6.1",
+    "version": "2.6.2",
     "db_version": 10,
-    "last_updated": "2026-06-29",
-    "changelog": "v2.6.1: Redesigned the Category Management dashboard UI and added a transparent overlay to homepage live broadcast widgets to prevent visitor control."
+    "last_updated": "2026-07-01",
+    "changelog": "v2.6.2: Implemented file-based caching for global queries (settings, categories, polls, breaking news) to drastically reduce database load. Optimized DISTINCT queries in feed and article pages."
 }

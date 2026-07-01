@@ -61,16 +61,35 @@ if (session_status() === PHP_SESSION_NONE) {
 // ══════════════════════════════════════════════════════════════
 //  Site Settings (from DB)
 // ══════════════════════════════════════════════════════════════
+function get_cached_query($pdo, $sql, $params = [], $ttl = 300) {
+    $cache_dir = __DIR__ . '/../cache';
+    if (!is_dir($cache_dir)) {
+        @mkdir($cache_dir, 0777, true);
+    }
+    
+    $cache_key = md5($sql . serialize($params));
+    $cache_file = $cache_dir . '/' . $cache_key . '.json';
+    
+    if (file_exists($cache_file) && (time() - filemtime($cache_file)) < $ttl) {
+        $data = json_decode(file_get_contents($cache_file), true);
+        if (is_array($data)) return $data;
+    }
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    @file_put_contents($cache_file, json_encode($data));
+    return $data;
+}
+
 $settings = [];
 try {
-    $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
-    while ($row = $stmt->fetch()) {
+    $cached_settings = get_cached_query($pdo, "SELECT setting_key, setting_value FROM settings", [], 300);
+    foreach ($cached_settings as $row) {
         $settings[$row['setting_key']] = $row['setting_value'];
     }
-}
-catch (PDOException $e) {
-// Settings table may not exist yet on first run — safe to ignore
-}
+} catch (PDOException $e) {}
 
 // Helper to get a setting value
 function get_setting($key, $default = '')
