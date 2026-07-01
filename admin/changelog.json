@@ -1,5 +1,19 @@
 [
     {
+        "version": "2.6.5",
+        "date": "2026-07-01",
+        "changes": [
+            "Hotfix: Emergency revert of public header caching implementation to restore site access."
+        ]
+    },
+    {
+        "version": "2.6.4",
+        "date": "2026-07-01",
+        "changes": [
+            "Hotfix: Added get_cached_query to functions.php to resolve 500 error on live server."
+        ]
+    },
+    {
         "version": "2.6.3",
         "date": "2026-07-01",
         "changes": [

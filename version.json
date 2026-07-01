@@ -1,6 +1,6 @@
 {
-    "version": "2.6.3",
+    "version": "2.6.5",
     "db_version": 10,
     "last_updated": "2026-07-01",
-    "changelog": "v2.6.3: Fixed fatal error caused by caching function redeclaration. Optimized database queries."
+    "changelog": "v2.6.5: Emergency hotfix. Reverted caching implementation in public header to resolve HTTP 500 error on live server."
 }
