@@ -1,5 +1,20 @@
 [
     {
+        "version": "2.6.3",
+        "date": "2026-07-01",
+        "changes": [
+            "Hotfix: Fixed fatal error caused by caching function redeclaration when config file is included multiple times."
+        ]
+    },
+    {
+        "version": "2.6.2",
+        "date": "2026-07-01",
+        "changes": [
+            "Performance: Implemented file-based caching for global queries (settings, categories, polls, breaking news) to drastically reduce database load.",
+            "Performance: Optimized DISTINCT queries in feed and article pages to prevent database timeouts."
+        ]
+    },
+    {
         "version": "2.6.1",
         "date": "2026-06-29",
         "changes": [
