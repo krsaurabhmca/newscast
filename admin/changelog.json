@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.6.7",
+        "date": "2026-07-04",
+        "changes": [
+            "Fix: Relocated timezone alignment code to the core functions.php file so that the fix is pushed to the live server automatically (since config.php is ignored by git)."
+        ]
+    },
+    {
         "version": "2.6.6",
         "date": "2026-07-04",
         "changes": [

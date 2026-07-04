@@ -1,4 +1,21 @@
 <?php
+// Set default timezone to Indian Standard Time (Asia/Kolkata)
+date_default_timezone_set('Asia/Kolkata');
+
+// Align MySQL session timezone with PHP's timezone to avoid timezone mismatch bugs
+if (isset($pdo)) {
+    try {
+        $now = new DateTime();
+        $mins = $now->getOffset() / 60;
+        $sgn = ($mins < 0 ? -1 : 1);
+        $mins = abs($mins);
+        $hrs = floor($mins / 60);
+        $mins -= $hrs * 60;
+        $offset = sprintf('%+03d:%02d', $hrs * $sgn, $mins);
+        $pdo->exec("SET time_zone = '$offset'");
+    } catch (Exception $e) {}
+}
+
 // helpers.php
 
 if (!function_exists('get_cached_query')) {
@@ -31,7 +48,7 @@ if (!function_exists('get_cached_query')) {
 function create_slug($string)
 {
     $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $string)));
-    return $slug;
+    return trim($slug, '-');
 }
 
 /**

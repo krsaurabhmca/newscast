@@ -1,6 +1,6 @@
 {
-    "version": "2.6.6",
+    "version": "2.6.7",
     "db_version": 10,
     "last_updated": "2026-07-04",
-    "changelog": "v2.6.6: Fix timezone mismatch issue between PHP and MySQL preventing published news/articles from showing on the website."
+    "changelog": "v2.6.7: Relocate timezone synchronization to core functions.php file so it automatically updates on the live server."
 }
