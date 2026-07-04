@@ -1,6 +1,6 @@
 {
-    "version": "2.6.7",
+    "version": "2.6.8",
     "db_version": 10,
     "last_updated": "2026-07-04",
-    "changelog": "v2.6.7: Relocate timezone synchronization to core functions.php file so it automatically updates on the live server."
+    "changelog": "v2.6.8: Standardize timezone offset configurations across all environments."
 }

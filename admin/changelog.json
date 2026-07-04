@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.6.8",
+        "date": "2026-07-04",
+        "changes": [
+            "Fix: Standardized timezone configuration across all server setups."
+        ]
+    },
+    {
         "version": "2.6.7",
         "date": "2026-07-04",
         "changes": [
