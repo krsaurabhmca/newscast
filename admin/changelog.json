@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.6.6",
+        "date": "2026-07-04",
+        "changes": [
+            "Fix: Aligned PHP and MySQL session timezones to resolve mismatch that prevented published articles from showing on the website."
+        ]
+    },
+    {
         "version": "2.6.5",
         "date": "2026-07-01",
         "changes": [

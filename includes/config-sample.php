@@ -23,17 +23,29 @@ define('SITE_NAME', 'Panchayat Voice');
 // ══════════════════════════════════════════════════════════════
 //  Database Connection
 // ══════════════════════════════════════════════════════════════
+// Set default timezone to Indian Standard Time (Asia/Kolkata)
+date_default_timezone_set('Asia/Kolkata');
+
 try {
     $pdo = new PDO(
         "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
         DB_USER,
         DB_PASS,
-    [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-    ]
-        );
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]
+    );
+    // Align MySQL session timezone with PHP's timezone to avoid timezone mismatch bugs
+    $now = new DateTime();
+    $mins = $now->getOffset() / 60;
+    $sgn = ($mins < 0 ? -1 : 1);
+    $mins = abs($mins);
+    $hrs = floor($mins / 60);
+    $mins -= $hrs * 60;
+    $offset = sprintf('%+03d:%02d', $hrs * $sgn, $mins);
+    $pdo->exec("SET time_zone = '$offset'");
 }
 catch (PDOException $e) {
     // If DB connection fails, redirect to installer
