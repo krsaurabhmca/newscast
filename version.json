@@ -1,6 +1,6 @@
 {
-    "version": "2.6.10",
+    "version": "2.6.11",
     "db_version": 10,
     "last_updated": "2026-07-06",
-    "changelog": "v2.6.10: Completely redesigned WP Importer with cURL image fetching and auto category extraction."
+    "changelog": "v2.6.11: Fixed Category Status and Visibility toggle switches not working in the admin panel."
 }

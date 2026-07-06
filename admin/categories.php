@@ -200,8 +200,8 @@ $parent_categories = $pdo->query($parent_opt_query . " ORDER BY name ASC")->fetc
                                 <?php else: ?>
                                     <div style="display: flex; align-items: center;">
                                 <?php endif; ?>
-                                    <label class="modern-switch" style="margin: 0;">
-                                        <input type="checkbox" <?php echo $cat['status'] == 'active' ? 'checked' : ''; ?> disabled>
+                                    <label class="modern-switch" style="margin: 0; pointer-events: none;">
+                                        <input type="checkbox" <?php echo $cat['status'] == 'active' ? 'checked' : ''; ?>>
                                         <span class="modern-slider"></span>
                                     </label>
                                 <?php if (is_admin()): ?>
@@ -219,8 +219,8 @@ $parent_categories = $pdo->query($parent_opt_query . " ORDER BY name ASC")->fetc
                                 <?php else: ?>
                                     <div style="display: flex; align-items: center;">
                                 <?php endif; ?>
-                                    <label class="modern-switch" style="margin: 0;">
-                                        <input type="checkbox" <?php echo !empty($cat['show_on_homepage']) ? 'checked' : ''; ?> disabled>
+                                    <label class="modern-switch" style="margin: 0; pointer-events: none;">
+                                        <input type="checkbox" <?php echo !empty($cat['show_on_homepage']) ? 'checked' : ''; ?>>
                                         <span class="modern-slider modern-slider-featured"></span>
                                     </label>
                                 <?php if (is_admin()): ?>

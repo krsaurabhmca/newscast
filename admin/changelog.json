@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.6.11",
+        "date": "2026-07-06",
+        "changes": [
+            "Fix: Fixed Category Status and Visibility toggle switches not working in the admin panel due to swallowed click events."
+        ]
+    },
+    {
         "version": "2.6.10",
         "date": "2026-07-06",
         "changes": [
