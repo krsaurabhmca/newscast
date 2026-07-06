@@ -1,6 +1,6 @@
 {
-    "version": "2.6.8",
+    "version": "2.6.10",
     "db_version": 10,
-    "last_updated": "2026-07-04",
-    "changelog": "v2.6.8: Standardize timezone offset configurations across all environments."
+    "last_updated": "2026-07-06",
+    "changelog": "v2.6.10: Completely redesigned WP Importer with cURL image fetching and auto category extraction."
 }
