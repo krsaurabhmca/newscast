@@ -125,7 +125,16 @@ if ($stmt->rowCount() > 0) {
 // 2. IMAGE DOWNLOAD & COMPRESSION
 $final_image_name = '';
 if (!empty($image_url)) {
-    $img_content = @file_get_contents($image_url);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $image_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)');
+    $img_content = curl_exec($ch);
+    curl_close($ch);
+
     if ($img_content) {
         $image = @imagecreatefromstring($img_content);
         if ($image) {

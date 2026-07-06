@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.6.10",
+        "date": "2026-07-06",
+        "changes": [
+            "Fix: Upgraded WP Importer image fetching to use cURL instead of file_get_contents to bypass SSL and allow_url_fopen server restrictions."
+        ]
+    },
+    {
         "version": "2.6.9",
         "date": "2026-07-06",
         "changes": [
