@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /includes/
+Disallow: /api/
+
+Sitemap: http://localhost/news/sitemap.xml
