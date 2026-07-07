@@ -623,9 +623,9 @@ endforeach; ?>
 <script>
     // 🎤 Text-to-Speech (Voice Reader) Settings
     const ttsLang = <?php echo json_encode(get_setting('tts_lang', 'hi-IN')); ?>;
-    const ttsVoiceKeyword = <?php echo json_encode(get_setting('tts_voice_keyword', 'female')); ?>;
-    const ttsRate = parseFloat(<?php echo json_encode(get_setting('tts_rate', '0.95')); ?>);
-    const ttsPitch = parseFloat(<?php echo json_encode(get_setting('tts_pitch', '1.0')); ?>);
+    const ttsVoiceKeyword = <?php echo json_encode(get_setting('tts_voice_keyword', 'Google')); ?>;
+    const ttsRate = parseFloat(<?php echo json_encode(get_setting('tts_rate', '0.90')); ?>);
+    const ttsPitch = parseFloat(<?php echo json_encode(get_setting('tts_pitch', '1.1')); ?>);
 
     let synth = window.speechSynthesis;
     let utterance = null;

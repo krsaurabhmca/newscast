@@ -1,6 +1,6 @@
 {
-    "version": "2.6.13",
+    "version": "2.6.14",
     "db_version": 10,
     "last_updated": "2026-07-07",
-    "changelog": "v2.6.13: Added a PHP proxy for WordPress JSON API requests to bypass CORS restrictions during manual imports."
+    "changelog": "v2.6.14: Optimized default TTS Voice Reader settings (rate: 0.90, pitch: 1.1, keyword: Google) for a softer, more natural Hindi female voice."
 }

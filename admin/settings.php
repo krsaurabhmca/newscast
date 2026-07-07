@@ -72,8 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'tts_enabled' => clean($_POST['tts_enabled'] ?? 'no'),
         'tts_lang' => clean($_POST['tts_lang'] ?? 'hi-IN'),
         'tts_voice_keyword' => clean($_POST['tts_voice_keyword'] ?? ''),
-        'tts_rate' => (float)($_POST['tts_rate'] ?? 0.95),
-        'tts_pitch' => (float)($_POST['tts_pitch'] ?? 1.0),
+        'tts_rate' => (float)($_POST['tts_rate'] ?? 0.90),
+        'tts_pitch' => (float)($_POST['tts_pitch'] ?? 1.1),
         'smtp_host' => clean($_POST['smtp_host'] ?? ''),
         'smtp_user' => clean($_POST['smtp_user'] ?? ''),
         'smtp_pass' => $_POST['smtp_pass'] ?? '',
@@ -824,17 +824,17 @@ endforeach; ?>
                         </div>
                         <div>
                             <label class="field-label" style="font-weight: 700; font-size: 13px; color: #1e293b; display: block; margin-bottom: 8px;">Preferred Voice Keyword</label>
-                            <input type="text" name="tts_voice_keyword" class="form-control" placeholder="e.g. female, Kalpana, Heera" value="<?php echo get_setting('tts_voice_keyword', 'female'); ?>">
+                            <input type="text" name="tts_voice_keyword" class="form-control" placeholder="e.g. female, Google, Natural" value="<?php echo get_setting('tts_voice_keyword', 'Google'); ?>">
                             <span class="field-hint" style="font-size: 11px; color: #94a3b8; display: block; margin-top: 5px;">Filter voice name (e.g., Kalpana, Heera, Female). Leave blank for default.</span>
                         </div>
                         <div>
                             <label class="field-label" style="font-weight: 700; font-size: 13px; color: #1e293b; display: block; margin-bottom: 8px;">Speech Speed (Rate)</label>
-                            <input type="number" name="tts_rate" class="form-control" step="0.05" min="0.5" max="2.0" value="<?php echo get_setting('tts_rate', '0.95'); ?>">
+                            <input type="number" name="tts_rate" class="form-control" step="0.05" min="0.5" max="2.0" value="<?php echo get_setting('tts_rate', '0.90'); ?>">
                             <span class="field-hint" style="font-size: 11px; color: #94a3b8; display: block; margin-top: 5px;">Speed multiplier (Default: 0.95, range: 0.5 to 2.0).</span>
                         </div>
                         <div>
                             <label class="field-label" style="font-weight: 700; font-size: 13px; color: #1e293b; display: block; margin-bottom: 8px;">Speech Pitch</label>
-                            <input type="number" name="tts_pitch" class="form-control" step="0.1" min="0.5" max="2.0" value="<?php echo get_setting('tts_pitch', '1.0'); ?>">
+                            <input type="number" name="tts_pitch" class="form-control" step="0.1" min="0.5" max="2.0" value="<?php echo get_setting('tts_pitch', '1.1'); ?>">
                             <span class="field-hint" style="font-size: 11px; color: #94a3b8; display: block; margin-top: 5px;">Voice pitch tone (Default: 1.0, range: 0.5 to 2.0).</span>
                         </div>
                     </div>
