@@ -1,6 +1,6 @@
 {
-    "version": "2.6.12",
+    "version": "2.6.13",
     "db_version": 10,
     "last_updated": "2026-07-07",
-    "changelog": "v2.6.12: Preserved original WordPress URLs/slugs during manual import and automated cron sync."
+    "changelog": "v2.6.13: Added a PHP proxy for WordPress JSON API requests to bypass CORS restrictions during manual imports."
 }

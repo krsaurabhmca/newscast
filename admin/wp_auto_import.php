@@ -181,7 +181,8 @@ include 'includes/header.php';
             log(`Requesting URL: ${fetchUrl}`);
             
             try {
-                const response = await fetch(fetchUrl);
+                const proxyUrl = `ajax_wp_proxy.php?url=${encodeURIComponent(fetchUrl)}`;
+                const response = await fetch(proxyUrl);
                 if (!response.ok) {
                     log(`No more posts found on page ${page} or API returned error. Finishing.`);
                     hasMore = false;
