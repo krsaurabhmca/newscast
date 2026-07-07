@@ -95,6 +95,7 @@ foreach ($sources as $source) {
         $original_title = trim($post['title']['rendered'] ?? '');
         $original_content = trim(strip_tags($post['content']['rendered'] ?? ''));
         $published_at = date('Y-m-d H:i:s', strtotime($post['date'] ?? 'now'));
+        $original_slug = trim($post['slug'] ?? '');
         
         $image_url = '';
         if (isset($post['_embedded']['wp:featuredmedia'][0]['source_url'])) {
@@ -140,13 +141,13 @@ foreach ($sources as $source) {
         if (!$parsed || !isset($parsed['title']) || !isset($parsed['content'])) {
             $parsed = [
                 'title' => $original_title,
-                'slug' => create_slug($original_title),
+                'slug' => !empty($original_slug) ? $original_slug : create_slug($original_title),
                 'content' => $original_content
             ];
         }
 
         $final_title = clean($parsed['title']);
-        $final_slug = clean($parsed['slug'] ?? create_slug($final_title));
+        $final_slug = !empty($original_slug) ? clean($original_slug) : clean($parsed['slug'] ?? create_slug($final_title));
         $final_content = $parsed['content'];
 
         if (empty($final_slug) || $final_slug == '-') {

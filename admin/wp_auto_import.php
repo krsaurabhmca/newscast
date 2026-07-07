@@ -231,7 +231,8 @@ include 'includes/header.php';
                                 category_name: categoryName,
                                 published_at: post.date,
                                 source_url: post.link,
-                                rewrite_with_ai: rewriteWithAi
+                                rewrite_with_ai: rewriteWithAi,
+                                slug: post.slug
                             })
                         });
 

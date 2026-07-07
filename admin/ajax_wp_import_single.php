@@ -22,6 +22,7 @@ $published_at = date('Y-m-d H:i:s', strtotime($input['published_at'] ?? 'now'));
 $source_url = trim($input['source_url'] ?? '');
 $rewrite_with_ai = isset($input['rewrite_with_ai']) ? (bool)$input['rewrite_with_ai'] : false;
 $category_name = trim($input['category_name'] ?? 'Uncategorized');
+$original_slug = trim($input['slug'] ?? '');
 
 if (empty($original_title) || empty($original_content)) {
     echo json_encode(["success" => false, "error" => "Missing required fields (title, content)."]);
@@ -101,13 +102,13 @@ if ($rewrite_with_ai) {
     // Direct Import without AI Rewrite
     $parsed = [
         'title' => $original_title,
-        'slug' => create_slug($original_title),
+        'slug' => !empty($original_slug) ? $original_slug : create_slug($original_title),
         'content' => $original_content
     ];
 }
 
 $final_title = clean($parsed['title']);
-$final_slug = clean($parsed['slug'] ?? create_slug($final_title));
+$final_slug = !empty($original_slug) ? clean($original_slug) : clean($parsed['slug'] ?? create_slug($final_title));
 $final_content = $parsed['content'];
 
 // If slug is empty (e.g. non-english characters stripped), generate a random one
