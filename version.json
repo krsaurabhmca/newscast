@@ -1,6 +1,6 @@
 {
-    "version": "2.6.15",
+    "version": "2.6.16",
     "db_version": 10,
     "last_updated": "2026-07-08",
-    "changelog": "v2.6.15: Fixed URL Slug auto-generation on edit, improved mobile responsiveness for admin post add/edit pages, and hid 'Apni Baat' floating button from admin area."
+    "changelog": "v2.6.16: Resolved URL Slug generation bug on blanking, added responsive Card View for Manage Articles on mobile, and removed Direct Ad Link field from post editors."
 }

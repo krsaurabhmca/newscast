@@ -224,10 +224,6 @@ try {
                     <input type="text" name="slug" class="form-control" value="<?php echo $post['slug']; ?>">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label>Direct Ad Link</label>
-                    <input type="text" name="external_link" class="form-control" value="<?php echo $post['external_link']; ?>" placeholder="Labels as AD automatically">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
                     <label>YouTube Video Link</label>
                     <input type="url" name="video_url" class="form-control" value="<?php echo $post['video_url']; ?>" placeholder="https://youtube.com/watch?v=...">
                 </div>
@@ -567,6 +563,9 @@ try {
 
             slugInput.addEventListener('input', function() {
                 isSlugManual = true;
+            });
+
+            slugInput.addEventListener('blur', function() {
                 if (slugInput.value.trim() === "") {
                     isSlugManual = false;
                     slugInput.value = generateSlug(titleInput.value);

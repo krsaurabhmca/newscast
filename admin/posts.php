@@ -438,6 +438,68 @@ function paginate_url(array $overrides = []): string
     .sort-link.active {
         color: var(--primary);
         font-weight: 800;
+    /* Mobile Card View */
+    @media (max-width: 768px) {
+        .modern-table thead {
+            display: none;
+        }
+        .modern-table, .modern-table tbody, .modern-table tr, .modern-table td {
+            display: block;
+            width: 100%;
+        }
+        .modern-table tr {
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            padding: 10px;
+            position: relative;
+        }
+        .modern-table td {
+            border: none;
+            padding: 8px 10px 8px 40%;
+            text-align: right;
+            position: relative;
+            min-height: 40px;
+        }
+        .modern-table td::before {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+        .modern-table td:nth-child(3)::before { content: "Category"; }
+        .modern-table td:nth-child(4)::before { content: "Status"; }
+        .modern-table td:nth-child(5)::before { content: "Views"; }
+        .modern-table td:nth-child(6)::before { content: "Date"; }
+        .modern-table td:nth-child(7)::before { content: "Manage"; }
+        
+        .modern-table td:nth-child(1), .modern-table td:nth-child(2) {
+            text-align: left;
+            padding-left: 10px;
+            min-height: auto;
+        }
+        .modern-table td:nth-child(1) {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            z-index: 10;
+            width: auto;
+            padding: 5px;
+        }
+        .modern-table td:nth-child(2) {
+            padding-top: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 5px;
+        }
+        .post-title-link {
+            padding-right: 25px;
+        }
     }
 </style>
 
@@ -562,13 +624,13 @@ function paginate_url(array $overrides = []): string
                     <?php else: ?>
                         <?php foreach ($posts as $post): ?>
                             <tr>
-                                <td style="padding-right: 0;">
+                                <td style="padding-right: 0;" data-label="">
                                     <?php if (is_admin()): ?>
                                         <input type="checkbox" name="post_ids[]" value="<?= $post['id'] ?>" class="post-checkbox"
                                             style="cursor: pointer;">
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td data-label="">
                                     <div class="post-title-cell">
                                         <?php if ($post['featured_image']): ?>
                                             <img src="<?= htmlspecialchars(get_post_thumbnail($post['featured_image'])) ?>"
@@ -589,7 +651,7 @@ function paginate_url(array $overrides = []): string
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="Category">
                                     <?php if ($post['cat_names']): ?>
                                         <span class="pill pill-category"><?= htmlspecialchars($post['cat_names']) ?></span>
                                     <?php else: ?>
@@ -601,15 +663,15 @@ function paginate_url(array $overrides = []): string
                                         <?= $post['status'] === 'published' ? '<i data-feather="check-circle" style="width:12px;"></i> ' : '<i data-feather="edit" style="width:12px;"></i> ' ?>        <?= ucfirst($post['status']) ?>
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Views">
                                     <span
                                         style="font-weight: 700; color: #334155; font-size: 13px;"><?= number_format($post['views']) ?></span>
                                 </td>
-                                <td>
+                                <td data-label="Date Published">
                                     <span
                                         style="color: #64748b; font-size: 13px;"><?= format_date($post['created_at']) ?></span>
                                 </td>
-                                <td style="text-align: right;">
+                                <td style="text-align: right;" data-label="Manage">
                                     <div style="display:flex; gap:4px; justify-content: flex-end;">
                                         <?php if ($post['status'] === 'published' && !empty($post['slug'])): ?>
                                             <a href="<?= BASE_URL ?>article/<?= htmlspecialchars($post['slug']) ?>" target="_blank"

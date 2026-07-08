@@ -201,10 +201,6 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                             value="<?php echo $prefill_slug; ?>">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label>Direct Ad Link (Optional)</label>
-                        <input type="text" name="external_link" class="form-control" placeholder="https://...">
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
                         <label>YouTube Video Link</label>
                         <input type="url" name="video_url" class="form-control"
                             placeholder="https://youtube.com/watch?v=...">
@@ -597,6 +593,9 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
 
             slugInput.addEventListener('input', function () {
                 isSlugManual = true;
+            });
+
+            slugInput.addEventListener('blur', function () {
                 if (slugInput.value.trim() === "") {
                     isSlugManual = false;
                     slugInput.value = generateSlug(titleInput.value);
