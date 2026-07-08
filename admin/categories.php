@@ -137,16 +137,16 @@ $parent_categories = $pdo->query($parent_opt_query . " ORDER BY name ASC")->fetc
             </h3>
             <p style="margin: 4px 0 0; font-size: 13px; color: #64748b;">Manage news sections, parent hierarchy, direct links, and visibility</p>
         </div>
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <form method="GET" action="" style="display: flex; gap: 8px;">
-                <input type="text" name="s" class="form-control" placeholder="Search categories..." value="<?php echo htmlspecialchars($search); ?>" style="width: 220px; padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#cbd5e1'">
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <form method="GET" action="" style="display: flex; gap: 8px; flex-wrap: wrap; width: 100%;">
+                <input type="text" name="s" class="form-control" placeholder="Search categories..." value="<?php echo htmlspecialchars($search); ?>" style="flex:1; min-width:160px; padding: 8px 14px; font-size: 13px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#cbd5e1'">
                 <button type="submit" class="btn btn-primary" style="padding: 8px 16px; font-size: 13px; border-radius: 8px; font-weight: 700;">Search</button>
                 <?php if ($search): ?>
                     <a href="categories.php" class="btn" style="padding: 8px 16px; font-size: 13px; border-radius: 8px; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; text-decoration: none; display: inline-flex; align-items: center; font-weight: 700;">Clear</a>
                 <?php endif; ?>
             </form>
             <?php if (is_admin()): ?>
-                <button onclick="openCategoryModal()" class="btn btn-primary" style="padding: 8px 16px; font-size: 13px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;"><i data-feather="plus" style="width: 15px;"></i> Add Category</button>
+                <button onclick="openCategoryModal()" class="btn btn-primary" style="padding: 8px 16px; font-size: 13px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; width:100%;"><i data-feather="plus" style="width: 15px;"></i> Add Category</button>
             <?php endif; ?>
         </div>
     </div>
@@ -691,6 +691,72 @@ $parent_categories = $pdo->query($parent_opt_query . " ORDER BY name ASC")->fetc
     .btn-action-delete:hover {
         background: #fee2e2;
         transform: translateY(-1px);
+    }
+    /* ── MOBILE RESPONSIVE — Categories Card View ── */
+    @media (max-width: 768px) {
+        .premium-card { padding: 15px !important; }
+
+        /* Hide table header on mobile */
+        .premium-table thead { display: none; }
+
+        /* Stack each row as a card */
+        .premium-table,
+        .premium-table tbody,
+        .premium-table tr,
+        .premium-table td {
+            display: block;
+            width: 100%;
+        }
+        .premium-table tr {
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            overflow: hidden;
+            position: relative;
+        }
+        .premium-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .premium-table td:last-child { border-bottom: none; }
+
+        /* Icon cell — make it a header strip */
+        .premium-table td:first-child {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 15px;
+        }
+
+        /* Status & Visibility — stack the two toggles */
+        .premium-table td .switch-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        div[style*="display: flex; gap: 20px"] {
+            flex-wrap: wrap;
+            gap: 12px !important;
+        }
+
+        /* Modal responsive */
+        .modal-content {
+            width: 95vw !important;
+            max-width: 95vw !important;
+            max-height: 92dvh !important;
+        }
+        .modal-content > div[style*="padding: 25px"] {
+            max-height: 75dvh !important;
+        }
+
+        /* Table container — no overflow-x on mobile (card layout) */
+        .table-responsive.table-container {
+            overflow-x: visible;
+        }
     }
 </style>
 

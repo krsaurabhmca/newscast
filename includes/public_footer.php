@@ -239,7 +239,7 @@
     </a>
     <?php endif; ?>
 
-    <?php include 'includes/feedback_drawer.php'; ?>
+    <?php // include 'includes/feedback_drawer.php'; // Apni Baat floating button disabled ?>
 
     <?php 
     // Automated WP Sync Trigger
