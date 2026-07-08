@@ -385,6 +385,8 @@ function paginate_url(array $overrides = []): string
         background: white;
         border-top: 1px solid #f1f5f9;
         border-radius: 0 0 16px 16px;
+        flex-wrap: wrap;
+        gap: 15px;
     }
 
     .page-numbers {
