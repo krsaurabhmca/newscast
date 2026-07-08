@@ -98,6 +98,10 @@ body { background: var(--bg-main); font-family: 'Inter', system-ui, sans-serif; 
 .card-title svg { width: 18px; color: var(--primary); }
 
 .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 768px) {
+    .config-grid { grid-template-columns: 1fr !important; }
+    .utility-bar { flex-wrap: wrap; gap: 10px !important; }
+}
 
 .form-group { margin-bottom: 15px; }
 .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }

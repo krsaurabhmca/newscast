@@ -437,73 +437,10 @@ function paginate_url(array $overrides = []): string
         color: var(--primary);
     }
 
-    .sort-link.active {
-        color: var(--primary);
-        font-weight: 800;
-    /* Mobile Card View */
-    @media (max-width: 768px) {
-        .modern-table thead {
-            display: none;
-        }
-        .modern-table, .modern-table tbody, .modern-table tr, .modern-table td {
-            display: block;
-            width: 100%;
-        }
-        .modern-table tr {
-            margin-bottom: 15px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            background: #fff;
-            padding: 10px;
-            position: relative;
-        }
-        .modern-table td {
-            border: none;
-            padding: 8px 10px 8px 40%;
-            text-align: right;
-            position: relative;
-            min-height: 40px;
-        }
-        .modern-table td::before {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 11px;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-        }
-        .modern-table td:nth-child(3)::before { content: "Category"; }
-        .modern-table td:nth-child(4)::before { content: "Status"; }
-        .modern-table td:nth-child(5)::before { content: "Views"; }
-        .modern-table td:nth-child(6)::before { content: "Date"; }
-        .modern-table td:nth-child(7)::before { content: "Manage"; }
-        
-        .modern-table td:nth-child(1), .modern-table td:nth-child(2) {
-            text-align: left;
-            padding-left: 10px;
-            min-height: auto;
-        }
-        .modern-table td:nth-child(1) {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            z-index: 10;
-            width: auto;
-            padding: 5px;
-        }
-        .modern-table td:nth-child(2) {
-            padding-top: 10px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #f1f5f9;
-            margin-bottom: 5px;
-        }
-        .post-title-link {
-            padding-right: 25px;
-        }
-    }
+    .sort-link.active { color: var(--primary); font-weight: 800; }
 </style>
+
+
 
 <div class="content-header">
     <div>

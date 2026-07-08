@@ -1,116 +1,433 @@
+/* ╔══════════════════════════════════════════════════════════╗
+   ║   ADMIN RESPONSIVE CSS — Complete Mobile-First Overhaul   ║
+   ╚══════════════════════════════════════════════════════════╝ */
+
+/* ── Color picker helpers ── */
 .color-item:hover {
     transform: scale(1.1);
 }
-
 .color-item.selected {
     border-color: #000;
     transform: scale(1.1);
 }
 
-/* Responsive Design */
-body {
+/* ── Global: prevent any element from causing horizontal scroll ── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
     overflow-x: hidden;
 }
 
+body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ══════════════════════════════════════════
+   TABLET  ≤ 1024px
+   ══════════════════════════════════════════ */
 @media (max-width: 1024px) {
     :root {
         --sidebar-width: 0px;
     }
 
+    /* Sidebar slides off-screen and overlays on mobile-active */
     .sidebar {
-        left: -280px;
+        left: -290px;
         width: 280px !important;
-        transition: 0.3s ease;
+        transition: left 0.3s ease, box-shadow 0.3s ease;
+        z-index: 9999;
     }
-
     .sidebar.mobile-active {
         left: 0 !important;
-        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.3);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.4);
     }
 
     .main-content {
-        margin-left: 0;
-        padding: 20px;
+        margin-left: 0 !important;
+        padding: 0 15px 15px 15px;
+        width: 100%;
+        max-width: 100%;
     }
 
     .mobile-toggle {
-        display: block !important;
+        display: flex !important;
     }
 
+    /* Header items hidden on desktop revealed only on mobile */
     .desktop-only {
         display: none !important;
     }
 
-    /* Stack grid layouts */
-    div[style*="grid-template-columns: 1fr 340px"] {
+    /* ── Dashboard Grids ── */
+    .db-main {
         grid-template-columns: 1fr !important;
     }
 
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 640px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    header h2 {
-        font-size: 20px !important;
-    }
-
-    .content-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-
-    /* Stack form grids */
-    div[style*="grid-template-columns: 1fr 1fr"] {
+    /* Stack all hard-coded two-column grids from inline styles */
+    div[style*="grid-template-columns: 1fr 310px"],
+    div[style*="grid-template-columns: 1fr 280px"],
+    div[style*="grid-template-columns: 1fr 340px"],
+    div[style*="grid-template-columns: 2fr 1fr"],
+    div[style*="grid-template-columns: 280px 1fr"] {
         grid-template-columns: 1fr !important;
     }
+
+    /* Live stream banner */
+    .dash-live-banner {
+        grid-template-columns: 1fr !important;
+    }
+    .dash-live-banner .dlb-embed {
+        display: none;
+    }
+
+    /* Settings page sidebar layout */
+    .settings-layout,
+    div[style*="grid-template-columns: 240px 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Help page */
+    div[style*="grid-template-columns: 280px 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Stats grid 2-col on tablet */
+    .stats-grid,
+    .db-kpis {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
-/* Mobile Optimizations for Post Add/Edit */
+/* ══════════════════════════════════════════
+   MOBILE  ≤ 768px
+   ══════════════════════════════════════════ */
 @media (max-width: 768px) {
+
+    /* ── Typography ── */
+    header h2,
+    .content-header h2 {
+        font-size: 18px !important;
+    }
+
+    /* ── Header bar on mobile ── */
+    header {
+        padding: 12px 15px !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* ── Main content padding ── */
+    .main-content {
+        padding: 0 10px 20px 10px !important;
+    }
+
+    /* ── Form controls: prevent iOS auto-zoom ── */
+    input, input.form-control,
+    select, select.form-control,
+    textarea, textarea.form-control {
+        font-size: 16px !important;
+    }
+
+    /* ── Stat cards ── */
     .stat-card {
         padding: 15px !important;
     }
+    .stat-card:hover {
+        transform: none !important; /* Disable hover lift on touch */
+    }
+
+    /* ── Admin grid (post add/edit main layout) ── */
     .admin-grid {
+        grid-template-columns: 1fr !important;
         gap: 15px !important;
     }
-    input.form-control, select.form-control, textarea.form-control {
-        font-size: 16px !important; /* Prevents auto-zoom in iOS Safari */
+
+    /* ── Stats/KPI grids ── */
+    .stats-grid,
+    .db-kpis,
+    .ach-stats {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
+
+    /* ── Stack ALL two-column inline grids ── */
+    div[style*="grid-template-columns: 1fr 1fr"],
+    div[style*="grid-template-columns:1fr 1fr"],
+    div[style*="grid-template-columns: 1fr 310px"],
+    div[style*="grid-template-columns: 1fr 280px"],
+    div[style*="grid-template-columns: 1fr 340px"],
+    div[style*="grid-template-columns: 2fr 1fr"],
+    div[style*="grid-template-columns: 280px 1fr"],
+    div[style*="grid-template-columns: 1fr 1fr 1fr"],
+    div[style*="grid-template-columns:1fr 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Two-column class layouts ── */
+    .two-col,
+    .letter-layout,
+    .idcard-layout,
+    .config-grid,
+    .db-main {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Tables: transform to card layout ── */
+    .modern-table-container {
+        overflow: visible;
+    }
+
+    /* Posts/Articles card view */
+    .modern-table thead {
+        display: none;
+    }
+    .modern-table,
+    .modern-table tbody,
+    .modern-table tr,
+    .modern-table td {
+        display: block;
+        width: 100%;
+    }
+    .modern-table tr {
+        margin-bottom: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fff;
+        padding: 12px 10px 10px;
+        position: relative;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .modern-table td {
+        border: none;
+        padding: 7px 10px 7px 45%;
+        text-align: right;
+        position: relative;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .modern-table td::before {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 10px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 40%;
+        text-align: left;
+    }
+    /* Label each column */
+    .modern-table td:nth-child(3)::before { content: "Category"; }
+    .modern-table td:nth-child(4)::before { content: "Status"; }
+    .modern-table td:nth-child(5)::before { content: "Views"; }
+    .modern-table td:nth-child(6)::before { content: "Date"; }
+    .modern-table td:nth-child(7)::before { content: "Manage"; }
+
+    /* Checkbox column: absolute top-right */
+    .modern-table td:nth-child(1) {
+        position: absolute;
+        right: 8px;
+        top: 10px;
+        width: auto;
+        padding: 0;
+        min-height: auto;
+        border: none;
+        display: block;
+    }
+    /* Title/details column: no label, full width */
+    .modern-table td:nth-child(2) {
+        padding: 4px 10px 12px 10px;
+        text-align: left;
+        justify-content: flex-start;
+        min-height: auto;
+        border-bottom: 1px solid #f1f5f9;
+        margin-bottom: 4px;
+    }
+    .modern-table td:nth-child(2)::before { display: none; }
+    .post-title-link { padding-right: 30px; }
+
+    /* ── Generic content-table (used on many pages) ── */
+    .content-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── Toolbar / Filter bar ── */
+    .modern-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 12px !important;
+    }
+    .toolbar-filters {
+        flex-direction: column !important;
+    }
+    .search-wrapper {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+    .custom-select {
+        width: 100%;
+    }
+
+    /* ── Pagination ── */
+    .pagination-modern {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 15px !important;
+    }
+
+    /* ── Quill editor ── */
     .ql-toolbar.ql-snow {
         padding: 5px !important;
+        flex-wrap: wrap;
     }
     .ql-toolbar.ql-snow button {
         width: 28px !important;
         height: 28px !important;
     }
+
+    /* ── Media picker modal ── */
     #mediaPickerModal > div {
-        width: 95% !important;
-        height: 90vh !important;
+        width: 95vw !important;
+        height: 90dvh !important;
+        max-height: 90dvh !important;
+    }
+    #mediaPickerGrid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+    }
+
+    /* ── Media Library grid ── */
+    #mediaGrid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+    }
+
+    /* ── Dashboard live banner ── */
+    .dash-live-banner {
+        grid-template-columns: 1fr !important;
+    }
+    .dash-live-banner .dlb-embed {
+        display: none !important;
+    }
+
+    /* ── Social Share config grid ── */
+    .config-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Ads form inline grids ── */
+    div[style*="grid-template-columns: 1fr 1fr; gap: 15px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Settings page tabs ── */
+    .settings-layout {
+        grid-template-columns: 1fr !important;
+    }
+    .settings-tabs {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .settings-tab-btn {
+        flex: 0 1 auto;
+        font-size: 12px !important;
+        padding: 7px 10px !important;
+    }
+
+    /* ── Content header (page title + action button) ── */
+    .content-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    .content-header > div:last-child {
+        width: 100%;
+    }
+    .content-header .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ── WP Import grids ── */
+    div[style*="grid-template-columns: 1fr 1fr; gap: 20px"],
+    div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── User edit form ── */
+    div[style*="grid-template-columns:1fr 1fr; gap:20px"],
+    div[style*="grid-template-columns:1fr 1fr;gap:20px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Ad click history stats ── */
+    .ach-stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* ── Help page layout ── */
+    div[style*="grid-template-columns: 280px 1fr; gap: 40px"] {
+        grid-template-columns: 1fr !important;
+    }
+    div[style*="grid-template-columns: 1fr 1fr; gap: 20px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Nowrap overrides (stops elements from expanding page width) ── */
+    .db-wn-link {
+        white-space: normal !important;
+        word-break: break-word;
+    }
+
+    /* ── Image/card grids ── */
+    .version-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ══════════════════════════════════════════
+   SMALL MOBILE  ≤ 480px
+   ══════════════════════════════════════════ */
+@media (max-width: 480px) {
+    /* KPI cards: single column on very small screens */
+    .stats-grid,
+    .db-kpis,
+    .ach-stats {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Reduce padding further */
+    .main-content {
+        padding: 0 8px 15px 8px !important;
+    }
+
+    /* Smaller page heading */
+    header h2,
+    .content-header h2 {
+        font-size: 16px !important;
+    }
+
+    /* Page numbers compact */
+    .page-btn {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 12px !important;
     }
 }

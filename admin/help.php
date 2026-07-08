@@ -3,15 +3,23 @@ $page_title = "Help & User Guide";
 include 'includes/header.php';
 ?>
 
+<style>
+@media (max-width: 768px) {
+    .help-layout { grid-template-columns: 1fr !important; }
+    .help-nav { position: static !important; }
+    .help-feature-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+
 <div style="max-width: 1000px; margin: 0 auto;">
     <div style="text-align: center; margin-bottom: 40px;">
         <h2 style="font-size: 32px; font-weight: 800; color: #0f172a;">Knowledge Center & Features</h2>
         <p style="color: #64748b; font-size: 16px;">Everything you need to know about your advanced NewsCast CMS features.</p>
     </div>
 
-    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 40px; align-items: start;">
+    <div class="help-layout" style="display: grid; grid-template-columns: 280px 1fr; gap: 40px; align-items: start;">
         <!-- Navigation -->
-        <div style="position: sticky; top: 120px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+        <div class="help-nav" style="position: sticky; top: 120px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
             <ul style="list-style: none; padding: 0; margin: 0;">
                 <li style="margin-bottom: 8px;"><a href="#how-to-use" style="display: flex; align-items: center; gap: 12px; color: var(--primary); font-weight: 700; text-decoration: none; padding: 12px; background: color-mix(in srgb, var(--primary), white 90%); border-radius: 12px;"><i data-feather="terminal" style="width: 18px;"></i> How to Use</a></li>
                 <li style="margin-bottom: 8px;"><a href="#accessibility" style="display: flex; align-items: center; gap: 12px; color: #475569; font-weight: 600; text-decoration: none; padding: 12px;"><i data-feather="headphones" style="width: 18px;"></i> Accessibility (TTS)</a></li>
