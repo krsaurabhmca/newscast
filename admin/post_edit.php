@@ -563,7 +563,7 @@ try {
                     .replace(/-+$/, '');                      // Trim - from end
             }
 
-            let isSlugManual = slugInput.value.trim() !== "";
+            let isSlugManual = false; // allow auto-update on edit
 
             slugInput.addEventListener('input', function() {
                 isSlugManual = true;
@@ -579,7 +579,7 @@ try {
                 }
             });
 
-            if (!isSlugManual && titleInput.value.trim() !== "") {
+            if (!isSlugManual && titleInput.value.trim() !== "" && slugInput.value.trim() === "") {
                 slugInput.value = generateSlug(titleInput.value);
             }
         }

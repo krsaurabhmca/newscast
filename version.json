@@ -1,6 +1,6 @@
 {
-    "version": "2.6.14",
+    "version": "2.6.15",
     "db_version": 10,
-    "last_updated": "2026-07-07",
-    "changelog": "v2.6.14: Optimized default TTS Voice Reader settings (rate: 0.90, pitch: 1.1, keyword: Google) for a softer, more natural Hindi female voice."
+    "last_updated": "2026-07-08",
+    "changelog": "v2.6.15: Fixed URL Slug auto-generation on edit, improved mobile responsiveness for admin post add/edit pages, and hid 'Apni Baat' floating button from admin area."
 }

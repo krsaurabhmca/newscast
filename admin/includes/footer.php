@@ -138,7 +138,7 @@
     </script>
     
     <?php if (empty($hide_floating_widgets)): ?>
-    <?php include '../includes/feedback_drawer.php'; ?>
+    <!-- <?php include '../includes/feedback_drawer.php'; ?> -->
     
     <!-- AI Chat UI -->
     <?php include 'ai_chat_modal.php'; ?>

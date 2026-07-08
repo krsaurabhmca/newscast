@@ -86,3 +86,27 @@
 ::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
+
+/* Mobile Optimizations for Post Add/Edit */
+@media (max-width: 768px) {
+    .stat-card {
+        padding: 15px !important;
+    }
+    .admin-grid {
+        gap: 15px !important;
+    }
+    input.form-control, select.form-control, textarea.form-control {
+        font-size: 16px !important; /* Prevents auto-zoom in iOS Safari */
+    }
+    .ql-toolbar.ql-snow {
+        padding: 5px !important;
+    }
+    .ql-toolbar.ql-snow button {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    #mediaPickerModal > div {
+        width: 95% !important;
+        height: 90vh !important;
+    }
+}

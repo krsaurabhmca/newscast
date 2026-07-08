@@ -593,7 +593,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                     .replace(/-+$/, '');                      // Trim - from end
             }
 
-            let isSlugManual = slugInput.value.trim() !== "";
+            let isSlugManual = false; // allow auto-update on edit
 
             slugInput.addEventListener('input', function () {
                 isSlugManual = true;
@@ -609,7 +609,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                 }
             });
 
-            if (!isSlugManual && titleInput.value.trim() !== "") {
+            if (!isSlugManual && titleInput.value.trim() !== "" && slugInput.value.trim() === "") {
                 slugInput.value = generateSlug(titleInput.value);
             }
         }
