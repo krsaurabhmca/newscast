@@ -438,6 +438,115 @@ function paginate_url(array $overrides = []): string
     }
 
     .sort-link.active { color: var(--primary); font-weight: 800; }
+
+    /* Mobile View Toggle Switcher Styles */
+    .mobile-view-toggle {
+        display: none !important;
+    }
+    .view-toggle-btn {
+        color: #64748b;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .view-toggle-btn:hover {
+        color: #0f172a;
+    }
+    .view-toggle-btn.active {
+        background: #fff !important;
+        color: var(--primary) !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+        .mobile-view-toggle {
+            display: inline-flex !important;
+        }
+
+        /* If list view is active on mobile, override the default block/card styles from admin_responsive.css */
+        .table-view-wrapper.view-list {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin: 0 -10px;
+            width: calc(100% + 20px);
+        }
+        
+        .table-view-wrapper.view-list .modern-table {
+            display: table !important;
+            width: 100% !important;
+            min-width: 700px !important;
+        }
+        
+        .table-view-wrapper.view-list .modern-table thead {
+            display: table-header-group !important;
+        }
+        
+        .table-view-wrapper.view-list .modern-table tbody {
+            display: table-row-group !important;
+        }
+        
+        .table-view-wrapper.view-list .modern-table tr {
+            display: table-row !important;
+            border: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            margin-bottom: 0 !important;
+        }
+        
+        .table-view-wrapper.view-list .modern-table td {
+            display: table-cell !important;
+            width: auto !important;
+            padding: 12px 10px !important;
+            text-align: left !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            min-height: auto !important;
+            justify-content: unset !important;
+            align-items: unset !important;
+        }
+        
+        .table-view-wrapper.view-list .modern-table th {
+            display: table-cell !important;
+            background: #f8fafc !important;
+            border-bottom: 2px solid #f1f5f9 !important;
+            padding: 12px 10px !important;
+            font-size: 11px !important;
+            color: #94a3b8 !important;
+        }
+        
+        /* Disable pseudo-labels */
+        .table-view-wrapper.view-list .modern-table td::before {
+            display: none !important;
+        }
+        
+        /* Reset checkbox and title positioning */
+        .table-view-wrapper.view-list .modern-table td:nth-child(1) {
+            position: static !important;
+            width: 40px !important;
+            padding-right: 0 !important;
+            display: table-cell !important;
+        }
+        
+        .table-view-wrapper.view-list .modern-table td:nth-child(2) {
+            padding: 12px 10px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            margin-bottom: 0 !important;
+            display: table-cell !important;
+        }
+        
+        .table-view-wrapper.view-list .post-title-link {
+            padding-right: 0 !important;
+        }
+    }
 </style>
 
 
@@ -484,7 +593,17 @@ function paginate_url(array $overrides = []): string
                 <button type="submit" style="display:none;"></button> <!-- For enter key submission -->
             </div>
 
-            <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <!-- Mobile View Toggle Switcher -->
+                <div class="mobile-view-toggle" style="display: none; align-items: center; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 8px;">
+                    <button type="button" id="btn-view-card" class="view-toggle-btn active" title="Card View">
+                        <i data-feather="grid" style="width: 14px; height: 14px;"></i>
+                    </button>
+                    <button type="button" id="btn-view-list" class="view-toggle-btn" title="List View">
+                        <i data-feather="list" style="width: 14px; height: 14px;"></i>
+                    </button>
+                </div>
+
                 <span style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Sort
                     by:</span>
                 <select name="sort" class="custom-select"
@@ -519,7 +638,7 @@ function paginate_url(array $overrides = []): string
             </button>
         </div>
 
-        <div style="overflow-x: auto;">
+        <div class="table-view-wrapper" style="overflow-x: auto;">
             <table class="modern-table">
                 <thead>
                     <tr>
@@ -700,6 +819,40 @@ function paginate_url(array $overrides = []): string
         checkboxes.forEach(cb => {
             cb.addEventListener('change', updateBulkActions);
         });
+
+        // ── View Mode Toggle (Mobile) ──
+        const btnViewCard = document.getElementById('btn-view-card');
+        const btnViewList = document.getElementById('btn-view-list');
+        const tableWrapper = document.querySelector('.table-view-wrapper');
+
+        if (btnViewCard && btnViewList && tableWrapper) {
+            // Load saved preference or default to card
+            const savedView = localStorage.getItem('posts_mobile_view') || 'card';
+            setViewMode(savedView);
+
+            btnViewCard.addEventListener('click', function() {
+                setViewMode('card');
+            });
+            btnViewList.addEventListener('click', function() {
+                setViewMode('list');
+            });
+        }
+
+        function setViewMode(mode) {
+            localStorage.setItem('posts_mobile_view', mode);
+            if (mode === 'list') {
+                tableWrapper.classList.add('view-list');
+                tableWrapper.classList.remove('view-card');
+                btnViewList.classList.add('active');
+                btnViewCard.classList.remove('active');
+            } else {
+                tableWrapper.classList.add('view-card');
+                tableWrapper.classList.remove('view-list');
+                btnViewCard.classList.add('active');
+                btnViewList.classList.remove('active');
+            }
+            if (typeof feather !== 'undefined') feather.replace();
+        }
     });
 </script>
 

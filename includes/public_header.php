@@ -387,7 +387,206 @@ endif; ?>
     </script>
     <?php endif; ?>
 </head>
-<body<?php if (get_setting('homepage_theme', 'theme1') === 'theme2') echo ' class="theme2-body"'; ?>>
+<?php 
+$body_classes = [];
+if (get_setting('homepage_theme', 'theme1') === 'theme2') {
+    $body_classes[] = 'theme2-body';
+}
+if (is_logged_in() && is_editor()) {
+    $body_classes[] = 'admin-bar-active';
+}
+$class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) . '"' : '';
+?>
+<body<?php echo $class_attr; ?>>
+    <?php 
+    $current_file = basename($_SERVER['PHP_SELF']); 
+    $current_slug = $_GET['slug'] ?? '';
+    ?>
+
+    <?php if (is_logged_in() && is_editor()): ?>
+        <!-- CSS styles for admin top bar -->
+        <style>
+            .admin-top-bar {
+                background: #0f172a;
+                color: #e2e8f0;
+                font-size: 13px;
+                font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 24px;
+                z-index: 10000;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 42px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            }
+            .admin-bar-nav {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                overflow-x: auto;
+                white-space: nowrap;
+                scrollbar-width: none;
+            }
+            .admin-bar-nav::-webkit-scrollbar {
+                display: none;
+            }
+            .admin-bar-link {
+                color: #94a3b8;
+                font-weight: 600;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.2s ease;
+                padding: 4px 8px;
+                border-radius: 4px;
+            }
+            .admin-bar-link:hover {
+                color: #fff;
+                background: rgba(255, 255, 255, 0.05);
+            }
+            .admin-bar-btn {
+                background: var(--primary);
+                color: #fff !important;
+                font-weight: 700;
+                padding: 4px 12px;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+                box-shadow: 0 2px 8px rgba(248, 153, 29, 0.3);
+            }
+            .admin-bar-btn:hover {
+                opacity: 0.95;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(248, 153, 29, 0.4);
+            }
+            .admin-bar-user-badge {
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 3px 10px;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .admin-bar-role {
+                padding: 1px 6px;
+                border-radius: 4px;
+                font-size: 10px;
+                text-transform: uppercase;
+                font-weight: 800;
+                letter-spacing: 0.5px;
+            }
+            .admin-role-admin {
+                background: rgba(239, 68, 68, 0.15);
+                color: #f87171;
+                border: 1px solid rgba(239, 68, 68, 0.2);
+            }
+            .admin-role-editor {
+                background: rgba(59, 130, 246, 0.15);
+                color: #60a5fa;
+                border: 1px solid rgba(59, 130, 246, 0.2);
+            }
+            .admin-role-dev {
+                background: rgba(168, 85, 247, 0.15);
+                color: #c084fc;
+                border: 1px solid rgba(168, 85, 247, 0.2);
+            }
+            .admin-bar-logout {
+                color: #f87171;
+                font-weight: 700;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                padding: 4px 8px;
+                border-radius: 4px;
+            }
+            .admin-bar-logout:hover {
+                background: rgba(239, 68, 68, 0.1);
+                color: #ef4444;
+            }
+            body.admin-bar-active {
+                padding-top: 42px !important;
+            }
+            body.admin-bar-active .side-nav {
+                top: 42px !important;
+                height: calc(100vh - 42px) !important;
+            }
+            @media (max-width: 768px) {
+                .admin-bar-user-section {
+                    display: none !important;
+                }
+            }
+        </style>
+
+        <!-- Admin Top Bar HTML -->
+        <div class="admin-top-bar">
+            <div class="admin-bar-nav">
+                <span style="font-weight: 800; display: flex; align-items: center; gap: 6px; color: #fff; margin-right: 8px;">
+                    <i data-feather="sliders" style="width: 14px; height: 14px; color: var(--primary);"></i>
+                    Admin Control
+                </span>
+                <a href="<?php echo BASE_URL; ?>admin/dashboard.php" class="admin-bar-link">
+                    <i data-feather="grid" style="width: 13px; height: 13px;"></i>
+                    Dashboard
+                </a>
+                <a href="<?php echo BASE_URL; ?>admin/post_add.php" class="admin-bar-link">
+                    <i data-feather="plus" style="width: 13px; height: 13px;"></i>
+                    New Post
+                </a>
+                <?php if (is_admin()): ?>
+                    <a href="<?php echo BASE_URL; ?>admin/settings.php" class="admin-bar-link">
+                        <i data-feather="settings" style="width: 13px; height: 13px;"></i>
+                        Settings
+                    </a>
+                <?php endif; ?>
+                
+                <?php if ($current_file == 'article.php' && isset($post) && is_array($post) && isset($post['id'])): ?>
+                    <a href="<?php echo BASE_URL; ?>admin/post_edit.php?id=<?php echo $post['id']; ?>" class="admin-bar-link admin-bar-btn">
+                        <i data-feather="edit" style="width: 13px; height: 13px; stroke: #fff;"></i>
+                        Edit Post
+                    </a>
+                <?php elseif ($current_file == 'category.php' && isset($category) && is_array($category) && isset($category['id'])): ?>
+                    <a href="<?php echo BASE_URL; ?>admin/categories.php" class="admin-bar-link admin-bar-btn">
+                        <i data-feather="edit" style="width: 13px; height: 13px; stroke: #fff;"></i>
+                        Edit Category
+                    </a>
+                <?php endif; ?>
+            </div>
+            <div class="admin-bar-user-section" style="display: flex; align-items: center; gap: 15px; flex-shrink: 0;">
+                <div class="admin-bar-user-badge">
+                    <i data-feather="user" style="width: 12px; height: 12px; color: #94a3b8;"></i>
+                    <span><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                    <?php 
+                    $role_class = 'admin-role-editor';
+                    if ($_SESSION['role'] === 'admin') $role_class = 'admin-role-admin';
+                    elseif ($_SESSION['role'] === 'dev') $role_class = 'admin-role-dev';
+                    ?>
+                    <span class="admin-bar-role <?php echo $role_class; ?>"><?php echo htmlspecialchars($_SESSION['role']); ?></span>
+                </div>
+                <span style="color: rgba(255,255,255,0.15);">|</span>
+                <a href="<?php echo BASE_URL; ?>logout.php" class="admin-bar-logout">
+                    <i data-feather="log-out" style="width: 13px; height: 13px; vertical-align: middle; margin-right: 3px;"></i>
+                    Log out
+                </a>
+            </div>
+        </div>
+
+        <script>
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            } else {
+                document.addEventListener("DOMContentLoaded", function() {
+                    if (typeof feather !== 'undefined') feather.replace();
+                });
+            }
+        </script>
+    <?php endif; ?>
     <div class="app-container">
         <?php 
         $current_file = basename($_SERVER['PHP_SELF']); 

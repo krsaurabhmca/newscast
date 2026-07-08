@@ -1,6 +1,6 @@
 {
-    "version": "2.7.1",
+    "version": "2.7.2",
     "db_version": 10,
     "last_updated": "2026-07-08",
-    "changelog": "v2.7.1 — Patch Release: (1) admin/categories.php fully mobile responsive — table transforms to card view on mobile, (2) Search bar and Add Category button stack correctly on small screens, (3) Add/Edit Category modal fits any phone screen using 95vw width, (4) Removed Apni Baat floating button from public website, (5) Admin sidebar code cleanup and proper indentation."
+    "changelog": "v2.7.2 — Patch Release: (1) Added premium Admin Top Bar showing admin controls and edit buttons dynamically on public pages for logged-in Admins/Editors, (2) Added inline Edit Post button to post pages, (3) Implemented Card vs List layout view switcher for posts in /admin/posts.php on mobile view with local storage persistence."
 }

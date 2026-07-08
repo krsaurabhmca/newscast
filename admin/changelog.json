@@ -1,5 +1,25 @@
 [
     {
+        "version": "2.7.2",
+        "date": "2026-07-08",
+        "changes": [
+            "Feature: Added premium Admin Top Bar showing admin controls and edit buttons dynamically on public pages for logged-in Admins/Editors.",
+            "Feature: Added inline Edit Post button to post pages next to view count.",
+            "Feature: Implemented Card vs List layout view switcher for posts in /admin/posts.php on mobile view with local storage persistence."
+        ]
+    },
+    {
+        "version": "2.7.1",
+        "date": "2026-07-08",
+        "changes": [
+            "Feature: Redesigned categories page (admin/categories.php) to be fully mobile responsive, converting categories table to card view on mobile.",
+            "UI: Fixed search bar and Add Category button stacking alignment on small screens.",
+            "UI: Improved Add/Edit Category modal to fit any mobile phone screen using 95vw responsive width.",
+            "Fix: Removed Apni Baat floating feedback button from the public facing website.",
+            "Fix: Cleaned up admin sidebar markup structure and standardized indentations."
+        ]
+    },
+    {
         "version": "2.6.11",
         "date": "2026-07-06",
         "changes": [

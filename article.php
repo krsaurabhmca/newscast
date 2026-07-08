@@ -200,6 +200,12 @@ endforeach; ?>
                         <span style="display: flex; align-items: center; gap: 4px; color: #64748b; font-weight: 600;">
                             <i data-feather="clock" style="width: 14px;"></i> <?php echo $read_time; ?> min read
                         </span>
+                        <?php if (is_logged_in() && is_editor() && can_edit_post($post)): ?>
+                            <span style="color: #cbd5e1;">|</span>
+                            <a href="<?php echo BASE_URL; ?>admin/post_edit.php?id=<?php echo $post['id']; ?>" class="btn-edit-post-inline" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(248, 153, 29, 0.1); color: var(--primary); padding: 3px 10px; border-radius: 6px; font-size: 13px; font-weight: 700; transition: all 0.2s; text-decoration: none;" onmouseover="this.style.background='var(--primary)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(248, 153, 29, 0.1)'; this.style.color='var(--primary)';">
+                                <i data-feather="edit-2" style="width: 13px; height: 13px;"></i> Edit Post
+                            </a>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="share-buttons-container" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
