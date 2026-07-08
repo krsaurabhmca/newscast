@@ -22,7 +22,10 @@ function sb_active(string $page, array|string $pages = []): string {
    ════════════════════════════════ */
 .sidebar {
     width: 240px;
-    height: 100vh;
+    height: 100%; /* Fallback for browsers without svh/dvh */
+    height: 100dvh;
+    top: 0;
+    bottom: 0;
     background: #0f172a;
     display: flex;
     flex-direction: column;
