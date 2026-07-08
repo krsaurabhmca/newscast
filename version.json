@@ -1,6 +1,6 @@
 {
-    "version": "2.6.16",
+    "version": "2.7.0",
     "db_version": 10,
     "last_updated": "2026-07-08",
-    "changelog": "v2.6.16: Resolved URL Slug generation bug on blanking, added responsive Card View for Manage Articles on mobile, and removed Direct Ad Link field from post editors."
+    "changelog": "v2.7.0 — Major Mobile Responsiveness Release: (1) Fixed URL Slug auto-generation — now regenerates on blank/clear, (2) Manage Articles page fully transformed into mobile Card View, (3) Removed Direct Ad Link field from post add/edit, (4) Complete rewrite of admin_responsive.css with three breakpoints (1024px, 768px, 480px) — prevents all horizontal scrolling, stacks all grids, wraps toolbars and pagination, (5) Admin sidebar height fixed to 100dvh for accurate full-screen display on all mobile browsers, (6) Admin menu hidden floating Apni Baat button from admin area, (7) Fixed broken CSS block in posts.php that was breaking all mobile styles, (8) Made Help and Social Share pages responsive, (9) iOS Safari auto-zoom prevention on all form inputs."
 }
