@@ -1,6 +1,6 @@
 {
-    "version": "2.8.2",
+    "version": "2.8.3",
     "db_version": 10,
     "last_updated": "2026-07-09",
-    "changelog": "v2.8.2 — Patch Release: (1) Removed the Twilio Sandbox integration guide section from the admin page."
+    "changelog": "v2.8.3 — Patch Release: (1) Added window.speechSynthesis defensive check to prevent JS crash, (2) Implemented automated in-app browser detection (Facebook/Instagram WebViews) showing friendly user hints to solve audio playback blocks."
 }

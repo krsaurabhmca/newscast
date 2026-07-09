@@ -638,6 +638,18 @@ endforeach; ?>
     let isSpeaking = false;
 
     function toggleVoice() {
+        if (!synth) {
+            alert("⚠️ आपके इस ब्राउज़र में आवाज़ (TTS) फीचर समर्थित नहीं है। कृपया लेख सुनने के लिए इसे Chrome या Safari ब्राउज़र में खोलें।");
+            return;
+        }
+
+        // Detect in-app browsers (Facebook, Instagram, WebViews)
+        const isInAppBrowser = /FBAN|FBAV|Instagram|TikTok|Line|Twitter|WebView/i.test(navigator.userAgent);
+        if (isInAppBrowser && !localStorage.getItem('inapp_tts_warned')) {
+            alert("💡 सूचना: फेसबुक/इंस्टाग्राम के इन-ऐप ब्राउज़र में मीडिया प्लेबैक प्रतिबंधों के कारण ऑडियो सुनने में समस्या आ सकती है। यदि आवाज़ न आए, तो कृपया ऊपर दाईं तरफ तीन बिंदुओं (...) पर क्लिक करके 'Open in Browser' या 'Chrome/Safari में खोलें' चुनें।");
+            localStorage.setItem('inapp_tts_warned', 'true');
+        }
+
         if (!isSpeaking) {
             const bodyText = document.querySelector('.article-body').innerText;
             utterance = new SpeechSynthesisUtterance(bodyText);

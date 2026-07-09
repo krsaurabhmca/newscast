@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.8.3",
+        "date": "2026-07-09",
+        "changes": [
+            "Fix: Added window.speechSynthesis support check to prevent JS crash on unsupported browsers.",
+            "Fix: Added auto-detection and warning/guide prompt for in-app browsers (Facebook, Instagram) blocking TTS audio playback."
+        ]
+    },
+    {
         "version": "2.8.2",
         "date": "2026-07-09",
         "changes": [
