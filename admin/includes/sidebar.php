@@ -509,6 +509,12 @@ function sb_active(string $page, array|string $pages = []): string
                         <?php endif; ?>
                     </a>
                 </li>
+                <li>
+                    <a href="whatsapp_bot.php" class="<?php echo sb_active('whatsapp_bot.php'); ?>">
+                        <span class="sbi" style="background:rgba(37,211,102,.15);"><i data-feather="message-circle" style="color:#25d366;"></i></span>
+                        <span>WhatsApp Bot</span>
+                    </a>
+                </li>
             </ul>
         <?php endif; ?>
 

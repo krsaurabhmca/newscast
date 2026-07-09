@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.8.0",
+        "date": "2026-07-09",
+        "changes": [
+            "Feature: Added WhatsApp Ready News Chatbot integration webhook API endpoint (api/v1/whatsapp_bot.php) responding to keywords (Today, Latest, Date, Summary, Categories, Category, and Search).",
+            "Feature: Added WhatsApp Bot settings and integration guide page in the Admin Panel (admin/whatsapp_bot.php).",
+            "Feature: Created an interactive smartphone chatbot simulator in the admin panel to test keywords and view WhatsApp-formatted outputs."
+        ]
+    },
+    {
         "version": "2.7.2",
         "date": "2026-07-08",
         "changes": [
