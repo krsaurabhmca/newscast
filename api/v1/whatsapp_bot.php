@@ -37,8 +37,7 @@ if (in_array($lower_msg, ['hello', 'hi', 'start', 'menu', 'help', 'bot'])) {
         . "📋 *SUMMARY* - टॉप 10 ख़बरों का सारांश\n"
         . "🗂️ *CATEGORIES* - सभी कैटेगरी लिस्ट\n"
         . "📂 *CAT [कैटेगरी]* - कैटेगरी की ख़बरें (उदा. *CAT Politics*)\n"
-        . "🔍 *SEARCH [शब्द]* - ख़बरें खोजें (उदा. *SEARCH चुनाव*)\n\n"
-        . "💡 _Tip: आप सीधे कोई भी शब्द लिखकर भी ख़बरें खोज सकते हैं!_";
+        . "🔍 *SEARCH [शब्द]* - ख़बरें खोजें (उदा. *SEARCH चुनाव*)";
 
 } elseif ($lower_msg === 'today') {
     $matched_cmd = 'today';
@@ -180,26 +179,37 @@ if (in_array($lower_msg, ['hello', 'hi', 'start', 'menu', 'help', 'bot'])) {
         $response_text = "❌ Category *" . $cat_name . "* not found. Type *CATEGORIES* to see all valid categories.";
     }
 
-} else {
-    // General keyword/phrase search fallback
-    $search_query = preg_replace('/^search\s+/i', '', $incoming);
+} elseif (preg_match('/^search(\s+(.+))?$/i', $incoming, $matches)) {
     $matched_cmd = 'search';
-    
-    $stmt = $pdo->prepare("SELECT p.id, p.title, p.slug, p.external_type, p.published_at FROM posts p WHERE p.title LIKE ? AND p.status = 'published' AND p.published_at <= NOW() ORDER BY p.published_at DESC LIMIT 5");
-    $stmt->execute(["%$search_query%"]);
-    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    if (!empty($posts)) {
-        $response_text = "🔍 *Search Results for \"" . $search_query . "\":*\n\n";
-        $i = 1;
-        foreach ($posts as $post) {
-            $post_url = build_post_url($post['slug'], $post['external_type'] ?? 'none', $post['id']);
-            $response_text .= "$i. *" . $post['title'] . "*\n🔗 Read here: $post_url\n\n";
-            $i++;
-        }
+    $search_query = isset($matches[2]) ? trim($matches[2]) : '';
+    if (empty($search_query)) {
+        $response_text = "💡 Please provide a search term. Usage: *SEARCH [keyword]* (e.g., *SEARCH चुनाव*)";
     } else {
-        $response_text = "🤷 No news stories found matching \"" . $search_query . "\".\n\n"
-            . "Type *MENU* to see all available commands.";
+        $stmt = $pdo->prepare("SELECT p.id, p.title, p.slug, p.external_type, p.published_at FROM posts p WHERE p.title LIKE ? AND p.status = 'published' AND p.published_at <= NOW() ORDER BY p.published_at DESC LIMIT 5");
+        $stmt->execute(["%$search_query%"]);
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (!empty($posts)) {
+            $response_text = "🔍 *Search Results for \"" . $search_query . "\":*\n\n";
+            $i = 1;
+            foreach ($posts as $post) {
+                $post_url = build_post_url($post['slug'], $post['external_type'] ?? 'none', $post['id']);
+                $response_text .= "$i. *" . $post['title'] . "*\n🔗 Read here: $post_url\n\n";
+                $i++;
+            }
+        } else {
+            $response_text = "🤷 No news stories found matching \"" . $search_query . "\".";
+        }
+    }
+
+} else {
+    // Keyword not matched - DO NOT REPLY
+    if ($format === 'json') {
+        header("Content-Type: application/json; charset=UTF-8");
+        api_response(false, "Keyword not matched", null);
+    } else {
+        header("Content-Type: text/plain; charset=UTF-8");
+        exit;
     }
 }
 

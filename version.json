@@ -1,6 +1,6 @@
 {
-    "version": "2.9.1",
+    "version": "2.9.2",
     "db_version": 10,
     "last_updated": "2026-07-09",
-    "changelog": "v2.9.1 — Patch Release: (1) Swapped the static banner titles on the homepage with dynamic site name calls from settings."
+    "changelog": "v2.9.2 — Patch Release: (1) Added explicit SEARCH command format matching, (2) Configured bot to silently exit and return empty text response when user input does not match any commands."
 }

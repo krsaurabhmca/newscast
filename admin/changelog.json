@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.9.2",
+        "date": "2026-07-09",
+        "changes": [
+            "Fix: Configured the WhatsApp News Bot to exit silently without returning any reply when the incoming message does not match any recognized commands, preventing spammy auto-responses.",
+            "Fix: Added support for explicit 'SEARCH [term]' keyword matching."
+        ]
+    },
+    {
         "version": "2.9.1",
         "date": "2026-07-09",
         "changes": [
