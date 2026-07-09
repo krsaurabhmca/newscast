@@ -101,39 +101,6 @@ $endpoint_url = BASE_URL . "api/v1/whatsapp_bot.php";
                 </div>
             </div>
 
-            <!-- Integration Setup Steps Card -->
-            <div style="background: white; border-radius: 16px; border: 1px solid var(--border); padding: 25px; box-shadow: var(--shadow);">
-                <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                    <i data-feather="settings" style="color: var(--primary); width: 20px;"></i> Integration Guide (Twilio Sandbox)
-                </h3>
-                
-                <div style="display: flex; flex-direction: column; gap: 15px; font-size: 14px; line-height: 1.6; color: #475569;">
-                    <div style="display: flex; gap: 12px;">
-                        <div style="background: #f1f5f9; color: #0f172a; font-weight: 800; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">1</div>
-                        <div>
-                            <strong>Create/Log In to Twilio:</strong> Open the Twilio Console and navigate to the <strong>Messaging > Try it out > Send a WhatsApp Message</strong> sandbox section.
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 12px;">
-                        <div style="background: #f1f5f9; color: #0f172a; font-weight: 800; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">2</div>
-                        <div>
-                            <strong>Configure Webhook Sandbox:</strong> In the Sandbox settings tab, paste your Webhook Endpoint URL (copied from above) in the <strong>"When a message comes in"</strong> field. Make sure the HTTP Method is set to <strong>POST</strong> or <strong>GET</strong> (both are supported). Click Save.
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 12px;">
-                        <div style="background: #f1f5f9; color: #0f172a; font-weight: 800; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">3</div>
-                        <div>
-                            <strong>Activate Sandbox:</strong> Send the confirmation code (e.g. <code>join [sandbox-name]</code>) from your personal WhatsApp account to the Twilio Sandbox number.
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 12px;">
-                        <div style="background: #f1f5f9; color: #0f172a; font-weight: 800; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">4</div>
-                        <div>
-                            <strong>Start Chatting:</strong> Now send <code>hello</code>, <code>today</code>, <code>latest</code>, or category keywords to get instant automated news responses!
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- JustReply App Integration Card -->
             <div style="background: white; border-radius: 16px; border: 1px solid var(--border); padding: 25px; box-shadow: var(--shadow);">
