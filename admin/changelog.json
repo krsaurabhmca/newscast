@@ -1,5 +1,14 @@
 [
     {
+        "version": "2.9.0",
+        "date": "2026-07-09",
+        "changes": [
+            "Feature: Added dismissible homepage top promotional banner for the WhatsApp Bot (Theme 1 and Theme 2).",
+            "Feature: Configured the public floating WhatsApp widget to pre-fill 'Hello' and trigger the bot automatically.",
+            "Feature: Upgraded admin simulator UI with custom styles and an animated pulsing online status indicator."
+        ]
+    },
+    {
         "version": "2.8.3",
         "date": "2026-07-09",
         "changes": [

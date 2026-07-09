@@ -324,6 +324,23 @@ $endpoint_url = BASE_URL . "api/v1/whatsapp_bot.php";
     .wa-status {
         color: rgba(255,255,255,0.85);
         font-size: 10px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+    .wa-status::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: #25d366;
+        border-radius: 50%;
+        animation: wa-pulse 1.8s infinite;
+    }
+    @keyframes wa-pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+        70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(37, 211, 102, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
     }
 
     /* Chat body doodle bg */

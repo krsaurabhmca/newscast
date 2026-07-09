@@ -1,6 +1,6 @@
 {
-    "version": "2.8.3",
+    "version": "2.9.0",
     "db_version": 10,
     "last_updated": "2026-07-09",
-    "changelog": "v2.8.3 — Patch Release: (1) Added window.speechSynthesis defensive check to prevent JS crash, (2) Implemented automated in-app browser detection (Facebook/Instagram WebViews) showing friendly user hints to solve audio playback blocks."
+    "changelog": "v2.9.0 — Feature Release: (1) Added dismissible homepage top promotional banner for the WhatsApp Bot on both Theme 1 and Theme 2, (2) Configured public floating WhatsApp widget to trigger chatbot automatically with 'Hello', (3) Upgraded admin simulator UI with custom styles and pulsing online status dot."
 }

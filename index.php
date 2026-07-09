@@ -126,6 +126,34 @@ if ($active_poll) {
     <main class="content-container t2-theme-main"
         style="max-width: 100%; margin: 0 auto; background-color: #f8fafc;">
 
+        <?php
+        $wa_number = get_setting('whatsapp_number');
+        if (!empty($wa_number)):
+            $wa_phone = preg_replace('/[^0-9]/', '', $wa_number);
+            $wa_url = "https://wa.me/" . $wa_phone . "?text=Hello";
+        ?>
+            <!-- WhatsApp Bot Promo Bar (Theme 2) -->
+            <div id="wa-promo-bar-t2" style="background: linear-gradient(135deg, #075e54, #128c7e); border-radius: 12px; padding: 15px 25px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 4px 15px rgba(18, 140, 126, 0.15); border: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; transition: all 0.3s ease;">
+                <div style="display: flex; align-items: center; gap: 15px; color: white;">
+                    <div style="background: rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i data-feather="message-circle" style="color: white; width: 22px; height: 22px;"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 15px; font-weight: 800; margin: 0 0 3px 0; letter-spacing: 0.3px; color: white;">पंचायत वॉयस व्हाट्सएप न्यूज बॉट</h4>
+                        <p style="font-size: 12.5px; opacity: 0.9; margin: 0; font-weight: 500; color: rgba(255,255,255,0.95);">व्हाट्सएप पर ताज़ा ख़बरें, टॉप 10 समरी और सर्च सीधे पाने के लिए 'Hello' लिखकर भेजें!</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <a href="<?php echo $wa_url; ?>" target="_blank" style="background: white; color: #075e54; text-decoration: none; padding: 10px 22px; border-radius: 30px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        चैट शुरू करें (Start Chat) <i data-feather="arrow-right" style="width: 14px; height: 14px;"></i>
+                    </a>
+                    <button onclick="dismissWaPromo('wa-promo-bar-t2')" style="background: transparent; border: none; cursor: pointer; color: white; opacity: 0.7; padding: 5px; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" title="Dismiss">
+                        <i data-feather="x" style="width: 18px; height: 18px;"></i>
+                    </button>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Theme 2 Ticker -->
         <?php if (!empty($breaking_news_latest)): ?>
             <div class="t2-breaking-ticker"
@@ -722,6 +750,54 @@ if ($active_poll) {
          THEME 1: Boxed Layout with Sidebar Navigation
          ============================================== -->
     <main class="content-container" style="max-width: 1400px; margin: 0 auto; padding: 30px 20px;">
+        
+        <?php
+        $wa_number = get_setting('whatsapp_number');
+        if (!empty($wa_number)):
+            $wa_phone = preg_replace('/[^0-9]/', '', $wa_number);
+            $wa_url = "https://wa.me/" . $wa_phone . "?text=Hello";
+        ?>
+            <!-- WhatsApp Bot Promo Bar (Theme 1) -->
+            <div id="wa-promo-bar-t1" style="background: linear-gradient(135deg, #075e54, #128c7e); border-radius: 12px; padding: 15px 25px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; gap: 15px; box-shadow: 0 4px 15px rgba(18, 140, 126, 0.15); border: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; transition: all 0.3s ease;">
+                <div style="display: flex; align-items: center; gap: 15px; color: white;">
+                    <div style="background: rgba(255,255,255,0.2); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i data-feather="message-circle" style="color: white; width: 22px; height: 22px;"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 15px; font-weight: 800; margin: 0 0 3px 0; letter-spacing: 0.3px; color: white;">पंचायत वॉयस व्हाट्सएप न्यूज बॉट</h4>
+                        <p style="font-size: 12.5px; opacity: 0.9; margin: 0; font-weight: 500; color: rgba(255,255,255,0.95);">व्हाट्सएप पर ताज़ा ख़बरें, टॉप 10 समरी और सर्च सीधे पाने के लिए 'Hello' लिखकर भेजें!</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <a href="<?php echo $wa_url; ?>" target="_blank" style="background: white; color: #075e54; text-decoration: none; padding: 10px 22px; border-radius: 30px; font-size: 13px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        चैट शुरू करें (Start Chat) <i data-feather="arrow-right" style="width: 14px; height: 14px;"></i>
+                    </a>
+                    <button onclick="dismissWaPromo('wa-promo-bar-t1')" style="background: transparent; border: none; cursor: pointer; color: white; opacity: 0.7; padding: 5px; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" title="Dismiss">
+                        <i data-feather="x" style="width: 18px; height: 18px;"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <script>
+                function dismissWaPromo(id) {
+                    document.getElementById(id).style.display = 'none';
+                    sessionStorage.setItem('wa-promo-dismissed', 'true');
+                    const bar1 = document.getElementById('wa-promo-bar-t1');
+                    const bar2 = document.getElementById('wa-promo-bar-t2');
+                    if (bar1) bar1.style.display = 'none';
+                    if (bar2) bar2.style.display = 'none';
+                }
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (sessionStorage.getItem('wa-promo-dismissed') === 'true') {
+                        const bar1 = document.getElementById('wa-promo-bar-t1');
+                        const bar2 = document.getElementById('wa-promo-bar-t2');
+                        if (bar1) bar1.style.display = 'none';
+                        if (bar2) bar2.style.display = 'none';
+                    }
+                });
+            </script>
+        <?php endif; ?>
+
         <!-- Trending Bar -->
         <div class="trending-scroll-container"
             style="display: flex; gap: 15px; margin-bottom: 35px; overflow-x: auto; padding-bottom: 10px; align-items: center; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none;">
