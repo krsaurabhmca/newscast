@@ -1,6 +1,6 @@
 {
-    "version": "2.9.2",
+    "version": "2.9.3",
     "db_version": 10,
     "last_updated": "2026-07-09",
-    "changelog": "v2.9.2 — Patch Release: (1) Added explicit SEARCH command format matching, (2) Configured bot to silently exit and return empty text response when user input does not match any commands."
+    "changelog": "v2.9.3 — Asset Release: (1) Added generated high-quality social media promotional banner image for the WhatsApp Bot."
 }

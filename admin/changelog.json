@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.9.3",
+        "date": "2026-07-09",
+        "changes": [
+            "Asset: Generated and imported a high-quality, professional digital marketing promotional banner for the WhatsApp News Chatbot (assets/images/whatsapp_bot_promo_banner.png)."
+        ]
+    },
+    {
         "version": "2.9.2",
         "date": "2026-07-09",
         "changes": [
