@@ -30,16 +30,15 @@ function build_post_url($slug, $external_type, $id) {
 if (in_array($lower_msg, ['hello', 'hi', 'start', 'menu', 'help', 'bot'])) {
     $matched_cmd = 'help';
     $site_name = get_setting('site_name', 'NewsCast');
-    $response_text = "👋 *Welcome to " . $site_name . " WhatsApp Bot!* \n\n"
-        . "Get the latest news directly on WhatsApp by replying with these keywords:\n\n"
-        . "📰 *TODAY* - Get today's top stories\n"
-        . "🔥 *LATEST* - Get the last 3 published news stories\n"
-        . "📅 *DATE YYYY-MM-DD* - Get news for a specific date (e.g., *DATE " . date('Y-m-d') . "*)\n"
-        . "📋 *SUMMARY* - Get a quick summary of the top 10 news stories\n"
-        . "🗂️ *CATEGORIES* - List all news categories\n"
-        . "📁 *CAT [Category Name]* - Get news from a category (e.g., *CAT Politics*)\n"
-        . "🔍 *SEARCH [Keyword]* - Search news by keyword (e.g., *SEARCH Sports*)\n\n"
-        . "💡 _Tip: You can also just type any keyword directly (e.g., \"Election\") to search news!_";
+    $response_text = "👋 *Welcome to " . $site_name . " Bot!* \n\n"
+        . "ताज़ा ख़बरें पाने के लिए ये कीवर्ड्स टाइप करें:\n\n"
+        . "📰 *TODAY* - आज की मुख्य ख़बरें\n"
+        . "🔥 *LATEST* - आख़िरी 3 ख़बरें\n"
+        . "📋 *SUMMARY* - टॉप 10 ख़बरों का सारांश\n"
+        . "🗂️ *CATEGORIES* - सभी कैटेगरी लिस्ट\n"
+        . "📂 *CAT [कैटेगरी]* - कैटेगरी की ख़बरें (उदा. *CAT Politics*)\n"
+        . "🔍 *SEARCH [शब्द]* - ख़बरें खोजें (उदा. *SEARCH चुनाव*)\n\n"
+        . "💡 _Tip: आप सीधे कोई भी शब्द लिखकर भी ख़बरें खोज सकते हैं!_";
 
 } elseif ($lower_msg === 'today') {
     $matched_cmd = 'today';

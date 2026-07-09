@@ -1,6 +1,6 @@
 {
-    "version": "2.8.0",
+    "version": "2.8.1",
     "db_version": 10,
     "last_updated": "2026-07-09",
-    "changelog": "v2.8.0 — Feature Release: (1) Added WhatsApp Ready News Chatbot integration webhook API endpoint, (2) Added WhatsApp Bot settings and integration guide page in the Admin Panel, (3) Created an interactive smartphone chatbot simulator to test keywords and view WhatsApp-formatted outputs."
+    "changelog": "v2.8.1 — Patch Release: (1) Transformed chatbot welcome message into brief Hindi, (2) Added JustReply Android App integration instructions and configuration layout with screenshots."
 }

@@ -135,6 +135,39 @@ $endpoint_url = BASE_URL . "api/v1/whatsapp_bot.php";
                 </div>
             </div>
 
+            <!-- JustReply App Integration Card -->
+            <div style="background: white; border-radius: 16px; border: 1px solid var(--border); padding: 25px; box-shadow: var(--shadow);">
+                <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <i data-feather="smartphone" style="color: #25d366; width: 20px;"></i> Auto-respond using JustReply App (Android)
+                </h3>
+                
+                <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
+                    You can easily convert your standard WhatsApp Business or Personal account into a News Chatbot using the <strong>JustReply</strong> auto-responder application on Android.
+                </p>
+
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start; flex-wrap: wrap;" class="jr-flex-container">
+                    <div style="flex: 1; min-width: 250px;">
+                        <h4 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 10px 0;">Setup Steps:</h4>
+                        <ol style="font-size: 13.5px; line-height: 1.6; color: #475569; padding-left: 18px; margin: 0;">
+                            <li style="margin-bottom: 8px;"><strong>Download the App:</strong> Install <a href="https://play.google.com/store/apps/details?id=com.offerplant.justreply" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: underline;">JustReply from the Google Play Store</a>.</li>
+                            <li style="margin-bottom: 8px;"><strong>Select Global API:</strong> Open the app, and from the reply actions, select <strong>"Global API"</strong>.</li>
+                            <li style="margin-bottom: 8px;"><strong>Configure Webhook Link:</strong> In the configuration settings, paste the Webhook URL:
+                                <br><code style="font-family: monospace; font-size: 11.5px; background: #f1f5f9; padding: 2px 5px; border-radius: 4px; display: inline-block; margin-top: 4px; word-break: break-all;"><?php echo htmlspecialchars($endpoint_url); ?></code>
+                            </li>
+                            <li style="margin-bottom: 8px;"><strong>Enable:</strong> Turn on the auto-responder toggle to activate. Your phone will now respond automatically to WhatsApp messages using your News Portal API!</li>
+                        </ol>
+                    </div>
+                    <?php if (file_exists('../assets/images/news.jpeg')): ?>
+                    <div style="flex-shrink: 0; width: 140px; text-align: center;" class="jr-img-container">
+                        <a href="../assets/images/news.jpeg" target="_blank" title="View configuration screenshot">
+                            <img src="../assets/images/news.jpeg" alt="JustReply Config Guide" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid #cbd5e1; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        </a>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 6px; font-weight: 600;">Config Screenshot</div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
         </div>
 
         <!-- Right: Smartphone Chatbot Simulator -->
@@ -186,15 +219,14 @@ $endpoint_url = BASE_URL . "api/v1/whatsapp_bot.php";
                             <!-- Initial Bot Message -->
                             <div class="wa-msg wa-received">
                                 <div class="wa-bubble">
-                                    👋 *Welcome to <?php echo htmlspecialchars(get_setting('site_name', 'NewsCast')); ?> WhatsApp Bot!* <br><br>
-                                    Get the latest news directly on WhatsApp by replying with these keywords:<br><br>
-                                    📰 *TODAY* - Get today's top stories<br>
-                                    🔥 *LATEST* - Get the last 3 published news stories<br>
-                                    📅 *DATE YYYY-MM-DD* - Get news for a specific date (e.g., *DATE <?php echo date('Y-m-d'); ?>*)<br>
-                                    📋 *SUMMARY* - Get a quick summary of the top 10 news stories<br>
-                                    🗂️ *CATEGORIES* - List all news categories<br>
-                                    📂 *CAT [Category Name]* - Get news from a category (e.g., *CAT Politics*)<br>
-                                    🔍 *SEARCH [Keyword]* - Search news by keyword (e.g., *SEARCH Sports*)
+                                    👋 *Welcome to <?php echo htmlspecialchars(get_setting('site_name', 'NewsCast')); ?> Bot!* <br><br>
+                                    ताज़ा ख़बरें पाने के लिए ये कीवर्ड्स टाइप करें:<br><br>
+                                    📰 *TODAY* - आज की मुख्य ख़बरें<br>
+                                    🔥 *LATEST* - आख़िरी 3 ख़बरें<br>
+                                    📋 *SUMMARY* - टॉप 10 ख़बरों का सारांश<br>
+                                    🗂️ *CATEGORIES* - सभी कैटेगरी लिस्ट<br>
+                                    📂 *CAT [कैटेगरी]* - कैटेगरी की ख़बरें (उदा. *CAT Politics*)<br>
+                                    🔍 *SEARCH [शब्द]* - ख़बरें खोजें (उदा. *SEARCH चुनाव*)
                                     <div class="wa-time"><?php echo date('h:i A'); ?></div>
                                 </div>
                             </div>

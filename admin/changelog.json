@@ -1,5 +1,13 @@
 [
     {
+        "version": "2.8.1",
+        "date": "2026-07-09",
+        "changes": [
+            "Feature: Transformed the chatbot welcome/greeting message into a brief Hindi layout.",
+            "Feature: Added Integration guide for JustReply (Android App) on Google Play Store with config screenshot support."
+        ]
+    },
+    {
         "version": "2.8.0",
         "date": "2026-07-09",
         "changes": [
