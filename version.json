@@ -1,6 +1,6 @@
 {
-    "version": "2.9.0",
+    "version": "2.9.1",
     "db_version": 10,
     "last_updated": "2026-07-09",
-    "changelog": "v2.9.0 — Feature Release: (1) Added dismissible homepage top promotional banner for the WhatsApp Bot on both Theme 1 and Theme 2, (2) Configured public floating WhatsApp widget to trigger chatbot automatically with 'Hello', (3) Upgraded admin simulator UI with custom styles and pulsing online status dot."
+    "changelog": "v2.9.1 — Patch Release: (1) Swapped the static banner titles on the homepage with dynamic site name calls from settings."
 }

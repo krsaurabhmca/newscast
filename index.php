@@ -139,7 +139,7 @@ if ($active_poll) {
                         <i data-feather="message-circle" style="color: white; width: 22px; height: 22px;"></i>
                     </div>
                     <div>
-                        <h4 style="font-size: 15px; font-weight: 800; margin: 0 0 3px 0; letter-spacing: 0.3px; color: white;">पंचायत वॉयस व्हाट्सएप न्यूज बॉट</h4>
+                        <h4 style="font-size: 15px; font-weight: 800; margin: 0 0 3px 0; letter-spacing: 0.3px; color: white;"><?php echo htmlspecialchars(get_setting('site_name', 'NewsCast')); ?> व्हाट्सएप न्यूज बॉट</h4>
                         <p style="font-size: 12.5px; opacity: 0.9; margin: 0; font-weight: 500; color: rgba(255,255,255,0.95);">व्हाट्सएप पर ताज़ा ख़बरें, टॉप 10 समरी और सर्च सीधे पाने के लिए 'Hello' लिखकर भेजें!</p>
                     </div>
                 </div>
@@ -764,7 +764,7 @@ if ($active_poll) {
                         <i data-feather="message-circle" style="color: white; width: 22px; height: 22px;"></i>
                     </div>
                     <div>
-                        <h4 style="font-size: 15px; font-weight: 800; margin: 0 0 3px 0; letter-spacing: 0.3px; color: white;">पंचायत वॉयस व्हाट्सएप न्यूज बॉट</h4>
+                        <h4 style="font-size: 15px; font-weight: 800; margin: 0 0 3px 0; letter-spacing: 0.3px; color: white;"><?php echo htmlspecialchars(get_setting('site_name', 'NewsCast')); ?> व्हाट्सएप न्यूज बॉट</h4>
                         <p style="font-size: 12.5px; opacity: 0.9; margin: 0; font-weight: 500; color: rgba(255,255,255,0.95);">व्हाट्सएप पर ताज़ा ख़बरें, टॉप 10 समरी और सर्च सीधे पाने के लिए 'Hello' लिखकर भेजें!</p>
                     </div>
                 </div>

@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.9.1",
+        "date": "2026-07-09",
+        "changes": [
+            "Fix: Configured the homepage WhatsApp Bot promotional banners to dynamically fetch and display the configured Site Name from settings rather than using a static string."
+        ]
+    },
+    {
         "version": "2.9.0",
         "date": "2026-07-09",
         "changes": [
