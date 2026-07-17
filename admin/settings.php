@@ -128,6 +128,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
                 throw new Exception("Invalid Google verification filename. It must start with 'google' and end with '.html' (e.g., google1a2b3c4d5e6f7g8h.html).");
             }
         }
+        // Auto-update ads.txt when Google AdSense Publisher ID changes
+        $ads_txt_path = dirname(__DIR__) . '/ads.txt';
+        if (!empty($to_save['google_adsense_pub_id'])) {
+            $pub_id = $to_save['google_adsense_pub_id'];
+            $clean_pub_id = str_replace(['ca-', 'pub-'], '', $pub_id);
+            $clean_pub_id = 'pub-' . preg_replace('/[^0-9]/', '', $clean_pub_id);
+            $ads_txt_content = "google.com, " . $clean_pub_id . ", DIRECT, f08c47fec0942fa0\n";
+            @file_put_contents($ads_txt_path, $ads_txt_content);
+        }
 
         $pdo->commit();
         trigger_sitemap_update($pdo);
