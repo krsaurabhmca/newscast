@@ -1,6 +1,6 @@
 {
-    "version": "2.9.4",
+    "version": "2.9.5",
     "db_version": 10,
     "last_updated": "2026-07-17",
-    "changelog": "v2.9.4 — AdSense Release: (1) Added ads.txt placeholder for Google AdSense verification."
+    "changelog": "v2.9.5 — AdSense Sync: (1) Added automation to sync and format ads.txt on saving AdSense Publisher ID in settings."
 }

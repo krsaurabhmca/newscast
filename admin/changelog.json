@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.9.5",
+        "date": "2026-07-17",
+        "changes": [
+            "Automation: Added background sync to auto-generate and clean format ads.txt on saving AdSense Publisher ID settings."
+        ]
+    },
+    {
         "version": "2.9.4",
         "date": "2026-07-17",
         "changes": [
