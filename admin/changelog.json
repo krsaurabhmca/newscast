@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.9.4",
+        "date": "2026-07-17",
+        "changes": [
+            "Setup: Created root-level ads.txt template file for Google AdSense verification and ownership confirmation."
+        ]
+    },
+    {
         "version": "2.9.3",
         "date": "2026-07-09",
         "changes": [
