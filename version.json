@@ -1,6 +1,6 @@
 {
-    "version": "2.9.6",
+    "version": "2.9.7",
     "db_version": 10,
     "last_updated": "2026-07-19",
-    "changelog": "v2.9.6 — Verification: Updated AdSense and site ownership verification details."
+    "changelog": "v2.9.7 — Configuration: Configured actual Google AdSense Publisher ID (ca-pub-2052345517244412) in ads.txt and settings cache."
 }

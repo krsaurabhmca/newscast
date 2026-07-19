@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.9.7",
+        "date": "2026-07-19",
+        "changes": [
+            "Configuration: Configured actual Google AdSense Publisher ID (ca-pub-2052345517244412) in ads.txt and settings cache."
+        ]
+    },
+    {
         "version": "2.9.6",
         "date": "2026-07-19",
         "changes": [
