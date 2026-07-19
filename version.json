@@ -1,6 +1,6 @@
 {
-    "version": "2.9.5",
+    "version": "2.9.6",
     "db_version": 10,
-    "last_updated": "2026-07-17",
-    "changelog": "v2.9.5 — AdSense Sync: (1) Added automation to sync and format ads.txt on saving AdSense Publisher ID in settings."
+    "last_updated": "2026-07-19",
+    "changelog": "v2.9.6 — Verification: Updated AdSense and site ownership verification details."
 }

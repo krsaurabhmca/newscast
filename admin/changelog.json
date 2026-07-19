@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.9.6",
+        "date": "2026-07-19",
+        "changes": [
+            "Verification: Updated AdSense and site ownership verification details."
+        ]
+    },
+    {
         "version": "2.9.5",
         "date": "2026-07-17",
         "changes": [
