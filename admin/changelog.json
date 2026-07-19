@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.9.9",
+        "date": "2026-07-19",
+        "changes": [
+            "AdSense: Integrated dynamic AMP Auto Ads support based on configured Google AdSense Publisher ID."
+        ]
+    },
+    {
         "version": "2.9.8",
         "date": "2026-07-19",
         "changes": [

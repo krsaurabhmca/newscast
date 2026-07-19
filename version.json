@@ -1,6 +1,6 @@
 {
-    "version": "2.9.8",
+    "version": "2.9.9",
     "db_version": 10,
     "last_updated": "2026-07-19",
-    "changelog": "v2.9.8 — SEO: Fixed undefined current_url variable and implemented structured canonical tags for all major page types."
+    "changelog": "v2.9.9 — AdSense: Integrated dynamic AMP Auto Ads support based on configured Google AdSense Publisher ID."
 }

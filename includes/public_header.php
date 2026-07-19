@@ -389,6 +389,10 @@ endif; ?>
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?php echo htmlspecialchars($adsense_pub_id); ?>"
      crossorigin="anonymous"></script>
+    <!-- AMP Auto Ads Script -->
+    <script async custom-element="amp-auto-ads"
+            src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
     <?php endif; ?>
 
     <?php
@@ -429,6 +433,12 @@ if (is_logged_in() && is_editor()) {
 $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) . '"' : '';
 ?>
 <body<?php echo $class_attr; ?>>
+    <?php if ($adsense_pub_id = get_setting('google_adsense_pub_id')): ?>
+    <!-- AMP Auto Ads Placement -->
+    <amp-auto-ads type="adsense"
+            data-ad-client="<?php echo htmlspecialchars($adsense_pub_id); ?>">
+    </amp-auto-ads>
+    <?php endif; ?>
     <?php 
     $current_file = basename($_SERVER['PHP_SELF']); 
     $current_slug = $_GET['slug'] ?? '';
