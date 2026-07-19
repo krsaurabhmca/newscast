@@ -35,6 +35,7 @@ $og_description = "Vote on this poll and share your opinion!";
 $og_url = BASE_URL . "poll/" . $poll['slug'];
 $og_image = get_setting('og_image_url') ?: BASE_URL . "assets/images/share.jpg";
 
+$canonical_url = BASE_URL . "poll/" . $poll['slug'];
 include 'includes/public_header.php';
 
 // Fetch Options

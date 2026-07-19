@@ -7,6 +7,38 @@ if (!file_exists(__DIR__ . '/config.php')) {
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/functions.php';
 
+// Canonical URL Generation
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+$current_url = $protocol . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+
+if (!isset($canonical_url)) {
+    $parsed_url = parse_url($current_url);
+    $path = $parsed_url['path'] ?? '';
+    
+    // Normalize index.php to root URL
+    if (basename($path) === 'index.php') {
+        $canonical_url = BASE_URL;
+    } else {
+        $query_params = [];
+        if (isset($parsed_url['query'])) {
+            parse_str($parsed_url['query'], $query_params);
+            // Retain key query params needed for pagination or standard content views
+            $allowed_params = ['page', 'id', 'slug'];
+            $filtered_params = array_filter($query_params, function($key) use ($allowed_params) {
+                return in_array($key, $allowed_params);
+            }, ARRAY_FILTER_USE_KEY);
+            
+            if (!empty($filtered_params)) {
+                $canonical_url = $protocol . "://$_SERVER[HTTP_HOST]" . $path . '?' . http_build_query($filtered_params);
+            } else {
+                $canonical_url = $protocol . "://$_SERVER[HTTP_HOST]" . $path;
+            }
+        } else {
+            $canonical_url = $current_url;
+        }
+    }
+}
+
 // Fetch categories for menu
 $stmt = $pdo->query("SELECT * FROM categories WHERE status = 'active' ORDER BY name ASC");
 $nav_categories = $stmt->fetchAll();
@@ -70,12 +102,11 @@ $bing_verify = get_setting('bing_site_verify', '');
     <!-- SEO -->
     <meta name="robots" content="<?php echo $meta_robots; ?>">
     <meta name="keywords" content="<?php echo htmlspecialchars($meta_keywords); ?>">
-    <link rel="canonical" href="<?php echo $current_url; ?>">
+    <link rel="canonical" href="<?php echo $canonical_url; ?>">
     <link rel="alternate" type="application/rss+xml" title="<?php echo htmlspecialchars(get_setting('site_name', 'NewsCast')); ?> RSS Feed" href="<?php echo BASE_URL; ?>feed.php">
 
     <!-- Open Graph (WhatsApp/Facebook) -->
     <?php
-$current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 
 // Ensure page image is an absolute URL
 if (isset($page_image) && $page_image) {

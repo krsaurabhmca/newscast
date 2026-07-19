@@ -83,6 +83,7 @@ $schema = [
     "description" => $meta_description
 ];
 
+$canonical_url = BASE_URL . "article/" . $post['slug'];
 include 'includes/public_header.php';
 ?>
 <script type="application/ld+json">

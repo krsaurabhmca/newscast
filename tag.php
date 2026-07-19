@@ -18,6 +18,7 @@ if (!$tag) {
 }
 
 $page_title = "Posts tagged with #" . $tag['name'];
+$canonical_url = BASE_URL . "tag/" . $tag['slug'];
 include 'includes/public_header.php';
 
 // Fetch Posts with this tag

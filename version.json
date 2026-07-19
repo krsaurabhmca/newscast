@@ -1,6 +1,6 @@
 {
-    "version": "2.9.7",
+    "version": "2.9.8",
     "db_version": 10,
     "last_updated": "2026-07-19",
-    "changelog": "v2.9.7 — Configuration: Configured actual Google AdSense Publisher ID (ca-pub-2052345517244412) in ads.txt and settings cache."
+    "changelog": "v2.9.8 — SEO: Fixed undefined current_url variable and implemented structured canonical tags for all major page types."
 }

@@ -1,4 +1,5 @@
 <?php
+$canonical_url = BASE_URL . "magazine";
 include 'includes/public_header.php';
 
 if (get_setting('ebook_magazine_enabled', 'yes') == 'no') {

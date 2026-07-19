@@ -1,5 +1,12 @@
 [
     {
+        "version": "2.9.8",
+        "date": "2026-07-19",
+        "changes": [
+            "SEO: Fixed undefined current_url variable and implemented structured canonical tags for all major page types."
+        ]
+    },
+    {
         "version": "2.9.7",
         "date": "2026-07-19",
         "changes": [

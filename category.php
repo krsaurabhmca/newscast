@@ -80,6 +80,7 @@ $popular_posts = $popular_stmt->fetchAll();
 
 $page_title = $category['name'];
 $meta_description = $category['description'] ?: "Read the latest news and stories about " . $category['name'] . " on " . SITE_NAME . ".";
+$canonical_url = BASE_URL . "category/" . $category['slug'];
 include 'includes/public_header.php';
 
 // Lead post (first post for hero card)
