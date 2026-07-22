@@ -270,7 +270,36 @@ if ($active_poll) {
 
                         <!-- Right Column (Stacked Cards) -->
                         <div style="display: flex; flex-direction: column; gap: 24px; height: 100%;">
-                            <?php for ($i = 1; $i <= 2; $i++):
+                            <?php 
+                            $has_pod = get_setting('photo_of_day_image');
+                            if ($has_pod): ?>
+                                <!-- Photo of the Day (Top Right) -->
+                                <div class="t2-bento-card pod-card" style="display: block; position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-decoration: none; flex: 1; min-height: 248px;">
+                                    <img src="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('photo_of_day_image'); ?>"
+                                        style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; transition: transform 0.4s ease;"
+                                        class="t2-card-img" alt="<?php echo htmlspecialchars(get_setting('photo_of_day_title', 'Photo of the Day')); ?>">
+                                    <div
+                                        style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.3) 60%, transparent 100%); display:flex; flex-direction:column; justify-content:flex-end; padding: 25px; z-index: 2;">
+                                        <span
+                                            style="background: var(--primary); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; width: max-content; margin-bottom: 10px; letter-spacing: 0.5px;">
+                                            <i data-feather="camera" style="width:12px;height:12px;margin-right:3px;vertical-align:-2px;"></i> Photo of the Day
+                                        </span>
+                                        <h3
+                                            style="color: #fff; font-size: 19px; font-weight: 800; line-height: 1.3; margin: 0 0 10px; text-shadow: 0 2px 8px rgba(0,0,0,0.4);">
+                                            <?php echo htmlspecialchars(get_setting('photo_of_day_title', 'Photo of the Day')); ?></h3>
+                                        <?php if(get_setting('photo_of_day_caption')): ?>
+                                        <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin: 0 0 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                            <?php echo htmlspecialchars(get_setting('photo_of_day_caption')); ?>
+                                        </p>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php 
+                            $start_idx = $has_pod ? 1 : 1; 
+                            $end_idx = $has_pod ? 1 : 2;
+                            for ($i = $start_idx; $i <= $end_idx; $i++):
                                 if (!isset($featured_posts[$i]))
                                     continue;
                                 $sub_f = $featured_posts[$i];

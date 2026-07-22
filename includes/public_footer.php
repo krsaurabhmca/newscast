@@ -1,4 +1,8 @@
-    <footer class="bhaskar-footer <?php echo (get_setting('footer_theme') == 'dark') ? 'theme-dark' : 'theme-light'; ?>">
+<?php 
+$is_theme2 = (get_setting('homepage_theme', 'theme1') === 'theme2');
+$compact_class = $is_theme2 ? ' compact-footer' : '';
+?>
+    <footer class="bhaskar-footer <?php echo (get_setting('footer_theme') == 'dark') ? 'theme-dark' : 'theme-light'; ?><?php echo $compact_class; ?>">
 
         <!-- ── Main Footer Content ───────────────────────────────────── -->
         <!-- ── Main Footer Content ───────────────────────────────────── -->
@@ -31,6 +35,9 @@
                         <?php endif; ?>
                         <?php if(get_setting('whatsapp_channel')): ?>
                             <a href="<?php echo get_setting('whatsapp_channel'); ?>" target="_blank" class="foot-social whatsapp" aria-label="WhatsApp"><i data-feather="message-circle" style="width: 18px;"></i></a>
+                        <?php endif; ?>
+                        <?php if(get_setting('footer_custom_link_url')): ?>
+                            <a href="<?php echo htmlspecialchars(get_setting('footer_custom_link_url')); ?>" target="_blank" class="foot-social custom-link" aria-label="<?php echo htmlspecialchars(get_setting('footer_custom_link_title', 'Link')); ?>" title="<?php echo htmlspecialchars(get_setting('footer_custom_link_title', 'Link')); ?>"><i data-feather="external-link" style="width: 18px;"></i></a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -221,6 +228,17 @@
             .footer-bottom { flex-direction: column; text-align: center; }
             .footer-bottom-links { justify-content: center; flex-wrap: wrap; }
         }
+
+        /* ── Compact Footer (Theme 2) ───────────────────────────── */
+        .compact-footer .footer-content-wrapper { padding: 20px 20px 10px 20px !important; }
+        .compact-footer .footer-grid { margin-bottom: 15px !important; gap: 20px !important; }
+        .compact-footer .footer-col.brand-col p { display: none; }
+        .compact-footer .footer-col.brand-col .social-icons { margin-top: 10px; }
+        .compact-footer .footer-col h4 { margin-bottom: 10px !important; font-size: 13px !important; }
+        .compact-footer .footer-link { font-size: 12px !important; }
+        .compact-footer .foot-social { width: 28px; height: 28px; }
+        .compact-footer .foot-social svg { width: 14px !important; }
+        .compact-footer .footer-bottom { padding: 15px 0 10px 0; }
     </style>
     <script>
         feather.replace();

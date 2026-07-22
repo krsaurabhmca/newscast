@@ -44,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'instagram_url' => clean($_POST['instagram_url']),
         'youtube_url' => clean($_POST['youtube_url']),
         'whatsapp_channel' => clean($_POST['whatsapp_channel']),
+        'footer_custom_link_title' => clean($_POST['footer_custom_link_title'] ?? ''),
+        'footer_custom_link_url' => clean($_POST['footer_custom_link_url'] ?? ''),
         'google_map' => $_POST['google_map'],
         'theme_color' => clean($_POST['theme_color']),
         'footer_theme' => clean($_POST['footer_theme']),
@@ -518,6 +520,19 @@ foreach ($socials as $s): ?>
                     </div>
                     <?php
 endforeach; ?>
+                    <div style="grid-column: 1/-1; padding-top: 15px; border-top: 1px solid #f1f5f9; margin-top: 10px;">
+                        <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 15px;">Additional Footer Link (Optional)</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <label class="field-label">Link Title (e.g., Mail Login)</label>
+                                <input type="text" name="footer_custom_link_title" class="form-control" placeholder="Mail Login" value="<?php echo htmlspecialchars(get_setting('footer_custom_link_title')); ?>">
+                            </div>
+                            <div>
+                                <label class="field-label">Link URL</label>
+                                <input type="url" name="footer_custom_link_url" class="form-control" placeholder="https://webmail.example.com" value="<?php echo htmlspecialchars(get_setting('footer_custom_link_url')); ?>">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

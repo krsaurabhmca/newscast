@@ -498,6 +498,28 @@ endforeach; ?>
         <aside class="article-sidebar">
             <div style="position: sticky; top: 20px; display: flex; flex-direction: column; gap: 30px;">
                 
+                <?php
+                $wa_number = get_setting('whatsapp_number');
+                if (!empty($wa_number)):
+                    $wa_phone = preg_replace('/[^0-9]/', '', $wa_number);
+                    $wa_url = "https://wa.me/" . $wa_phone . "?text=Hello";
+                ?>
+                <!-- WhatsApp Bot Sidebar Promo -->
+                <div style="background: linear-gradient(135deg, #075e54, #128c7e); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(18,140,126,0.15); border: 1px solid rgba(255,255,255,0.1); color: white; text-align: center;">
+                    <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                        <i data-feather="message-circle" style="color: white; width: 30px; height: 30px;"></i>
+                    </div>
+                    <h4 style="font-size: 16px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 0.5px;"><?php echo htmlspecialchars(get_setting('site_name', 'NewsCast')); ?> व्हाट्सएप न्यूज बॉट</h4>
+                    <ul style="text-align: left; font-size: 13px; line-height: 1.6; font-weight: 500; color: rgba(255,255,255,0.9); margin: 0 0 20px 0; padding-left: 20px;">
+                        <li>ताज़ा ख़बरें सीधे व्हाट्सएप पर</li>
+                        <li>दिन की टॉप 10 ख़बरों की समरी</li>
+                        <li>कीवर्ड से ख़बरें सर्च करें</li>
+                    </ul>
+                    <a href="<?php echo $wa_url; ?>" target="_blank" style="background: white; color: #075e54; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; width: 100%; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.1)';">
+                        <i data-feather="message-square" style="width: 16px; height: 16px;"></i> चैट शुरू करें (Start Chat)
+                    </a>
+                </div>
+                <?php endif; ?>
                 <!-- Poll Section -->
                 <?php if ($active_poll): ?>
                 <div class="poll-widget" style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
