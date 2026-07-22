@@ -230,15 +230,23 @@ $compact_class = $is_theme2 ? ' compact-footer' : '';
         }
 
         /* ── Compact Footer (Theme 2) ───────────────────────────── */
-        .compact-footer .footer-content-wrapper { padding: 20px 20px 10px 20px !important; }
-        .compact-footer .footer-grid { margin-bottom: 15px !important; gap: 20px !important; }
-        .compact-footer .footer-col.brand-col p { display: none; }
-        .compact-footer .footer-col.brand-col .social-icons { margin-top: 10px; }
-        .compact-footer .footer-col h4 { margin-bottom: 10px !important; font-size: 13px !important; }
-        .compact-footer .footer-link { font-size: 12px !important; }
-        .compact-footer .foot-social { width: 28px; height: 28px; }
-        .compact-footer .foot-social svg { width: 14px !important; }
-        .compact-footer .footer-bottom { padding: 15px 0 10px 0; }
+        .compact-footer .footer-content-wrapper { padding: 40px 20px 20px 20px !important; }
+        .compact-footer .footer-grid { margin-bottom: 25px !important; gap: 40px 30px !important; grid-template-columns: 1.2fr 1.5fr 1fr 1.2fr !important; }
+        .compact-footer .footer-col.brand-col p { display: block; font-size: 12px; margin-bottom: 15px; }
+        .compact-footer .footer-col.brand-col .social-icons { margin-top: 15px; }
+        .compact-footer .footer-col h4 { margin-bottom: 15px !important; font-size: 13px !important; }
+        .compact-footer .footer-link { font-size: 13px !important; }
+        .compact-footer .links-col ul { gap: 12px 20px !important; }
+        .compact-footer .foot-social { width: 32px; height: 32px; }
+        .compact-footer .foot-social svg { width: 16px !important; }
+        .compact-footer .footer-bottom { padding: 20px 0 10px 0; border-top: 1px solid rgba(255,255,255,0.05); }
+        .theme-light.compact-footer .footer-bottom { border-top: 1px solid #e2e8f0; }
+        @media (max-width: 1024px) {
+            .compact-footer .footer-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 640px) {
+            .compact-footer .footer-grid { grid-template-columns: 1fr !important; }
+        }
     </style>
     <script>
         feather.replace();
