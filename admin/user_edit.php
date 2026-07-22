@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = clean($_POST['username'] ?? '');
     $email = clean($_POST['email'] ?? '');
     $role = clean($_POST['role'] ?? '');
+    $password = $_POST['password'] ?? '';
     $profile_image = $user['profile_image'];
 
     if (empty($username)) $errors['username'] = "Username is required.";
@@ -65,8 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            $update = $pdo->prepare("UPDATE users SET username = ?, email = ?, role = ?, profile_image = ? WHERE id = ?");
-            $update->execute([$username, $email, $role, $profile_image, $id]);
+            if (!empty($password)) {
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $update = $pdo->prepare("UPDATE users SET username = ?, email = ?, role = ?, password = ?, profile_image = ? WHERE id = ?");
+                $update->execute([$username, $email, $role, $hashed_password, $profile_image, $id]);
+            } else {
+                $update = $pdo->prepare("UPDATE users SET username = ?, email = ?, role = ?, profile_image = ? WHERE id = ?");
+                $update->execute([$username, $email, $role, $profile_image, $id]);
+            }
             redirect('admin/users.php', 'User updated successfully!', 'success');
         } catch (PDOException $e) {
             $errors['general'] = "Database error: " . $e->getMessage();
@@ -101,14 +108,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
 
-            <div class="form-group" style="margin-bottom:20px;">
-                <label style="font-size:13px; font-weight:700; color:#475569; display:block; margin-bottom:8px;">User Role</label>
-                <select name="role" class="form-control">
-                    <option value="dev" <?= $user['role']=='dev'?'selected':'' ?>>Developer</option>
-                    <option value="admin" <?= $user['role']=='admin'?'selected':'' ?>>Administrator</option>
-                    <option value="editor" <?= $user['role']=='editor'?'selected':'' ?>>Editor</option>
-                    <option value="reporter" <?= $user['role']=='reporter'?'selected':'' ?>>Reporter</option>
-                </select>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+                <div class="form-group">
+                    <label style="font-size:13px; font-weight:700; color:#475569; display:block; margin-bottom:8px;">User Role</label>
+                    <select name="role" class="form-control">
+                        <option value="dev" <?= $user['role']=='dev'?'selected':'' ?>>Developer</option>
+                        <option value="admin" <?= $user['role']=='admin'?'selected':'' ?>>Administrator</option>
+                        <option value="editor" <?= $user['role']=='editor'?'selected':'' ?>>Editor</option>
+                        <option value="reporter" <?= $user['role']=='reporter'?'selected':'' ?>>Reporter</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="font-size:13px; font-weight:700; color:#475569; display:block; margin-bottom:8px;">New Password <span style="font-weight:normal; color:#94a3b8;">(Leave blank to keep current)</span></label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter new password">
+                </div>
             </div>
 
             <div class="form-group" style="margin-bottom:25px;">
