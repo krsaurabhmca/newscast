@@ -7,8 +7,8 @@ if (!is_admin()) {
 }
 
 $repo_url = 'https://github.com/krsaurabhmca/newscast';
-$api_version_url = 'https://api.github.com/repos/krsaurabhmca/newscast/contents/version.json';
-$api_changelog_url = 'https://api.github.com/repos/krsaurabhmca/newscast/contents/admin/changelog.json';
+$api_version_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/version.json';
+$api_changelog_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/admin/changelog.json';
 $zip_url = 'https://github.com/krsaurabhmca/newscast/archive/refs/heads/main.zip';
 
 $local_version_file = '../version.json';
@@ -75,24 +75,18 @@ $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 if ($http_code == 200 && $response) {
-    $api_data = json_decode($response, true);
-    if (isset($api_data['content'])) {
-        $decoded_json = base64_decode($api_data['content']);
-        $remote_info = json_decode($decoded_json, true);
-        if ($remote_info) {
-            if (version_compare($remote_info['version'], $local_info['version'], '>')) {
-                $update_available = true;
-            } elseif ($remote_info['db_version'] > $local_info['db_version']) {
-                $update_available = true; // DB update only
-            }
-        } else {
-            $error = "Could not parse version.json from GitHub.";
+    $remote_info = json_decode($response, true);
+    if ($remote_info) {
+        if (version_compare($remote_info['version'], $local_info['version'], '>')) {
+            $update_available = true;
+        } elseif ($remote_info['db_version'] > $local_info['db_version']) {
+            $update_available = true; // DB update only
         }
     } else {
-        $error = "Invalid API response from GitHub.";
+        $error = "Could not parse version.json from GitHub.";
     }
 } else {
-    $error = "Could not connect to GitHub API to check for updates. HTTP Code: $http_code";
+    $error = "Could not connect to GitHub to check for updates. HTTP Code: $http_code";
 }
 
 // Fetch Remote Changelog via API
@@ -108,10 +102,7 @@ curl_close($ch_cl);
 
 $changelogs = [];
 if ($cl_code == 200 && $cl_response) {
-    $api_cl_data = json_decode($cl_response, true);
-    if (isset($api_cl_data['content'])) {
-        $changelogs = json_decode(base64_decode($api_cl_data['content']), true) ?: [];
-    }
+    $changelogs = json_decode($cl_response, true) ?: [];
 }
 if (empty($changelogs) && file_exists('changelog.json')) {
     $changelogs = json_decode(file_get_contents('changelog.json'), true) ?: [];
@@ -233,6 +224,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
 .title { font-size: 32px; font-weight: 800; color: #0f172a; margin: 0 0 10px 0; letter-spacing: -1px; }
 .subtitle { font-size: 15px; color: #64748b; margin: 0; font-weight: 500; }
 
+/* Tabs Styling */
+.tabs-container { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; }
+.tab-btn { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 12px 24px; border-radius: 12px; font-size: 15px; font-weight: 700; color: #475569; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; font-family: 'Inter', system-ui, sans-serif; }
+.tab-btn:hover { background: #e2e8f0; color: #0f172a; }
+.tab-btn.active { background: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+.tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
 .version-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
 .version-card { background: white; border-radius: 20px; padding: 30px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; position: relative; overflow: hidden; transition: 0.3s; }
 .version-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0,0,0,0.05); border-color: #e2e8f0; }
@@ -264,8 +264,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
 .changelog-header h3 { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }
 .changelog-badge { background: #f1f5f9; color: #475569; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
 
-.timeline { position: relative; padding-left: 30px; }
-.timeline::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; border-radius: 2px; }
+.timeline-wrapper { max-height: 350px; overflow-y: auto; padding-right: 15px; }
+.timeline-wrapper::-webkit-scrollbar { width: 6px; }
+.timeline-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.timeline { position: relative; padding-left: 25px; }
+.timeline::before { content: ''; position: absolute; left: 5px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; border-radius: 2px; }
 .timeline-item { position: relative; margin-bottom: 30px; }
 .timeline-item:last-child { margin-bottom: 0; }
 .timeline-dot { position: absolute; left: -30px; width: 16px; height: 16px; border-radius: 50%; background: white; border: 4px solid #6366f1; top: 4px; box-shadow: 0 0 0 4px white; }
@@ -298,7 +301,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
         </div>
     <?php endif; ?>
 
-    <div class="version-grid">
+    <!-- Tabs Header -->
+    <div class="tabs-container">
+        <button class="tab-btn active" id="btn-update" onclick="switchTab('update')"><i data-feather="download-cloud"></i> System Update</button>
+        <button class="tab-btn" id="btn-diagnosis" onclick="switchTab('diagnosis')"><i data-feather="shield"></i> Diagnosis & Cleanup</button>
+    </div>
+
+    <!-- Update Tab -->
+    <div id="tab-update" class="tab-content active">
+        <div class="version-grid">
         <div class="version-card">
             <span class="card-label local-label"><i data-feather="hard-drive" style="width: 14px;"></i> Local Installation</span>
             <h3 class="version-number local-version">v<?php echo htmlspecialchars($local_info['version']); ?></h3>
@@ -331,7 +342,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
             </div>
             <h3 style="margin: 0 0 5px 0; font-size: 20px; font-weight: 800;">System is Up to Date</h3>
             <p style="margin: 0 0 20px 0; font-size: 14px; opacity: 0.8;">You are running the latest version of NewsCast.</p>
-            <a href="system_update.php" class="btn" style="background: white; border: 1px solid #bbf7d0; color: #15803d; font-weight: 600; border-radius: 12px;">
+            <a href="system_update.php" class="btn" style="background: white; border: 1px solid #bbf7d0; color: #15803d; font-weight: 600; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;">
                 <i data-feather="refresh-cw" style="width: 14px;"></i> Check for Updates
             </a>
         </div>
@@ -366,47 +377,173 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
         </div>
     <?php endif; ?>
 
-    <!-- Changelog Section -->
+    <!-- Changelog Section (Always Shown) -->
     <?php if (!empty($changelogs)): ?>
-        <div class="changelog-section">
+        <div class="changelog-section" style="margin-top: 25px;">
             <div class="changelog-header">
                 <i data-feather="file-text" style="color: #6366f1;"></i>
                 <h3>Release Notes</h3>
                 <span class="changelog-badge"><?php echo count($changelogs); ?> Releases</span>
             </div>
             
-            <div class="timeline">
-                <?php foreach ($changelogs as $index => $log): ?>
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-version" onclick="toggleChangelog(<?php echo $index; ?>)">
-                        <div class="timeline-version-name">
-                            v<?php echo htmlspecialchars($log['version']); ?>
-                            <?php if ($index === 0): ?>
-                                <span class="badge-new">Latest</span>
-                            <?php endif; ?>
+            <div class="timeline-wrapper">
+                <div class="timeline">
+                    <?php foreach ($changelogs as $index => $log): ?>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-version" onclick="toggleChangelog(<?php echo $index; ?>)">
+                            <div class="timeline-version-name">
+                                v<?php echo htmlspecialchars($log['version']); ?>
+                                <?php if ($index === 0): ?>
+                                    <span class="badge-new">Latest</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="timeline-date">
+                                <i data-feather="calendar" style="width: 12px;"></i>
+                                <?php echo date('F j, Y', strtotime($log['date'])); ?>
+                                <i data-feather="chevron-down" id="chevron-<?php echo $index; ?>" style="width: 16px; margin-left: 10px; transition: transform 0.3s; transform: <?php echo $index === 0 ? 'rotate(180deg)' : 'rotate(0deg)'; ?>;"></i>
+                            </div>
                         </div>
-                        <div class="timeline-date">
-                            <i data-feather="calendar" style="width: 12px;"></i>
-                            <?php echo date('F j, Y', strtotime($log['date'])); ?>
-                            <i data-feather="chevron-down" id="chevron-<?php echo $index; ?>" style="width: 16px; margin-left: 10px; transition: transform 0.3s; transform: <?php echo $index === 0 ? 'rotate(180deg)' : 'rotate(0deg)'; ?>;"></i>
+                        <div class="timeline-changes" id="changelog-<?php echo $index; ?>" style="display: <?php echo $index === 0 ? 'block' : 'none'; ?>;">
+                            <ul>
+                                <?php foreach($log['changes'] as $change): ?>
+                                    <li><?php echo htmlspecialchars($change); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
                         </div>
                     </div>
-                    <div class="timeline-changes" id="changelog-<?php echo $index; ?>" style="display: <?php echo $index === 0 ? 'block' : 'none'; ?>;">
-                        <ul>
-                            <?php foreach($log['changes'] as $change): ?>
-                                <li><?php echo htmlspecialchars($change); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
             </div>
         </div>
     <?php endif; ?>
-</div>
+    </div> <!-- End Update Tab Content -->
+
+    <!-- Diagnosis Tab -->
+    <div id="tab-diagnosis" class="tab-content">
+        <!-- System Diagnosis & Cleanup -->
+        <div class="diagnosis-container" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.05); border: 1px solid #e0e7ff; margin-bottom: 25px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; right: 0; width: 300px; height: 300px; background: radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%); pointer-events: none;"></div>
+            
+            <div style="display: flex; align-items: flex-start; gap: 25px; position: relative; z-index: 1;">
+                <div style="width: 64px; height: 64px; border-radius: 18px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);">
+                    <i data-feather="shield" style="width: 32px; height: 32px;"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h3 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 800; color: #1e1b4b; letter-spacing: -0.5px;">Malware Scanner & Core Cleanup</h3>
+                    <p style="margin: 0 0 20px 0; font-size: 15px; color: #4f46e5; font-weight: 500; line-height: 1.6; max-width: 600px;">
+                        Compare your files against the official repository to detect injected scripts or altered core files. <strong style="color: #4338ca;">Your uploads and databases remain untouched.</strong>
+                    </p>
+                    <form action="" method="POST" id="diagnosisForm">
+                        <button type="submit" name="run_diagnosis" id="runDiagBtn" class="btn" style="background: #4f46e5; color: white; border: none; padding: 14px 32px; font-weight: 700; border-radius: 14px; font-size: 15px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);">
+                            <i data-feather="search" style="width: 18px;"></i> <span>Start Deep Scan</span>
+                        </button>
+                        <div id="diagLoader" style="display: none; align-items: center; gap: 10px; color: #4f46e5; font-weight: 600; font-size: 14px; margin-top: 15px;">
+                            <i data-feather="loader" style="animation: spin 1s linear infinite;"></i> Scanning system files... This may take a minute.
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <?php if (!empty($diagnosis_results)): ?>
+                <div style="margin-top: 35px; background: #f8fafc; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                            <i data-feather="file-text" style="color: #6366f1;"></i> Scan Report
+                        </h4>
+                        <span style="font-size: 12px; font-weight: 600; color: #64748b; background: white; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0;">
+                            Generated: <?php echo date('M j, g:i A', $diagnosis_results['time']); ?>
+                        </span>
+                    </div>
+                    
+                    <?php if (empty($diagnosis_results['extra_scripts']) && empty($diagnosis_results['modified_core'])): ?>
+                        <div style="background: #ecfdf5; border: 1px dashed #34d399; border-radius: 12px; padding: 20px; text-align: center; color: #065f46;">
+                            <div style="width: 48px; height: 48px; background: #d1fae5; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                                <i data-feather="check" style="color: #10b981;"></i>
+                            </div>
+                            <h5 style="margin: 0 0 5px 0; font-size: 16px; font-weight: 700;">System is Clean!</h5>
+                            <p style="margin: 0; font-size: 13px; opacity: 0.9;">No unauthorized files or core modifications were found.</p>
+                        </div>
+                    <?php else: ?>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                            <?php if (!empty($diagnosis_results['extra_scripts'])): ?>
+                                <div style="background: white; border: 1px solid #fecaca; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.05);">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                                        <div style="width: 36px; height: 36px; background: #fee2e2; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                                            <i data-feather="alert-triangle" style="width: 18px;"></i>
+                                        </div>
+                                        <div>
+                                            <h5 style="margin: 0; font-size: 15px; font-weight: 800; color: #991b1b;">Extra Scripts</h5>
+                                            <span style="font-size: 12px; color: #dc2626; font-weight: 600;"><?php echo count($diagnosis_results['extra_scripts']); ?> found</span>
+                                        </div>
+                                    </div>
+                                    <ul style="margin: 0; padding: 10px 15px; font-size: 12px; color: #b91c1c; background: #fef2f2; border-radius: 8px; max-height: 120px; overflow-y: auto; list-style-type: square;">
+                                        <?php foreach ($diagnosis_results['extra_scripts'] as $script): ?>
+                                            <li style="margin-bottom: 4px;"><?php echo htmlspecialchars($script); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (!empty($diagnosis_results['modified_core'])): ?>
+                                <div style="background: white; border: 1px solid #fde68a; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(245, 158, 11, 0.05);">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                                        <div style="width: 36px; height: 36px; background: #fef3c7; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #f59e0b;">
+                                            <i data-feather="edit-3" style="width: 18px;"></i>
+                                        </div>
+                                        <div>
+                                            <h5 style="margin: 0; font-size: 15px; font-weight: 800; color: #92400e;">Modified Core</h5>
+                                            <span style="font-size: 12px; color: #d97706; font-weight: 600;"><?php echo count($diagnosis_results['modified_core']); ?> altered files</span>
+                                        </div>
+                                    </div>
+                                    <ul style="margin: 0; padding: 10px 15px; font-size: 12px; color: #b45309; background: #fffbeb; border-radius: 8px; max-height: 120px; overflow-y: auto; list-style-type: square;">
+                                        <?php foreach ($diagnosis_results['modified_core'] as $script): ?>
+                                            <li style="margin-bottom: 4px;"><?php echo htmlspecialchars($script); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                            <div>
+                                <strong style="color: #0f172a; display: block; font-size: 15px;">Ready to resolve these issues?</strong>
+                                <span style="color: #64748b; font-size: 13px;">This action will delete the extra scripts and restore the official core files.</span>
+                            </div>
+                            <form action="" method="POST" onsubmit="return confirm('WARNING: This will permanently delete extra scripts and overwrite modified core files. Make sure you don\'t have unsaved custom code. Proceed?');">
+                                <button type="submit" name="clean_system" class="btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 12px 28px; font-weight: 800; border-radius: 12px; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); cursor: pointer; transition: 0.3s;">
+                                    <i data-feather="trash-2" style="width: 16px;"></i> Fix & Clean System
+                                </button>
+                            </form>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <style>
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #runDiagBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3); }
+        </style>
+        <script>
+        document.getElementById('diagnosisForm').addEventListener('submit', function() {
+            document.getElementById('runDiagBtn').style.display = 'none';
+            document.getElementById('diagLoader').style.display = 'flex';
+        });
+        </script>
+    </div> <!-- End Diagnosis Tab Content -->
+</div> <!-- End .updater-container -->
 
 <script>
+function switchTab(tab) {
+    document.getElementById('tab-update').classList.remove('active');
+    document.getElementById('tab-diagnosis').classList.remove('active');
+    document.getElementById('btn-update').classList.remove('active');
+    document.getElementById('btn-diagnosis').classList.remove('active');
+    
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('btn-' + tab).classList.add('active');
+}
+
 function toggleChangelog(index) {
     const el = document.getElementById('changelog-' + index);
     const chevron = document.getElementById('chevron-' + index);

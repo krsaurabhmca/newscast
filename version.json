@@ -1,6 +1,6 @@
 {
-    "version": "3.1.1",
+    "version": "3.1.2",
     "db_version": 10,
-    "last_updated": "2026-07-22",
-    "changelog": "v3.1.1 — Theme 2 Footer CSS layout and typography refinements."
+    "last_updated": "2026-08-02",
+    "changelog": "v3.1.2 — System Updater tabbed UI, Malware Scanner & Core Cleanup, rate limit fix."
 }

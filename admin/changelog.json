@@ -1,5 +1,14 @@
 [
     {
+        "version": "3.1.2",
+        "date": "2026-08-02",
+        "changes": [
+            "System Updater: Added Deep Malware Scanner & Core Cleanup tool to compare files with GitHub repository.",
+            "UI & UX: Redesigned System Update page with compact tabbed layout for Updates and System Diagnosis.",
+            "Performance: Switched update checker to GitHub raw content endpoints to prevent 403 API rate limit errors."
+        ]
+    },
+    {
         "version": "2.9.9",
         "date": "2026-07-19",
         "changes": [
