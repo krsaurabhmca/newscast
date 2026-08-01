@@ -3,9 +3,24 @@
         "version": "3.1.2",
         "date": "2026-08-02",
         "changes": [
-            "System Updater: Added Deep Malware Scanner & Core Cleanup tool to compare files with GitHub repository.",
-            "UI & UX: Redesigned System Update page with compact tabbed layout for Updates and System Diagnosis.",
+            "System Updater: Added Deep Malware Scanner & Core Cleanup tool to compare local files against GitHub repository.",
+            "UI & UX: Redesigned System Update page with compact tabbed layout (System Update & Diagnosis).",
             "Performance: Switched update checker to GitHub raw content endpoints to prevent 403 API rate limit errors."
+        ]
+    },
+    {
+        "version": "3.1.1",
+        "date": "2026-07-22",
+        "changes": [
+            "Theme & UI: Theme 2 Footer CSS layout and typography refinements.",
+            "Database: Verified and synchronized database schema versions."
+        ]
+    },
+    {
+        "version": "3.1.0",
+        "date": "2026-07-21",
+        "changes": [
+            "Footer & Navigation: Enhanced public footer layout, dynamic category headers, and performance optimizations."
         ]
     },
     {
