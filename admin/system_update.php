@@ -63,6 +63,13 @@ $update_available = false;
 $error = '';
 $message = '';
 
+$active_tab = 'update';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['run_diagnosis']) || isset($_POST['clean_system']))) {
+    $active_tab = 'diagnosis';
+} elseif (isset($_GET['tab']) && $_GET['tab'] === 'diagnosis') {
+    $active_tab = 'diagnosis';
+}
+
 // Check for update directly when hitting the page via GitHub API to bypass CDN cache
 $ch = curl_init($api_version_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -303,12 +310,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
 
     <!-- Tabs Header -->
     <div class="tabs-container">
-        <button class="tab-btn active" id="btn-update" onclick="switchTab('update')"><i data-feather="download-cloud"></i> System Update</button>
-        <button class="tab-btn" id="btn-diagnosis" onclick="switchTab('diagnosis')"><i data-feather="shield"></i> Diagnosis & Cleanup</button>
+        <button class="tab-btn <?php echo $active_tab === 'update' ? 'active' : ''; ?>" id="btn-update" onclick="switchTab('update')"><i data-feather="download-cloud"></i> System Update</button>
+        <button class="tab-btn <?php echo $active_tab === 'diagnosis' ? 'active' : ''; ?>" id="btn-diagnosis" onclick="switchTab('diagnosis')"><i data-feather="shield"></i> Diagnosis & Cleanup</button>
     </div>
 
     <!-- Update Tab -->
-    <div id="tab-update" class="tab-content active">
+    <div id="tab-update" class="tab-content <?php echo $active_tab === 'update' ? 'active' : ''; ?>">
         <div class="version-grid">
         <div class="version-card">
             <span class="card-label local-label"><i data-feather="hard-drive" style="width: 14px;"></i> Local Installation</span>
@@ -420,7 +427,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
     </div> <!-- End Update Tab Content -->
 
     <!-- Diagnosis Tab -->
-    <div id="tab-diagnosis" class="tab-content">
+    <div id="tab-diagnosis" class="tab-content <?php echo $active_tab === 'diagnosis' ? 'active' : ''; ?>">
         <!-- System Diagnosis & Cleanup -->
         <div class="diagnosis-container" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.05); border: 1px solid #e0e7ff; margin-bottom: 25px; position: relative; overflow: hidden;">
             <div style="position: absolute; top: 0; right: 0; width: 300px; height: 300px; background: radial-gradient(circle, rgba(79, 70, 229, 0.05) 0%, transparent 70%); border-radius: 50%; transform: translate(30%, -30%); pointer-events: none;"></div>
@@ -542,7 +549,17 @@ function switchTab(tab) {
     
     document.getElementById('tab-' + tab).classList.add('active');
     document.getElementById('btn-' + tab).classList.add('active');
+    try { localStorage.setItem('active_updater_tab', tab); } catch(e){}
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    <?php if (!isset($_POST['run_diagnosis']) && !isset($_POST['clean_system']) && !isset($_GET['tab'])): ?>
+    const savedTab = localStorage.getItem('active_updater_tab');
+    if (savedTab && (savedTab === 'update' || savedTab === 'diagnosis')) {
+        switchTab(savedTab);
+    }
+    <?php endif; ?>
+});
 
 function toggleChangelog(index) {
     const el = document.getElementById('changelog-' + index);
