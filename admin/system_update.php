@@ -70,6 +70,201 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['run_diagnosis']) || 
     $active_tab = 'diagnosis';
 }
 
+// Load diagnosis results if they exist
+$diagnosis_results = [];
+$diagnosis_file = '../diagnosis_results.json';
+if (file_exists($diagnosis_file)) {
+    $diagnosis_results = json_decode(file_get_contents($diagnosis_file), true) ?: [];
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['run_diagnosis'])) {
+    set_time_limit(300);
+    $temp_zip = '../diag_temp.zip';
+    
+    // Download ZIP
+    $fp = fopen($temp_zip, 'w+');
+    $ch = curl_init($zip_url);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+    curl_setopt($ch, CURLOPT_FILE, $fp);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    fclose($fp);
+
+    if (!$err) {
+        $zip = new ZipArchive;
+        if ($zip->open($temp_zip) === TRUE) {
+            $temp_extract = '../diag_extract_temp';
+            if (!is_dir($temp_extract)) mkdir($temp_extract);
+            $zip->extractTo($temp_extract);
+            $zip->close();
+            
+            $root_folder = '';
+            $dirs = scandir($temp_extract);
+            foreach ($dirs as $d) {
+                if ($d != '.' && $d != '..' && is_dir($temp_extract . '/' . $d)) {
+                    $root_folder = $temp_extract . '/' . $d;
+                    break;
+                }
+            }
+            
+            if ($root_folder) {
+                $extra_scripts = [];
+                $modified_core = [];
+                $base_dir = realpath('../');
+                
+                $excluded_dirs = ['uploads', '.gemini', '.git', 'diag_extract_temp', 'update_extract_temp'];
+                $excluded_files = ['includes/config.php', 'version.json', 'diagnosis_results.json', 'diag_temp.zip', 'update_temp.zip'];
+                
+                $iterator = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($base_dir, RecursiveDirectoryIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::SELF_FIRST
+                );
+                
+                foreach ($iterator as $file) {
+                    $subPath = str_replace('\\', '/', substr($file->getPathname(), strlen($base_dir) + 1));
+                    $parts = explode('/', $subPath);
+                    if (in_array($parts[0], $excluded_dirs) || in_array($subPath, $excluded_files)) {
+                        continue;
+                    }
+                    
+                    if ($file->isFile() && pathinfo($file->getFilename(), PATHINFO_EXTENSION) === 'php') {
+                        $repo_file = $root_folder . '/' . $subPath;
+                        if (!file_exists($repo_file)) {
+                            $extra_scripts[] = $subPath;
+                        } else {
+                            if (md5_file($file->getPathname()) !== md5_file($repo_file)) {
+                                $modified_core[] = $subPath;
+                            }
+                        }
+                    }
+                }
+                
+                $diagnosis_results = [
+                    'time' => time(),
+                    'extra_scripts' => $extra_scripts,
+                    'modified_core' => $modified_core
+                ];
+                file_put_contents($diagnosis_file, json_encode($diagnosis_results));
+                
+                $_SESSION['flash_msg'] = "Deep scan completed successfully.";
+                $_SESSION['flash_type'] = "success";
+            } else {
+                $_SESSION['flash_msg'] = "Failed to find root folder in diagnosis zip.";
+                $_SESSION['flash_type'] = "danger";
+            }
+            
+            if (!function_exists('remove_dir')) {
+                function remove_dir($dir) {
+                    if (is_dir($dir)) {
+                        $objects = scandir($dir);
+                        foreach ($objects as $object) {
+                            if ($object != "." && $object != "..") {
+                                if (is_dir($dir . '/' . $object) && !is_link($dir . "/" . $object)) remove_dir($dir . '/' . $object);
+                                else unlink($dir . '/' . $object);
+                            }
+                        }
+                        rmdir($dir);
+                    }
+                }
+            }
+            remove_dir($temp_extract);
+        } else {
+            $_SESSION['flash_msg'] = "Failed to open downloaded diagnosis ZIP.";
+            $_SESSION['flash_type'] = "danger";
+        }
+        if (file_exists($temp_zip)) unlink($temp_zip);
+    } else {
+        $_SESSION['flash_msg'] = "Failed to download diagnosis ZIP: " . $err;
+        $_SESSION['flash_type'] = "danger";
+    }
+    redirect('admin/system_update.php?tab=diagnosis');
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clean_system'])) {
+    if (!empty($diagnosis_results)) {
+        $base_dir = realpath('../');
+        foreach ($diagnosis_results['extra_scripts'] as $script) {
+            $file_path = $base_dir . '/' . $script;
+            if (file_exists($file_path)) {
+                unlink($file_path);
+            }
+        }
+        
+        if (!empty($diagnosis_results['modified_core'])) {
+            set_time_limit(300);
+            $temp_zip = '../diag_temp.zip';
+            $fp = fopen($temp_zip, 'w+');
+            $ch = curl_init($zip_url);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+            curl_setopt($ch, CURLOPT_FILE, $fp);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_exec($ch);
+            curl_close($ch);
+            fclose($fp);
+            
+            $zip = new ZipArchive;
+            if ($zip->open($temp_zip) === TRUE) {
+                $temp_extract = '../diag_extract_temp';
+                if (!is_dir($temp_extract)) mkdir($temp_extract);
+                $zip->extractTo($temp_extract);
+                $zip->close();
+                
+                $root_folder = '';
+                $dirs = scandir($temp_extract);
+                foreach ($dirs as $d) {
+                    if ($d != '.' && $d != '..' && is_dir($temp_extract . '/' . $d)) {
+                        $root_folder = $temp_extract . '/' . $d;
+                        break;
+                    }
+                }
+                
+                if ($root_folder) {
+                    foreach ($diagnosis_results['modified_core'] as $core_file) {
+                        $repo_file = $root_folder . '/' . $core_file;
+                        $local_file = $base_dir . '/' . $core_file;
+                        if (file_exists($repo_file)) {
+                            copy($repo_file, $local_file);
+                        }
+                    }
+                }
+                if (!function_exists('remove_dir')) {
+                    function remove_dir($dir) {
+                        if (is_dir($dir)) {
+                            $objects = scandir($dir);
+                            foreach ($objects as $object) {
+                                if ($object != "." && $object != "..") {
+                                    if (is_dir($dir . '/' . $object) && !is_link($dir . "/" . $object)) remove_dir($dir . '/' . $object);
+                                    else unlink($dir . '/' . $object);
+                                }
+                            }
+                            rmdir($dir);
+                        }
+                    }
+                }
+                remove_dir($temp_extract);
+            }
+            if (file_exists($temp_zip)) unlink($temp_zip);
+        }
+        
+        if (file_exists($diagnosis_file)) {
+            unlink($diagnosis_file);
+        }
+        $diagnosis_results = [];
+        
+        $_SESSION['flash_msg'] = "System successfully cleaned and core files restored.";
+        $_SESSION['flash_type'] = "success";
+        redirect('admin/system_update.php?tab=diagnosis');
+    }
+}
+
 // Check for update directly when hitting the page via GitHub API to bypass CDN cache
 $ch = curl_init($api_version_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -446,7 +641,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
                             <i data-feather="search" style="width: 18px;"></i> <span>Start Deep Scan</span>
                         </button>
                         <div id="diagLoader" style="display: none; align-items: center; gap: 10px; color: #4f46e5; font-weight: 600; font-size: 14px; margin-top: 15px;">
-                            <i data-feather="loader" style="animation: spin 1s linear infinite;"></i> Scanning system files... This may take a minute.
+                            <i data-feather="loader" style="animation: spin 1s linear infinite;"></i> <span>Scanning system files... <span id="diagProgress">0%</span></span>
                         </div>
                     </form>
                 </div>
@@ -535,6 +730,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
         document.getElementById('diagnosisForm').addEventListener('submit', function() {
             document.getElementById('runDiagBtn').style.display = 'none';
             document.getElementById('diagLoader').style.display = 'flex';
+            let progress = 0;
+            const progressEl = document.getElementById('diagProgress');
+            const interval = setInterval(() => {
+                if (progress < 98) {
+                    let increment = Math.max(1, Math.floor((98 - progress) / 8));
+                    progress += increment;
+                    progressEl.innerText = progress + '%';
+                }
+            }, 400);
         });
         </script>
     </div> <!-- End Diagnosis Tab Content -->
