@@ -138,19 +138,26 @@ include 'includes/header.php';
                 theme: 'snow',
                 placeholder: 'Write the about us content here...',
                 modules: {
-                    toolbar: [
-                        [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'script': 'sub'}, { 'script': 'super' }],
-                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        [{ 'indent': '-1'}, { 'indent': '+1' }],
-                        [{ 'align': [] }],
-                        ['blockquote', 'code-block'],
-                        ['link', 'image', 'video'],
-                        ['clean']
-                    ],
+                    toolbar: {
+                        container: [
+                            [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'script': 'sub'}, { 'script': 'super' }],
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],
+                            [{ 'align': [] }],
+                            ['blockquote', 'code-block'],
+                            ['link', 'image', 'video'],
+                            ['clean']
+                        ],
+                        handlers: {
+                            image: function() {
+                                openMediaPicker('quill');
+                            }
+                        }
+                    },
                     blotFormatter: {}
                 }
             });
@@ -174,5 +181,7 @@ include 'includes/header.php';
         }
     });
 </script>
+
+<?php include 'includes/media_picker.php'; ?>
 
 <?php include 'includes/footer.php'; ?>
