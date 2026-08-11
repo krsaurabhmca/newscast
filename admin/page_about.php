@@ -129,6 +129,11 @@ include 'includes/header.php';
 <script>
     window.addEventListener('load', function() {
         if (typeof Quill !== 'undefined') {
+            if (typeof QuillBlotFormatter !== 'undefined') {
+                const BlotFormatter = QuillBlotFormatter.default || QuillBlotFormatter;
+                Quill.register('modules/blotFormatter', BlotFormatter);
+            }
+
             const quill = new Quill('#editor', {
                 theme: 'snow',
                 placeholder: 'Write the about us content here...',
@@ -145,7 +150,8 @@ include 'includes/header.php';
                         ['blockquote', 'code-block'],
                         ['link', 'image', 'video'],
                         ['clean']
-                    ]
+                    ],
+                    blotFormatter: {}
                 }
             });
 

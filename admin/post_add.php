@@ -339,6 +339,11 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
 <script>
     window.addEventListener('load', function () {
         if (typeof Quill !== 'undefined') {
+            if (typeof QuillBlotFormatter !== 'undefined') {
+                const BlotFormatter = QuillBlotFormatter.default || QuillBlotFormatter;
+                Quill.register('modules/blotFormatter', BlotFormatter);
+            }
+
             const quill = new Quill('#editor', {
                 theme: 'snow',
                 placeholder: 'Start writing your story...',
@@ -362,7 +367,8 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                                 openMediaPicker('quill');
                             }
                         }
-                    }
+                    },
+                    blotFormatter: {}
                 }
             });
             window.quill = quill;
@@ -620,17 +626,26 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
         let autoSavePostId = 0;
         
         function getAutoSaveData() {
-            const title = document.querySelector('input[name="title"]').value;
+            const getVal = (selector, fallback = '') => {
+                const el = document.querySelector(selector);
+                return el ? el.value : fallback;
+            };
+            const getChecked = (selector) => {
+                const el = document.querySelector(selector);
+                return el ? el.checked : false;
+            };
+
+            const title = getVal('input[name="title"]');
             const content = typeof quill !== 'undefined' ? quill.root.innerHTML : '';
-            const excerpt = document.querySelector('textarea[name="excerpt"]').value;
-            const slug = document.querySelector('input[name="slug"]').value;
-            const videoUrl = document.querySelector('input[name="video_url"]').value;
-            const externalLink = document.querySelector('input[name="external_link"]').value;
-            const metaDescription = document.querySelector('input[name="meta_description"]').value;
-            const publishedAt = document.querySelector('input[name="published_at"]').value;
-            const isFeatured = document.querySelector('input[name="is_featured"]').checked;
-            const tags = document.querySelector('input[name="tags"]').value;
-            const aiImageUrl = document.querySelector('input[name="ai_image_url"]').value;
+            const excerpt = getVal('textarea[name="excerpt"]');
+            const slug = getVal('input[name="slug"]');
+            const videoUrl = getVal('input[name="video_url"]');
+            const externalLink = getVal('input[name="external_link"]');
+            const metaDescription = getVal('input[name="meta_description"]');
+            const publishedAt = getVal('input[name="published_at"]');
+            const isFeatured = getChecked('input[name="is_featured"]');
+            const tags = getVal('input[name="tags"]');
+            const aiImageUrl = getVal('input[name="ai_image_url"]');
             
             const categoryIds = [];
             document.querySelectorAll('input[name="category_ids[]"]:checked').forEach(cb => {

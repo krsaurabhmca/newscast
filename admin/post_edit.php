@@ -334,6 +334,11 @@ try {
 <script>
     window.addEventListener('load', function() {
         if (typeof Quill !== 'undefined') {
+            if (typeof QuillBlotFormatter !== 'undefined') {
+                const BlotFormatter = QuillBlotFormatter.default || QuillBlotFormatter;
+                Quill.register('modules/blotFormatter', BlotFormatter);
+            }
+
             const quill = new Quill('#editor', {
                 theme: 'snow',
                 modules: {
@@ -356,7 +361,8 @@ try {
                                 openMediaPicker('quill');
                             }
                         }
-                    }
+                    },
+                    blotFormatter: {}
                 }
             });
             window.quill = quill;

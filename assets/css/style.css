@@ -679,13 +679,45 @@ a {
     text-decoration: underline;
 }
 
+.article-body, .rtf-content {
+    display: flow-root;
+}
+
 .article-body img, .rtf-content img {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
     margin: 20px 0;
-    display: block;
+    display: inline-block;
 }
+
+/* Image Resizing & Alignments from Quill Blot Formatter */
+.article-body img[data-align="left"], .rtf-content img[data-align="left"],
+.article-body img[data-blot-align="left"], .rtf-content img[data-blot-align="left"],
+.article-body iframe[data-align="left"], .rtf-content iframe[data-align="left"],
+.article-body iframe[data-blot-align="left"], .rtf-content iframe[data-blot-align="left"] {
+    float: left !important;
+    margin: 10px 20px 20px 0 !important;
+    display: inline-block !important;
+}
+
+.article-body img[data-align="center"], .rtf-content img[data-align="center"],
+.article-body img[data-blot-align="center"], .rtf-content img[data-blot-align="center"],
+.article-body iframe[data-align="center"], .rtf-content iframe[data-align="center"],
+.article-body iframe[data-blot-align="center"], .rtf-content iframe[data-blot-align="center"] {
+    display: block !important;
+    margin: 20px auto !important;
+}
+
+.article-body img[data-align="right"], .rtf-content img[data-align="right"],
+.article-body img[data-blot-align="right"], .rtf-content img[data-blot-align="right"],
+.article-body iframe[data-align="right"], .rtf-content iframe[data-align="right"],
+.article-body iframe[data-blot-align="right"], .rtf-content iframe[data-blot-align="right"] {
+    float: right !important;
+    margin: 10px 0 20px 20px !important;
+    display: inline-block !important;
+}
+
 
 /* Quill Specific Alignments */
 .ql-align-center { text-align: center; }
