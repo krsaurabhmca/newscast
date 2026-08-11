@@ -870,8 +870,8 @@ function renderMediaPickerGrid(items) {
         const url = `../assets/images/media/${item.filename}`;
         return `
             <div class="picker-item" onclick="selectMedia('${url}', '${item.filename}')">
-                <div style="aspect-ratio: 1/1; display:flex; align-items:center; justify-content:center;">
-                    <img src="${url}" style="width:100%; height:100%; object-fit:cover;">
+                <div style="position: relative; width: 100%; padding-top: 100%; background: #f1f5f9; overflow: hidden;">
+                    <img src="${url}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
                 </div>
                 <div style="padding: 8px; font-size: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;" title="${item.original_name}">
                     ${item.original_name}
