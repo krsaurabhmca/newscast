@@ -363,7 +363,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                             ['clean']
                         ],
                         handlers: {
-                            image: function() {
+                            image: function () {
                                 openMediaPicker('quill');
                             }
                         }
@@ -382,7 +382,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
             let clickedButton = 'save_draft';
             const publishBtn = form.querySelector('button[name="publish_post"]');
             const draftBtn = form.querySelector('button[name="save_draft"]');
-            
+
             if (publishBtn) {
                 publishBtn.addEventListener('click', () => { clickedButton = 'publish_post'; });
             }
@@ -624,7 +624,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
         let lastContent = "";
         let lastExcerpt = "";
         let autoSavePostId = 0;
-        
+
         function getAutoSaveData() {
             const getVal = (selector, fallback = '') => {
                 const el = document.querySelector(selector);
@@ -646,12 +646,12 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
             const isFeatured = getChecked('input[name="is_featured"]');
             const tags = getVal('input[name="tags"]');
             const aiImageUrl = getVal('input[name="ai_image_url"]');
-            
+
             const categoryIds = [];
             document.querySelectorAll('input[name="category_ids[]"]:checked').forEach(cb => {
                 categoryIds.push(cb.value);
             });
-            
+
             return {
                 post_id: autoSavePostId,
                 title: title,
@@ -671,17 +671,17 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
 
         async function triggerAutoSave() {
             const data = getAutoSaveData();
-            
+
             // Check if title or content has actually changed and is not empty
             const contentText = typeof quill !== 'undefined' ? quill.getText().trim() : '';
             if (!data.title && !contentText) {
                 return; // Nothing to save yet
             }
-            
+
             if (data.title === lastTitle && data.content === lastContent && data.excerpt === lastExcerpt) {
                 return; // No new changes
             }
-            
+
             showAutoSaveIndicator("Saving draft...");
 
             try {
@@ -697,12 +697,12 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                     lastContent = data.content;
                     lastExcerpt = data.excerpt;
                     showAutoSaveIndicator("Draft saved automatically.", true);
-                    
+
                     // If we are on post_add.php and we just saved a new draft, update URL history to post_edit.php?id=NEW_ID
                     if (window.location.pathname.endsWith('post_add.php')) {
                         const newUrl = `post_edit.php?id=${autoSavePostId}`;
                         window.history.replaceState({ id: autoSavePostId }, '', newUrl);
-                        
+
                         const form = document.getElementById('postForm');
                         if (form) {
                             form.action = `post_edit.php?id=${autoSavePostId}`;
@@ -742,11 +742,11 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
                 indicator.style.transition = 'all 0.3s ease';
                 document.body.appendChild(indicator);
             }
-            
+
             indicator.innerText = text;
             indicator.style.display = 'block';
             indicator.style.opacity = '1';
-            
+
             if (error) {
                 indicator.style.background = '#fef2f2';
                 indicator.style.color = '#ef4444';
@@ -772,7 +772,7 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
             lastTitle = initialData.title;
             lastContent = initialData.content;
             lastExcerpt = initialData.excerpt;
-            
+
             setInterval(triggerAutoSave, 30000); // 30 seconds
         }, 2000);
 
@@ -781,24 +781,24 @@ $prefill_category = isset($_POST['prefill_category']) ? htmlspecialchars($_POST[
 </script>
 
 <?php include 'includes/media_picker.php'; ?>
-
-// Expose quill instance to window if not already
-window.addEventListener('load', () => {
-    if (typeof Quill !== 'undefined' && document.querySelector('#editor')) {
-        // Find the quill instance from DOM, Quill doesn't attach it automatically.
-        // It was created as `const quill`, but we can get it via standard selection or assign it manually.
-        // In the original script block it's `const quill`.
-        // To be safe we should assign `window.quill = quill;` inside the original load handler.
-        // However, we can't easily modify the exact `const quill` line without a risky regex.
-        // We'll rely on the fact that we can get the editor instance from the DOM:
-        const editorDOM = document.querySelector('#editor');
-        if(editorDOM && editorDOM.__quill) {
-            window.quill = editorDOM.__quill;
-        } else if (typeof quill !== 'undefined') {
-            window.quill = quill;
+<script>
+    // Expose quill instance to window if not already
+    window.addEventListener('load', () => {
+        if (typeof Quill !== 'undefined' && document.querySelector('#editor')) {
+            // Find the quill instance from DOM, Quill doesn't attach it automatically.
+            // It was created as `const quill`, but we can get it via standard selection or assign it manually.
+            // In the original script block it's `const quill`.
+            // To be safe we should assign `window.quill = quill;` inside the original load handler.
+            // However, we can't easily modify the exact `const quill` line without a risky regex.
+            // We'll rely on the fact that we can get the editor instance from the DOM:
+            const editorDOM = document.querySelector('#editor');
+            if (editorDOM && editorDOM.__quill) {
+                window.quill = editorDOM.__quill;
+            } else if (typeof quill !== 'undefined') {
+                window.quill = quill;
+            }
         }
-    }
-});
+    });
 </script>
 
 <?php include 'includes/footer.php'; ?>

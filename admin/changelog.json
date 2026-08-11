@@ -1,5 +1,13 @@
 [
     {
+        "version": "3.1.5",
+        "date": "2026-08-11",
+        "changes": [
+            "RTF Editor: Unified all editor image buttons to trigger the custom media picker popup instead of browser default upload.",
+            "Refactoring: Extracted duplicated media picker UI and JS into a reusable header-footer include component."
+        ]
+    },
+    {
         "version": "3.1.4",
         "date": "2026-08-11",
         "changes": [
