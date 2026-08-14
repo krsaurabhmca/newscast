@@ -90,6 +90,11 @@ switch($action) {
 
             // Record view
             $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?")->execute([$id]);
+            try {
+                $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+                $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+                $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent) VALUES (?, ?, ?)")->execute([$id, $ip, $ua]);
+            } catch (Exception $e) {}
             api_response(true, "Post details fetched", $post);
         } else {
             api_response(false, "Post not found");

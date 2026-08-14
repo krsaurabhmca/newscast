@@ -1,6 +1,6 @@
 {
-    "version": "3.1.5",
+    "version": "3.1.6",
     "db_version": 10,
-    "last_updated": "2026-08-11",
-    "changelog": "v3.1.5 — Unified image selection to media library popup inside all RTF editor fields."
+    "last_updated": "2026-08-14",
+    "changelog": "v3.1.6 — Fixed article view count logging, session deduplication, and display in article meta bar."
 }

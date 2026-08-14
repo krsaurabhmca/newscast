@@ -151,6 +151,8 @@ try {
                     $stmt->execute([$pid, '127.0.0.1', 'Mozilla/5.0 Mock', $date_str]);
                 }
             }
+            // Sync posts table views counter
+            $pdo->exec("UPDATE posts p SET p.views = (SELECT COUNT(*) FROM post_views_logs pvl WHERE pvl.post_id = p.id)");
         }
     }
     

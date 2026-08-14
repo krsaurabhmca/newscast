@@ -1,5 +1,14 @@
 [
     {
+        "version": "3.1.6",
+        "date": "2026-08-14",
+        "changes": [
+            "Article Views: Fixed article view count database synchronization between posts table and view logs.",
+            "UI & UX: Added view count with eye icon in article header meta bar.",
+            "Analytics & Tracking: Implemented session deduplication for article views and added view logging for API and sponsored post clicks."
+        ]
+    },
+    {
         "version": "3.1.5",
         "date": "2026-08-11",
         "changes": [
