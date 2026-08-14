@@ -28,26 +28,22 @@ if (!$post) {
 $post_categories = get_post_categories($pdo, $post['id']);
 $primary_cat = !empty($post_categories) ? $post_categories[0] : null;
 
-// Update views (session deduplicated to prevent artificial refresh inflation)
-$session_view_key = 'viewed_post_' . $post['id'];
-if (empty($_SESSION[$session_view_key])) {
-    $update = $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?");
-    $update->execute([$post['id']]);
-    $_SESSION[$session_view_key] = time();
+// Update views on every URL load
+$update = $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?");
+$update->execute([$post['id']]);
 
-    // Log activity (view)
-    $user_id = $_SESSION['user_id'] ?? null;
-    log_activity($pdo, $user_id, $post['id'], 'view');
+// Log activity (view)
+$user_id = $_SESSION['user_id'] ?? null;
+log_activity($pdo, $user_id, $post['id'], 'view');
 
-    // Log view to post_views_logs
-    try {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent) VALUES (?, ?, ?)")->execute([$post['id'], $ip, $ua]);
-    } catch (Exception $e) {}
+// Log view to post_views_logs
+try {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent) VALUES (?, ?, ?)")->execute([$post['id'], $ip, $ua]);
+} catch (Exception $e) {}
 
-    $post['views']++;
-}
+$post['views']++;
 
 // Check if bookmarked
 $is_bookmarked = false;
