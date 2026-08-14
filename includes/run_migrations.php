@@ -114,6 +114,9 @@ $migrations = [
             KEY `idx_post_id` (`post_id`),
             KEY `idx_viewed_at` (`viewed_at`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
+    ],
+    11 => [
+        "UPDATE posts p SET p.views = (SELECT COUNT(*) FROM post_views_logs pvl WHERE pvl.post_id = p.id)"
     ]
 ];
 
