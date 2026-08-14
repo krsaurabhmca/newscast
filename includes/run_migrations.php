@@ -117,6 +117,9 @@ $migrations = [
     ],
     11 => [
         "UPDATE posts p SET p.views = (SELECT COUNT(*) FROM post_views_logs pvl WHERE pvl.post_id = p.id)"
+    ],
+    12 => [
+        "ALTER TABLE `post_views_logs` ADD INDEX `idx_post_ip` (`post_id`, `ip_address`)"
     ]
 ];
 

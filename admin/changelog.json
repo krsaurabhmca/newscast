@@ -1,5 +1,13 @@
 [
     {
+        "version": "3.2.0",
+        "date": "2026-08-14",
+        "changes": [
+            "Article Views: Updated article view counter to track strictly by Unique IP address per article.",
+            "Database: Added database migration 12 for idx_post_ip index on post_views_logs table."
+        ]
+    },
+    {
         "version": "3.1.9",
         "date": "2026-08-14",
         "changes": [

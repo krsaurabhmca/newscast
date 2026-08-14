@@ -85,13 +85,8 @@ if (isset($_GET['post_id'])) {
     $post = $stmt->fetch();
 
     if ($post && $post['external_type'] != 'none') {
-        // Increment views for the post
-        $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?")->execute([$post_id]);
-
-        // Log view to post_views_logs
-        try {
-            $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent) VALUES (?, ?, ?)")->execute([$post_id, $visitor_ip, $user_agent]);
-        } catch (Exception $e) {}
+        // Record view for unique IP
+        record_post_view($pdo, $post_id);
 
         // Log the individual click
         log_ad_click($pdo, [
