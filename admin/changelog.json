@@ -1,5 +1,13 @@
 [
     {
+        "version": "3.1.7",
+        "date": "2026-08-14",
+        "changes": [
+            "Verification & Quality: Verified end-to-end view counter tracking, session deduplication, and DB migration 11 execution.",
+            "Database: Verified seamless synchronization between post_views_logs and posts table views counter."
+        ]
+    },
+    {
         "version": "3.1.6",
         "date": "2026-08-14",
         "changes": [
