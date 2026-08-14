@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.1",
+        "date": "2026-08-14",
+        "changes": [
+            "Stability: Fixed 504 Gateway Timeout on InMotion Hosting by enforcing IPv4 resolution and strict cURL connection timeouts."
+        ]
+    },
+    {
         "version": "3.2.0",
         "date": "2026-08-14",
         "changes": [

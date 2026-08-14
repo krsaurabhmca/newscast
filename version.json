@@ -1,6 +1,6 @@
 {
-    "version": "3.2.0",
+    "version": "3.2.1",
     "db_version": 12,
     "last_updated": "2026-08-14",
-    "changelog": "v3.2.0 — Article views are now tracked and updated strictly by Unique IP address per article."
+    "changelog": "v3.2.1 — Fixed 504 Gateway Timeout on InMotion hosting by forcing IPv4 resolution and strict cURL connection timeouts."
 }

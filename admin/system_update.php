@@ -84,7 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['run_diagnosis'])) {
     // Download ZIP
     $fp = fopen($temp_zip, 'w+');
     $ch = curl_init($zip_url);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
@@ -200,7 +202,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clean_system'])) {
             $temp_zip = '../diag_temp.zip';
             $fp = fopen($temp_zip, 'w+');
             $ch = curl_init($zip_url);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
             curl_setopt($ch, CURLOPT_FILE, $fp);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
@@ -268,7 +272,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clean_system'])) {
 // Check for update directly when hitting the page via GitHub API to bypass CDN cache
 $ch = curl_init($api_version_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -294,7 +300,9 @@ if ($http_code == 200 && $response) {
 // Fetch Remote Changelog via API
 $ch_cl = curl_init($api_changelog_url);
 curl_setopt($ch_cl, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch_cl, CURLOPT_TIMEOUT, 10);
+curl_setopt($ch_cl, CURLOPT_TIMEOUT, 3);
+curl_setopt($ch_cl, CURLOPT_CONNECTTIMEOUT, 3);
+curl_setopt($ch_cl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 curl_setopt($ch_cl, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
 curl_setopt($ch_cl, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch_cl, CURLOPT_SSL_VERIFYHOST, false);
@@ -318,7 +326,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
     // 1. Download ZIP
     $fp = fopen($temp_zip, 'w+');
     $ch = curl_init($zip_url);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 300); // Increased from 60 to 300
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
