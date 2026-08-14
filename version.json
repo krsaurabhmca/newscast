@@ -1,6 +1,6 @@
 {
-    "version": "3.1.8",
+    "version": "3.1.9",
     "db_version": 11,
     "last_updated": "2026-08-14",
-    "changelog": "v3.1.8 — Fixed article view counter tracking to update on every URL load."
+    "changelog": "v3.1.9 — Immediate update for live server: Article view counter now updates on every URL load without session restriction."
 }

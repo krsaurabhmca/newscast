@@ -7,8 +7,8 @@ if (!is_admin()) {
 }
 
 $repo_url = 'https://github.com/krsaurabhmca/newscast';
-$api_version_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/version.json';
-$api_changelog_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/admin/changelog.json';
+$api_version_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/version.json?t=' . time();
+$api_changelog_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/admin/changelog.json?t=' . time();
 $zip_url = 'https://github.com/krsaurabhmca/newscast/archive/refs/heads/main.zip';
 
 $local_version_file = '../version.json';
