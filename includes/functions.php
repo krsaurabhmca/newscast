@@ -106,6 +106,24 @@ if (!function_exists('record_post_view')) {
 }
 
 /**
+ * Get unique visitor count for a post
+ */
+if (!function_exists('get_post_unique_views')) {
+    function get_post_unique_views(PDO $pdo, int $post_id): int {
+        if (!$post_id) {
+            return 0;
+        }
+        try {
+            $stmt = $pdo->prepare("SELECT COUNT(DISTINCT ip_address) FROM post_views_logs WHERE post_id = ?");
+            $stmt->execute([$post_id]);
+            return (int) $stmt->fetchColumn();
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
+}
+
+/**
  * Check if the user is a demo account
  */
 function is_demo_account()

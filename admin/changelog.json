@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.5",
+        "date": "2026-08-15",
+        "changes": [
+            "UI & Analytics: Displayed both Total Page Views (eye icon) and Unique Visitors (users icon) publicly on the website article page header."
+        ]
+    },
+    {
         "version": "3.2.4",
         "date": "2026-08-15",
         "changes": [

@@ -36,6 +36,7 @@ $primary_cat = !empty($post_categories) ? $post_categories[0] : null;
 if (record_post_view($pdo, $post['id'])) {
     $post['views']++;
 }
+$unique_views = get_post_unique_views($pdo, $post['id']);
 
 // Check if bookmarked
 $is_bookmarked = false;
@@ -197,8 +198,12 @@ endforeach; ?>
                             <i data-feather="clock" style="width: 14px;"></i> <?php echo $read_time; ?> min read
                         </span>
                         <span style="color: #cbd5e1;">|</span>
-                        <span style="display: flex; align-items: center; gap: 4px; color: #64748b; font-weight: 600;" title="Total Views">
+                        <span style="display: flex; align-items: center; gap: 4px; color: #64748b; font-weight: 600;" title="Total Page Views">
                             <i data-feather="eye" style="width: 14px;"></i> <?php echo number_format($post['views']); ?> views
+                        </span>
+                        <span style="color: #cbd5e1;">|</span>
+                        <span style="display: flex; align-items: center; gap: 4px; color: #64748b; font-weight: 600;" title="Unique Visitors">
+                            <i data-feather="users" style="width: 14px;"></i> <?php echo number_format($unique_views); ?> unique
                         </span>
                         <?php if (is_logged_in() && is_editor() && can_edit_post($post)): ?>
                             <span style="color: #cbd5e1;">|</span>

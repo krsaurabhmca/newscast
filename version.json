@@ -1,6 +1,6 @@
 {
-    "version": "3.2.4",
+    "version": "3.2.5",
     "db_version": 12,
     "last_updated": "2026-08-15",
-    "changelog": "v3.2.4 — Updated view counter to increment on every single article pageview."
+    "changelog": "v3.2.5 — Displayed both Total Page Views and Unique Visitors publicly on the article page."
 }

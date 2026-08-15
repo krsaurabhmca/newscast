@@ -92,6 +92,7 @@ switch($action) {
             if (record_post_view($pdo, $id)) {
                 $post['views']++;
             }
+            $post['unique_views'] = get_post_unique_views($pdo, $id);
             api_response(true, "Post details fetched", $post);
         } else {
             api_response(false, "Post not found");
