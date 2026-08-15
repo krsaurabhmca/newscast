@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.6",
+        "date": "2026-08-15",
+        "changes": [
+            "UI & Cleanup: Cleaned up article header layout, formatting, and metadata bar display."
+        ]
+    },
+    {
         "version": "3.2.5",
         "date": "2026-08-15",
         "changes": [
