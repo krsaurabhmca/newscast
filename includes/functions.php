@@ -81,11 +81,17 @@ if (!function_exists('get_visitor_ip')) {
  */
 if (!function_exists('record_post_view')) {
     function record_post_view(PDO $pdo, int $post_id): bool {
+        if (!$post_id) {
+            return false;
+        }
+
         $ip = get_visitor_ip();
         $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
 
-        // Increment view count for every view
-        $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?")->execute([$post_id]);
+        // Increment view count for every view safely using COALESCE
+        try {
+            $pdo->prepare("UPDATE posts SET views = COALESCE(views, 0) + 1 WHERE id = ?")->execute([$post_id]);
+        } catch (Exception $e) {}
 
         try {
             $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent) VALUES (?, ?, ?)")->execute([$post_id, $ip, $ua]);

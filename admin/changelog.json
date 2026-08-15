@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.3",
+        "date": "2026-08-15",
+        "changes": [
+            "Article Views: Fixed view counter freezing by adding COALESCE null-safety handling on database updates and disabling HTTP browser/CDN page caching on article pages."
+        ]
+    },
+    {
         "version": "3.2.2",
         "date": "2026-08-15",
         "changes": [

@@ -1,4 +1,8 @@
 <?php
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
 
@@ -35,6 +39,7 @@ if (record_post_view($pdo, $post['id'])) {
 
 // Check if bookmarked
 $is_bookmarked = false;
+$user_id = $_SESSION['user_id'] ?? null;
 if ($user_id) {
     $stmt_book = $pdo->prepare("SELECT id FROM bookmarks WHERE user_id = ? AND post_id = ?");
     $stmt_book->execute([$user_id, $post['id']]);
