@@ -85,7 +85,7 @@ if (isset($_GET['post_id'])) {
     $post = $stmt->fetch();
 
     if ($post && $post['external_type'] != 'none') {
-        // Record view for unique IP
+        // Record post view
         record_post_view($pdo, $post_id);
 
         // Log the individual click

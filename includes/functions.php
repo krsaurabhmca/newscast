@@ -77,32 +77,25 @@ if (!function_exists('get_visitor_ip')) {
 }
 
 /**
- * Record post view for unique IP addresses only
+ * Record post view for all visits
  */
 if (!function_exists('record_post_view')) {
     function record_post_view(PDO $pdo, int $post_id): bool {
         $ip = get_visitor_ip();
         $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
 
-        // Check if this IP has already viewed this post
-        $check = $pdo->prepare("SELECT id FROM post_views_logs WHERE post_id = ? AND ip_address = ? LIMIT 1");
-        $check->execute([$post_id, $ip]);
+        // Increment view count for every view
+        $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?")->execute([$post_id]);
 
-        if (!$check->fetch()) {
-            // Unique view: Increment count and log
-            $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?")->execute([$post_id]);
+        try {
+            $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent) VALUES (?, ?, ?)")->execute([$post_id, $ip, $ua]);
+        } catch (Exception $e) {}
 
-            try {
-                $pdo->prepare("INSERT INTO post_views_logs (post_id, ip_address, user_agent) VALUES (?, ?, ?)")->execute([$post_id, $ip, $ua]);
-            } catch (Exception $e) {}
-
-            $user_id = $_SESSION['user_id'] ?? null;
-            if (function_exists('log_activity')) {
-                log_activity($pdo, $user_id, $post_id, 'view');
-            }
-            return true;
+        $user_id = $_SESSION['user_id'] ?? null;
+        if (function_exists('log_activity')) {
+            log_activity($pdo, $user_id, $post_id, 'view');
         }
-        return false;
+        return true;
     }
 }
 

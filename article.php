@@ -28,7 +28,7 @@ if (!$post) {
 $post_categories = get_post_categories($pdo, $post['id']);
 $primary_cat = !empty($post_categories) ? $post_categories[0] : null;
 
-// Update views for unique IP address views
+// Update views for all post views
 if (record_post_view($pdo, $post['id'])) {
     $post['views']++;
 }

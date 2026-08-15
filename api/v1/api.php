@@ -88,7 +88,7 @@ switch($action) {
             }
             $post['related'] = $related;
 
-            // Record view for unique IP
+            // Record post view
             record_post_view($pdo, $id);
             api_response(true, "Post details fetched", $post);
         } else {
