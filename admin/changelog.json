@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.4",
+        "date": "2026-08-15",
+        "changes": [
+            "Article Views: Updated view counter to increment on every single article page load/view without IP deduplication."
+        ]
+    },
+    {
         "version": "3.2.3",
         "date": "2026-08-15",
         "changes": [

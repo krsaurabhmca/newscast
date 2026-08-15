@@ -88,8 +88,10 @@ switch($action) {
             }
             $post['related'] = $related;
 
-            // Record post view
-            record_post_view($pdo, $id);
+            // Record post view and increment in response
+            if (record_post_view($pdo, $id)) {
+                $post['views']++;
+            }
             api_response(true, "Post details fetched", $post);
         } else {
             api_response(false, "Post not found");

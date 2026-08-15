@@ -1,6 +1,6 @@
 {
-    "version": "3.2.3",
+    "version": "3.2.4",
     "db_version": 12,
     "last_updated": "2026-08-15",
-    "changelog": "v3.2.3 — Fixed article view counter freezing by adding COALESCE null-safety and anti-caching headers."
+    "changelog": "v3.2.4 — Updated view counter to increment on every single article pageview."
 }
