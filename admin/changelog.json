@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.7",
+        "date": "2026-08-15",
+        "changes": [
+            "Article Views: Added JavaScript AJAX view tracking (POST request via ajax_interactions.php) to guarantee view counting even when Cloudflare, Varnish, or CDN edge caching is enabled."
+        ]
+    },
+    {
         "version": "3.2.6",
         "date": "2026-08-15",
         "changes": [

@@ -1,6 +1,6 @@
 {
-    "version": "3.2.6",
+    "version": "3.2.7",
     "db_version": 12,
     "last_updated": "2026-08-15",
-    "changelog": "v3.2.6 — Cleaned up article header layout formatting and metadata display."
+    "changelog": "v3.2.7 — Implemented JavaScript AJAX view tracking to bypass Cloudflare and CDN edge caching."
 }

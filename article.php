@@ -1112,6 +1112,34 @@ endif; ?>
                 statusEl.innerText = 'Failed to submit comment.';
             });
     }
+
+    // 🌐 AJAX Article View Tracking (Bypasses Cloudflare & CDN Edge Caching)
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('<?php echo BASE_URL; ?>ajax_interactions.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'action=view&post_id=<?php echo $post['id']; ?>'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const viewsEl = document.querySelector('[title="Total Page Views"]');
+                if (viewsEl && data.views !== undefined) {
+                    viewsEl.innerHTML = '<i data-feather="eye" style="width: 14px;"></i> ' + Number(data.views).toLocaleString() + ' views';
+                }
+                const uniqueEl = document.querySelector('[title="Unique Visitors"]');
+                if (uniqueEl && data.unique_views !== undefined) {
+                    uniqueEl.innerHTML = '<i data-feather="users" style="width: 14px;"></i> ' + Number(data.unique_views).toLocaleString() + ' unique';
+                }
+                if (typeof feather !== 'undefined') {
+                    feather.replace();
+                }
+            }
+        })
+        .catch(err => console.error("View tracking error:", err));
+    });
 </script>
 <?php if (get_setting('translation_enabled', 'no') == 'yes'): ?>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>

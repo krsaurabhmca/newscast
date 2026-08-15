@@ -93,5 +93,22 @@ if ($action === 'comment') {
     exit;
 }
 
+// 3. Handle Article View Tracking via JavaScript (bypasses Cloudflare/CDN caching)
+if ($action === 'view') {
+    record_post_view($pdo, $postId);
+    $uniqueCount = get_post_unique_views($pdo, $postId);
+
+    $stmt_views = $pdo->prepare("SELECT views FROM posts WHERE id = ?");
+    $stmt_views->execute([$postId]);
+    $totalViews = (int) $stmt_views->fetchColumn();
+
+    echo json_encode([
+        'success' => true,
+        'views' => $totalViews,
+        'unique_views' => $uniqueCount
+    ]);
+    exit;
+}
+
 echo json_encode(['success' => false, 'message' => 'Unknown action request.']);
 exit;
