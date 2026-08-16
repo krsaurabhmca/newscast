@@ -249,7 +249,6 @@ $compact_class = $is_theme2 ? ' compact-footer' : '';
         }
     </style>
     <script>
-        feather.replace();
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.onkeydown = function(e) {
             if (e.ctrlKey && (e.keyCode===67||e.keyCode===86||e.keyCode===85||e.keyCode===80)) return false;
@@ -294,12 +293,19 @@ $compact_class = $is_theme2 ? ' compact-footer' : '';
             <span>Magazine</span>
         </a>
         <?php endif; ?>
-        <?php if ($latest_poll_header): ?>
+        <?php if (isset($latest_poll_header) && $latest_poll_header): ?>
         <a href="<?php echo $poll_header_url; ?>" class="t2-bottom-nav-item <?php echo ($current_file == 'poll.php') ? 'active' : ''; ?>" id="t2-bn-poll">
             <i data-feather="pie-chart"></i>
             <span>Poll</span>
         </a>
         <?php endif; ?>
+        
+        <!-- Share Option for Theme 2 -->
+        <button class="t2-bottom-nav-item" onclick="if(navigator.share){navigator.share({title: document.title, url: window.location.href}).catch(console.error);}else{alert('Web Share API is not supported in your browser.');}" id="t2-bn-share" style="background:none;border:none;cursor:pointer;">
+            <i data-feather="share-2"></i>
+            <span>Share</span>
+        </button>
+
         <button class="t2-bottom-nav-item" onclick="toggleMobileMenu()" id="t2-bn-menu" style="background:none;border:none;cursor:pointer;">
             <i data-feather="menu"></i>
             <span>Menu</span>
@@ -372,11 +378,16 @@ $compact_class = $is_theme2 ? ' compact-footer' : '';
     <script>
         const LAST_PUBLISHED_TIMESTAMP = "<?php 
             try {
-                $stmt = $pdo->query(\"SELECT MAX(published_at) FROM posts WHERE status = 'published' AND published_at <= NOW()\");
+                $stmt = $pdo->query("SELECT MAX(published_at) FROM posts WHERE status = 'published' AND published_at <= NOW()");
                 echo $stmt->fetchColumn() ?: '0'; 
             } catch (Exception $e) { echo '0'; }
         ?>";
     </script>
     <script src="<?php echo BASE_URL; ?>assets/js/realtime-updates.js" defer></script>
+    <script>
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+    </script>
 </body>
 </html>

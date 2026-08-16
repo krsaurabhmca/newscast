@@ -1,6 +1,6 @@
 {
-    "version": "3.2.9",
+    "version": "3.2.10",
     "db_version": 12,
     "last_updated": "2026-08-16",
-    "changelog": "v3.2.9 — Added theme 2 latest articles slider and seamless real-time AJAX DOM updates to bypass Cloudflare edge caching."
+    "changelog": "v3.2.10 — Fixed Theme 2 bottom navigation icons not rendering and added native Web Share option."
 }

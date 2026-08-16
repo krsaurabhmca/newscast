@@ -1,5 +1,13 @@
 [
     {
+        "version": "3.2.10",
+        "date": "2026-08-16",
+        "changes": [
+            "UI & UX: Fixed Theme 2 bottom navigation icons not rendering due to incorrect feather.replace() positioning.",
+            "Feature: Added native Web Share API option to the Theme 2 bottom navigation bar."
+        ]
+    },
+    {
         "version": "3.2.7",
         "date": "2026-08-15",
         "changes": [
