@@ -363,134 +363,6 @@ if ($active_poll) {
             </section>
         <?php endif; ?>
 
-        <!-- Theme 2 Top 10 Stories -->
-        <?php if (!empty($top_10)): ?>
-            <section
-                style="margin-bottom: 50px; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;">
-                <h3
-                    style="font-size: 20px; font-weight: 900; color: #0f172a; display:flex; align-items:center; gap:10px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.5px;">
-                    <span
-                        style="background: linear-gradient(135deg, var(--primary), #ef4444); color: white; width: 32px; height: 32px; display:flex; align-items:center; justify-content:center; border-radius: 8px; font-size: 15px; font-weight: 950; box-shadow: 0 4px 10px rgba(239,68,68,0.2);">10</span>
-                    Top 10 Stories
-                </h3>
-
-                <div class="t2-top-10-scroll"
-                    style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 24px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory;">
-                    <?php foreach ($top_10 as $index => $post):
-                        $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
-                        $num_str = str_pad($index + 1, 2, '0', STR_PAD_LEFT);
-                        ?>
-                        <div style="min-width: 230px; scroll-snap-align: start;">
-                            <a href="<?php echo $post_url; ?>" class="t2-top-10-card"
-                                style="text-decoration: none; color: inherit; display: block; position: relative;">
-                                <div
-                                    style="position: relative; margin-bottom: 12px; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px rgba(0,0,0,0.06); border: 1px solid #f1f5f9;">
-                                    <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>"
-                                        style="width: 100%; aspect-ratio: 4/3; object-fit: cover; transition: transform 0.4s ease;"
-                                        class="t2-img-hover">
-                                    <!-- Giant Background Rank Number -->
-                                    <span
-                                        style="position: absolute; top: 0; left: 8px; font-size: 58px; font-weight: 900; color: rgba(255,255,255,0.7); font-family: 'Outfit'; z-index: 2; text-shadow: 0 2px 10px rgba(0,0,0,0.15); pointer-events: none;"><?php echo $num_str; ?></span>
-                                </div>
-                                <h4
-                                    style="font-size: 14.5px; font-weight: 800; line-height: 1.4; color: #1e293b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px; transition: color 0.2s;">
-                                    <?php echo htmlspecialchars($post['title']); ?></h4>
-                            </a>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </section>
-        <?php endif; ?>
-
-        <!-- Theme 2 Split-layout Featured Categories -->
-        <?php if (!empty($featured_categories)): ?>
-            <?php foreach ($featured_categories as $fcat):
-                $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
-                                       FROM posts p 
-                                       JOIN post_categories pc ON p.id = pc.post_id 
-                                       JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
-                                       WHERE p.status = 'published' AND p.published_at <= NOW() AND pc.category_id = ?
-                                       GROUP BY p.id ORDER BY p.published_at DESC LIMIT 3");
-                $stmt->execute([$fcat['id']]);
-                $cat_posts = $stmt->fetchAll();
-
-                if (count($cat_posts) > 0):
-                    $main_c = $cat_posts[0];
-                    $main_c_url = ($main_c['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $main_c['id'] : BASE_URL . "article/" . $main_c['slug'];
-                    ?>
-                    <section
-                        style="margin-bottom: 50px; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
-                            <h3
-                                style="font-size: 19px; font-weight: 900; color: #0f172a; text-transform: uppercase; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;">
-                                <span
-                                    style="background: <?php echo $fcat['color']; ?>; color: #fff; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px <?php echo $fcat['color']; ?>30;">
-                                    <i data-feather="<?php echo $fcat['icon']; ?>" style="width: 16px; height: 16px;"></i>
-                                </span>
-                                <?php echo htmlspecialchars($fcat['name']); ?>
-                            </h3>
-                            <a href="<?php echo BASE_URL; ?>category/<?php echo $fcat['slug']; ?>"
-                                style="font-size: 13px; font-weight: 800; color: <?php echo $fcat['color']; ?>; text-decoration: none; display:flex; align-items:center; gap:4px; padding: 6px 14px; background: <?php echo $fcat['color']; ?>12; border-radius: 20px; transition: all 0.2s;"
-                                class="t2-view-all">
-                                View All <i data-feather="arrow-right" style="width:14px; height:14px;"></i>
-                            </a>
-                        </div>
-
-                        <!-- Split layout: 1 Large card on left, 2 stacked vertical items on right -->
-                        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px;" class="t2-split-row">
-                            <!-- Left: Large Featured Category card -->
-                            <a href="<?php echo $main_c_url; ?>" <?php echo ($main_c['external_type'] != 'none') ? 'target="_blank"' : ''; ?> class="t2-split-lead"
-                                style="display: flex; flex-direction: column; text-decoration: none; color: inherit; background: #f8fafc; border-radius: 16px; border: 1px solid #f1f5f9; overflow: hidden; transition: all 0.3s ease;">
-                                <div style="position: relative; overflow: hidden;">
-                                    <img src="<?php echo get_post_thumbnail($main_c['featured_image']); ?>"
-                                        style="width: 100%; aspect-ratio: 16/9; object-fit: cover; transition: transform 0.4s ease;"
-                                        class="t2-img-hover">
-                                </div>
-                                <div style="padding: 20px;">
-                                    <h4
-                                        style="font-size: 17px; font-weight: 800; color: #0f172a; line-height: 1.4; margin-bottom: 10px;">
-                                        <?php echo htmlspecialchars($main_c['title']); ?></h4>
-                                    <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin-bottom: 15px;">
-                                        <?php echo get_post_excerpt($main_c, 20); ?></p>
-                                    <span
-                                        style="font-size: 12px; color: #94a3b8; font-weight: 600; display:flex; align-items:center; gap:5px;"><i
-                                            data-feather="calendar" style="width:13px; height:13px;"></i>
-                                        <?php echo format_date($main_c['created_at']); ?></span>
-                                </div>
-                            </a>
-
-                            <!-- Right: Stacked side news articles list -->
-                            <div style="display: flex; flex-direction: column; gap: 20px; justify-content: center;">
-                                <?php for ($idx = 1; $idx <= 2; $idx++):
-                                    if (!isset($cat_posts[$idx]))
-                                        continue;
-                                    $sub_c = $cat_posts[$idx];
-                                    $sub_c_url = ($sub_c['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $sub_c['id'] : BASE_URL . "article/" . $sub_c['slug'];
-                                    ?>
-                                    <a href="<?php echo $sub_c_url; ?>" <?php echo ($sub_c['external_type'] != 'none') ? 'target="_blank"' : ''; ?> class="t2-split-item"
-                                        style="display: flex; gap: 15px; text-decoration: none; color: inherit; align-items: center; padding: 15px; border-radius: 12px; background: #f8fafc; border: 1px solid #f1f5f9; transition: all 0.3s ease;">
-                                        <img src="<?php echo get_post_thumbnail($sub_c['featured_image']); ?>"
-                                            style="width: 100px; height: 80px; object-fit: cover; border-radius: 10px; flex-shrink:0;">
-                                        <div style="flex: 1;">
-                                            <h4
-                                                style="font-size: 15px; font-weight: 800; color: #1e293b; margin: 0 0 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                                <?php echo htmlspecialchars($sub_c['title']); ?></h4>
-                                            <span
-                                                style="font-size: 12px; color: #94a3b8; font-weight: 600; display:flex; align-items:center; gap:5px;"><i
-                                                    data-feather="calendar" style="width:12px; height:12px;"></i>
-                                                <?php echo format_date($sub_c['created_at']); ?></span>
-                                        </div>
-                                    </a>
-                                <?php endfor; ?>
-                            </div>
-                        </div>
-                    </section>
-                <?php
-                endif;
-            endforeach;
-        endif; ?>
-
         <!-- Theme 2 Main Area: Left (Latest News list) & Right (Sidebar) -->
         <div style="display: grid; grid-template-columns: 1fr 340px; gap: 40px;" class="t2-main-grid">
 
@@ -773,6 +645,134 @@ if ($active_poll) {
                 </div>
             </aside>
         </div>
+
+        <!-- Theme 2 Top 10 Stories -->
+        <?php if (!empty($top_10)): ?>
+            <section
+                style="margin-bottom: 50px; margin-top: 50px; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;">
+                <h3
+                    style="font-size: 20px; font-weight: 900; color: #0f172a; display:flex; align-items:center; gap:10px; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <span
+                        style="background: linear-gradient(135deg, var(--primary), #ef4444); color: white; width: 32px; height: 32px; display:flex; align-items:center; justify-content:center; border-radius: 8px; font-size: 15px; font-weight: 950; box-shadow: 0 4px 10px rgba(239,68,68,0.2);">10</span>
+                    Top 10 Stories
+                </h3>
+
+                <div class="t2-top-10-scroll"
+                    style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 24px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory;">
+                    <?php foreach ($top_10 as $index => $post):
+                        $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
+                        $num_str = str_pad($index + 1, 2, '0', STR_PAD_LEFT);
+                        ?>
+                        <div style="min-width: 230px; scroll-snap-align: start;">
+                            <a href="<?php echo $post_url; ?>" class="t2-top-10-card"
+                                style="text-decoration: none; color: inherit; display: block; position: relative;">
+                                <div
+                                    style="position: relative; margin-bottom: 12px; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 15px rgba(0,0,0,0.06); border: 1px solid #f1f5f9;">
+                                    <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>"
+                                        style="width: 100%; aspect-ratio: 4/3; object-fit: cover; transition: transform 0.4s ease;"
+                                        class="t2-img-hover">
+                                    <!-- Giant Background Rank Number -->
+                                    <span
+                                        style="position: absolute; top: 0; left: 8px; font-size: 58px; font-weight: 900; color: rgba(255,255,255,0.7); font-family: 'Outfit'; z-index: 2; text-shadow: 0 2px 10px rgba(0,0,0,0.15); pointer-events: none;"><?php echo $num_str; ?></span>
+                                </div>
+                                <h4
+                                    style="font-size: 14.5px; font-weight: 800; line-height: 1.4; color: #1e293b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px; transition: color 0.2s;">
+                                    <?php echo htmlspecialchars($post['title']); ?></h4>
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <!-- Theme 2 Split-layout Featured Categories -->
+        <?php if (!empty($featured_categories)): ?>
+            <?php foreach ($featured_categories as $fcat):
+                $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
+                                       FROM posts p 
+                                       JOIN post_categories pc ON p.id = pc.post_id 
+                                       JOIN categories c ON pc.category_id = c.id AND c.status = 'active'
+                                       WHERE p.status = 'published' AND p.published_at <= NOW() AND pc.category_id = ?
+                                       GROUP BY p.id ORDER BY p.published_at DESC LIMIT 3");
+                $stmt->execute([$fcat['id']]);
+                $cat_posts = $stmt->fetchAll();
+
+                if (count($cat_posts) > 0):
+                    $main_c = $cat_posts[0];
+                    $main_c_url = ($main_c['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $main_c['id'] : BASE_URL . "article/" . $main_c['slug'];
+                    ?>
+                    <section
+                        style="margin-bottom: 50px; background: #fff; padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid #e2e8f0;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+                            <h3
+                                style="font-size: 19px; font-weight: 900; color: #0f172a; text-transform: uppercase; display: flex; align-items: center; gap: 10px; letter-spacing: 0.5px;">
+                                <span
+                                    style="background: <?php echo $fcat['color']; ?>; color: #fff; padding: 6px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px <?php echo $fcat['color']; ?>30;">
+                                    <i data-feather="<?php echo $fcat['icon']; ?>" style="width: 16px; height: 16px;"></i>
+                                </span>
+                                <?php echo htmlspecialchars($fcat['name']); ?>
+                            </h3>
+                            <a href="<?php echo BASE_URL; ?>category/<?php echo $fcat['slug']; ?>"
+                                style="font-size: 13px; font-weight: 800; color: <?php echo $fcat['color']; ?>; text-decoration: none; display:flex; align-items:center; gap:4px; padding: 6px 14px; background: <?php echo $fcat['color']; ?>12; border-radius: 20px; transition: all 0.2s;"
+                                class="t2-view-all">
+                                View All <i data-feather="arrow-right" style="width:14px; height:14px;"></i>
+                            </a>
+                        </div>
+
+                        <!-- Split layout: 1 Large card on left, 2 stacked vertical items on right -->
+                        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px;" class="t2-split-row">
+                            <!-- Left: Large Featured Category card -->
+                            <a href="<?php echo $main_c_url; ?>" <?php echo ($main_c['external_type'] != 'none') ? 'target="_blank"' : ''; ?> class="t2-split-lead"
+                                style="display: flex; flex-direction: column; text-decoration: none; color: inherit; background: #f8fafc; border-radius: 16px; border: 1px solid #f1f5f9; overflow: hidden; transition: all 0.3s ease;">
+                                <div style="position: relative; overflow: hidden;">
+                                    <img src="<?php echo get_post_thumbnail($main_c['featured_image']); ?>"
+                                        style="width: 100%; aspect-ratio: 16/9; object-fit: cover; transition: transform 0.4s ease;"
+                                        class="t2-img-hover">
+                                </div>
+                                <div style="padding: 20px;">
+                                    <h4
+                                        style="font-size: 17px; font-weight: 800; color: #0f172a; line-height: 1.4; margin-bottom: 10px;">
+                                        <?php echo htmlspecialchars($main_c['title']); ?></h4>
+                                    <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin-bottom: 15px;">
+                                        <?php echo get_post_excerpt($main_c, 20); ?></p>
+                                    <span
+                                        style="font-size: 12px; color: #94a3b8; font-weight: 600; display:flex; align-items:center; gap:5px;"><i
+                                            data-feather="calendar" style="width:13px; height:13px;"></i>
+                                        <?php echo format_date($main_c['created_at']); ?></span>
+                                </div>
+                            </a>
+
+                            <!-- Right: Stacked side news articles list -->
+                            <div style="display: flex; flex-direction: column; gap: 20px; justify-content: center;">
+                                <?php for ($idx = 1; $idx <= 2; $idx++):
+                                    if (!isset($cat_posts[$idx]))
+                                        continue;
+                                    $sub_c = $cat_posts[$idx];
+                                    $sub_c_url = ($sub_c['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $sub_c['id'] : BASE_URL . "article/" . $sub_c['slug'];
+                                    ?>
+                                    <a href="<?php echo $sub_c_url; ?>" <?php echo ($sub_c['external_type'] != 'none') ? 'target="_blank"' : ''; ?> class="t2-split-item"
+                                        style="display: flex; gap: 15px; text-decoration: none; color: inherit; align-items: center; padding: 15px; border-radius: 12px; background: #f8fafc; border: 1px solid #f1f5f9; transition: all 0.3s ease;">
+                                        <img src="<?php echo get_post_thumbnail($sub_c['featured_image']); ?>"
+                                            style="width: 100px; height: 80px; object-fit: cover; border-radius: 10px; flex-shrink:0;">
+                                        <div style="flex: 1;">
+                                            <h4
+                                                style="font-size: 15px; font-weight: 800; color: #1e293b; margin: 0 0 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                <?php echo htmlspecialchars($sub_c['title']); ?></h4>
+                                            <span
+                                                style="font-size: 12px; color: #94a3b8; font-weight: 600; display:flex; align-items:center; gap:5px;"><i
+                                                    data-feather="calendar" style="width:12px; height:12px;"></i>
+                                                <?php echo format_date($sub_c['created_at']); ?></span>
+                                        </div>
+                                    </a>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+                    </section>
+                <?php
+                endif;
+            endforeach;
+        endif; ?>
     </main>
 <?php else: ?>
     <!-- ==============================================
