@@ -1,6 +1,6 @@
 {
-    "version": "3.2.8",
+    "version": "3.2.9",
     "db_version": 12,
     "last_updated": "2026-08-16",
-    "changelog": "v3.2.8 — Fixed theme2 layout issue by moving Latest Updates section to the top."
+    "changelog": "v3.2.9 — Added theme 2 latest articles slider and seamless real-time AJAX DOM updates to bypass Cloudflare edge caching."
 }

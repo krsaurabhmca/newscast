@@ -376,8 +376,56 @@ if ($active_poll) {
                     </h3>
                 </div>
 
+                <!-- Slider for last 3 articles -->
+                <?php 
+                $list_posts = $latest_news;
+                if(count($latest_news) >= 3): 
+                    $slider_posts = array_slice($latest_news, 0, 3);
+                    $list_posts = array_slice($latest_news, 3);
+                ?>
+                <div style="position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; height: 400px;" class="t2-slider-container">
+                    <div class="t2-slider-track" style="display: flex; height: 100%; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);">
+                        <?php foreach($slider_posts as $sp): 
+                            $sp_url = ($sp['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $sp['id'] : BASE_URL . "article/" . $sp['slug'];
+                            $sp_cats = explode(',', $sp['cat_names']);
+                            $sp_colors = explode(',', $sp['cat_colors']);
+                        ?>
+                        <a href="<?php echo $sp_url; ?>" <?php echo ($sp['external_type'] != 'none') ? 'target="_blank"' : ''; ?> class="t2-slide" style="flex: 0 0 100%; height: 100%; position: relative; text-decoration: none;">
+                            <img src="<?php echo get_post_thumbnail($sp['featured_image']); ?>" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;" class="t2-img-hover">
+                            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.3) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 30px;">
+                                <span style="background: <?php echo $sp_colors[0] ?? 'var(--primary)'; ?>; color: #fff; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; width: max-content; margin-bottom: 15px; letter-spacing: 0.5px;"><?php echo htmlspecialchars($sp_cats[0] ?? 'News'); ?></span>
+                                <h3 style="color: #fff; font-size: 24px; font-weight: 800; line-height: 1.35; margin: 0 0 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.4);"><?php echo htmlspecialchars($sp['title']); ?></h3>
+                                <p style="color: #cbd5e1; font-size: 14.5px; line-height: 1.5; margin: 0 0 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 5px rgba(0,0,0,0.4);"><?php echo get_post_excerpt($sp, 20); ?></p>
+                                <div style="font-size: 12px; color: #94a3b8; font-weight: 600; display:flex; align-items:center; gap:5px;"><i data-feather="calendar" style="width:13px; height:13px;"></i> <?php echo format_date($sp['created_at']); ?></div>
+                            </div>
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
+                    <div style="position: absolute; bottom: 30px; right: 30px; display: flex; gap: 10px; z-index: 10;">
+                        <button onclick="t2PrevSlide(event)" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;" onmouseover="this.style.background='var(--primary)'; this.style.borderColor='var(--primary)';" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.borderColor='rgba(255,255,255,0.5)';"><i data-feather="chevron-left" style="width:18px;"></i></button>
+                        <button onclick="t2NextSlide(event)" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;" onmouseover="this.style.background='var(--primary)'; this.style.borderColor='var(--primary)';" onmouseout="this.style.background='rgba(255,255,255,0.2)'; this.style.borderColor='rgba(255,255,255,0.5)';"><i data-feather="chevron-right" style="width:18px;"></i></button>
+                    </div>
+                </div>
+                <script>
+                    let t2CurrentSlide = 0;
+                    const t2Track = document.querySelector('.t2-slider-track');
+                    const t2Slides = document.querySelectorAll('.t2-slide');
+                    const t2Total = t2Slides.length;
+                    let t2Interval;
+                    function t2ShowSlide(index) {
+                        if(!t2Track) return;
+                        t2CurrentSlide = (index + t2Total) % t2Total;
+                        t2Track.style.transform = `translateX(-${t2CurrentSlide * 100}%)`;
+                    }
+                    function t2NextSlide(e) { if(e) { e.preventDefault(); e.stopPropagation(); clearInterval(t2Interval); t2StartInterval(); } t2ShowSlide(t2CurrentSlide + 1); }
+                    function t2PrevSlide(e) { if(e) { e.preventDefault(); e.stopPropagation(); clearInterval(t2Interval); t2StartInterval(); } t2ShowSlide(t2CurrentSlide - 1); }
+                    function t2StartInterval() { if(t2Total > 1) t2Interval = setInterval(t2NextSlide, 5000); }
+                    t2StartInterval();
+                </script>
+                <?php endif; ?>
+
                 <div style="display: flex; flex-direction: column; gap: 20px;">
-                    <?php foreach ($latest_news as $post):
+                    <?php foreach ($list_posts as $post):
                         $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
                         $names = explode(',', $post['cat_names']);
                         $colors = explode(',', $post['cat_colors']);

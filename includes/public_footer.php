@@ -369,5 +369,14 @@ $compact_class = $is_theme2 ? ' compact-footer' : '';
     </style>
     <?php endif; ?>
 
+    <script>
+        const LAST_PUBLISHED_TIMESTAMP = "<?php 
+            try {
+                $stmt = $pdo->query(\"SELECT MAX(published_at) FROM posts WHERE status = 'published' AND published_at <= NOW()\");
+                echo $stmt->fetchColumn() ?: '0'; 
+            } catch (Exception $e) { echo '0'; }
+        ?>";
+    </script>
+    <script src="<?php echo BASE_URL; ?>assets/js/realtime-updates.js" defer></script>
 </body>
 </html>
