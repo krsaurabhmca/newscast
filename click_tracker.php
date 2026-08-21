@@ -68,7 +68,10 @@ if (isset($_GET['id'])) {
         } elseif ($ad['link_type'] == 'call') {
             $destination = "tel:" . $ad['link_url'];
         } else {
-            $destination = $ad['link_url'];
+            $destination = trim($ad['link_url']);
+            if ($destination && !preg_match('#^https?://#i', $destination)) {
+                $destination = 'https://' . $destination;
+            }
         }
 
         header("Location: " . $destination);
@@ -107,7 +110,10 @@ if (isset($_GET['post_id'])) {
         } elseif ($post['external_type'] == 'call') {
             $destination = "tel:" . $post['external_link'];
         } else {
-            $destination = $post['external_link'];
+            $destination = trim($post['external_link']);
+            if ($destination && !preg_match('#^https?://#i', $destination)) {
+                $destination = 'https://' . $destination;
+            }
         }
 
         header("Location: " . $destination);

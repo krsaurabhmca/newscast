@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.13",
+        "date": "2026-08-21",
+        "changes": [
+            "Fix: Fixed Ad and Sponsored Post Redirects where missing HTTP schema in the database caused relative path routing failures in click_tracker.php."
+        ]
+    },
+    {
         "version": "3.2.12",
         "date": "2026-08-21",
         "changes": [

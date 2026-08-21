@@ -1,6 +1,6 @@
 {
-    "version": "3.2.12",
+    "version": "3.2.13",
     "db_version": 12,
     "last_updated": "2026-08-21",
-    "changelog": "v3.2.12 — System Update patch release to trigger live environment."
+    "changelog": "v3.2.13 — Fixed Ad Redirects issue where missing HTTP schema caused relative path routing failures."
 }
