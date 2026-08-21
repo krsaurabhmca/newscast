@@ -1,6 +1,6 @@
 {
-    "version": "3.2.10",
+    "version": "3.2.11",
     "db_version": 12,
-    "last_updated": "2026-08-16",
-    "changelog": "v3.2.10 — Fixed Theme 2 bottom navigation icons not rendering and added native Web Share option."
+    "last_updated": "2026-08-21",
+    "changelog": "v3.2.11 — Default Image Option, AdSense fixes, article save error resolved, Sitemap update, Live Visitor count, and 90-day visitor log cleanup."
 }
