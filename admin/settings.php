@@ -104,10 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
             $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
             $stmt->execute([$key, $value, $value]);
         }
-        $images = ['site_logo' => 'logo', 'site_favicon' => 'favicon'];
+        $images = ['site_logo' => 'logo', 'site_favicon' => 'favicon', 'default_og_image' => 'default_og'];
         foreach ($images as $field => $prefix) {
             if (isset($_FILES[$field]) && $_FILES[$field]['error'] === 0) {
-                $max_w = ($field === 'site_favicon') ? 256 : 1000;
+                $max_w = ($field === 'site_favicon') ? 256 : 1200;
                 $uploaded_file = upload_and_optimize_image($_FILES[$field], "../assets/images/", $prefix . "_", $max_w, 90);
                 if ($uploaded_file) {
                     $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$field, $uploaded_file, $uploaded_file]);
@@ -530,6 +530,18 @@ endforeach; ?>
                             <div>
                                 <label class="field-label">Link URL</label>
                                 <input type="url" name="footer_custom_link_url" class="form-control" placeholder="https://webmail.example.com" value="<?php echo htmlspecialchars(get_setting('footer_custom_link_url')); ?>">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="grid-column: 1/-1; padding-top: 15px; border-top: 1px solid #f1f5f9; margin-top: 10px;">
+                        <h4 style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 15px;">Default Social Share Image (OG Image)</h4>
+                        <div style="display: flex; gap: 20px; align-items: flex-start;">
+                            <?php if ($def_og = get_setting('default_og_image')): ?>
+                            <img src="../assets/images/<?php echo $def_og; ?>" style="width: 120px; height: 63px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <?php endif; ?>
+                            <div style="flex: 1;">
+                                <input type="file" name="default_og_image" class="form-control" accept="image/*">
+                                <span class="field-hint">Fallback image for links shared on social media when an article doesn't have a featured photo. Recommended: 1200x630px.</span>
                             </div>
                         </div>
                     </div>

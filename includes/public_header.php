@@ -119,6 +119,14 @@ if (isset($page_image) && $page_image) {
     $final_og_image = $og_image;
 }
 
+if (empty($final_og_image)) {
+    if ($def = get_setting('default_og_image')) {
+        $final_og_image = BASE_URL . 'assets/images/' . $def;
+    } else {
+        $final_og_image = BASE_URL . 'assets/images/default-thumbnail.jpg';
+    }
+}
+
 // Determine image type based on extension
 $img_type = "image/jpeg";
 if (strpos($final_og_image, '.png') !== false) $img_type = "image/png";

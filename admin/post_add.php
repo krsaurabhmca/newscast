@@ -15,7 +15,9 @@ if (isset($_POST['publish_post']) || isset($_POST['save_draft'])) {
 
     // Scheduled Date
     $published_at = !empty($_POST['published_at']) ? $_POST['published_at'] : date('Y-m-d H:i:s');
-
+    if ($published_at === '') {
+        $published_at = null;
+    }
     // Auto Ad Logic: If link is provided, it's an AD by default
     $external_type = 'none';
     $external_label = 'none';

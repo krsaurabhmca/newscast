@@ -1,5 +1,17 @@
 [
     {
+        "version": "3.2.11",
+        "date": "2026-08-21",
+        "changes": [
+            "Feature: Added Option to Set Default Image in Admin if Featured Photo is missing to ensure preview while sharing on social media.",
+            "Fix: Fixed Google AdSense display by adding crossorigin attribute to ad scripts.",
+            "Fix: Resolved article edit and save error caused by strict SQL mode on empty publish date.",
+            "SEO: Updated XML sitemap to include <lastmod> date and category links to improve search presence.",
+            "Analytics: Added live real-time visitor count (last 5 minutes) in Admin Panel.",
+            "Performance: Added automatic 90-day cleanup of visitor logs to keep the database lighter."
+        ]
+    },
+    {
         "version": "3.2.10",
         "date": "2026-08-16",
         "changes": [

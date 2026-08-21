@@ -7,6 +7,9 @@ $user_id = $_SESSION['user_id'] ?? 0;
 $post_condition_simple = is_reporter() ? "user_id = " . (int) $user_id : "1=1";
 $post_condition_join = is_reporter() ? "p.user_id = " . (int) $user_id : "1=1";
 
+// Auto Cleanup Old Logs
+cleanup_visitor_logs($pdo);
+
 $total_posts = $pdo->query("SELECT COUNT(*) FROM posts WHERE $post_condition_simple")->fetchColumn();
 $published_posts = $pdo->query("SELECT COUNT(*) FROM posts WHERE status='published' AND $post_condition_simple")->fetchColumn();
 $draft_posts = $pdo->query("SELECT COUNT(*) FROM posts WHERE status='draft' AND $post_condition_simple")->fetchColumn();
@@ -16,6 +19,12 @@ $total_users = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $unread_msgs = $pdo->query("SELECT COUNT(*) FROM feedback WHERE status='new'")->fetchColumn();
 $today_posts = $pdo->query("SELECT COUNT(*) FROM posts WHERE DATE(created_at)=CURDATE() AND $post_condition_simple")->fetchColumn();
 $active_polls = $pdo->query("SELECT COUNT(*) FROM polls WHERE status='active'")->fetchColumn();
+
+try {
+    $live_visitors = $pdo->query("SELECT COUNT(DISTINCT ip_address) FROM post_views_logs WHERE viewed_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)")->fetchColumn();
+} catch (Exception $e) {
+    $live_visitors = 0;
+}
 
 // ── Pending comments ─────────────────────────────────────────────────────
 try {
@@ -1342,6 +1351,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_photo_of_day']))
 
     <!-- ── KPI Cards ── -->
     <div class="db-kpi-grid">
+        <a href="javascript:void(0)" class="db-kpi" style="--kpi-color:#dc2626;--kpi-bg:#fee2e2;">
+            <div class="db-kpi-top">
+                <div>
+                    <div class="db-kpi-label" style="display:flex;align-items:center;gap:5px;">
+                        <span style="width:6px;height:6px;border-radius:50%;background:#dc2626;animation:dlbPulse 1.4s ease-out infinite;"></span>
+                        Live Visitors
+                    </div>
+                    <div class="db-kpi-val"><?php echo number_format($live_visitors); ?></div>
+                </div>
+                <div class="db-kpi-icon"><i data-feather="activity" style="width:20px;"></i></div>
+            </div>
+            <div class="db-kpi-sub">Active in last 5 mins</div>
+        </a>
 
         <a href="posts.php?status=published" class="db-kpi" style="--kpi-color:#6366f1;--kpi-bg:#eff6ff;">
             <div class="db-kpi-top">

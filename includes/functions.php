@@ -749,20 +749,41 @@ function trigger_auto_share($pdo, $post_id)
     }
 }
 
+function cleanup_visitor_logs($pdo) {
+    try {
+        $pdo->exec("DELETE FROM post_views_logs WHERE viewed_at < DATE_SUB(NOW(), INTERVAL 90 DAY)");
+        $pdo->exec("DELETE FROM ad_click_logs WHERE clicked_at < DATE_SUB(NOW(), INTERVAL 90 DAY)");
+    } catch (Exception $e) {}
+}
+
 function generate_sitemap($pdo) {
     try {
         $stmt = $pdo->query("SELECT slug, published_at FROM posts WHERE status = 'published' AND external_type = 'none' ORDER BY published_at DESC LIMIT 1000");
         $posts = $stmt->fetchAll();
         
+        $cat_stmt = $pdo->query("SELECT slug FROM categories WHERE status = 'active'");
+        $categories = $cat_stmt->fetchAll();
+
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
         
         // Homepage
         $xml .= '  <url>' . "\n";
         $xml .= '    <loc>' . BASE_URL . '</loc>' . "\n";
+        $xml .= '    <lastmod>' . date('c') . '</lastmod>' . "\n";
         $xml .= '    <changefreq>daily</changefreq>' . "\n";
         $xml .= '    <priority>1.0</priority>' . "\n";
         $xml .= '  </url>' . "\n";
+
+        // Categories
+        foreach ($categories as $cat) {
+            $xml .= '  <url>' . "\n";
+            $xml .= '    <loc>' . BASE_URL . 'category/' . $cat['slug'] . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . date('c') . '</lastmod>' . "\n";
+            $xml .= '    <changefreq>weekly</changefreq>' . "\n";
+            $xml .= '    <priority>0.9</priority>' . "\n";
+            $xml .= '  </url>' . "\n";
+        }
         
         // Posts
         foreach ($posts as $post) {

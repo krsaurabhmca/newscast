@@ -50,7 +50,9 @@ if (isset($_POST['update_post'])) {
 
     // Scheduled Date
     $published_at = !empty($_POST['published_at']) ? $_POST['published_at'] : $post['published_at'];
-
+    if ($published_at === '') {
+        $published_at = null;
+    }
     // Auto Ad Logic
     $external_type = 'none';
     $external_label = 'none';
