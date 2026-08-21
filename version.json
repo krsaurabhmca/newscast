@@ -1,6 +1,6 @@
 {
-    "version": "3.2.11",
+    "version": "3.2.12",
     "db_version": 12,
     "last_updated": "2026-08-21",
-    "changelog": "v3.2.11 — Default Image Option, AdSense fixes, article save error resolved, Sitemap update, Live Visitor count, and 90-day visitor log cleanup."
+    "changelog": "v3.2.12 — System Update patch release to trigger live environment."
 }
