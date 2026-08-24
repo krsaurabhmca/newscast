@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.16",
+        "date": "2026-08-24",
+        "changes": [
+            "System: Triggered update to ensure E-Paper Footer and Premium Category cache fixes propagate to live servers."
+        ]
+    },
+    {
         "version": "3.2.15",
         "date": "2026-08-24",
         "changes": [
