@@ -145,6 +145,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         }
 
         $pdo->commit();
+        
+        // Clear cached settings and queries
+        $cache_files = glob(dirname(__DIR__) . '/cache/*.json');
+        if (is_array($cache_files)) {
+            foreach ($cache_files as $file) {
+                @unlink($file);
+            }
+        }
+        
         trigger_sitemap_update($pdo);
         redirect('admin/settings.php', 'Settings updated successfully!');
     }

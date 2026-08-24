@@ -1,5 +1,13 @@
 [
     {
+        "version": "3.2.15",
+        "date": "2026-08-24",
+        "changes": [
+            "Fix: Fixed an issue where the Premium Category widget would not immediately appear due to settings caching.",
+            "System: Added automatic cache clearing upon saving settings in the Admin Panel."
+        ]
+    },
+    {
         "version": "3.2.14",
         "date": "2026-08-24",
         "changes": [
