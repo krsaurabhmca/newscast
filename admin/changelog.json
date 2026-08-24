@@ -1,5 +1,15 @@
 [
     {
+        "version": "3.2.14",
+        "date": "2026-08-24",
+        "changes": [
+            "Feature: Added global setting to hide view counts across the website.",
+            "Feature: Added Premium Category block to homepage (Theme 1 and Theme 2).",
+            "Feature: Added option to hide the WhatsApp Chatbot promo banner.",
+            "Feature: Added option to define a custom fixed message on E-Paper PDF downloads."
+        ]
+    },
+    {
         "version": "3.2.13",
         "date": "2026-08-21",
         "changes": [

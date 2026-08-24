@@ -117,6 +117,28 @@ if ($active_poll) {
         $poll_total_votes += $opt['votes_count'];
     }
 }
+
+$hide_view_count = get_setting('hide_view_count', 'no') === 'yes';
+$hide_whatsapp_promo = get_setting('hide_whatsapp_promo', 'no') === 'yes';
+
+$premium_category_id = get_setting('premium_category_id', '');
+$premium_posts = [];
+$premium_cat_name = '';
+if (!empty($premium_category_id)) {
+    $stmt = $pdo->prepare("SELECT p.*, GROUP_CONCAT(c.name) as cat_names, GROUP_CONCAT(c.color) as cat_colors 
+                           FROM posts p 
+                           JOIN post_categories pc ON p.id = pc.post_id 
+                           JOIN categories c ON pc.category_id = c.id 
+                           WHERE p.status = 'published' AND c.id = ? AND p.published_at <= NOW()
+                           GROUP BY p.id ORDER BY p.published_at DESC LIMIT 4");
+    $stmt->execute([$premium_category_id]);
+    $premium_posts = $stmt->fetchAll();
+    
+    // Fetch category name
+    $stmt = $pdo->prepare("SELECT name FROM categories WHERE id = ?");
+    $stmt->execute([$premium_category_id]);
+    $premium_cat_name = $stmt->fetchColumn();
+}
 ?>
 
 <?php if (get_setting('homepage_theme', 'theme1') === 'theme2'): ?>
@@ -128,7 +150,7 @@ if ($active_poll) {
 
         <?php
         $wa_number = get_setting('whatsapp_number');
-        if (!empty($wa_number)):
+        if (!empty($wa_number) && !$hide_whatsapp_promo):
             $wa_phone = preg_replace('/[^0-9]/', '', $wa_number);
             $wa_url = "https://wa.me/" . $wa_phone . "?text=Hello";
         ?>
@@ -363,6 +385,8 @@ if ($active_poll) {
             </section>
         <?php endif; ?>
 
+
+
         <!-- Theme 2 Main Area: Left (Latest News list) & Right (Sidebar) -->
         <div style="display: grid; grid-template-columns: 1fr 340px; gap: 40px;" class="t2-main-grid">
 
@@ -467,38 +491,36 @@ if ($active_poll) {
             <!-- Right Sidebar: Widgets -->
             <aside style="display: flex; flex-direction: column; gap: 30px;">
 
-                <!-- Photo of the Day Widget -->
-                <?php if (get_setting('photo_of_day_image')): ?>
+                <!-- Premium Category Sidebar Widget -->
+                <?php if (!empty($premium_posts)): ?>
                     <div class="t2-sidebar-widget"
-                        style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.01);">
-                        <h4
-                            style="border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 18px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                            <div
-                                style="background: rgba(249, 115, 22, 0.1); padding: 5px; border-radius: 6px; color: #f97316; display:flex;">
-                                <i data-feather="image" style="width: 14px; height: 14px;"></i>
+                        style="background: white; border-radius: 16px; padding: 25px; border: 1px solid #fbcfe8; box-shadow: 0 4px 15px rgba(190,24,93,0.05);">
+                        <h4 style="border-bottom: 1px solid #fce7f3; padding-bottom: 12px; margin-bottom: 20px; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #be185d; display: flex; align-items: center; gap: 8px;">
+                            <div style="background: #fdf2f8; padding: 5px; border-radius: 6px; color: #be185d; display:flex;">
+                                <i data-feather="star" style="width: 14px; height: 14px; fill: #fbcfe8;"></i>
                             </div>
-                            Photo of the Day
+                            <?php echo htmlspecialchars($premium_cat_name); ?>
                         </h4>
-
-                        <div
-                            style="border-radius: 12px; overflow: hidden; margin-bottom: 12px; border: 1px solid #e2e8f0; position: relative; cursor: pointer;">
-                            <img src="<?php echo BASE_URL; ?>assets/images/<?php echo get_setting('photo_of_day_image'); ?>"
-                                alt="<?php echo htmlspecialchars(get_setting('photo_of_day_title', 'Photo of the Day')); ?>"
-                                style="width: 100%; height: auto; max-height: 220px; object-fit: cover; transition: transform 0.3s ease; display: block;"
-                                class="t2-img-hover">
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <?php foreach ($premium_posts as $index => $pp):
+                                $pp_url = ($pp['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $pp['id'] : BASE_URL . "article/" . $pp['slug'];
+                            ?>
+                                <a href="<?php echo $pp_url; ?>" class="t2-popular-card"
+                                    style="display: flex; gap: 12px; text-decoration: none; align-items: center;">
+                                    <div style="width: 55px; height: 55px; flex-shrink: 0; border-radius: 8px; overflow: hidden; border: 1px solid #fbcfe8;">
+                                        <img src="<?php echo get_post_thumbnail($pp['featured_image']); ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h5 style="font-size: 13px; margin: 0 0 4px 0; line-height: 1.35; font-weight: 800; color: #0f172a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                            <?php echo htmlspecialchars($pp['title']); ?></h5>
+                                        <div style="font-size: 11px; color: #be185d; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                                            <i data-feather="calendar" style="width: 10px; height: 10px;"></i>
+                                            <?php echo format_date($pp['created_at']); ?>
+                                        </div>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
                         </div>
-
-                        <?php if (get_setting('photo_of_day_title')): ?>
-                            <h5 style="margin: 0 0 6px; font-size: 14px; font-weight: 800; color: #1e293b; line-height: 1.4;">
-                                <?php echo htmlspecialchars(get_setting('photo_of_day_title')); ?>
-                            </h5>
-                        <?php endif; ?>
-
-                        <?php if (get_setting('photo_of_day_caption')): ?>
-                            <p style="margin: 0; font-size: 12.5px; color: #64748b; line-height: 1.5; font-weight: 500;">
-                                <?php echo nl2br(htmlspecialchars(get_setting('photo_of_day_caption'))); ?>
-                            </p>
-                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
@@ -681,11 +703,13 @@ if ($active_poll) {
                                     <h5
                                         style="font-size: 13px; margin: 0 0 4px 0; line-height: 1.35; font-weight: 800; color: #0f172a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                         <?php echo htmlspecialchars($tp['title']); ?></h5>
+                                    <?php if (!$hide_view_count): ?>
                                     <div
                                         style="font-size: 11px; color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 4px;">
                                         <i data-feather="eye" style="width: 10px; height: 10px;"></i>
                                         <?php echo number_format($tp['views']); ?>
                                     </div>
+                                    <?php endif; ?>
                                 </div>
                             </a>
                         <?php endforeach; ?>
@@ -830,7 +854,7 @@ if ($active_poll) {
         
         <?php
         $wa_number = get_setting('whatsapp_number');
-        if (!empty($wa_number)):
+        if (!empty($wa_number) && !$hide_whatsapp_promo):
             $wa_phone = preg_replace('/[^0-9]/', '', $wa_number);
             $wa_url = "https://wa.me/" . $wa_phone . "?text=Hello";
         ?>
@@ -914,6 +938,32 @@ if ($active_poll) {
                             style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: default; background: transparent;">
                         </div>
                     </div>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <?php if (!empty($premium_posts)): ?>
+            <!-- Theme 1 Premium Category Section -->
+            <section style="margin-bottom: 50px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; border-bottom: 2px solid #fce7f3; padding-bottom: 12px;">
+                    <h3 style="font-size: 20px; font-weight: 900; color: #be185d; text-transform: uppercase; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;">
+                        <i data-feather="star" style="color: #be185d; fill: #fbcfe8;"></i> PREMIUM: <?php echo htmlspecialchars($premium_cat_name); ?>
+                    </h3>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <?php foreach ($premium_posts as $post):
+                        $post_url = ($post['external_type'] != 'none') ? BASE_URL . "click_tracker.php?post_id=" . $post['id'] : BASE_URL . "article/" . $post['slug'];
+                        $cats = explode(',', $post['cat_names']);
+                        $colors = explode(',', $post['cat_colors']);
+                        ?>
+                        <a href="<?php echo $post_url; ?>" class="premium-card" style="display: block; position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(190,24,93,0.1); text-decoration: none; height: 280px; border: 2px solid #fbcfe8;">
+                            <img src="<?php echo get_post_thumbnail($post['featured_image']); ?>" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; transition: transform 0.4s ease;" class="t2-card-img">
+                            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(131,24,67,0.95) 0%, rgba(131,24,67,0.4) 60%, transparent 100%); display:flex; flex-direction:column; justify-content:flex-end; padding: 30px; z-index: 2;">
+                                <h4 style="color: #fff; font-size: 18px; font-weight: 800; line-height: 1.35; margin: 0 0 10px; text-shadow: 0 2px 5px rgba(0,0,0,0.5);"><?php echo htmlspecialchars($post['title']); ?></h4>
+                                <span style="font-size: 12px; color: #fbcfe8; font-weight: 700; display:flex; align-items:center; gap:5px;"><i data-feather="calendar" style="width:14px;height:14px;"></i> <?php echo format_date($post['created_at']); ?></span>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
                 </div>
             </section>
         <?php endif; ?>
@@ -1396,11 +1446,13 @@ if ($active_poll) {
                                     <h5
                                         style="font-size: 14px; margin: 0 0 6px 0; line-height: 1.4; font-weight: 800; color: #0f172a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                         <?php echo $tp['title']; ?></h5>
+                                    <?php if (!$hide_view_count): ?>
                                     <div
                                         style="font-size: 11px; color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 4px;">
                                         <i data-feather="eye" style="width: 12px;"></i>
                                         <?php echo number_format($tp['views']); ?> views
                                     </div>
+                                    <?php endif; ?>
                                 </div>
                             </a>
                         <?php endforeach; ?>

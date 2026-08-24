@@ -96,6 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'homepage_theme' => clean($_POST['homepage_theme'] ?? 'theme1'),
         'apni_baat_label' => clean($_POST['apni_baat_label'] ?? 'Apni Baat'),
         'google_sitemap_ping_enabled' => clean($_POST['google_sitemap_ping_enabled'] ?? 'no'),
+        'hide_view_count' => clean($_POST['hide_view_count'] ?? 'no'),
+        'premium_category_id' => clean($_POST['premium_category_id'] ?? ''),
+        'hide_whatsapp_promo' => clean($_POST['hide_whatsapp_promo'] ?? 'no'),
+        'epaper_footer_msg' => clean($_POST['epaper_footer_msg'] ?? ''),
     ];
 
     try {
@@ -156,6 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         $_SESSION['flash_type'] = "danger";
     }
 }
+
+$all_categories = $pdo->query("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name")->fetchAll();
 
 include 'includes/header.php';
 ?>
@@ -736,6 +742,35 @@ endforeach; ?>
                         </div>
                     </div>
 
+                    <!-- WhatsApp Promo Bar -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">WhatsApp Chatbot Promo</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Show WhatsApp promo banner</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="hide_whatsapp_promo" id="wa_p_no" value="no" <?php echo get_setting('hide_whatsapp_promo', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="wa_p_no" style="padding: 6px; font-size: 12px;">Show</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="hide_whatsapp_promo" id="wa_p_yes" value="yes" <?php echo get_setting('hide_whatsapp_promo', 'no') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="wa_p_yes" style="padding: 6px; font-size: 12px;">Hide</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- E-Paper Footer Message -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">E-Paper Footer Text</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Fixed message on epaper download footer</div>
+                        </div>
+                        <div style="width: 200px;">
+                            <input type="text" name="epaper_footer_msg" class="form-control" placeholder="Enter fixed message..." value="<?php echo htmlspecialchars(get_setting('epaper_footer_msg', '')); ?>" style="padding: 6px 10px; font-size: 12px; border-radius: 8px; width: 100%; border: 1px solid #cbd5e1; height: 35px; outline: none;">
+                        </div>
+                    </div>
+
                     <!-- Box 10 -->
                     <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -782,6 +817,45 @@ endforeach; ?>
                             <input type="text" name="apni_baat_label" class="form-control" value="<?php echo htmlspecialchars(get_setting('apni_baat_label', 'Apni Baat')); ?>" placeholder="Apni Baat" style="padding: 8px 12px; font-size: 13px; border-radius: 8px; width: 100%; border: 2px solid #6366f130; outline: none; text-align: center; font-weight: 700; color: #4f46e5; background: #f5f3ff;">
                         </div>
                     </div>
+
+                    <!-- Hide View Count -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Hide View Count</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Hide post viewer count on website</div>
+                        </div>
+                        <div class="toggle-group" style="width: 130px; margin: 0;">
+                            <div class="toggle-opt">
+                                <input type="radio" name="hide_view_count" id="hvc_yes" value="yes" <?php echo get_setting('hide_view_count', 'no') == 'yes' ? 'checked' : ''; ?>>
+                                <label for="hvc_yes" style="padding: 6px; font-size: 12px;">Yes</label>
+                            </div>
+                            <div class="toggle-opt">
+                                <input type="radio" name="hide_view_count" id="hvc_no" value="no" <?php echo get_setting('hide_view_count', 'no') == 'no' ? 'checked' : ''; ?>>
+                                <label for="hvc_no" style="padding: 6px; font-size: 12px;">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Premium Category -->
+                    <div style="background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 14px;">Premium Category</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Display a premium category on homepage</div>
+                        </div>
+                        <div style="width: 150px; display: flex; gap: 5px;">
+                            <select name="premium_category_id" class="form-control" style="padding: 6px 10px; font-size: 12px; border-radius: 8px; width: 100%; border: 1px solid #cbd5e1; height: 35px; outline: none; background: #fff;">
+                                <option value="">- None -</option>
+                                <?php 
+                                $current_premium = get_setting('premium_category_id', '');
+                                foreach($all_categories as $cat): ?>
+                                    <option value="<?php echo $cat['id']; ?>" <?php echo ($current_premium == $cat['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($cat['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>

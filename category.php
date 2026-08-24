@@ -10,6 +10,8 @@ if (!isset($_GET['slug'])) {
 $slug = $_GET['slug'];
 $current_slug = $slug; // used by public_header for active state
 
+$hide_view_count = get_setting('hide_view_count', 'no') === 'yes';
+
 // Pagination
 $per_page = 12;
 $current_page = max(1, (int) ($_GET['page'] ?? 1));
@@ -333,6 +335,7 @@ $grid_posts = array_slice($posts, 1);
                                     </svg>
                                     <?php echo format_date($lead_post['created_at']); ?>
                                 </span>
+                                <?php if (!$hide_view_count): ?>
                                 <span style="display: flex; align-items: center; gap: 5px; color: #94a3b8;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2">
@@ -341,6 +344,7 @@ $grid_posts = array_slice($posts, 1);
                                     </svg>
                                     <?php echo number_format($lead_post['views'] ?? 0); ?> views
                                 </span>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <!-- Read More CTA -->
@@ -418,6 +422,7 @@ $grid_posts = array_slice($posts, 1);
                                                 </svg>
                                                 <?php echo format_date($post['created_at']); ?>
                                             </span>
+                                            <?php if (!$hide_view_count): ?>
                                             <span
                                                 style="font-size: 12px; color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 4px;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
@@ -427,6 +432,7 @@ $grid_posts = array_slice($posts, 1);
                                                 </svg>
                                                 <?php echo number_format($post['views'] ?? 0); ?>
                                             </span>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </a>
@@ -527,6 +533,7 @@ $grid_posts = array_slice($posts, 1);
                                     <div style="flex: 1; min-width: 0;">
                                         <h5 style="font-size: 13px; font-weight: 800; color: #1e293b; line-height: 1.4; margin: 0 0 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
                                             class="cat-pop-title"><?php echo htmlspecialchars($pp['title']); ?></h5>
+                                        <?php if (!$hide_view_count): ?>
                                         <span
                                             style="font-size: 11px; color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 3px;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"
@@ -536,6 +543,7 @@ $grid_posts = array_slice($posts, 1);
                                             </svg>
                                             <?php echo number_format($pp['views'] ?? 0); ?>
                                         </span>
+                                        <?php endif; ?>
                                     </div>
                                 </a>
                             <?php endforeach; ?>

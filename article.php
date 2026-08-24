@@ -37,6 +37,9 @@ if (record_post_view($pdo, $post['id'])) {
     $post['views']++;
 }
 $unique_views = get_post_unique_views($pdo, $post['id']);
+$hide_view_count = get_setting('hide_view_count', 'no') === 'yes';
+$hide_whatsapp_promo = get_setting('hide_whatsapp_promo', 'no') === 'yes';
+$epaper_footer_msg = get_setting('epaper_footer_msg', '');
 
 // Check if bookmarked
 $is_bookmarked = false;
@@ -223,6 +226,7 @@ endif; ?>
                         <!-- <span style="display: flex; align-items: center; gap: 4px; color: #64748b; font-weight: 600;">
                             <i data-feather="clock" style="width: 14px;"></i> <?php echo $read_time; ?> min read
                         </span> -->
+                        <?php if (!$hide_view_count): ?>
                         <span style="color: #cbd5e1;">|</span>
                         <span style="display: flex; align-items: center; gap: 4px; color: #64748b; font-weight: 600;"
                             title="Total Page Views">
@@ -235,6 +239,7 @@ endif; ?>
                             <i data-feather="users" style="width: 14px;"></i>
                             <?php echo number_format($unique_views); ?> unique
                         </span>
+                        <?php endif; ?>
                         <?php if (is_logged_in() && is_editor() && can_edit_post($post)): ?>
                             <span style="color: #cbd5e1;">|</span>
                             <a href="<?php echo BASE_URL; ?>admin/post_edit.php?id=<?php echo $post['id']; ?>"
@@ -649,6 +654,9 @@ endif; ?>
                 <div style="font-size: 14px; color: #555;">
                     <p style="margin: 0;"><strong><?php echo SITE_NAME_DYNAMIC; ?></strong> - Digital News Platform</p>
                     <p style="margin: 5px 0 0;">URL: <?php echo rtrim(BASE_URL, '/'); ?></p>
+                    <?php if (!empty($epaper_footer_msg)): ?>
+                        <p style="margin: 5px 0 0; font-weight: bold; color: #000; font-size: 15px;"><?php echo htmlspecialchars($epaper_footer_msg); ?></p>
+                    <?php endif; ?>
                 </div>
                 <div style="text-align: center;">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<?php echo urlencode((isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]"); ?>&margin=0"
@@ -664,7 +672,7 @@ endif; ?>
 
                 <?php
                 $wa_number = get_setting('whatsapp_number');
-                if (!empty($wa_number)):
+                if (!empty($wa_number) && !$hide_whatsapp_promo):
                     $wa_phone = preg_replace('/[^0-9]/', '', $wa_number);
                     $wa_url = "https://wa.me/" . $wa_phone . "?text=Hello";
                     ?>

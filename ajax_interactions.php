@@ -102,11 +102,15 @@ if ($action === 'view') {
     $stmt_views->execute([$postId]);
     $totalViews = (int) $stmt_views->fetchColumn();
 
-    echo json_encode([
-        'success' => true,
-        'views' => $totalViews,
-        'unique_views' => $uniqueCount
-    ]);
+    $hide_view_count = get_setting('hide_view_count', 'no') === 'yes';
+
+    $response = ['success' => true];
+    if (!$hide_view_count) {
+        $response['views'] = $totalViews;
+        $response['unique_views'] = $uniqueCount;
+    }
+
+    echo json_encode($response);
     exit;
 }
 
