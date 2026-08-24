@@ -1,6 +1,6 @@
 {
-    "version": "3.2.16",
+    "version": "3.2.17",
     "db_version": 12,
     "last_updated": "2026-08-24",
-    "changelog": "v3.2.16 — System update trigger for E-Paper footer and Premium Category cache clearing."
+    "changelog": "v3.2.17 — Added option in settings to manage custom ads.txt content."
 }

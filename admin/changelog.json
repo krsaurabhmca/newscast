@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.17",
+        "date": "2026-08-24",
+        "changes": [
+            "Feature: Added option in settings to manage custom ads.txt content."
+        ]
+    },
+    {
         "version": "3.2.16",
         "date": "2026-08-24",
         "changes": [

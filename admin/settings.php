@@ -134,9 +134,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
                 throw new Exception("Invalid Google verification filename. It must start with 'google' and end with '.html' (e.g., google1a2b3c4d5e6f7g8h.html).");
             }
         }
-        // Auto-update ads.txt when Google AdSense Publisher ID changes
+        // Auto-update ads.txt or use custom content
         $ads_txt_path = dirname(__DIR__) . '/ads.txt';
-        if (!empty($to_save['google_adsense_pub_id'])) {
+        if (isset($_POST['ads_txt_content'])) {
+            $ads_txt_content = trim($_POST['ads_txt_content']);
+            if (!empty($ads_txt_content)) {
+                @file_put_contents($ads_txt_path, $ads_txt_content);
+            } else if (!empty($to_save['google_adsense_pub_id'])) {
+                $pub_id = $to_save['google_adsense_pub_id'];
+                $clean_pub_id = str_replace(['ca-', 'pub-'], '', $pub_id);
+                $clean_pub_id = 'pub-' . preg_replace('/[^0-9]/', '', $clean_pub_id);
+                $auto_content = "google.com, " . $clean_pub_id . ", DIRECT, f08c47fec0942fa0\n";
+                @file_put_contents($ads_txt_path, $auto_content);
+            } else {
+                @file_put_contents($ads_txt_path, '');
+            }
+        } else if (!empty($to_save['google_adsense_pub_id'])) {
             $pub_id = $to_save['google_adsense_pub_id'];
             $clean_pub_id = str_replace(['ca-', 'pub-'], '', $pub_id);
             $clean_pub_id = 'pub-' . preg_replace('/[^0-9]/', '', $clean_pub_id);
@@ -1127,6 +1140,15 @@ endforeach; ?>
                                 placeholder="Bing verification code" value="<?php echo get_setting('bing_site_verify'); ?>">
                         </div>
                         <span class="field-hint">From Bing Webmaster Tools &rarr; Settings &rarr; Site Verification.</span>
+                    </div>
+                    <div style="grid-column:1/-1; margin-top:10px;">
+                        <label class="field-label">Manage ads.txt Content</label>
+                        <?php 
+                        $ads_txt_file = dirname(__DIR__) . '/ads.txt';
+                        $current_ads_txt = file_exists($ads_txt_file) ? file_get_contents($ads_txt_file) : '';
+                        ?>
+                        <textarea name="ads_txt_content" class="form-control" rows="5" placeholder="google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0"><?php echo htmlspecialchars($current_ads_txt); ?></textarea>
+                        <span class="field-hint">Leave blank to auto-generate based on your AdSense ID. Add your custom lines here if you use other ad networks.</span>
                     </div>
                 </div>
 
