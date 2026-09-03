@@ -9,6 +9,11 @@
         </div>
         <div style="padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
             <input type="text" id="mediaPickerSearch" class="form-control" placeholder="Search by filename..." style="width: 250px; font-size: 13px;">
+            
+            <div id="mediaPickerAltContainer" style="display: none; align-items: center; gap: 10px;">
+                <input type="text" id="mediaPickerAlt" class="form-control" placeholder="Alt tag (optional)" style="width: 200px; font-size: 13px;" title="Alt text for the image when added in post">
+            </div>
+
             <button onclick="document.getElementById('mediaPickerUpload').click()" class="btn btn-primary btn-sm" style="display: flex; align-items: center; gap: 5px;">
                 <i data-feather="upload-cloud" style="width: 14px;"></i> Upload
             </button>
@@ -43,14 +48,27 @@
 </style>
 
 <script>
+const MEDIA_BASE_URL = '<?php echo BASE_URL; ?>';
 let currentPickerTarget = null;
 let pickerPage = 1;
 let pickerSearch = '';
 
 window.openMediaPicker = function(target) {
     currentPickerTarget = target;
+    
+    // Show alt tag input only when targeting quill
+    if (target === 'quill') {
+        document.getElementById('mediaPickerAltContainer').style.display = 'flex';
+        document.getElementById('mediaPickerAlt').value = ''; // Reset
+    } else {
+        document.getElementById('mediaPickerAltContainer').style.display = 'none';
+    }
+
     document.getElementById('mediaPickerModal').style.display = 'flex';
     loadMediaPicker();
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
 };
 
 window.closeMediaPicker = function() {
@@ -138,23 +156,45 @@ document.getElementById('mediaPickerUpload').addEventListener('change', async fu
         const response = await fetch('ajax_media_upload.php', { method: 'POST', body: formData });
         const data = await response.json();
         if(data.success) {
-            loadMediaPicker(1, pickerSearch);
+            if (currentPickerTarget === 'og_image') {
+                const fullUrl = (data.data && data.data.url) ? data.data.url : (MEDIA_BASE_URL + 'assets/images/media/' + data.data.filename);
+                selectMedia(fullUrl, data.data.filename);
+            } else {
+                loadMediaPicker(1, pickerSearch);
+            }
         } else {
             alert('Upload failed: ' + data.message);
         }
     } catch(e) {
         alert('Network error during upload.');
     }
+    this.value = '';
 });
 
 window.selectMedia = function(url, filename) {
     if (currentPickerTarget === 'quill') {
         const range = window.quill ? window.quill.getSelection() : null;
-        if (range) {
-            window.quill.insertEmbed(range.index, 'image', url);
-            window.quill.setSelection(range.index + 1);
-        } else {
-            window.quill.insertEmbed(window.quill.getLength(), 'image', url);
+        const index = range ? range.index : (window.quill ? window.quill.getLength() : 0);
+        
+        if (window.quill) {
+            window.quill.insertEmbed(index, 'image', url);
+            
+            const altText = document.getElementById('mediaPickerAlt').value.trim();
+            if (altText) {
+                // Quill image blot may not support native formatting by default, so we format text or append alt text manually using DOM
+                setTimeout(() => {
+                    const editorContainer = document.querySelector('#editor');
+                    if (editorContainer) {
+                        const imgs = editorContainer.querySelectorAll(`img[src="${url}"]`);
+                        if (imgs.length > 0) {
+                            imgs[imgs.length - 1].setAttribute('alt', altText);
+                            // Also update Quill content directly to persist
+                            window.quill.root.innerHTML = window.quill.root.innerHTML; 
+                        }
+                    }
+                }, 50);
+            }
+            window.quill.setSelection(index + 1);
         }
     } else if (currentPickerTarget === 'featured') {
         document.getElementById('imgPreview').src = url;
@@ -167,6 +207,19 @@ window.selectMedia = function(url, filename) {
         document.getElementById('library_image_filename').value = filename;
         // Clear normal file input
         document.getElementById('imgInput').value = '';
+    } else if (currentPickerTarget === 'og_image') {
+        const fullUrl = (url.startsWith('http://') || url.startsWith('https://')) 
+            ? url 
+            : (MEDIA_BASE_URL + 'assets/images/media/' + filename);
+        const ogInput = document.getElementById('og_image_url');
+        if (ogInput) {
+            ogInput.value = fullUrl;
+            if (typeof updateOgPreview === 'function') {
+                updateOgPreview(fullUrl);
+            }
+        }
+    } else if (typeof window.onMediaSelected === 'function') {
+        window.onMediaSelected(url, filename);
     }
     closeMediaPicker();
 };

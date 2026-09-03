@@ -825,12 +825,17 @@ endif; ?>
                     </div>
                 </div>
 
+                <?php 
+                $sidebar_ad_1 = display_ad('sidebar', $pdo);
+                if (!empty($sidebar_ad_1)): 
+                ?>
                 <div>
                     <h4
                         style="border-bottom: 2px solid #ff3c00; padding-bottom: 5px; margin-bottom: 15px; font-size: 16px; font-weight: 800;">
                         ADVERTISEMENT</h4>
-                    <?php echo display_ad('sidebar', $pdo); ?>
+                    <?php echo $sidebar_ad_1; ?>
                 </div>
+                <?php endif; ?>
 
                 <div>
                     <h4
@@ -850,9 +855,14 @@ endif; ?>
                     endforeach; ?>
                 </div>
 
+                <?php 
+                $sidebar_ad_2 = display_ad('sidebar', $pdo);
+                if (!empty($sidebar_ad_2)): 
+                ?>
                 <div style="margin-top: 40px;">
-                    <?php echo display_ad('sidebar', $pdo); ?>
+                    <?php echo $sidebar_ad_2; ?>
                 </div>
+                <?php endif; ?>
             </div>
         </aside>
     </div>

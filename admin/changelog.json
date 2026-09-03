@@ -1,5 +1,15 @@
 [
     {
+        "version": "3.2.18",
+        "date": "2026-09-03",
+        "changes": [
+            "Fix: Fixed raw Quill script displaying on page in Post Edit (post_edit.php).",
+            "Feature: Added Media Library picker and image upload support for Default OG / Share Image URL in Site Settings (settings.php).",
+            "Fix: Fixed Google AdSense rendering issues where only text or empty advertisement placeholders were displayed. Removed broken AMP auto-ads tags, added AdSense responsive display fallback for ad slots, and normalized publisher ID formatting.",
+            "Fix: Fixed undefined constant BASE_URL fatal error in magazine.php."
+        ]
+    },
+    {
         "version": "3.2.17",
         "date": "2026-08-24",
         "changes": [

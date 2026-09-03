@@ -1,6 +1,6 @@
 {
-    "version": "3.2.17",
+    "version": "3.2.18",
     "db_version": 12,
-    "last_updated": "2026-08-24",
-    "changelog": "v3.2.17 — Added option in settings to manage custom ads.txt content."
+    "last_updated": "2026-09-03",
+    "changelog": "v3.2.18 — Fixed Quill script visibility in post edit, added Media Library picker for Default OG Image, fixed AdSense display ads rendering, and fixed BASE_URL in magazine.php."
 }

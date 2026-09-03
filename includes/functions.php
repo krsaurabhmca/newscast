@@ -291,31 +291,50 @@ function display_ad($location, $pdo)
     $stmt->execute([$location, $today, $today]);
     $ad = $stmt->fetch();
 
-    if (!$ad)
-        return '';
+    if ($ad) {
+        // Increment Impression
+        $pdo->prepare("UPDATE ads SET impressions = impressions + 1 WHERE id = ?")->execute([$ad['id']]);
 
-    // Increment Impression
-    $pdo->prepare("UPDATE ads SET impressions = impressions + 1 WHERE id = ?")->execute([$ad['id']]);
+        $html = '<div class="ad-container ad-' . htmlspecialchars($location) . '">';
+        $html .= '<span style="display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Advertisement</span>';
 
-    $html = '<div class="ad-container ad-' . $location . '" style="margin: 20px 0; text-align: center;">';
-    $html .= '<span style="display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Advertisement</span>';
+        if ($ad['type'] == 'image') {
+            // Construct the click tracking URL
+            $tracker_url = BASE_URL . "click_tracker.php?id=" . $ad['id'];
 
-    if ($ad['type'] == 'image') {
-        // Construct the click tracking URL
-        $tracker_url = BASE_URL . "click_tracker.php?id=" . $ad['id'];
+            $html .= '<a href="' . $tracker_url . '" target="_blank" style="display: block;">';
+            $html .= '<img src="' . BASE_URL . 'assets/images/ads/' . $ad['image_path'] . '" alt="' . htmlspecialchars($ad['name']) . '" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">';
+            $html .= '</a>';
+        }
+        else {
+            // For code-based ads (like AdSense), ensure it outputs the code cleanly
+            $html .= $ad['ad_code'];
+        }
 
-        $html .= '<a href="' . $tracker_url . '" target="_blank" style="display: block;">';
-        $html .= '<img src="' . BASE_URL . 'assets/images/ads/' . $ad['image_path'] . '" alt="' . $ad['name'] . '" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">';
-        $html .= '</a>';
+        $html .= '</div>';
+        return $html;
     }
-    else {
-        // For code-based ads (like AdSense), we can't easily track clicks via a redirect, so we just output the code
-        $html .= $ad['ad_code'];
+
+    // Fallback: Check if Google AdSense is connected
+    $adsense_pub_id = get_setting('google_adsense_pub_id');
+    if (!empty($adsense_pub_id)) {
+        $clean_digits = preg_replace('/[^0-9]/', '', $adsense_pub_id);
+        if (!empty($clean_digits)) {
+            $client_id = 'ca-pub-' . $clean_digits;
+            $html = '<div class="ad-container ad-' . htmlspecialchars($location) . '">';
+            $html .= '<span style="display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Advertisement</span>';
+            $html .= '<ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="' . htmlspecialchars($client_id) . '"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>';
+            $html .= '<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>';
+            $html .= '</div>';
+            return $html;
+        }
     }
 
-    $html .= '</div>';
-
-    return $html;
+    return '';
 }
 
 /**

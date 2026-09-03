@@ -59,7 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
         'og_image_url' => clean($_POST['og_image_url']),
         'twitter_handle' => clean($_POST['twitter_handle']),
         'google_analytics_id' => clean($_POST['google_analytics_id']),
-        'google_adsense_pub_id' => clean($_POST['google_adsense_pub_id'] ?? ''),
+        'google_adsense_pub_id' => (function() {
+            $raw = clean($_POST['google_adsense_pub_id'] ?? '');
+            $digits = preg_replace('/[^0-9]/', '', $raw);
+            return !empty($digits) ? ('ca-pub-' . $digits) : '';
+        })(),
         'google_site_verify' => clean($_POST['google_site_verify']),
         'bing_site_verify' => clean($_POST['bing_site_verify']),
         'schema_type' => clean($_POST['schema_type']),
@@ -1060,10 +1064,25 @@ endforeach; ?>
             <div class="settings-card-body">
                 <div class="settings-grid">
                     <div>
-                        <label class="field-label">Default OG / Share Image URL</label>
-                        <input type="url" name="og_image_url" class="form-control"
-                            placeholder="https://yourdomain.com/assets/images/share.jpg" value="<?php echo get_setting('og_image_url'); ?>">
-                        <span class="field-hint">Shown when article has no featured image. Min 1200×630px for best results.</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label class="field-label" style="margin-bottom: 0;">Default OG / Share Image URL</label>
+                            <button type="button" onclick="openMediaPicker('og_image')" style="font-size: 11px; background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 6px; border: 1px solid #bfdbfe; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                <i data-feather="image" style="width: 12px; height: 12px;"></i> Media Library
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div id="ogImagePreviewWrap" style="<?php echo get_setting('og_image_url') ? '' : 'display: none;'; ?> flex-shrink: 0;">
+                                <img id="ogImagePreview" src="<?php echo htmlspecialchars(get_setting('og_image_url')); ?>" style="width: 80px; height: 42px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); background: #f8fafc;" onerror="this.parentElement.style.display='none';">
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="url" name="og_image_url" id="og_image_url" class="form-control"
+                                    placeholder="https://yourdomain.com/assets/images/share.jpg" value="<?php echo htmlspecialchars(get_setting('og_image_url')); ?>" oninput="updateOgPreview(this.value)">
+                            </div>
+                            <button type="button" id="ogImageClearBtn" onclick="clearOgImage()" title="Clear Image" style="<?php echo get_setting('og_image_url') ? 'display: flex;' : 'display: none;'; ?> background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 10px; cursor: pointer; align-items: center; justify-content: center;">
+                                <i data-feather="trash-2" style="width: 14px; height: 14px;"></i>
+                            </button>
+                        </div>
+                        <span class="field-hint">Shown when article has no featured image. Min 1200×630px for best results. Click Media Library to select or upload an image.</span>
                     </div>
                     <div>
                         <label class="field-label">Twitter / X Handle</label>
@@ -1107,7 +1126,7 @@ endforeach; ?>
                             <input type="text" name="google_adsense_pub_id" class="form-control"
                                 placeholder="ca-pub-XXXXXXXXXXXXXXXX" value="<?php echo htmlspecialchars(get_setting('google_adsense_pub_id')); ?>">
                         </div>
-                        <span class="field-hint">Your AdSense ID. Enables Auto Ads on your site.</span>
+                        <span class="field-hint">Your AdSense ID. Enables Auto Ads &amp; responsive display ads across all ad slots. Accepts ca-pub-XXXX or pub-XXXX.</span>
                     </div>
                     <div>
                         <label class="field-label">Google Search Console Verify (Meta Tag)</label>
@@ -1563,6 +1582,28 @@ function updateLivePreview(url) {
         iframe.src = '';
     }
 }
+function updateOgPreview(url) {
+    const wrap = document.getElementById('ogImagePreviewWrap');
+    const img = document.getElementById('ogImagePreview');
+    const clearBtn = document.getElementById('ogImageClearBtn');
+    if (url && url.trim() !== '') {
+        if (img) img.src = url;
+        if (wrap) wrap.style.display = 'block';
+        if (clearBtn) clearBtn.style.display = 'flex';
+    } else {
+        if (wrap) wrap.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+    }
+}
+
+function clearOgImage() {
+    const input = document.getElementById('og_image_url');
+    if (input) {
+        input.value = '';
+        updateOgPreview('');
+    }
+}
+
 // URL Tab activation
 window.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1570,7 +1611,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (tab && document.getElementById('panel-' + tab)) {
         showTab(tab);
     }
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
 });
 </script>
 
+<?php include 'includes/media_picker.php'; ?>
 <?php include 'includes/footer.php'; ?>

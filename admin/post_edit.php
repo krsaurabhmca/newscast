@@ -726,6 +726,7 @@ try {
 
 <?php include 'includes/media_picker.php'; ?>
 
+<script>
 // Expose quill instance to window if not already
 window.addEventListener('load', () => {
     if (typeof Quill !== 'undefined' && document.querySelector('#editor')) {

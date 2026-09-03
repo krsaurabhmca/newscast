@@ -393,14 +393,34 @@ endif; ?>
     </script>
     <?php endif; ?>
 
-    <?php if ($adsense_pub_id = get_setting('google_adsense_pub_id')): ?>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?php echo htmlspecialchars($adsense_pub_id); ?>"
+    <?php 
+    $adsense_pub_id = get_setting('google_adsense_pub_id');
+    if ($adsense_pub_id): 
+        $clean_digits = preg_replace('/[^0-9]/', '', $adsense_pub_id);
+        $adsense_client = !empty($clean_digits) ? ('ca-pub-' . $clean_digits) : $adsense_pub_id;
+    ?>
+    <!-- Google AdSense Auto Ads & Responsive Display Ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?php echo htmlspecialchars($adsense_client); ?>"
      crossorigin="anonymous"></script>
-    <!-- AMP Auto Ads Script -->
-    <script async custom-element="amp-auto-ads"
-            src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
-    </script>
+    <style>
+        .ad-container {
+            margin: 20px auto;
+            text-align: center;
+            max-width: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .ad-container ins.adsbygoogle {
+            display: block !important;
+            min-width: 250px;
+            min-height: 90px;
+            width: 100%;
+            margin: 0 auto;
+        }
+    </style>
     <?php endif; ?>
 
     <?php
@@ -441,12 +461,6 @@ if (is_logged_in() && is_editor()) {
 $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) . '"' : '';
 ?>
 <body<?php echo $class_attr; ?>>
-    <?php if ($adsense_pub_id = get_setting('google_adsense_pub_id')): ?>
-    <!-- AMP Auto Ads Placement -->
-    <amp-auto-ads type="adsense"
-            data-ad-client="<?php echo htmlspecialchars($adsense_pub_id); ?>">
-    </amp-auto-ads>
-    <?php endif; ?>
     <?php 
     $current_file = basename($_SERVER['PHP_SELF']); 
     $current_slug = $_GET['slug'] ?? '';

@@ -1,11 +1,15 @@
 <?php
-$canonical_url = BASE_URL . "magazine";
-include 'includes/public_header.php';
+require_once 'includes/config.php';
+require_once 'includes/functions.php';
 
 if (get_setting('ebook_magazine_enabled', 'yes') == 'no') {
     header("Location: " . BASE_URL);
     exit;
 }
+
+$page_title = "Monthly Magazine";
+$meta_description = "Browse monthly digital magazine editions from " . SITE_NAME . ".";
+$canonical_url = BASE_URL . "magazine";
 
 // Year filter
 $year = isset($_GET['year']) ? (int)$_GET['year'] : (int)date('Y');
@@ -22,8 +26,7 @@ $available_years = $yrs->fetchAll(PDO::FETCH_COLUMN);
 // Latest issue for hero
 $latest = $pdo->query("SELECT * FROM magazines WHERE status='published' ORDER BY issue_month DESC LIMIT 1")->fetch();
 
-$page_title = "Monthly Magazine";
-$meta_description = "Browse monthly digital magazine editions from " . SITE_NAME . ".";
+include 'includes/public_header.php';
 ?>
 
 <main class="content-container">
