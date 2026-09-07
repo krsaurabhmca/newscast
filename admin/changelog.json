@@ -1,5 +1,13 @@
 [
     {
+        "version": "3.2.19",
+        "date": "2026-09-07",
+        "changes": [
+            "Feature: Posts and articles now automatically fall back to the Default OG / Share Image URL if a thumbnail is missing.",
+            "Fix: Restricted frontend admin bar visibility to Admins only to resolve layout issues and prevent it from showing incorrectly on Theme 2."
+        ]
+    },
+    {
         "version": "3.2.18",
         "date": "2026-09-03",
         "changes": [

@@ -229,6 +229,12 @@ function get_post_categories($pdo, $post_id)
 function get_post_thumbnail($image)
 {
     if (empty($image)) {
+        if (function_exists('get_setting')) {
+            $def = get_setting('default_og_image');
+            if ($def) {
+                return BASE_URL . 'assets/images/' . $def;
+            }
+        }
         return BASE_URL . 'assets/images/default-post.jpg';
     }
 

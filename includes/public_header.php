@@ -455,7 +455,7 @@ $body_classes = [];
 if (get_setting('homepage_theme', 'theme1') === 'theme2') {
     $body_classes[] = 'theme2-body';
 }
-if (is_logged_in() && is_editor()) {
+if (is_logged_in() && is_admin()) {
     $body_classes[] = 'admin-bar-active';
 }
 $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) . '"' : '';
@@ -466,7 +466,7 @@ $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) .
     $current_slug = $_GET['slug'] ?? '';
     ?>
 
-    <?php if (is_logged_in() && is_editor()): ?>
+    <?php if (is_logged_in() && is_admin()): ?>
         <!-- CSS styles for admin top bar -->
         <style>
             .admin-top-bar {
