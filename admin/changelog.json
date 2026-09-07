@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.20",
+        "date": "2026-09-07",
+        "changes": [
+            "Maintenance: Version bump and repository sync."
+        ]
+    },
+    {
         "version": "3.2.19",
         "date": "2026-09-07",
         "changes": [

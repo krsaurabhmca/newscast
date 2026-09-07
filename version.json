@@ -1,6 +1,6 @@
 {
-    "version": "3.2.19",
+    "version": "3.2.20",
     "db_version": 12,
     "last_updated": "2026-09-07",
-    "changelog": "v3.2.19 — Added auto-fallback to Default OG Image for posts without thumbnails and restricted frontend admin bar to Admins only."
+    "changelog": "v3.2.20 — Version bump and repository sync."
 }
