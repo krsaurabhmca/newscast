@@ -27,6 +27,9 @@ if (session_status() === PHP_SESSION_ACTIVE) {
     session_destroy();
 }
 
+// 4. Erase admin auth cookie
+setcookie('is_admin_active', '', time() - 42000, '/');
+
 // 4. Prevent browser caching of logout redirect
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Pragma: no-cache");

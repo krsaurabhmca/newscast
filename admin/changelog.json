@@ -1,5 +1,14 @@
 [
     {
+        "version": "3.2.22",
+        "date": "2026-09-08",
+        "changes": [
+            "Fix: Implemented 3-layer Reverse Proxy & CDN Edge Cache immunity (Hostinger Nginx/LiteSpeed/Cloudflare) preventing authenticated Admin Bar leaking to guest visitors on Theme 2.",
+            "Security: Added instant client-side cookie auth verification (is_admin_active) and CSS fail-safe hiding the admin bar with zero delay if served from an edge proxy cache.",
+            "Headers: Added X-Accel-Expires: 0 and strict Cache-Control headers in .htaccess and index.php for complete reverse-proxy bypass on dynamic views."
+        ]
+    },
+    {
         "version": "3.2.21",
         "date": "2026-09-08",
         "changes": [

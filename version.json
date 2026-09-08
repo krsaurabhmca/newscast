@@ -1,6 +1,6 @@
 {
-    "version": "3.2.21",
+    "version": "3.2.22",
     "db_version": 12,
     "last_updated": "2026-09-08",
-    "changelog": "v3.2.21 — Strictly restricted frontend Admin Bar to authenticated Admin sessions only, resolved session persistence on logout, and prevented browser caching of authenticated views."
+    "changelog": "v3.2.22 — Implemented 3-layer reverse-proxy & edge cache immunity (Nginx FastCGI/Cloudflare) preventing authenticated Admin Bar leaking to guest visitors on Theme 2 and all themes."
 }

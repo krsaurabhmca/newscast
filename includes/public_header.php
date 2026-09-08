@@ -7,10 +7,24 @@ if (!file_exists(__DIR__ . '/config.php')) {
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/functions.php';
 
-// Prevent browser and proxy caching of pages when logged in as admin to ensure admin bar never persists after logout
-if (!headers_sent() && function_exists('is_logged_in') && is_logged_in()) {
-    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-    header("Pragma: no-cache");
+// Authentication & Admin Bar State Determination
+$show_admin_bar = (function_exists('is_logged_in') && is_logged_in() && function_exists('is_admin') && is_admin());
+
+// Reverse proxy & edge cache immunity headers + auth cookie sync
+if (!headers_sent()) {
+    header("X-Accel-Expires: 0");
+    if ($show_admin_bar) {
+        header("Cache-Control: private, no-cache, no-store, must-revalidate, max-age=0, s-maxage=0");
+        header("Pragma: no-cache");
+        header("Expires: Thu, 01 Jan 1970 00:00:00 GMT");
+        if (empty($_COOKIE['is_admin_active'])) {
+            setcookie('is_admin_active', '1', time() + 86400 * 30, '/');
+        }
+    } else {
+        if (!empty($_COOKIE['is_admin_active'])) {
+            setcookie('is_admin_active', '', time() - 42000, '/');
+        }
+    }
 }
 
 // Canonical URL Generation
@@ -89,8 +103,18 @@ $gsc_verify = get_setting('google_site_verify', '');
 $bing_verify = get_setting('bing_site_verify', '');
 ?>
 <!DOCTYPE html>
-<html lang="en" prefix="og: http://ogp.me/ns#">
+<html lang="en" prefix="og: http://ogp.me/ns#"<?php echo $show_admin_bar ? ' class="admin-authorized"' : ''; ?>>
 <head>
+    <script>
+        (function() {
+            var isAdminCookie = /(^|;)\s*is_admin_active=1/.test(document.cookie);
+            if (isAdminCookie) {
+                document.documentElement.classList.add('admin-authorized');
+            } else {
+                document.documentElement.classList.remove('admin-authorized');
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -587,6 +611,20 @@ $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) .
                 top: 42px !important;
                 height: calc(100vh - 42px) !important;
             }
+            /* Reverse Proxy & CDN Edge Cache Fail-Safe: Guarantee bar is never rendered to unauthenticated users */
+            html:not(.admin-authorized) .admin-top-bar {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                overflow: hidden !important;
+            }
+            html:not(.admin-authorized) body.admin-bar-active {
+                padding-top: 0 !important;
+            }
+            html:not(.admin-authorized) body.admin-bar-active .side-nav {
+                top: 0 !important;
+                height: 100vh !important;
+            }
             @media (max-width: 768px) {
                 .admin-bar-user-section {
                     display: none !important;
@@ -647,6 +685,14 @@ $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) .
         </div>
 
         <script>
+            (function() {
+                if (!/(^|;)\s*is_admin_active=1/.test(document.cookie)) {
+                    var b = document.querySelector('.admin-top-bar');
+                    if (b) b.remove();
+                    document.body.classList.remove('admin-bar-active');
+                    document.documentElement.classList.remove('admin-authorized');
+                }
+            })();
             if (typeof feather !== 'undefined') {
                 feather.replace();
             } else {

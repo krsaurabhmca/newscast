@@ -31,6 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['role'] = $user['role'];
             $_SESSION['profile_image'] = $user['profile_image'];
 
+            if (in_array($user['role'], ['admin', 'dev'])) {
+                setcookie('is_admin_active', '1', time() + 86400 * 30, '/');
+            } else {
+                setcookie('is_admin_active', '', time() - 42000, '/');
+            }
+
             redirect('admin/dashboard.php', 'Welcome back, ' . $user['username'] . '!');
         }
         else {

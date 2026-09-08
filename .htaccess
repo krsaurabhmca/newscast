@@ -1,6 +1,15 @@
 RewriteEngine On
 # RewriteBase / # Commented out to work in subdirectories like /news/
 
+# Reverse Proxy & Edge Cache Immunity for dynamic PHP requests
+<IfModule mod_headers.c>
+    <FilesMatch "\.(php)$">
+        Header set X-Accel-Expires "0"
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0, s-maxage=0"
+        Header set Pragma "no-cache"
+    </FilesMatch>
+</IfModule>
+
 # Article Rewrites
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
