@@ -6,6 +6,10 @@ if (!is_admin()) {
     redirect('admin/dashboard.php', 'Access denied.', 'danger');
 }
 
+if (isset($_GET['check'])) {
+    check_system_updates_cached($pdo, true);
+}
+
 $repo_url = 'https://github.com/krsaurabhmca/newscast';
 $api_version_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/version.json?t=' . time();
 $api_changelog_url = 'https://raw.githubusercontent.com/krsaurabhmca/newscast/main/admin/changelog.json?t=' . time();
@@ -272,8 +276,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clean_system'])) {
 // Check for update directly when hitting the page via GitHub API to bypass CDN cache
 $ch = curl_init($api_version_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 3);
-curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -284,15 +288,53 @@ curl_close($ch);
 
 if ($http_code == 200 && $response) {
     $remote_info = json_decode($response, true);
-    if ($remote_info) {
-        if (version_compare($remote_info['version'], $local_info['version'], '>')) {
-            $update_available = true;
-        } elseif ($remote_info['db_version'] > $local_info['db_version']) {
-            $update_available = true; // DB update only
+}
+
+// If raw CDN returned cached version or failed, fallback to direct GitHub REST API (always 100% real-time)
+if (!$remote_info || version_compare($remote_info['version'] ?? '0.0.0', $local_info['version'], '<=')) {
+    $ch_api = curl_init('https://api.github.com/repos/krsaurabhmca/newscast/contents/version.json?t=' . time());
+    curl_setopt($ch_api, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch_api, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch_api, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch_api, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    curl_setopt($ch_api, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
+    curl_setopt($ch_api, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch_api, CURLOPT_SSL_VERIFYHOST, false);
+    $api_resp = curl_exec($ch_api);
+    $api_code = curl_getinfo($ch_api, CURLINFO_HTTP_CODE);
+    curl_close($ch_api);
+
+    if ($api_code == 200 && $api_resp) {
+        $api_json = json_decode($api_resp, true);
+        if (!empty($api_json['content'])) {
+            $parsed_remote = json_decode(base64_decode($api_json['content']), true);
+            if ($parsed_remote) {
+                $remote_info = $parsed_remote;
+                $error = '';
+            }
         }
-    } else {
-        $error = "Could not parse version.json from GitHub.";
     }
+}
+
+if ($remote_info) {
+    if (version_compare($remote_info['version'], $local_info['version'], '>')) {
+        $update_available = true;
+    } elseif ($remote_info['db_version'] > $local_info['db_version']) {
+        $update_available = true; // DB update only
+    }
+
+    // Immediately sync with database settings so admin badges update in real-time
+    try {
+        $up_val = $update_available ? 'yes' : 'no';
+        $now_t = time();
+        $stmt_up = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('update_available', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt_up->execute([$up_val, $up_val]);
+        $stmt_up_time = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('last_update_check', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt_up_time->execute([$now_t, $now_t]);
+        global $settings;
+        $settings['update_available'] = $up_val;
+        $settings['last_update_check'] = $now_t;
+    } catch (Exception $e) {}
 } else {
     $error = "Could not connect to GitHub to check for updates. HTTP Code: $http_code";
 }
@@ -554,7 +596,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
             </div>
             <h3 style="margin: 0 0 5px 0; font-size: 20px; font-weight: 800;">System is Up to Date</h3>
             <p style="margin: 0 0 20px 0; font-size: 14px; opacity: 0.8;">You are running the latest version of NewsCast.</p>
-            <a href="system_update.php" class="btn" style="background: white; border: 1px solid #bbf7d0; color: #15803d; font-weight: 600; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;">
+            <a href="system_update.php?check=1" class="btn" style="background: white; border: 1px solid #bbf7d0; color: #15803d; font-weight: 600; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;">
                 <i data-feather="refresh-cw" style="width: 14px;"></i> Check for Updates
             </a>
         </div>

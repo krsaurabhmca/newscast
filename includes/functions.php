@@ -634,12 +634,12 @@ function ensure_wp_sources_table($pdo) {
  * Cached check for system updates (runs once every 4 hours max to avoid rate limits)
  * @return bool True if update is available, false otherwise
  */
-function check_system_updates_cached($pdo) {
+function check_system_updates_cached($pdo, $force = false) {
     $last_check = (int)get_setting('last_update_check', 0);
     $now = time();
     
-    // Check every 4 hours (14400 seconds)
-    if ($now - $last_check > 14400) {
+    // Check every 4 hours (14400 seconds) or when forced
+    if ($force || ($now - $last_check > 14400)) {
         $api_version_url = 'https://api.github.com/repos/krsaurabhmca/newscast/contents/version.json';
         $local_version_file = __DIR__ . '/../version.json';
         $local_info = ['version' => '1.0.0', 'db_version' => 1];
@@ -660,8 +660,8 @@ function check_system_updates_cached($pdo) {
         // Perform curl
         $ch = curl_init($api_version_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         curl_setopt($ch, CURLOPT_USERAGENT, 'NewsCast-AutoUpdater');
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
