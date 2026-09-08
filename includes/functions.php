@@ -139,7 +139,7 @@ function is_demo_account()
  */
 function is_logged_in()
 {
-    return isset($_SESSION['user_id']);
+    return !empty($_SESSION['user_id']);
 }
 
 /**
@@ -147,7 +147,7 @@ function is_logged_in()
  */
 function is_admin()
 {
-    return isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'dev');
+    return is_logged_in() && !empty($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'dev');
 }
 
 /**
@@ -155,7 +155,7 @@ function is_admin()
  */
 function is_editor()
 {
-    return isset($_SESSION['role']) && in_array($_SESSION['role'], ['editor', 'admin', 'dev']);
+    return is_logged_in() && !empty($_SESSION['role']) && in_array($_SESSION['role'], ['editor', 'admin', 'dev']);
 }
 
 /**
@@ -163,7 +163,7 @@ function is_editor()
  */
 function is_reporter()
 {
-    return isset($_SESSION['role']) && $_SESSION['role'] === 'reporter';
+    return is_logged_in() && !empty($_SESSION['role']) && $_SESSION['role'] === 'reporter';
 }
 
 /**

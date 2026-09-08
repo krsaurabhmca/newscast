@@ -1,5 +1,14 @@
 [
     {
+        "version": "3.2.21",
+        "date": "2026-09-08",
+        "changes": [
+            "Fix: Strictly restricted frontend Admin Bar to authenticated Admin sessions only (is_logged_in && is_admin).",
+            "Fix: Resolved session cookie and memory retention in logout.php ensuring clean session termination upon logout.",
+            "Performance/Fix: Added Cache-Control no-cache headers for authenticated sessions so browsers never serve stale HTML with the admin bar to guest visitors."
+        ]
+    },
+    {
         "version": "3.2.20",
         "date": "2026-09-07",
         "changes": [

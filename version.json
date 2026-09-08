@@ -1,6 +1,6 @@
 {
-    "version": "3.2.20",
+    "version": "3.2.21",
     "db_version": 12,
-    "last_updated": "2026-09-07",
-    "changelog": "v3.2.20 — Version bump and repository sync."
+    "last_updated": "2026-09-08",
+    "changelog": "v3.2.21 — Strictly restricted frontend Admin Bar to authenticated Admin sessions only, resolved session persistence on logout, and prevented browser caching of authenticated views."
 }

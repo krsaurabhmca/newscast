@@ -7,6 +7,12 @@ if (!file_exists(__DIR__ . '/config.php')) {
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/functions.php';
 
+// Prevent browser and proxy caching of pages when logged in as admin to ensure admin bar never persists after logout
+if (!headers_sent() && function_exists('is_logged_in') && is_logged_in()) {
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Pragma: no-cache");
+}
+
 // Canonical URL Generation
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
 $current_url = $protocol . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
@@ -455,7 +461,8 @@ $body_classes = [];
 if (get_setting('homepage_theme', 'theme1') === 'theme2') {
     $body_classes[] = 'theme2-body';
 }
-if (is_logged_in() && is_admin()) {
+$show_admin_bar = (function_exists('is_logged_in') && is_logged_in() && function_exists('is_admin') && is_admin());
+if ($show_admin_bar) {
     $body_classes[] = 'admin-bar-active';
 }
 $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) . '"' : '';
@@ -466,7 +473,7 @@ $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) .
     $current_slug = $_GET['slug'] ?? '';
     ?>
 
-    <?php if (is_logged_in() && is_admin()): ?>
+    <?php if ($show_admin_bar): ?>
         <!-- CSS styles for admin top bar -->
         <style>
             .admin-top-bar {
@@ -624,13 +631,12 @@ $class_attr = !empty($body_classes) ? ' class="' . implode(' ', $body_classes) .
             <div class="admin-bar-user-section" style="display: flex; align-items: center; gap: 15px; flex-shrink: 0;">
                 <div class="admin-bar-user-badge">
                     <i data-feather="user" style="width: 12px; height: 12px; color: #94a3b8;"></i>
-                    <span><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                    <span><?php echo htmlspecialchars($_SESSION['username'] ?? 'Admin'); ?></span>
                     <?php 
-                    $role_class = 'admin-role-editor';
-                    if ($_SESSION['role'] === 'admin') $role_class = 'admin-role-admin';
-                    elseif ($_SESSION['role'] === 'dev') $role_class = 'admin-role-dev';
+                    $curr_role = $_SESSION['role'] ?? 'admin';
+                    $role_class = ($curr_role === 'dev') ? 'admin-role-dev' : 'admin-role-admin';
                     ?>
-                    <span class="admin-bar-role <?php echo $role_class; ?>"><?php echo htmlspecialchars($_SESSION['role']); ?></span>
+                    <span class="admin-bar-role <?php echo $role_class; ?>"><?php echo htmlspecialchars($curr_role); ?></span>
                 </div>
                 <span style="color: rgba(255,255,255,0.15);">|</span>
                 <a href="<?php echo BASE_URL; ?>logout.php" class="admin-bar-logout">
