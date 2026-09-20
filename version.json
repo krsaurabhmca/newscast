@@ -1,6 +1,6 @@
 {
-    "version": "3.2.22",
+    "version": "3.2.23",
     "db_version": 12,
-    "last_updated": "2026-09-08",
-    "changelog": "v3.2.22 — Implemented 3-layer reverse-proxy & edge cache immunity (Nginx FastCGI/Cloudflare) preventing authenticated Admin Bar leaking to guest visitors on Theme 2 and all themes."
+    "last_updated": "2026-09-20",
+    "changelog": "v3.2.23 — Fixed social media sharing links (WhatsApp, Twitter) showing '+' signs for spaces by switching from urlencode() to rawurlencode() for accurate parsing."
 }

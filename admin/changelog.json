@@ -1,5 +1,12 @@
 [
     {
+        "version": "3.2.23",
+        "date": "2026-09-20",
+        "changes": [
+            "Fix: Fixed social media sharing links (WhatsApp, Twitter) showing '+' signs for spaces by switching from urlencode() to rawurlencode() for accurate parsing."
+        ]
+    },
+    {
         "version": "3.2.22",
         "date": "2026-09-08",
         "changes": [

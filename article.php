@@ -258,8 +258,10 @@ endif; ?>
                             style="font-size: 13px; font-weight: 700; color: #64748b; margin-right: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Share:</span>
 
                         <?php
-                        $current_url = urlencode((isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
-                        $share_title = urlencode($post['title']);
+                        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+                        $raw_url = $protocol . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+                        $current_url = rawurlencode($raw_url);
+                        $share_title = rawurlencode($post['title']);
                         ?>
 
                         <!-- Share Buttons -->

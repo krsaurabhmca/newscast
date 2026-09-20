@@ -79,8 +79,8 @@ if (!$is_closed) {
 $show_results = $has_voted || $is_closed;
 
 // URL Encoding for Share Links
-$share_url = urlencode($og_url);
-$share_text = urlencode($poll['question']);
+$share_url = rawurlencode($og_url);
+$share_text = rawurlencode($poll['question']);
 ?>
 
 <style>
