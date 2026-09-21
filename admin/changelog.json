@@ -1,5 +1,13 @@
 [
     {
+        "version": "3.2.24",
+        "date": "2026-09-21",
+        "changes": [
+            "Fix: Fixed blank ad spaces showing for unfilled AdSense units.",
+            "Fix: Fixed magazine viewer zoom not functioning correctly and improved scrolling functionality on enlarged views."
+        ]
+    },
+    {
         "version": "3.2.23",
         "date": "2026-09-20",
         "changes": [

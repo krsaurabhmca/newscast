@@ -271,14 +271,16 @@ $meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('
             width: 100%;
             height: 100%;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: auto;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            touch-action: none;
+            touch-action: auto;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         #flipbook {
             position: relative;
+            margin: auto;
             box-shadow: 0 50px 100px -20px rgba(0,0,0,0.8);
             background: #fff;
             transition: opacity 0.4s ease;
@@ -586,25 +588,29 @@ $meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('
 
         if (CONFIG.isMobile) {
             // Single page on mobile
-            bookW = Math.min(targetW, 550) * state.zoom;
+            bookW = Math.min(targetW, 550);
             bookH = bookW * 1.414;
             if (bookH > targetH) {
-                const s = targetH / bookH;
                 bookH = targetH;
                 bookW = bookH / 1.414;
             }
+            // Apply zoom
+            bookW *= state.zoom;
+            bookH *= state.zoom;
         } else {
             // Double page on desktop
-            const pageW = Math.min(targetW / 2, 550) * state.zoom;
-            const pageH = pageW * 1.414;
+            let pageW = Math.min(targetW / 2, 550);
+            let pageH = pageW * 1.414;
             if (pageH > targetH) {
-                const s = targetH / pageH;
-                bookH = targetH;
-                bookW = (bookH / 1.414) * 2;
-            } else {
-                bookW = pageW * 2;
-                bookH = pageH;
+                pageH = targetH;
+                pageW = pageH / 1.414;
             }
+            // Apply zoom
+            pageW *= state.zoom;
+            pageH *= state.zoom;
+            
+            bookW = pageW * 2;
+            bookH = pageH;
         }
 
         return { width: Math.round(bookW), height: Math.round(bookH) };

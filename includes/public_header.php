@@ -443,6 +443,9 @@ endif; ?>
             align-items: center;
             justify-content: center;
         }
+        .ad-container:has(ins.adsbygoogle[data-ad-status="unfilled"]) {
+            display: none !important;
+        }
         .ad-container ins.adsbygoogle {
             display: block !important;
             min-width: 250px;

@@ -1,6 +1,6 @@
 {
-    "version": "3.2.23",
+    "version": "3.2.24",
     "db_version": 12,
-    "last_updated": "2026-09-20",
-    "changelog": "v3.2.23 — Fixed social media sharing links (WhatsApp, Twitter) showing '+' signs for spaces by switching from urlencode() to rawurlencode() for accurate parsing."
+    "last_updated": "2026-09-21",
+    "changelog": "v3.2.24 — Fixed blank ad spaces showing for unfilled AdSense units, and fixed magazine viewer zoom and scrolling functionality."
 }
