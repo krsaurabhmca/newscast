@@ -1,6 +1,6 @@
 {
-    "version": "3.2.24",
+    "version": "3.2.25",
     "db_version": 12,
     "last_updated": "2026-09-21",
-    "changelog": "v3.2.24 — Fixed blank ad spaces showing for unfilled AdSense units, and fixed magazine viewer zoom and scrolling functionality."
+    "changelog": "v3.2.25 — Removed magazine download option, moved zoom controls to topbar, and fixed layout overflow on zoom."
 }

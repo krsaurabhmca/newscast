@@ -1,5 +1,14 @@
 [
     {
+        "version": "3.2.25",
+        "date": "2026-09-21",
+        "changes": [
+            "Feature: Removed magazine download option and lead modal.",
+            "Feature: Moved magazine zoom controls to the top bar for better accessibility.",
+            "Fix: Fixed layout overflow bug in magazine viewer where zooming in would push the toolbars off-screen."
+        ]
+    },
+    {
         "version": "3.2.24",
         "date": "2026-09-21",
         "changes": [

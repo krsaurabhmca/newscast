@@ -155,39 +155,7 @@ $meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('
         .btn-text:hover { background: var(--surface-hover); }
         .btn-text.primary { background: var(--accent); border-color: transparent; color: #fff; }
 
-        /* ── Lead Modal ────────────────────────────── */
-        .v-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px); z-index: 3000;
-            display: none; align-items: center; justify-content: center; padding: 20px;
-        }
-        .v-modal.active { display: flex; }
-        .v-modal-content {
-            background: #1a1a24; border: 1px solid var(--border);
-            padding: 30px; border-radius: 20px; width: 100%; max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        .v-modal-close {
-            position: absolute; top: 15px; right: 15px; background: none; border: none;
-            color: var(--text-muted); cursor: pointer;
-        }
-        .v-modal-title { font-size: 20px; font-weight: 800; margin-bottom: 5px; color: #fff; text-align: center; }
-        .v-modal-subtitle { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 25px; }
-        .v-modal-form { display: flex; flex-direction: column; gap: 15px; }
-        .v-input {
-            background: var(--surface); border: 1px solid var(--border);
-            padding: 12px 15px; border-radius: 10px; color: #fff; outline: none;
-            font-size: 14px; transition: border-color 0.2s;
-        }
-        .v-input:focus { border-color: var(--accent); }
-        .v-btn-submit {
-            background: var(--accent); color: #fff; padding: 12px;
-            border-radius: 10px; border: none; font-weight: 700; cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .v-btn-submit:active { transform: scale(0.98); }
-        .v-btn-submit:disabled { opacity: 0.5; pointer-events: none; }
+
 
         /* ── Loading Page ────────────────────────────── */
         #v-loader {
@@ -265,6 +233,8 @@ $meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('
             justify-content: center;
             overflow: hidden;
             background: radial-gradient(circle at center, #1a1a24 0%, #0d0d12 100%);
+            min-height: 0;
+            min-width: 0;
         }
 
         #book-viewport {
@@ -481,10 +451,15 @@ $meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('
             <div class="v-meta-date"><?= date('F Y', strtotime($mag['issue_month'])) ?> <span style="margin: 0 8px;">•</span> <span id="view-count"><?= number_format($mag['downloads']) ?></span> Downloads</div>
         </div>
         <div class="v-header-actions">
-            <button class="btn-text" id="open-download" style="background:rgba(34,197,94,0.1);color:#22c55e;border-color:rgba(34,197,94,0.2);">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span style="font-weight:700;">Download</span>
-            </button>
+            <div class="v-ctrl-group zoom-wrap">
+                <button class="btn-icon" id="zoom-out" style="width:32px;height:32px;border-radius:8px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <span class="zoom-val" id="zoom-label">100%</span>
+                <button class="btn-icon" id="zoom-in" style="width:32px;height:32px;border-radius:8px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+            </div>
             <button class="btn-text desktop-hide" id="toggle-thumbs">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                 <span>Pages</span>
@@ -535,15 +510,6 @@ $meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('
             </div>
         </div>
 
-        <div class="v-ctrl-group zoom-wrap desktop-hide">
-            <button class="btn-icon" id="zoom-out" style="width:32px;height:32px;border-radius:8px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
-            <span class="zoom-val" id="zoom-label">100%</span>
-            <button class="btn-icon" id="zoom-in" style="width:32px;height:32px;border-radius:8px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
-        </div>
 
         <div class="v-ctrl-group" style="display:flex;gap:6px;">
             <button class="btn-icon" id="prev-page-btn">
@@ -918,58 +884,9 @@ $meta_description = "Read " . htmlspecialchars($mag['title']) . " — " . date('
             else $('#flipbook').turn('previous');
         }
     });
-    // Modal Handlers
-    $('#open-download').on('click', () => $('#download-modal').addClass('active'));
-    $('#close-modal, #download-modal').on('click', function(e) {
-        if(e.target === this || $(this).hasClass('v-modal-close')) $('#download-modal').removeClass('active');
-    });
 
-    $('#lead-form').on('submit', function(e) {
-        e.preventDefault();
-        const $btn = $(this).find('.v-btn-submit');
-        $btn.prop('disabled', true).text('Processing...');
-
-        $.ajax({
-            url: '<?= BASE_URL ?>api_lead.php',
-            type: 'POST',
-            data: {
-                name: $('#lead-name').val(),
-                phone: $('#lead-phone').val(),
-                id: CONFIG.magId,
-                title: CONFIG.title,
-                type: 'magazine'
-            },
-            success: function(response) {
-                if(response.success) {
-                    $('#download-modal').removeClass('active');
-                    window.open(CONFIG.pdfUrl, '_blank');
-                    // Reset form
-                    $('#lead-form')[0].reset();
-                } else {
-                    alert(response.message || 'Error occurred');
-                }
-            },
-            error: function() { alert('Connection error'); },
-            complete: function() { $btn.prop('disabled', false).text('Download Full PDF'); }
-        });
-    });
 
     </script>
 
-    <!-- Lead Modal -->
-    <div class="v-modal" id="download-modal">
-        <div class="v-modal-content" onclick="event.stopPropagation()">
-            <button class="v-modal-close" id="close-modal">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-            <h2 class="v-modal-title">Download PDF</h2>
-            <p class="v-modal-subtitle">Please enter your details to download the digital edition.</p>
-            <form class="v-modal-form" id="lead-form">
-                <input type="text" id="lead-name" class="v-input" placeholder="Your Full Name" required>
-                <input type="tel" id="lead-phone" class="v-input" placeholder="Mobile Number" required pattern="[0-9]{10}">
-                <button type="submit" class="v-btn-submit">Download Full PDF</button>
-            </form>
-        </div>
-    </div>
 </body>
 </html>
