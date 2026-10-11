@@ -28,7 +28,8 @@ export function AdminHeader({
     if (!portalUrl) return;
     let url = portalUrl.trim();
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'http://' + url;
+      const isLocal = /^(localhost|127\.0\.0\.1|10\.0\.2\.2|192\.168\.)/i.test(url);
+      url = (isLocal ? 'http://' : 'https://') + url;
     }
     Linking.openURL(url).catch((err) => {
       Alert.alert('Error', 'Unable to open website: ' + (err.message || 'Unknown error'));

@@ -252,6 +252,15 @@ function get_post_thumbnail($image)
     if (strpos($image, 'media/') === 0) {
         return BASE_URL . 'assets/images/' . $image;
     }
+    if (strpos($image, 'media_') === 0) {
+        return BASE_URL . 'assets/images/media/' . $image;
+    }
+    if (strpos($image, 'assets/') === 0) {
+        return BASE_URL . $image;
+    }
+    if (strpos($image, '/') === 0) {
+        return BASE_URL . ltrim($image, '/');
+    }
 
     // Build full URL from filename — do NOT check file_exists (breaks on remote/live server)
     return BASE_URL . 'assets/images/posts/' . $image;

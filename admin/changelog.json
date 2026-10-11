@@ -1,5 +1,17 @@
 [
     {
+        "version": "3.2.28",
+        "date": "2026-10-11",
+        "changes": [
+            "Fix: Fixed mobile media upload synchronization to mirror files to media library storage and automatically index unrecorded files.",
+            "Fix: Fixed article featured image preview in edit modal supporting media library items, direct uploads, and relative paths.",
+            "UI/UX: Redesigned Media Gallery list view with card elevation, format pill badges, file size metadata, and refined action buttons.",
+            "UI/UX: Fixed status bar overlap on Add/Edit Article modal and full-screen Rich Text Editor with safe-area insets.",
+            "UI/UX: Modernized Login screen with a streamlined Portal URL input, live connection status indicator, and responsive KeyboardAvoidingView.",
+            "API: Updated admin_save_post endpoint to support clearing/removing featured images and normalized relative paths."
+        ]
+    },
+    {
         "version": "3.2.27",
         "date": "2026-10-11",
         "changes": [

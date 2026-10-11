@@ -34,6 +34,7 @@ import {
   updateSettings,
   testConnection,
   normalizePortalUrl,
+  isValidPortalUrl,
   changePassword,
 } from '@/utils/api';
 import { getItem, setItem, STORAGE_KEYS } from '@/utils/storage';
@@ -161,22 +162,30 @@ export function AdminSettingsTab({
   };
 
   const handleUpdateStoredUrl = async () => {
-    const clean = normalizePortalUrl(currentUrl);
-    if (!clean) {
+    const raw = currentUrl.trim();
+    if (!raw) {
       Alert.alert('Required', 'Please enter a valid website address');
       return;
     }
 
+    if (!isValidPortalUrl(raw)) {
+      Alert.alert('Invalid URL', 'Please enter a valid website address (e.g. https://yourwebsite.com/news)');
+      return;
+    }
+
+    const clean = normalizePortalUrl(raw);
     setTestingUrl(true);
     setUrlStatus(null);
     const result = await testConnection(clean);
     setTestingUrl(false);
 
     if (result.success) {
-      await setItem(STORAGE_KEYS.PORTAL_URL, clean);
+      const finalUrl = result.resolvedUrl || clean;
+      setCurrentUrl(finalUrl);
+      await setItem(STORAGE_KEYS.PORTAL_URL, finalUrl);
       setUrlStatus({ success: true, message: 'Connected & Stored Successfully' });
-      Alert.alert('Updated', `Website address updated to: ${clean}`);
-      onUpdatePortalUrl(clean);
+      Alert.alert('Updated', `Website address updated to: ${finalUrl}`);
+      onUpdatePortalUrl(finalUrl);
     } else {
       setUrlStatus({ success: false, message: result.message || 'Connection failed' });
     }
@@ -253,7 +262,7 @@ export function AdminSettingsTab({
             style={[styles.inputInner, { color: theme.text }]}
             value={currentUrl}
             onChangeText={setCurrentUrl}
-            placeholder="http://localhost/news"
+            placeholder="https://example.com/news"
             placeholderTextColor={theme.textSecondary}
             autoCapitalize="none"
             autoCorrect={false}

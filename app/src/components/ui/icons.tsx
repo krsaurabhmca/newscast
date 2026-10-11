@@ -236,6 +236,14 @@ export const ChevronRight = createIcon(() => (
   <Path d="m9 18 6-6-6-6" />
 ));
 
+export const ChevronDown = createIcon(() => (
+  <Path d="m6 9 6 6 6-6" />
+));
+
+export const ChevronUp = createIcon(() => (
+  <Path d="m18 15-6-6-6 6" />
+));
+
 export const Inbox = createIcon(() => (
   <>
     <Polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />

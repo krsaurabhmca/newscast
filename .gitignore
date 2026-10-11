@@ -7,3 +7,19 @@ cache/
 *.zip
 .DS_Store
 *.log
+
+# Keystores & sensitive credentials
+*.keystore
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+.env*
+
+# Native build directories & outputs
+app/android/
+app/ios/
+*.apk
+*.aab

@@ -28,6 +28,7 @@ import {
   loginUser,
   testConnection,
   normalizePortalUrl,
+  isValidPortalUrl,
   getDefaultPortalUrl,
   UserProfile,
   PortalInfo,
@@ -75,24 +76,38 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
   }, []);
 
   const runTestConnection = async (urlToTest?: string) => {
-    const url = normalizePortalUrl(urlToTest || portalUrl);
-    if (!url) {
+    const raw = (urlToTest || portalUrl).trim();
+    if (!raw) {
       setConnectionStatus({ tested: true, success: false, message: 'Please enter a website URL' });
       return;
     }
 
+    if (!isValidPortalUrl(raw)) {
+      setConnectionStatus({
+        tested: true,
+        success: false,
+        message: 'Invalid URL. Example: https://yourwebsite.com/news',
+      });
+      return;
+    }
+
+    const url = normalizePortalUrl(raw);
+    setPortalUrl(url);
     setTestingConnection(true);
     setConnectionStatus({ tested: false, success: false, message: 'Connecting...' });
 
     const result = await testConnection(url);
     setTestingConnection(false);
 
+    const finalUrl = result.resolvedUrl || url;
+    setPortalUrl(finalUrl);
+
     if (result.success) {
-      await setItem(STORAGE_KEYS.PORTAL_URL, url);
+      await setItem(STORAGE_KEYS.PORTAL_URL, finalUrl);
       setConnectionStatus({
         tested: true,
         success: true,
-        message: 'Portal online & reachable',
+        message: 'Connected',
         siteName: result.data?.site_name,
       });
     } else {
@@ -106,12 +121,18 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
 
   const handleLogin = async () => {
     setErrorMessage('');
-    const cleanUrl = normalizePortalUrl(portalUrl);
-
-    if (!cleanUrl) {
+    const raw = portalUrl.trim();
+    if (!raw) {
       setErrorMessage('Please enter the News Portal Website URL');
       return;
     }
+
+    if (!isValidPortalUrl(raw)) {
+      setErrorMessage('Invalid URL. Example: https://yourwebsite.com/news');
+      return;
+    }
+
+    const cleanUrl = normalizePortalUrl(raw);
 
     if (!identifier.trim()) {
       setErrorMessage('Please enter your username or email');
@@ -123,15 +144,18 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
       return;
     }
 
+    setPortalUrl(cleanUrl);
     setLoading(true);
     try {
-      await setItem(STORAGE_KEYS.PORTAL_URL, cleanUrl);
-
       const result = await loginUser(cleanUrl, identifier.trim(), password);
       setLoading(false);
 
+      const finalUrl = result.resolvedUrl || cleanUrl;
+      setPortalUrl(finalUrl);
+      await setItem(STORAGE_KEYS.PORTAL_URL, finalUrl);
+
       if (result.success && result.user) {
-        onLoginSuccess(result.user, cleanUrl, result.portal);
+        onLoginSuccess(result.user, finalUrl, result.portal);
       } else {
         setErrorMessage(result.message || 'Invalid username or password');
       }
@@ -148,9 +172,13 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.container, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={[styles.container, { backgroundColor: theme.background }]}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 25}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
         {/* Brand Header */}
         <View style={styles.brandBox}>
           <View style={styles.logoBadge}>
@@ -158,7 +186,7 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
           </View>
           <Text style={[styles.appTitle, { color: theme.text }]}>NewsCast Admin</Text>
           <Text style={[styles.appSubtitle, { color: theme.textSecondary }]}>
-            Enterprise Content Management System
+            Digital News Management System
           </Text>
         </View>
 
@@ -168,112 +196,6 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
             styles.card,
             { backgroundColor: theme.backgroundElement, borderColor: 'rgba(0,0,0,0.06)' },
           ]}>
-          {/* Section: Website URL Input */}
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionLabelRow}>
-              <Globe size={16} color="#dc2626" />
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Portal Website URL</Text>
-            </View>
-            <View style={styles.storeBadge}>
-              <CheckCircle2 size={11} color="#059669" />
-              <Text style={styles.storeBadgeText}>Stored Permanently</Text>
-            </View>
-          </View>
-
-          <Text style={[styles.fieldHint, { color: theme.textSecondary }]}>
-            Configured once and saved locally. You won't need to re-enter this on next launch.
-          </Text>
-
-          <View style={styles.urlInputRow}>
-            <View
-              style={[
-                styles.inputWrapper,
-                {
-                  backgroundColor: theme.backgroundSelected,
-                  borderColor: connectionStatus.tested
-                    ? connectionStatus.success
-                      ? '#10b981'
-                      : '#ef4444'
-                    : 'transparent',
-                },
-              ]}>
-              <Server size={16} color={theme.textSecondary} style={{ marginRight: 8 }} />
-              <TextInput
-                style={[styles.inputInner, { color: theme.text }]}
-                placeholder="http://localhost/news"
-                placeholderTextColor={theme.textSecondary}
-                value={portalUrl}
-                onChangeText={(text) => {
-                  setPortalUrl(text);
-                  setConnectionStatus({ tested: false, success: false, message: '' });
-                }}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[styles.testButton, testingConnection && styles.buttonDisabled]}
-              onPress={() => runTestConnection()}
-              disabled={testingConnection}>
-              {testingConnection ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.testButtonText}>Ping</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-
-          {/* Connection status indicator */}
-          {connectionStatus.tested && (
-            <View
-              style={[
-                styles.statusBanner,
-                {
-                  backgroundColor: connectionStatus.success ? '#ecfdf5' : '#fef2f2',
-                  borderColor: connectionStatus.success ? '#a7f3d0' : '#fecaca',
-                },
-              ]}>
-              {connectionStatus.success ? (
-                <CheckCircle2 size={15} color="#059669" style={{ marginRight: 6 }} />
-              ) : (
-                <AlertCircle size={15} color="#dc2626" style={{ marginRight: 6 }} />
-              )}
-              <Text
-                style={[
-                  styles.statusBannerText,
-                  { color: connectionStatus.success ? '#065f46' : '#991b1b' },
-                ]}>
-                {connectionStatus.success && connectionStatus.siteName
-                  ? `${connectionStatus.siteName} — ${connectionStatus.message}`
-                  : connectionStatus.message}
-              </Text>
-            </View>
-          )}
-
-          {/* Presets */}
-          <View style={styles.presetsRow}>
-            <Text style={[styles.presetLabel, { color: theme.textSecondary }]}>Presets:</Text>
-            <TouchableOpacity
-              style={styles.presetChip}
-              onPress={() => applyPreset('http://localhost/news')}>
-              <Text style={styles.presetChipText}>Localhost</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.presetChip}
-              onPress={() => applyPreset('http://10.0.2.2/news')}>
-              <Text style={styles.presetChipText}>Android Emulator (10.0.2.2)</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.divider} />
-
-          {/* Section: Admin Authentication */}
-          <View style={styles.sectionLabelRow}>
-            <ShieldCheck size={16} color="#dc2626" />
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Admin Credentials</Text>
-          </View>
-
           {errorMessage ? (
             <View style={styles.errorBox}>
               <AlertCircle size={16} color="#dc2626" style={{ marginRight: 6 }} />
@@ -281,13 +203,89 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
             </View>
           ) : null}
 
-          {/* Username / Email */}
-          <Text style={[styles.inputLabel, { color: theme.text }]}>Username or Email</Text>
+          {/* 1. Portal URL */}
+          <View style={styles.fieldHeader}>
+            <Text style={[styles.inputLabel, { color: theme.text }]}>Portal Website URL</Text>
+            {connectionStatus.tested && connectionStatus.success ? (
+              <View style={styles.inlineStatusBadge}>
+                <CheckCircle2 size={12} color="#059669" />
+                <Text style={styles.inlineStatusSuccessText}>
+                  {connectionStatus.siteName || 'Connected'}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+          <View
+            style={[
+              styles.inputWrapper,
+              {
+                backgroundColor: theme.backgroundSelected,
+                borderColor: connectionStatus.tested
+                  ? connectionStatus.success
+                    ? '#10b981'
+                    : '#ef4444'
+                  : 'transparent',
+              },
+            ]}>
+            <Globe
+              size={16}
+              color={connectionStatus.tested && connectionStatus.success ? '#059669' : theme.textSecondary}
+              style={{ marginRight: 8 }}
+            />
+            <TextInput
+              style={[styles.inputInner, { color: theme.text }]}
+              placeholder="https://example.com/news"
+              placeholderTextColor={theme.textSecondary}
+              value={portalUrl}
+              onChangeText={(text) => {
+                setPortalUrl(text);
+                setConnectionStatus({ tested: false, success: false, message: '' });
+              }}
+              onBlur={() => {
+                if (portalUrl.trim()) {
+                  const norm = normalizePortalUrl(portalUrl);
+                  if (norm !== portalUrl) setPortalUrl(norm);
+                }
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity
+              style={[
+                styles.inlineTestBtn,
+                connectionStatus.tested && connectionStatus.success
+                  ? styles.inlineTestBtnConnected
+                  : styles.inlineTestBtnDefault,
+                testingConnection && styles.buttonDisabled,
+              ]}
+              onPress={() => runTestConnection()}
+              disabled={testingConnection}>
+              {testingConnection ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : connectionStatus.tested && connectionStatus.success ? (
+                <Text style={styles.inlineTestBtnConnectedText}>Verified</Text>
+              ) : (
+                <Text style={styles.inlineTestBtnDefaultText}>Test</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {connectionStatus.tested && !connectionStatus.success && connectionStatus.message ? (
+            <View style={styles.fieldErrorRow}>
+              <AlertCircle size={12} color="#dc2626" style={{ marginRight: 4 }} />
+              <Text style={styles.fieldErrorText}>{connectionStatus.message}</Text>
+            </View>
+          ) : null}
+
+          {/* 2. Username / Email */}
+          <Text style={[styles.inputLabel, { color: theme.text, marginTop: 14 }]}>
+            Username or Email
+          </Text>
           <View style={[styles.inputWrapper, { backgroundColor: theme.backgroundSelected }]}>
             <User size={16} color={theme.textSecondary} style={{ marginRight: 8 }} />
             <TextInput
               style={[styles.inputInner, { color: theme.text }]}
-              placeholder="e.g. admin or offerplant"
+              placeholder="e.g. admin or editor"
               placeholderTextColor={theme.textSecondary}
               value={identifier}
               onChangeText={setIdentifier}
@@ -296,8 +294,8 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
             />
           </View>
 
-          {/* Password */}
-          <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
+          {/* 3. Password */}
+          <Text style={[styles.inputLabel, { color: theme.text, marginTop: 14 }]}>Password</Text>
           <View style={[styles.inputWrapper, { backgroundColor: theme.backgroundSelected }]}>
             <Lock size={16} color={theme.textSecondary} style={{ marginRight: 8 }} />
             <TextInput
@@ -337,7 +335,7 @@ export function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
 
         <View style={styles.footerInfo}>
           <Text style={[styles.footerText, { color: theme.textSecondary }]}>
-            Powered by NewsCast REST API Engine
+            Planted by OfferPlant
           </Text>
         </View>
       </ScrollView>
@@ -395,52 +393,28 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 4,
   },
-  sectionHeader: {
+  fieldHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 6,
   },
-  sectionLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  storeBadge: {
+  inlineStatusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#10b98115',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
   },
-  storeBadgeText: {
+  inlineStatusSuccessText: {
     color: '#059669',
-    fontSize: 11,
+    fontSize: 11.5,
     fontWeight: '700',
   },
-  fieldHint: {
-    fontSize: 12,
-    marginBottom: 10,
-    lineHeight: 16,
-  },
-  urlInputRow: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
   inputWrapper: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 12,
     paddingHorizontal: 12,
-    height: 46,
+    height: 48,
     borderWidth: 1.5,
     borderColor: 'transparent',
   },
@@ -449,61 +423,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     height: '100%',
   },
-  testButton: {
-    backgroundColor: '#0f172a',
-    height: 46,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+  inlineTestBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    minWidth: 64,
   },
-  testButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 13,
+  inlineTestBtnDefault: {
+    backgroundColor: '#0f172a',
   },
-  statusBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
-  statusBannerText: {
+  inlineTestBtnDefaultText: {
+    color: '#ffffff',
     fontSize: 12,
-    fontWeight: '600',
-    flex: 1,
+    fontWeight: '700',
   },
-  presetsRow: {
+  inlineTestBtnConnected: {
+    backgroundColor: '#dcfce7',
+  },
+  inlineTestBtnConnectedText: {
+    color: '#15803d',
+    fontSize: 11.5,
+    fontWeight: '700',
+  },
+  fieldErrorRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 10,
+    marginTop: 6,
+    paddingHorizontal: 4,
   },
-  presetLabel: {
-    fontSize: 11,
+  fieldErrorText: {
+    color: '#dc2626',
+    fontSize: 11.5,
     fontWeight: '600',
-    marginRight: 2,
-  },
-  presetChip: {
-    backgroundColor: '#0f172a0a',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  presetChipText: {
-    color: '#334155',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: 'rgba(0,0,0,0.06)',
-    marginVertical: 14,
   },
   errorBox: {
     flexDirection: 'row',
@@ -513,7 +465,7 @@ const styles = StyleSheet.create({
     borderColor: '#fca5a5',
     padding: 10,
     borderRadius: 10,
-    marginTop: 10,
+    marginBottom: 12,
   },
   errorText: {
     color: '#dc2626',

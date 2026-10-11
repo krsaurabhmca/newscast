@@ -430,9 +430,10 @@ switch($action) {
         $stmt->execute([$id]);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$post) api_response(false, "Post not found");
-
-        $post['featured_image_url'] = get_post_thumbnail($post['featured_image']);
+        $raw_thumb = $post['featured_image'];
+        $resolved_thumb = get_post_thumbnail($raw_thumb);
+        $post['featured_image_url'] = $resolved_thumb;
+        $post['featured_image'] = $resolved_thumb ?: $raw_thumb;
 
         // Fetch associated category IDs
         $catStmt = $pdo->prepare("SELECT category_id FROM post_categories WHERE post_id = ?");
@@ -464,6 +465,15 @@ switch($action) {
             $category_id = (int)$category_ids[0];
         }
         $featured_image = trim($data['featured_image'] ?? '');
+        if (!empty($featured_image)) {
+            if (preg_match('#assets/images/media/([^/\s\?\#]+)#i', $featured_image, $m)) {
+                $featured_image = 'media/' . $m[1];
+            } elseif (preg_match('#assets/images/posts/([^/\s\?\#]+)#i', $featured_image, $m)) {
+                $featured_image = $m[1];
+            } elseif (strpos($featured_image, 'media_') === 0) {
+                $featured_image = 'media/' . $featured_image;
+            }
+        }
         $video_url = trim($data['video_url'] ?? '');
         $external_link = trim($data['external_link'] ?? '');
         $is_featured = !empty($data['is_featured']) ? 1 : 0;
@@ -519,9 +529,9 @@ switch($action) {
                     $meta_description ?: null
                 ];
 
-                if (!empty($featured_image)) {
+                if (array_key_exists('featured_image', $data)) {
                     $update_fields[] = "featured_image = ?";
-                    $params[] = $featured_image;
+                    $params[] = !empty($featured_image) ? $featured_image : null;
                 }
 
                 if ($published_at) {
@@ -681,10 +691,10 @@ switch($action) {
 
         $data = get_json_payload();
         $base64 = $data['image_base64'] ?? '';
-        $upload_dir = __DIR__ . '/../../assets/images/posts/';
-        if (!is_dir($upload_dir)) {
-            @mkdir($upload_dir, 0777, true);
-        }
+        $upload_dir_posts = __DIR__ . '/../../assets/images/posts/';
+        $upload_dir_media = __DIR__ . '/../../assets/images/media/';
+        if (!is_dir($upload_dir_posts)) @mkdir($upload_dir_posts, 0777, true);
+        if (!is_dir($upload_dir_media)) @mkdir($upload_dir_media, 0777, true);
 
         $filename = '';
         if (!empty($base64)) {
@@ -703,22 +713,36 @@ switch($action) {
             if ($img_data === false) api_response(false, "Base64 decode failed");
 
             $filename = 'post_app_' . uniqid() . '_' . time() . '.' . $ext;
-            file_put_contents($upload_dir . $filename, $img_data);
+            file_put_contents($upload_dir_posts . $filename, $img_data);
+            @copy($upload_dir_posts . $filename, $upload_dir_media . $filename);
         } elseif (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
             $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
             $filename = 'post_app_' . uniqid() . '_' . time() . '.' . $ext;
-            move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir . $filename);
+            move_uploaded_file($_FILES['image']['tmp_name'], $upload_dir_posts . $filename);
+            @copy($upload_dir_posts . $filename, $upload_dir_media . $filename);
         } else {
             api_response(false, "No image provided (image_base64 or file upload required)");
         }
 
         $file_url = BASE_URL . "assets/images/posts/" . $filename;
 
-        // Also record in media_library if table exists
+        // Also record in media_library table
         try {
-            $f_size = file_exists($upload_dir . $filename) ? filesize($upload_dir . $filename) : 0;
-            $pdo->prepare("INSERT INTO media_library (filename, original_name, file_size, uploaded_by) VALUES (?, ?, ?, ?)")
-                ->execute([$filename, $filename, $f_size, 1]);
+            $f_path = file_exists($upload_dir_posts . $filename) ? $upload_dir_posts . $filename : $upload_dir_media . $filename;
+            $f_size = file_exists($f_path) ? filesize($f_path) : 0;
+            $dim = @getimagesize($f_path);
+            $width = $dim ? (int)$dim[0] : 0;
+            $height = $dim ? (int)$dim[1] : 0;
+
+            $user_id = null;
+            try {
+                $u_stmt = $pdo->query("SELECT id FROM users LIMIT 1");
+                $first_user = $u_stmt ? $u_stmt->fetchColumn() : null;
+                if ($first_user) $user_id = (int)$first_user;
+            } catch (Exception $ue) {}
+
+            $ins = $pdo->prepare("INSERT INTO media_library (filename, original_name, file_size, width, height, uploaded_by) VALUES (?, ?, ?, ?, ?, ?)");
+            $ins->execute([$filename, $filename, $f_size, $width, $height, $user_id]);
         } catch (Exception $e) {}
 
         api_response(true, "Image uploaded successfully", [
@@ -732,6 +756,36 @@ switch($action) {
         $page = max(1, (int)($_GET['page'] ?? 1));
         $limit = min(60, max(1, (int)($_GET['limit'] ?? 30)));
         $offset = ($page - 1) * $limit;
+
+        // Auto-sync files from disk into media_library if not already recorded
+        try {
+            $disk_dirs = [
+                __DIR__ . '/../../assets/images/media/',
+                __DIR__ . '/../../assets/images/posts/'
+            ];
+            $existing_files_stmt = $pdo->query("SELECT filename FROM media_library");
+            $known = $existing_files_stmt ? $existing_files_stmt->fetchAll(PDO::FETCH_COLUMN) : [];
+            $known_set = array_flip($known);
+
+            foreach ($disk_dirs as $d) {
+                if (!is_dir($d)) continue;
+                $scan = scandir($d);
+                foreach ($scan as $f) {
+                    if ($f === '.' || $f === '..' || is_dir($d . $f)) continue;
+                    $ext = strtolower(pathinfo($f, PATHINFO_EXTENSION));
+                    if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) continue;
+                    if (!isset($known_set[$f])) {
+                        $sz = filesize($d . $f);
+                        $dim = @getimagesize($d . $f);
+                        $w = $dim ? (int)$dim[0] : 0;
+                        $h = $dim ? (int)$dim[1] : 0;
+                        $ins = $pdo->prepare("INSERT INTO media_library (filename, original_name, file_size, width, height, uploaded_by) VALUES (?, ?, ?, ?, ?, NULL)");
+                        $ins->execute([$f, $f, $sz, $w, $h]);
+                        $known_set[$f] = true;
+                    }
+                }
+            }
+        } catch (Exception $e) {}
 
         $items = [];
         $total = 0;
@@ -768,6 +822,7 @@ switch($action) {
                     ];
                 }
             }
+        } catch (PDOException $e) {}
         } catch (PDOException $e) {}
 
         // Fallback / complement from directory scan if media_library has few files

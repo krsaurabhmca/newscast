@@ -143,7 +143,8 @@ export function normalizePortalUrl(rawUrl: string): string {
   if (!cleaned) return '';
 
   if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
-    cleaned = 'http://' + cleaned;
+    const isLocal = /^(localhost|127\.0\.0\.1|10\.0\.2\.2|192\.168\.)/i.test(cleaned);
+    cleaned = (isLocal ? 'http://' : 'https://') + cleaned;
   }
 
   // Remove trailing slashes
@@ -174,6 +175,40 @@ export function getDefaultPortalUrl(): string {
 }
 
 /**
+ * Check if portal URL format is valid
+ */
+export function isValidPortalUrl(rawUrl: string): boolean {
+  if (!rawUrl || typeof rawUrl !== 'string') return false;
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return false;
+
+  // Reject URLs with invalid characters (spaces, etc.)
+  if (/\s/.test(trimmed)) return false;
+
+  try {
+    const normalized = normalizePortalUrl(trimmed);
+    const parsed = new URL(normalized);
+    // Protocol must be http: or https:
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+    // Hostname must be present and at least 2 chars
+    if (!parsed.hostname || parsed.hostname.length < 2) return false;
+    // Hostname cannot start or end with a dot or dash
+    if (/^[.-]|[.-]$/.test(parsed.hostname)) return false;
+    // Localhost, IP address, or domain containing a dot
+    if (
+      parsed.hostname !== 'localhost' &&
+      !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(parsed.hostname) &&
+      !parsed.hostname.includes('.')
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Send request to portal API
  */
 async function requestApi<T = any>(
@@ -187,8 +222,8 @@ async function requestApi<T = any>(
   } = {}
 ): Promise<{ success: boolean; message: string; data?: T; [key: string]: any }> {
   const base = getExecutableUrl(portalUrl);
-  if (!base) {
-    throw new Error('Please enter a valid website URL');
+  if (!base || !isValidPortalUrl(base)) {
+    throw new Error('Invalid URL format. Example: https://yourwebsite.com/news');
   }
 
   const method = options.method || 'GET';
@@ -226,28 +261,68 @@ async function requestApi<T = any>(
     const response = await fetch(endpoint, fetchOptions);
     clearTimeout(timeoutId);
 
-    const json = await response.json();
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error(`API endpoint not found (404). Check portal address.`);
+      }
+      if (response.status === 403 || response.status === 401) {
+        throw new Error(`Access denied (${response.status}) by server.`);
+      }
+      if (response.status >= 500) {
+        throw new Error(`Server error (${response.status}). Check server logs.`);
+      }
+    }
+
+    const rawText = await response.text();
+    let json: any;
+    try {
+      json = JSON.parse(rawText);
+    } catch {
+      throw new Error(`Invalid response received. Not a valid NewsCast portal.`);
+    }
+
     return json;
   } catch (error: any) {
     clearTimeout(timeoutId);
     if (error.name === 'AbortError') {
-      throw new Error(`Connection timed out reaching ${base}. Please check the server.`);
+      throw new Error(`Connection timed out. Server not responding.`);
     }
-    throw new Error(error.message || `Failed to connect to ${base}`);
+    const msg = error.message || '';
+    if (msg.includes('Network request failed') || msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      throw new Error(`Cannot reach server. Check the URL or internet connection.`);
+    }
+    throw new Error(msg || `Failed to connect to server`);
   }
 }
 
 // ── API Operations ──────────────────────────────────────────────────────────
 
-export async function testConnection(portalUrl: string): Promise<{ success: boolean; data?: PortalInfo; message: string }> {
+export async function testConnection(portalUrl: string): Promise<{ success: boolean; data?: PortalInfo; message: string; resolvedUrl?: string }> {
+  const norm = normalizePortalUrl(portalUrl);
   try {
-    const res = await requestApi<PortalInfo>(portalUrl, 'ping', { timeoutMs: 6000 });
+    const res = await requestApi<PortalInfo>(norm, 'ping', { timeoutMs: 6000 });
     return {
       success: !!res.success,
       data: res.data,
       message: res.message || (res.success ? 'Connected successfully' : 'Server responded with error'),
+      resolvedUrl: norm,
     };
   } catch (err: any) {
+    // If it started with http:// and failed on a non-local domain, auto-retry with https://
+    if (norm.startsWith('http://') && !norm.includes('localhost') && !norm.includes('10.0.2.2') && !norm.includes('127.0.0.1')) {
+      const httpsUrl = norm.replace(/^http:\/\//, 'https://');
+      try {
+        const httpsRes = await requestApi<PortalInfo>(httpsUrl, 'ping', { timeoutMs: 6000 });
+        if (httpsRes.success) {
+          return {
+            success: true,
+            data: httpsRes.data,
+            message: httpsRes.message || 'Connected successfully via HTTPS',
+            resolvedUrl: httpsUrl,
+          };
+        }
+      } catch (_) {}
+    }
     return {
       success: false,
       message: err.message || 'Cannot reach website',
@@ -259,32 +334,65 @@ export async function loginUser(
   portalUrl: string,
   identifier: string,
   password: string
-): Promise<{ success: boolean; message: string; user?: UserProfile; portal?: PortalInfo }> {
-  const res = await requestApi<{ user: UserProfile; portal: PortalInfo }>(portalUrl, 'login', {
-    method: 'POST',
-    body: {
-      username: identifier,
-      email: identifier,
-      password,
-    },
-  });
+): Promise<{ success: boolean; message: string; user?: UserProfile; portal?: PortalInfo; resolvedUrl?: string }> {
+  const norm = normalizePortalUrl(portalUrl);
+  try {
+    const res = await requestApi<{ user: UserProfile; portal: PortalInfo }>(norm, 'login', {
+      method: 'POST',
+      body: {
+        username: identifier,
+        email: identifier,
+        password,
+      },
+    });
 
-  if (res.success && res.data?.user) {
-    // Store credentials and session
-    await setItem(STORAGE_KEYS.PORTAL_URL, normalizePortalUrl(portalUrl));
-    await setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(res.data.user));
+    if (res.success && res.data?.user) {
+      await setItem(STORAGE_KEYS.PORTAL_URL, norm);
+      await setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(res.data.user));
+      return {
+        success: true,
+        message: res.message || 'Login successful',
+        user: res.data.user,
+        portal: res.data.portal,
+        resolvedUrl: norm,
+      };
+    }
+
     return {
-      success: true,
-      message: res.message || 'Login successful',
-      user: res.data.user,
-      portal: res.data.portal,
+      success: false,
+      message: res.message || 'Invalid username or password',
+    };
+  } catch (err: any) {
+    // If http failed on non-local domain, auto-try https
+    if (norm.startsWith('http://') && !norm.includes('localhost') && !norm.includes('10.0.2.2') && !norm.includes('127.0.0.1')) {
+      const httpsUrl = norm.replace(/^http:\/\//, 'https://');
+      try {
+        const httpsRes = await requestApi<{ user: UserProfile; portal: PortalInfo }>(httpsUrl, 'login', {
+          method: 'POST',
+          body: {
+            username: identifier,
+            email: identifier,
+            password,
+          },
+        });
+        if (httpsRes.success && httpsRes.data?.user) {
+          await setItem(STORAGE_KEYS.PORTAL_URL, httpsUrl);
+          await setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(httpsRes.data.user));
+          return {
+            success: true,
+            message: httpsRes.message || 'Login successful via HTTPS',
+            user: httpsRes.data.user,
+            portal: httpsRes.data.portal,
+            resolvedUrl: httpsUrl,
+          };
+        }
+      } catch (_) {}
+    }
+    return {
+      success: false,
+      message: err.message || 'Cannot reach website',
     };
   }
-
-  return {
-    success: false,
-    message: res.message || 'Invalid username or password',
-  };
 }
 
 export async function changePassword(

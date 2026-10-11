@@ -497,6 +497,7 @@ export default function MediaScreen() {
               {filteredItems.map((item) => {
                 const isCopied = copiedId === item.id;
                 const ext = (item.filename.split('.').pop() || 'IMG').toUpperCase();
+                const sizeKb = item.file_size ? `${Math.round(item.file_size / 1024)} KB` : '';
                 return (
                   <View
                     key={item.id}
@@ -509,12 +510,16 @@ export default function MediaScreen() {
                     ]}>
                     <TouchableOpacity
                       activeOpacity={0.85}
-                      onPress={() => setPreviewItem(item)}>
+                      onPress={() => setPreviewItem(item)}
+                      style={styles.listThumbWrapper}>
                       <Image
                         source={{ uri: item.file_url }}
                         style={styles.listThumb}
                         resizeMode="cover"
                       />
+                      <View style={styles.listThumbBadge}>
+                        <Text style={styles.listThumbBadgeText}>{ext}</Text>
+                      </View>
                     </TouchableOpacity>
 
                     <View style={styles.listInfo}>
@@ -523,14 +528,21 @@ export default function MediaScreen() {
                         numberOfLines={1}>
                         {item.original_name || item.filename}
                       </Text>
+                      {item.original_name && item.original_name !== item.filename ? (
+                        <Text
+                          style={[styles.listSubFilename, { color: theme.textSecondary }]}
+                          numberOfLines={1}>
+                          {item.filename}
+                        </Text>
+                      ) : null}
+
                       <View style={styles.listMetaRow}>
-                        <View style={styles.extBadgeList}>
-                          <Text style={styles.extBadgeText}>{ext}</Text>
-                        </View>
-                        {item.file_size ? (
-                          <Text style={[styles.listMetaText, { color: theme.textSecondary }]}>
-                            {Math.round(item.file_size / 1024)} KB
-                          </Text>
+                        {sizeKb ? (
+                          <View style={[styles.metaPill, { backgroundColor: theme.backgroundSelected }]}>
+                            <Text style={[styles.metaPillText, { color: theme.textSecondary }]}>
+                              {sizeKb}
+                            </Text>
+                          </View>
                         ) : null}
                       </View>
                     </View>
@@ -538,30 +550,29 @@ export default function MediaScreen() {
                     <View style={styles.listActions}>
                       <TouchableOpacity
                         style={[
-                          styles.cardActionBtn,
-                          { backgroundColor: theme.backgroundSelected },
+                          styles.listActionBtn,
+                          isCopied
+                            ? { backgroundColor: '#dcfce7' }
+                            : { backgroundColor: theme.backgroundSelected },
                         ]}
                         onPress={() => handleCopyUrl(item)}>
                         {isCopied ? (
-                          <Check size={13} color="#16a34a" />
+                          <Check size={14} color="#16a34a" strokeWidth={2.5} />
                         ) : (
-                          <Copy size={13} color={theme.text} />
+                          <Copy size={14} color={theme.text} />
                         )}
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        style={[
-                          styles.cardActionBtn,
-                          { backgroundColor: '#eff6ff' },
-                        ]}
+                        style={[styles.listActionBtn, { backgroundColor: '#eff6ff' }]}
                         onPress={() => setPreviewItem(item)}>
-                        <Info size={13} color="#2563eb" />
+                        <Info size={14} color="#2563eb" />
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        style={[styles.cardActionBtn, styles.deleteActionBtn]}
+                        style={[styles.listActionBtn, styles.deleteActionBtn]}
                         onPress={() => handleDelete(item)}>
-                        <Trash2 size={13} color="#dc2626" />
+                        <Trash2 size={14} color="#dc2626" />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -999,50 +1010,89 @@ const styles = StyleSheet.create({
     backgroundColor: '#fee2e2',
   },
   listContainer: {
-    gap: 8,
+    gap: 10,
   },
   listCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 14,
     borderWidth: 1,
-    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  listThumbWrapper: {
+    width: 68,
+    height: 68,
+    borderRadius: 10,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: 'rgba(0,0,0,0.04)',
   },
   listThumb: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    width: '100%',
+    height: '100%',
+  },
+  listThumbBadge: {
+    position: 'absolute',
+    bottom: 4,
+    left: 4,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    paddingHorizontal: 4,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  listThumbBadgeText: {
+    color: '#ffffff',
+    fontSize: 8.5,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
   listInfo: {
     flex: 1,
+    marginLeft: 12,
+    marginRight: 8,
     justifyContent: 'center',
-    gap: 4,
+    gap: 3,
   },
   listTitle: {
-    fontSize: 12,
+    fontSize: 13.5,
     fontWeight: '700',
+    letterSpacing: -0.2,
+  },
+  listSubFilename: {
+    fontSize: 11,
+    fontWeight: '500',
   },
   listMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    marginTop: 2,
   },
-  extBadgeList: {
-    backgroundColor: 'rgba(15, 23, 42, 0.1)',
-    paddingHorizontal: 5,
+  metaPill: {
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: 6,
   },
-  listMetaText: {
-    fontSize: 10,
+  metaPillText: {
+    fontSize: 10.5,
     fontWeight: '600',
   },
   listActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
+  },
+  listActionBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   paginationRow: {
     flexDirection: 'row',

@@ -11,7 +11,9 @@ import {
   Image,
   Alert,
   Linking,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   X,
   Check,
@@ -39,6 +41,48 @@ interface AdminPostModalProps {
   portalUrl: string;
   onClose: () => void;
   onSuccess: () => void;
+}
+
+export function resolveImageUrl(img?: string, portalUrl?: string): string {
+  if (!img) return '';
+  const trimmed = img.trim();
+  if (!trimmed) return '';
+
+  const cleanPortal = (portalUrl || '').replace(/\/+$/, '');
+
+  // If already absolute http or https
+  if (/^https?:\/\//i.test(trimmed)) {
+    if (cleanPortal && Platform.OS === 'android') {
+      try {
+        const portalHost = new URL(cleanPortal).hostname;
+        const imgUrl = new URL(trimmed);
+        if ((imgUrl.hostname === 'localhost' || imgUrl.hostname === '127.0.0.1') && portalHost && portalHost !== imgUrl.hostname) {
+          imgUrl.hostname = portalHost;
+          return imgUrl.toString();
+        }
+      } catch (e) {}
+    }
+    return trimmed;
+  }
+
+  // Relative path starting with slash
+  if (trimmed.startsWith('/')) {
+    return `${cleanPortal}${trimmed}`;
+  }
+
+  // Path starting with assets/
+  if (trimmed.startsWith('assets/')) {
+    return `${cleanPortal}/${trimmed}`;
+  }
+
+  // Media library image
+  if (trimmed.startsWith('media/') || trimmed.startsWith('media_')) {
+    const filename = trimmed.replace(/^media\//, '');
+    return `${cleanPortal}/assets/images/media/${filename}`;
+  }
+
+  // Default post image
+  return `${cleanPortal}/assets/images/posts/${trimmed}`;
 }
 
 export function AdminPostModal({
@@ -77,7 +121,8 @@ export function AdminPostModal({
       setCategoryId(post.category_id || (categories.length > 0 ? categories[0].id : undefined));
       setStatus(post.status || 'published');
       setIsFeatured(!!post.is_featured);
-      setFeaturedImage(post.featured_image || '');
+      const initialImg = (post as any)?.featured_image_url || post.featured_image || (post as any)?.image || '';
+      setFeaturedImage(initialImg);
       setVideoUrl(post.video_url || '');
       setExcerpt(post.excerpt || '');
       setContent(post.content || '');
@@ -98,8 +143,9 @@ export function AdminPostModal({
               if (fullPost.excerpt !== undefined && fullPost.excerpt !== null) {
                 setExcerpt(fullPost.excerpt);
               }
-              if (fullPost.featured_image) {
-                setFeaturedImage(fullPost.featured_image);
+              const updatedImg = (fullPost as any)?.featured_image_url || fullPost.featured_image || (fullPost as any)?.image;
+              if (updatedImg) {
+                setFeaturedImage(updatedImg);
               }
               if (fullPost.category_id) {
                 setCategoryId(fullPost.category_id);
@@ -164,7 +210,7 @@ export function AdminPostModal({
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
         {/* Header */}
         <View
           style={[
@@ -366,9 +412,7 @@ export function AdminPostModal({
               activeOpacity={0.85}>
               <Image
                 source={{
-                  uri: featuredImage.startsWith('http')
-                    ? featuredImage
-                    : `${portalUrl}/assets/images/posts/${featuredImage}`,
+                  uri: resolveImageUrl(featuredImage, portalUrl),
                 }}
                 style={styles.imagePreview}
                 resizeMode="cover"
@@ -501,7 +545,7 @@ export function AdminPostModal({
           onClose={() => setEditorModalVisible(false)}
           onApply={(formatted) => setContent(formatted)}
         />
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }

@@ -1,6 +1,6 @@
 {
-    "version": "3.2.27",
+    "version": "3.2.28",
     "db_version": 12,
     "last_updated": "2026-10-11",
-    "changelog": "v3.2.27 — Improved dashboard UI with Live Visitors, Ad Clicks & period filters (Today, 7 days, 30 days, Lifetime) and redesigned Media Gallery."
+    "changelog": "v3.2.28 — Enhanced media upload synchronization, resolved featured image edit resolution, modernized media gallery list view, and updated login and modal safe area layouts."
 }

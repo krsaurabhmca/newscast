@@ -320,7 +320,7 @@ export function AdminDashboardTab({
 
       {/* Secondary Quick Summary Pills */}
       <View style={styles.summaryBar}>
-        <View
+        {/* <View
           style={[
             styles.summaryItem,
             { backgroundColor: theme.backgroundElement, borderColor: 'rgba(0,0,0,0.06)' },
@@ -330,7 +330,7 @@ export function AdminDashboardTab({
             {stats?.published_posts ?? 0}
           </Text>
           <Text style={[styles.summaryLbl, { color: theme.textSecondary }]}>Published</Text>
-        </View>
+        </View> */}
 
         <View
           style={[
