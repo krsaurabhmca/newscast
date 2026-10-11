@@ -1,6 +1,6 @@
 {
-    "version": "3.2.29",
+    "version": "3.2.30",
     "db_version": 12,
-    "last_updated": "2026-10-11",
-    "changelog": "v3.2.29 — Fixed API fetch parse error in media sync, enhanced Google AdSense display/image banner formats, and protected article body and cards from intrusive auto-ad injection."
+    "last_updated": "2026-10-12",
+    "changelog": "v3.2.30 — Resolved Google AdSense text-only ad serving by introducing Display Ad slot IDs for rich visual banners, and resolved ad placement intrusion by disabling Auto Ads injection and removing inside-article ad blocks."
 }

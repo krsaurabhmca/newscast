@@ -1,5 +1,16 @@
 [
     {
+        "version": "3.2.30",
+        "date": "2026-10-12",
+        "changes": [
+            "Fix: Solved Google AdSense text-only ad problem by adding Display Ad unit slot IDs (Header, Sidebar, Bottom) for rich image and visual banner ad serving.",
+            "Fix: Solved intrusive inside-content ads by removing ad insertion blocks from within the article body flow and moving bottom ads cleanly after the comments section.",
+            "Fix: Added Google Auto Ads disable toggle in admin settings and loaded AdSense library in manual unit mode to protect article text and news cards from auto-injected ads.",
+            "Feature: Added dedicated controls in Admin Settings for Header, Sidebar, and Bottom Display Ad Slot IDs with full ads.txt synchronization.",
+            "Security/UI: Added MutationObserver client-side purifier to immediately suppress and remove any auto-placed ads violating card or article boundaries."
+        ]
+    },
+    {
         "version": "3.2.29",
         "date": "2026-10-11",
         "changes": [

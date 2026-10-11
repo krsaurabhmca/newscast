@@ -432,8 +432,6 @@ endif; ?>
                 <?php
             endif; ?>
 
-            <?php echo display_ad('content_top', $pdo); ?>
-
             <div class="article-body google-auto-ads-ignore" data-google-auto-ads-excluded="true" data-ad-ignore="true">
                 <?php echo $post['content']; ?>
             </div>
@@ -465,9 +463,7 @@ endif; ?>
                         style="font-size: 13px; font-weight: 600; color: #64748b; display: none;"></span>
                 </div>
             <?php endif; ?>
-
-            <?php echo display_ad('content_bottom', $pdo); ?>
-
+ 
             <?php if (get_setting('comments_enabled', 'no') == 'yes'):
                 // Fetch approved comments for this post
                 $comment_stmt = $pdo->prepare("SELECT * FROM comments WHERE post_id = ? AND status = 'approved' ORDER BY created_at DESC");
@@ -561,6 +557,8 @@ endif; ?>
                     </div>
                 </div>
             <?php endif; ?>
+
+            <?php echo display_ad('content_bottom', $pdo); ?>
 
             <div style="margin-top: 60px; padding-top: 40px; border-top: 2px solid #e2e8f0;">
                 <h3

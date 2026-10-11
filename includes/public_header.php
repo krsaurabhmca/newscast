@@ -425,13 +425,17 @@ endif; ?>
 
     <?php 
     $adsense_pub_id = get_setting('google_adsense_pub_id');
+    $adsense_auto_ads = get_setting('google_adsense_auto_ads', 'no');
     if ($adsense_pub_id): 
         $clean_digits = preg_replace('/[^0-9]/', '', $adsense_pub_id);
         $adsense_client = !empty($clean_digits) ? ('ca-pub-' . $clean_digits) : $adsense_pub_id;
+        // Only load Auto Ads crawler if explicitly enabled; otherwise load manual units library to protect content and cards
+        $adsense_script_url = ($adsense_auto_ads === 'yes') 
+            ? ("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" . htmlspecialchars($adsense_client))
+            : "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
     ?>
-    <!-- Google AdSense Auto Ads & Responsive Display Ads -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?php echo htmlspecialchars($adsense_client); ?>"
-     crossorigin="anonymous"></script>
+    <!-- Google AdSense Library -->
+    <script async src="<?php echo $adsense_script_url; ?>" crossorigin="anonymous"></script>
     <style>
         .ad-container {
             margin: 25px auto;
@@ -452,7 +456,7 @@ endif; ?>
             width: 100%;
             margin: 0 auto;
         }
-        /* Display & Image ad dimensions to ensure rich banners rather than small text strips */
+        /* Display & Image ad dimensions to ensure rich visual banners rather than small text strips */
         .ad-container.ad-sidebar ins.adsbygoogle {
             min-width: 250px;
             min-height: 250px;
@@ -467,27 +471,53 @@ endif; ?>
             min-height: 250px;
         }
 
-        /* Prevent Google Auto Ads from breaking inside article body, content, or news cards */
+        /* Strictly prevent Google Auto Ads from breaking inside article body, content, or news cards */
         .article-body .google-auto-placed,
         .article-body ins.adsbygoogle,
         .article-content .google-auto-placed,
         .article-content ins.adsbygoogle,
         .t2-latest-horizontal-card .google-auto-placed,
-        .t2-latest-horizontal-card ins.adsbygoogle,
+        .t2-latest-horizontal-card ins.adsbygoogle:not(.ad-container ins),
         .t2-popular-card .google-auto-placed,
-        .t2-popular-card ins.adsbygoogle,
+        .t2-popular-card ins.adsbygoogle:not(.ad-container ins),
         .t2-sidebar-widget .google-auto-placed,
         .news-card .google-auto-placed,
-        .news-card ins.adsbygoogle,
-        article .google-auto-placed {
+        .news-card ins.adsbygoogle:not(.ad-container ins),
+        .news-grid .google-auto-placed,
+        .t2-grid .google-auto-placed,
+        article .google-auto-placed,
+        article ins.adsbygoogle:not(.ad-container ins) {
             display: none !important;
             height: 0 !important;
+            max-height: 0 !important;
             min-height: 0 !important;
             overflow: hidden !important;
             margin: 0 !important;
             padding: 0 !important;
+            visibility: hidden !important;
         }
     </style>
+    <script>
+        // Client-side guard: Purge any intrusive auto-placed ad elements injected into content or card elements
+        document.addEventListener('DOMContentLoaded', function() {
+            function purgeIntrusiveAds() {
+                var badElements = document.querySelectorAll('.article-body .google-auto-placed, .article-body ins.adsbygoogle, article .google-auto-placed, .news-card .google-auto-placed, .t2-latest-horizontal-card .google-auto-placed, .t2-popular-card .google-auto-placed');
+                badElements.forEach(function(el) {
+                    if (!el.closest('.ad-container')) {
+                        el.style.setProperty('display', 'none', 'important');
+                        if (el.parentNode) {
+                            try { el.parentNode.removeChild(el); } catch(e) {}
+                        }
+                    }
+                });
+            }
+            purgeIntrusiveAds();
+            if (window.MutationObserver) {
+                var observer = new MutationObserver(purgeIntrusiveAds);
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+        });
+    </script>
     <?php endif; ?>
 
     <?php

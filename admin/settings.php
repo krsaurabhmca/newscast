@@ -64,6 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
             $digits = preg_replace('/[^0-9]/', '', $raw);
             return !empty($digits) ? ('ca-pub-' . $digits) : '';
         })(),
+        'google_adsense_auto_ads' => clean($_POST['google_adsense_auto_ads'] ?? 'no'),
+        'google_adsense_slot_header' => preg_replace('/[^0-9]/', '', clean($_POST['google_adsense_slot_header'] ?? '')),
+        'google_adsense_slot_sidebar' => preg_replace('/[^0-9]/', '', clean($_POST['google_adsense_slot_sidebar'] ?? '')),
+        'google_adsense_slot_bottom' => preg_replace('/[^0-9]/', '', clean($_POST['google_adsense_slot_bottom'] ?? '')),
         'google_site_verify' => clean($_POST['google_site_verify']),
         'bing_site_verify' => clean($_POST['bing_site_verify']),
         'schema_type' => clean($_POST['schema_type']),
@@ -1126,7 +1130,42 @@ endforeach; ?>
                             <input type="text" name="google_adsense_pub_id" class="form-control"
                                 placeholder="ca-pub-XXXXXXXXXXXXXXXX" value="<?php echo htmlspecialchars(get_setting('google_adsense_pub_id')); ?>">
                         </div>
-                        <span class="field-hint">Your AdSense ID. Enables Auto Ads &amp; responsive display ads across all ad slots. Accepts ca-pub-XXXX or pub-XXXX.</span>
+                        <span class="field-hint">Your AdSense ID (e.g. ca-pub-1234567890123456). Automatically generates root ads.txt.</span>
+                    </div>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-top: 15px;">
+                        <label class="field-label" style="margin-bottom: 6px;">Google Auto Ads (In-page Insertion)</label>
+                        <select name="google_adsense_auto_ads" class="form-control" style="background: white;">
+                            <option value="no" <?php echo (get_setting('google_adsense_auto_ads', 'no') === 'no') ? 'selected' : ''; ?>>
+                                Disabled (Recommended — Protects article text &amp; news cards from auto-injected ads)
+                            </option>
+                            <option value="yes" <?php echo (get_setting('google_adsense_auto_ads') === 'yes') ? 'selected' : ''; ?>>
+                                Enabled (Allows Google AI to place Auto Ads anywhere)
+                            </option>
+                        </select>
+                        <span class="field-hint" style="margin-top: 6px;">Keep "Disabled" to guarantee ads only appear in your dedicated header, sidebar, and bottom banner spots without breaking articles or card grids.</span>
+                    </div>
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin-top: 15px;">
+                        <div style="font-weight: 700; font-size: 13px; color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <i data-feather="image" style="width: 15px; height: 15px;"></i>
+                            Display &amp; Image Ad Unit Slot IDs (For Visual Image &amp; Banner Ads)
+                        </div>
+                        <p style="font-size: 11.5px; color: #15803d; margin-bottom: 12px; line-height: 1.5;">
+                            In your Google AdSense console (&rarr; <strong>Ads</strong> &rarr; <strong>By ad unit</strong> &rarr; <strong>Display ads</strong>), create responsive Display Ad units. Entering their 10-digit Slot IDs tells Google to serve visual image banner ads instead of plain text links.
+                        </p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                            <div>
+                                <label style="font-size: 11px; font-weight: 700; color: #374151; display: block; margin-bottom: 4px;">Header Display Slot ID</label>
+                                <input type="text" name="google_adsense_slot_header" class="form-control" placeholder="e.g. 1234567890" value="<?php echo htmlspecialchars(get_setting('google_adsense_slot_header')); ?>" style="background: white;">
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; font-weight: 700; color: #374151; display: block; margin-bottom: 4px;">Sidebar Display Slot ID</label>
+                                <input type="text" name="google_adsense_slot_sidebar" class="form-control" placeholder="e.g. 1234567890" value="<?php echo htmlspecialchars(get_setting('google_adsense_slot_sidebar')); ?>" style="background: white;">
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; font-weight: 700; color: #374151; display: block; margin-bottom: 4px;">Bottom / Article End Slot ID</label>
+                                <input type="text" name="google_adsense_slot_bottom" class="form-control" placeholder="e.g. 1234567890" value="<?php echo htmlspecialchars(get_setting('google_adsense_slot_bottom')); ?>" style="background: white;">
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <label class="field-label">Google Search Console Verify (Meta Tag)</label>

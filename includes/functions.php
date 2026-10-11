@@ -333,29 +333,41 @@ function display_ad($location, $pdo)
     // Fallback: Check if Google AdSense is connected
     $adsense_pub_id = get_setting('google_adsense_pub_id');
     if (!empty($adsense_pub_id)) {
+        // Do not auto-inject generic fallback ads inside post content or content top
+        if ($location === 'content_top') {
+            return '';
+        }
+
         $clean_digits = preg_replace('/[^0-9]/', '', $adsense_pub_id);
         if (!empty($clean_digits)) {
             $client_id = 'ca-pub-' . $clean_digits;
 
-            // Tailor format to location to trigger rich Display / Image banner ads
+            // Fetch dedicated Display Ad slot IDs configured in admin settings
+            $slot_id = '';
             $ad_format = 'auto';
             $extra_style = 'min-height: 90px;';
+
             if ($location === 'sidebar') {
+                $slot_id = preg_replace('/[^0-9]/', '', get_setting('google_adsense_slot_sidebar', ''));
                 $ad_format = 'rectangle, vertical';
                 $extra_style = 'min-width: 250px; min-height: 250px;';
-            } elseif ($location === 'content_bottom' || $location === 'article_bottom') {
+            } elseif ($location === 'content_bottom' || $location === 'article_bottom' || $location === 'bottom') {
+                $slot_id = preg_replace('/[^0-9]/', '', get_setting('google_adsense_slot_bottom', ''));
                 $ad_format = 'rectangle, horizontal';
                 $extra_style = 'min-height: 250px;';
-            } elseif ($location === 'header' || $location === 'content_top') {
+            } elseif ($location === 'header') {
+                $slot_id = preg_replace('/[^0-9]/', '', get_setting('google_adsense_slot_header', ''));
                 $ad_format = 'horizontal';
-                $extra_style = 'min-height: 90px;';
+                $extra_style = 'min-height: 90px; max-height: 280px;';
             }
+
+            $slot_attr = !empty($slot_id) ? ' data-ad-slot="' . htmlspecialchars($slot_id) . '"' : '';
 
             $html = '<div class="ad-container ad-' . htmlspecialchars($location) . '" style="margin: 25px auto; clear: both; text-align: center;">';
             $html .= '<span style="display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Advertisement</span>';
             $html .= '<ins class="adsbygoogle"
                          style="display:block; width:100%; ' . $extra_style . '"
-                         data-ad-client="' . htmlspecialchars($client_id) . '"
+                         data-ad-client="' . htmlspecialchars($client_id) . '"' . $slot_attr . '
                          data-ad-format="' . $ad_format . '"
                          data-full-width-responsive="true"></ins>';
             $html .= '<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>';
