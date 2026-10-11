@@ -19,6 +19,13 @@ export interface PortalInfo {
   server_time?: string;
 }
 
+export interface PeriodMetrics {
+  today: number;
+  seven_days: number;
+  thirty_days: number;
+  lifetime: number;
+}
+
 export interface DashboardStats {
   total_posts: number;
   published_posts: number;
@@ -28,6 +35,10 @@ export interface DashboardStats {
   total_categories: number;
   total_users: number;
   unread_feedback: number;
+  live_visitors?: number;
+  ad_clicks?: PeriodMetrics;
+  views_by_period?: PeriodMetrics;
+  posts_by_period?: PeriodMetrics;
 }
 
 export interface PostItem {

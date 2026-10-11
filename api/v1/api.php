@@ -252,6 +252,57 @@ switch($action) {
             $unread_feedback = (int)$pdo->query("SELECT COUNT(*) FROM feedback WHERE status='new'")->fetchColumn();
         } catch (Exception $e) {}
 
+        // Live Visitors (active in last 5 minutes)
+        $live_visitors = 0;
+        try {
+            $live_visitors = (int)$pdo->query("SELECT COUNT(DISTINCT ip_address) FROM post_views_logs WHERE viewed_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)")->fetchColumn();
+        } catch (Exception $e) {
+            $live_visitors = 0;
+        }
+
+        // Ad Clicks Breakdown by Period (Today, 7 days, 30 days, Lifetime)
+        $ad_clicks = [
+            'today' => 0,
+            'seven_days' => 0,
+            'thirty_days' => 0,
+            'lifetime' => 0
+        ];
+        try {
+            $ad_clicks['today'] = (int)$pdo->query("SELECT COUNT(*) FROM ad_click_logs WHERE DATE(clicked_at) = CURDATE()")->fetchColumn();
+            $ad_clicks['seven_days'] = (int)$pdo->query("SELECT COUNT(*) FROM ad_click_logs WHERE clicked_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetchColumn();
+            $ad_clicks['thirty_days'] = (int)$pdo->query("SELECT COUNT(*) FROM ad_click_logs WHERE clicked_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)")->fetchColumn();
+            $ad_clicks['lifetime'] = (int)$pdo->query("SELECT COUNT(*) FROM ad_click_logs")->fetchColumn();
+        } catch (Exception $e) {
+            try {
+                $ad_clicks['lifetime'] = (int)$pdo->query("SELECT COALESCE(SUM(clicks), 0) FROM ads")->fetchColumn();
+            } catch (Exception $e2) {}
+        }
+
+        // Views Breakdown by Period
+        $views_by_period = [
+            'today' => 0,
+            'seven_days' => 0,
+            'thirty_days' => 0,
+            'lifetime' => $total_views
+        ];
+        try {
+            $views_by_period['today'] = (int)$pdo->query("SELECT COUNT(*) FROM post_views_logs WHERE DATE(viewed_at) = CURDATE()")->fetchColumn();
+            $views_by_period['seven_days'] = (int)$pdo->query("SELECT COUNT(*) FROM post_views_logs WHERE viewed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetchColumn();
+            $views_by_period['thirty_days'] = (int)$pdo->query("SELECT COUNT(*) FROM post_views_logs WHERE viewed_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)")->fetchColumn();
+        } catch (Exception $e) {}
+
+        // Posts Published by Period
+        $posts_by_period = [
+            'today' => $today_posts,
+            'seven_days' => 0,
+            'thirty_days' => 0,
+            'lifetime' => $total_posts
+        ];
+        try {
+            $posts_by_period['seven_days'] = (int)$pdo->query("SELECT COUNT(*) FROM posts WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetchColumn();
+            $posts_by_period['thirty_days'] = (int)$pdo->query("SELECT COUNT(*) FROM posts WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)")->fetchColumn();
+        } catch (Exception $e) {}
+
         // Recent Posts
         $recent_stmt = $pdo->query("
             SELECT p.id, p.title, p.status, p.created_at, p.published_at, p.views, p.slug, p.featured_image, p.is_featured,
@@ -280,7 +331,11 @@ switch($action) {
                 'total_views' => $total_views,
                 'total_categories' => $total_categories,
                 'total_users' => $total_users,
-                'unread_feedback' => $unread_feedback
+                'unread_feedback' => $unread_feedback,
+                'live_visitors' => $live_visitors,
+                'ad_clicks' => $ad_clicks,
+                'views_by_period' => $views_by_period,
+                'posts_by_period' => $posts_by_period
             ],
             'live_stream' => [
                 'enabled' => $live_enabled,

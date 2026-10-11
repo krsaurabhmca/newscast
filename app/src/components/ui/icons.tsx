@@ -583,6 +583,21 @@ export const LayoutGrid = createIcon(() => (
   </>
 ));
 
+export const MousePointerClick = createIcon(() => (
+  <>
+    <Path d="m9 9 5 12 1.8-5.2L21 14Z" />
+    <Path d="M7.2 2.2 8 5.1" />
+    <Path d="m5.1 8-2.9-.8" />
+    <Path d="M14 4.1 12 6" />
+    <Path d="m6 12-1.9 2" />
+  </>
+));
+
+export const Activity = createIcon(() => (
+  <Polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+));
+
+
 
 
 
