@@ -1,5 +1,17 @@
 [
     {
+        "version": "3.2.26",
+        "date": "2026-10-11",
+        "changes": [
+            "Feature: Integrated true Quill RTF WYSIWYG HTML editor for mobile admin app with full web admin toolbars (Font, Size, Headings, Formatting, Colors, Lists, Media, and Clean).",
+            "Fix: Fixed mobile article edit mode to render existing HTML content as rich text without exposing raw HTML tags.",
+            "UI/UX: Rearranged article card actions into a dedicated full-width footer row to ensure Delete and Edit buttons are never clipped or hidden.",
+            "Security/Feature: Added secure Admin Password Change feature in mobile settings and backend API endpoint.",
+            "Feature: Added interactive 16-color theme palette picker for Accent Theme Color in mobile admin settings.",
+            "Fix: Fixed mobile media library pagination and API query string handling for uploaded media assets."
+        ]
+    },
+    {
         "version": "3.2.25",
         "date": "2026-09-21",
         "changes": [
