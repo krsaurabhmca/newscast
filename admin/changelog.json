@@ -1,5 +1,16 @@
 [
     {
+        "version": "3.2.27",
+        "date": "2026-10-11",
+        "changes": [
+            "UI/Analytics: Enhanced dashboard with real-time Live Visitors beacon (active in last 5 minutes) and dedicated Ad Clicks interaction tracking.",
+            "Feature: Added interactive timeframe filter to dashboard analytics: Today (default), 7 Days, 30 Days, and Lifetime.",
+            "API: Updated admin_dashboard endpoint to compute and return live visitors and metrics breakdown across all 4 timeframes.",
+            "UI/UX: Redesigned Media Gallery screen with 2-column card grid, list view toggle, format badges, and full-screen image inspector modal.",
+            "Feature: Added native Camera capture support in addition to photo library uploads for the Media Library."
+        ]
+    },
+    {
         "version": "3.2.26",
         "date": "2026-10-11",
         "changes": [

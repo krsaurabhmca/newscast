@@ -1,6 +1,6 @@
 {
-    "version": "3.2.26",
+    "version": "3.2.27",
     "db_version": 12,
     "last_updated": "2026-10-11",
-    "changelog": "v3.2.26 — Integrated full Quill RTF WYSIWYG HTML editor for mobile admin, rearranged article card actions, and added admin password change."
+    "changelog": "v3.2.27 — Improved dashboard UI with Live Visitors, Ad Clicks & period filters (Today, 7 days, 30 days, Lifetime) and redesigned Media Gallery."
 }
