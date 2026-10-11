@@ -23,6 +23,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  Camera,
 } from '@/components/ui/icons';
 import { MediaItem, getMediaList, uploadMediaImage, deleteMediaItem } from '@/utils/api';
 import { Spacing } from '@/constants/theme';
@@ -124,6 +125,45 @@ export function AdminMediaPickerModal({
     }
   };
 
+  const handlePickFromCamera = async () => {
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('Permission Required', 'Camera access is needed to capture photos');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: false,
+        quality: 0.85,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets[0]?.base64) {
+        setUploading(true);
+        const base64Data = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        const uploaded = await uploadMediaImage(portalUrl, base64Data);
+
+        await loadMedia(1);
+        if (onSelectImage && uploaded.file_url) {
+          onSelectImage({
+            id: 0,
+            filename: uploaded.file_name,
+            original_name: uploaded.file_name,
+            file_url: uploaded.file_url,
+            file_size: 0,
+            created_at: new Date().toISOString(),
+          });
+          onClose();
+        }
+      }
+    } catch (err: any) {
+      Alert.alert('Upload Failed', err.message || 'Error capturing image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSelectItem = (item: MediaItem) => {
     setSelectedItem(item);
     if (onSelectImage) {
@@ -182,10 +222,17 @@ export function AdminMediaPickerModal({
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
                   <>
-                    <Upload size={13} color="#fff" strokeWidth={2.4} style={{ marginRight: 5 }} />
+                    <Upload size={13} color="#fff" strokeWidth={2.4} style={{ marginRight: 4 }} />
                     <Text style={styles.uploadBtnText}>Upload</Text>
                   </>
                 )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.cameraActionBtn, { backgroundColor: theme.backgroundSelected }]}
+                onPress={handlePickFromCamera}
+                disabled={uploading}>
+                <Camera size={14} color={theme.text} strokeWidth={2.2} />
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
@@ -232,16 +279,25 @@ export function AdminMediaPickerModal({
               <Text style={[styles.emptySub, { color: theme.textSecondary }]}>
                 Upload photos to use across articles and portal pages.
               </Text>
-              <TouchableOpacity style={styles.uploadBtn} onPress={handlePickFromDevice}>
-                <Upload size={13} color="#fff" strokeWidth={2.4} style={{ marginRight: 5 }} />
-                <Text style={styles.uploadBtnText}>Upload from Device</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 6 }}>
+                <TouchableOpacity style={styles.uploadBtn} onPress={handlePickFromDevice}>
+                  <Upload size={13} color="#fff" strokeWidth={2.4} style={{ marginRight: 5 }} />
+                  <Text style={styles.uploadBtnText}>Upload Photos</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.cameraActionBtn, { backgroundColor: theme.backgroundSelected, paddingHorizontal: 12, width: 'auto', flexDirection: 'row', gap: 4 }]}
+                  onPress={handlePickFromCamera}>
+                  <Camera size={14} color={theme.text} />
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: theme.text }}>Camera</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           ) : (
             <ScrollView contentContainerStyle={styles.gridContent} showsVerticalScrollIndicator={false}>
               <View style={styles.grid}>
                 {items.map((item) => {
                   const isSelected = selectedItem?.id === item.id;
+                  const ext = (item.filename.split('.').pop() || 'IMG').toUpperCase();
                   return (
                     <TouchableOpacity
                       key={item.id}
@@ -252,22 +308,25 @@ export function AdminMediaPickerModal({
                       ]}
                       onPress={() => handleSelectItem(item)}
                       activeOpacity={0.8}>
-                      <Image
-                        source={{ uri: item.file_url }}
-                        style={styles.thumbnail}
-                        resizeMode="cover"
-                      />
+                      <View style={{ position: 'relative' }}>
+                        <Image
+                          source={{ uri: item.file_url }}
+                          style={styles.thumbnail}
+                          resizeMode="cover"
+                        />
+                        <View style={styles.extBadgeTag}>
+                          <Text style={styles.extBadgeTagText}>{ext}</Text>
+                        </View>
+                      </View>
 
                       <View style={styles.itemMeta}>
                         <Text style={[styles.fileName, { color: theme.text }]} numberOfLines={1}>
                           {item.original_name || item.filename}
                         </Text>
                         <Text style={[styles.fileDim, { color: theme.textSecondary }]}>
-                          {item.width && item.height
-                            ? `${item.width}x${item.height}`
-                            : item.file_size
-                              ? `${Math.round(item.file_size / 1024)} KB`
-                              : ''}
+                          {item.file_size
+                            ? `${Math.round(item.file_size / 1024)} KB`
+                            : ''}
                         </Text>
                       </View>
 
@@ -470,6 +529,27 @@ const styles = StyleSheet.create({
   },
   pageInfo: {
     fontSize: 12,
+  },
+  cameraActionBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  extBadgeTag: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 3,
+  },
+  extBadgeTagText: {
+    color: '#fff',
+    fontSize: 8,
+    fontWeight: '800',
   },
   btnDisabled: {
     opacity: 0.5,
