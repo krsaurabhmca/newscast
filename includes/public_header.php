@@ -434,7 +434,7 @@ endif; ?>
      crossorigin="anonymous"></script>
     <style>
         .ad-container {
-            margin: 20px auto;
+            margin: 25px auto;
             text-align: center;
             max-width: 100%;
             overflow: hidden;
@@ -442,16 +442,50 @@ endif; ?>
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            clear: both;
         }
         .ad-container:has(ins.adsbygoogle[data-ad-status="unfilled"]) {
             display: none !important;
         }
         .ad-container ins.adsbygoogle {
             display: block !important;
-            min-width: 250px;
-            min-height: 90px;
             width: 100%;
             margin: 0 auto;
+        }
+        /* Display & Image ad dimensions to ensure rich banners rather than small text strips */
+        .ad-container.ad-sidebar ins.adsbygoogle {
+            min-width: 250px;
+            min-height: 250px;
+        }
+        .ad-container.ad-header ins.adsbygoogle,
+        .ad-container.ad-content_top ins.adsbygoogle {
+            min-height: 90px;
+            max-height: 280px;
+        }
+        .ad-container.ad-content_bottom ins.adsbygoogle,
+        .ad-container.ad-article_bottom ins.adsbygoogle {
+            min-height: 250px;
+        }
+
+        /* Prevent Google Auto Ads from breaking inside article body, content, or news cards */
+        .article-body .google-auto-placed,
+        .article-body ins.adsbygoogle,
+        .article-content .google-auto-placed,
+        .article-content ins.adsbygoogle,
+        .t2-latest-horizontal-card .google-auto-placed,
+        .t2-latest-horizontal-card ins.adsbygoogle,
+        .t2-popular-card .google-auto-placed,
+        .t2-popular-card ins.adsbygoogle,
+        .t2-sidebar-widget .google-auto-placed,
+        .news-card .google-auto-placed,
+        .news-card ins.adsbygoogle,
+        article .google-auto-placed {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
     </style>
     <?php endif; ?>

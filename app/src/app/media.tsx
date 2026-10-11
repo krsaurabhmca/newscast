@@ -15,6 +15,7 @@ import {
   Linking,
   RefreshControl,
   Share,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'react-native';
@@ -117,10 +118,12 @@ export default function MediaScreen() {
   // Upload from Device Library
   const handleUploadFromLibrary = async () => {
     try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) {
-        Alert.alert('Permission Required', 'Access to photos is needed to upload');
-        return;
+      if (Platform.OS === 'ios') {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) {
+          Alert.alert('Permission Required', 'Access to photos is needed to upload');
+          return;
+        }
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({

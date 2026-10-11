@@ -823,7 +823,6 @@ switch($action) {
                 }
             }
         } catch (PDOException $e) {}
-        } catch (PDOException $e) {}
 
         // Fallback / complement from directory scan if media_library has few files
         if (empty($items)) {

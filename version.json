@@ -1,6 +1,6 @@
 {
-    "version": "3.2.28",
+    "version": "3.2.29",
     "db_version": 12,
     "last_updated": "2026-10-11",
-    "changelog": "v3.2.28 — Enhanced media upload synchronization, resolved featured image edit resolution, modernized media gallery list view, and updated login and modal safe area layouts."
+    "changelog": "v3.2.29 — Fixed API fetch parse error in media sync, enhanced Google AdSense display/image banner formats, and protected article body and cards from intrusive auto-ad injection."
 }

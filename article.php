@@ -434,7 +434,7 @@ endif; ?>
 
             <?php echo display_ad('content_top', $pdo); ?>
 
-            <div class="article-body">
+            <div class="article-body google-auto-ads-ignore" data-google-auto-ads-excluded="true" data-ad-ignore="true">
                 <?php echo $post['content']; ?>
             </div>
 
