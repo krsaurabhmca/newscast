@@ -1,6 +1,6 @@
 {
-    "version": "3.2.30",
+    "version": "3.2.31",
     "db_version": 12,
-    "last_updated": "2026-10-12",
-    "changelog": "v3.2.30 — Resolved Google AdSense text-only ad serving by introducing Display Ad slot IDs for rich visual banners, and resolved ad placement intrusion by disabling Auto Ads injection and removing inside-article ad blocks."
+    "last_updated": "2026-10-29",
+    "changelog": "v3.2.31 — Restored Google AdSense Auto Ads integration by default, removed destructive DOM purger and blocking CSS, enabling seamless Auto Ads display across approved domains."
 }

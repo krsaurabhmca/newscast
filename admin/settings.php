@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
             $digits = preg_replace('/[^0-9]/', '', $raw);
             return !empty($digits) ? ('ca-pub-' . $digits) : '';
         })(),
-        'google_adsense_auto_ads' => clean($_POST['google_adsense_auto_ads'] ?? 'no'),
+        'google_adsense_auto_ads' => clean($_POST['google_adsense_auto_ads'] ?? 'yes'),
         'google_adsense_slot_header' => preg_replace('/[^0-9]/', '', clean($_POST['google_adsense_slot_header'] ?? '')),
         'google_adsense_slot_sidebar' => preg_replace('/[^0-9]/', '', clean($_POST['google_adsense_slot_sidebar'] ?? '')),
         'google_adsense_slot_bottom' => preg_replace('/[^0-9]/', '', clean($_POST['google_adsense_slot_bottom'] ?? '')),
@@ -1135,14 +1135,14 @@ endforeach; ?>
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-top: 15px;">
                         <label class="field-label" style="margin-bottom: 6px;">Google Auto Ads (In-page Insertion)</label>
                         <select name="google_adsense_auto_ads" class="form-control" style="background: white;">
-                            <option value="no" <?php echo (get_setting('google_adsense_auto_ads', 'no') === 'no') ? 'selected' : ''; ?>>
-                                Disabled (Recommended — Protects article text &amp; news cards from auto-injected ads)
+                            <option value="yes" <?php echo (get_setting('google_adsense_auto_ads', 'yes') === 'yes') ? 'selected' : ''; ?>>
+                                Enabled (Recommended — Allows Google AdSense to serve Auto Ads automatically)
                             </option>
-                            <option value="yes" <?php echo (get_setting('google_adsense_auto_ads') === 'yes') ? 'selected' : ''; ?>>
-                                Enabled (Allows Google AI to place Auto Ads anywhere)
+                            <option value="no" <?php echo (get_setting('google_adsense_auto_ads', 'yes') === 'no') ? 'selected' : ''; ?>>
+                                Disabled (Manual display ad units only)
                             </option>
                         </select>
-                        <span class="field-hint" style="margin-top: 6px;">Keep "Disabled" to guarantee ads only appear in your dedicated header, sidebar, and bottom banner spots without breaking articles or card grids.</span>
+                        <span class="field-hint" style="margin-top: 6px;">Enable this if Auto Ads is turned on in your Google AdSense account.</span>
                     </div>
                     <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin-top: 15px;">
                         <div style="font-weight: 700; font-size: 13px; color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">

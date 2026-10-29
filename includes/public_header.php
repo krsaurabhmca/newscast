@@ -425,12 +425,12 @@ endif; ?>
 
     <?php 
     $adsense_pub_id = get_setting('google_adsense_pub_id');
-    $adsense_auto_ads = get_setting('google_adsense_auto_ads', 'no');
+    $adsense_auto_ads = get_setting('google_adsense_auto_ads', 'yes');
     if ($adsense_pub_id): 
         $clean_digits = preg_replace('/[^0-9]/', '', $adsense_pub_id);
         $adsense_client = !empty($clean_digits) ? ('ca-pub-' . $clean_digits) : $adsense_pub_id;
-        // Only load Auto Ads crawler if explicitly enabled; otherwise load manual units library to protect content and cards
-        $adsense_script_url = ($adsense_auto_ads === 'yes') 
+        // Load Auto Ads crawler with client parameter when enabled; otherwise load manual units library
+        $adsense_script_url = ($adsense_auto_ads !== 'no') 
             ? ("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" . htmlspecialchars($adsense_client))
             : "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
     ?>
@@ -471,53 +471,15 @@ endif; ?>
             min-height: 250px;
         }
 
-        /* Strictly prevent Google Auto Ads from breaking inside article body, content, or news cards */
-        .article-body .google-auto-placed,
-        .article-body ins.adsbygoogle,
-        .article-content .google-auto-placed,
-        .article-content ins.adsbygoogle,
-        .t2-latest-horizontal-card .google-auto-placed,
-        .t2-latest-horizontal-card ins.adsbygoogle:not(.ad-container ins),
-        .t2-popular-card .google-auto-placed,
-        .t2-popular-card ins.adsbygoogle:not(.ad-container ins),
-        .t2-sidebar-widget .google-auto-placed,
-        .news-card .google-auto-placed,
-        .news-card ins.adsbygoogle:not(.ad-container ins),
-        .news-grid .google-auto-placed,
-        .t2-grid .google-auto-placed,
-        article .google-auto-placed,
-        article ins.adsbygoogle:not(.ad-container ins) {
-            display: none !important;
-            height: 0 !important;
-            max-height: 0 !important;
-            min-height: 0 !important;
+        /* Ensure Google Auto Ads render cleanly and responsively */
+        .google-auto-placed {
+            margin: 20px auto !important;
+            max-width: 100% !important;
+            text-align: center !important;
+            clear: both !important;
             overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            visibility: hidden !important;
         }
     </style>
-    <script>
-        // Client-side guard: Purge any intrusive auto-placed ad elements injected into content or card elements
-        document.addEventListener('DOMContentLoaded', function() {
-            function purgeIntrusiveAds() {
-                var badElements = document.querySelectorAll('.article-body .google-auto-placed, .article-body ins.adsbygoogle, article .google-auto-placed, .news-card .google-auto-placed, .t2-latest-horizontal-card .google-auto-placed, .t2-popular-card .google-auto-placed');
-                badElements.forEach(function(el) {
-                    if (!el.closest('.ad-container')) {
-                        el.style.setProperty('display', 'none', 'important');
-                        if (el.parentNode) {
-                            try { el.parentNode.removeChild(el); } catch(e) {}
-                        }
-                    }
-                });
-            }
-            purgeIntrusiveAds();
-            if (window.MutationObserver) {
-                var observer = new MutationObserver(purgeIntrusiveAds);
-                observer.observe(document.body, { childList: true, subtree: true });
-            }
-        });
-    </script>
     <?php endif; ?>
 
     <?php

@@ -1,5 +1,15 @@
 [
     {
+        "version": "3.2.31",
+        "date": "2026-10-29",
+        "changes": [
+            "Fix: Restored Google AdSense Auto Ads integration by ensuring auto-ads client parameter is attached to pagead script tag by default.",
+            "Fix: Removed destructive client-side MutationObserver script that was automatically deleting in-page and article auto-placed ads.",
+            "Fix: Removed blocking CSS that was hiding .google-auto-placed and ins.adsbygoogle elements inside articles and content grids.",
+            "UI/UX: Standardized Auto Ads container styling with responsive max-width and clean margin spacing."
+        ]
+    },
+    {
         "version": "3.2.30",
         "date": "2026-10-12",
         "changes": [
